@@ -1,0 +1,421 @@
+[
+  {
+    "id": "d4-bus-021",
+    "domain": 4,
+    "topic": "Architecture decision records",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company's platform team keeps re-debating decisions that were made months earlier, such as why Cloud SQL was chosen over AlloyDB and why a Shared VPC was adopted. New engineers cannot find the rationale, and senior engineers have left. The head of engineering wants decisions to stick and be understood. What should you recommend?",
+    "options": [
+      "Record every decision in the minutes of the weekly architecture meeting and email them to the team.",
+      "Adopt architecture decision records (ADRs) stored alongside the code in the repository, each capturing context, options considered, the decision, and its consequences, and require an ADR for significant changes.",
+      "Create a wiki page listing the services the company uses and the date each was adopted.",
+      "Require the CTO to personally approve any proposal to revisit a past decision."
+    ],
+    "answer": [1],
+    "explanation": "ADRs are a lightweight, Google-recommended practice for making the reasoning behind significant decisions durable and discoverable; because they record the alternatives considered and the trade-offs accepted, they let new engineers understand why, and allow decisions to be superseded deliberately rather than relitigated informally. Option A buries decisions in meeting minutes that are hard to find and lack structured context. Option C records what was chosen but not why, which is the missing information. Option D makes the CTO a gatekeeper rather than fixing the knowledge gap, and discourages legitimate re-evaluation when context changes.",
+    "refs": [
+      "https://cloud.google.com/architecture/architecture-decision-records"
+    ]
+  },
+  {
+    "id": "d4-bus-022",
+    "domain": 4,
+    "topic": "Build vs buy",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mid-size HR services company needs an internal IT ticketing and asset management system. Its 12-person engineering team is fully occupied building the customer-facing payroll product, which is the company's differentiator. The COO asks whether the team should build the ticketing system on Google Cloud. What should you recommend?",
+    "options": [
+      "Build a custom ticketing system on Cloud Run and Firestore because the team already knows those services.",
+      "Build the system on Compute Engine using an open-source ticketing package to retain full control.",
+      "Assign two engineers to build a minimal version and expand it over time.",
+      "Buy a SaaS ticketing solution, for example through Google Cloud Marketplace, and keep engineering capacity focused on the differentiating payroll product."
+    ],
+    "answer": [3],
+    "explanation": "The deciding factor in build-versus-buy is whether the capability differentiates the business; ticketing is a commodity, so buying preserves scarce engineering capacity for the payroll product where custom development creates competitive value. Option A and option B both consume engineering time and create a system that must be maintained indefinitely. Option C still diverts scarce engineers and typically yields a system that is worse than commercial alternatives. Workload disposition (build, buy, modify, deprecate) is an explicit PCA consideration, and the cost optimization pillar stresses focusing spend on business value.",
+    "refs": [
+      "https://cloud.google.com/marketplace/docs",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d4-bus-023",
+    "domain": 4,
+    "topic": "TCO modeling",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank's finance team produced an analysis concluding that Google Cloud would be 40% more expensive than its current data center. On inspection, the analysis compares the three-year purchase price of the existing servers against a three-year estimate of on-demand Compute Engine list prices for identically sized VMs. The CIO asks you to review the model before it goes to the board. What should you do?",
+    "options": [
+      "Rebuild the model as a full TCO comparison: include data center facilities, power and cooling, network, hardware refresh, software licenses, and staff costs on the on-premises side, and apply rightsizing from Migration Center assessment data and committed use discounts on the cloud side.",
+      "Accept the finance team's model but recommend Spot VMs for all workloads to close the 40% gap.",
+      "Reject the model and instead present the cloud option purely on agility benefits, since costs cannot be compared meaningfully.",
+      "Ask Google for a larger discount so that the on-demand estimate matches the server purchase price."
+    ],
+    "answer": [0],
+    "explanation": "The finance model is flawed on both sides: it omits the majority of on-premises costs (facilities, power, networking, refresh cycles, licenses and staff) and inflates cloud costs by assuming like-for-like sizing at on-demand list price rather than rightsized capacity with committed use discounts; a credible TCO corrects both, ideally using Migration Center's utilization data and TCO reporting. Option B applies Spot VMs to workloads that cannot tolerate preemption, such as core banking systems, to paper over a modeling error. Option C dodges the financial question, which a board will not accept. Option D treats the symptom (a number) rather than the flawed method and is unlikely to succeed.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d4-bus-024",
+    "domain": 4,
+    "topic": "Proof of concept",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing marketplace must choose between Spanner and AlloyDB for a new order service that will experience extreme spikes when popular events go on sale. The team has read the documentation but cannot agree on which database will meet the p99 latency target under peak write load, and the vendor benchmarks do not match their access pattern. Which decision-making approach should you recommend?",
+    "options": [
+      "Choose Spanner because it offers the higher availability SLA and revisit the decision after launch if latency is a problem.",
+      "Choose AlloyDB because the team already knows PostgreSQL, and rely on read pools to absorb spikes.",
+      "Run a time-boxed proof of concept for both databases with a representative schema and load profile, define measurable success criteria (p99 latency, cost at peak, operational effort) up front, and decide based on the results.",
+      "Escalate the decision to the CTO and ask for a ruling within the week."
+    ],
+    "answer": [2],
+    "explanation": "When the decision depends on empirical behaviour under a specific access pattern, a time-boxed PoC with pre-agreed success criteria is the appropriate decision-making tool; defining the criteria before testing prevents the results from being interpreted to fit a preference. Option A and option B each pick on a single attribute (SLA or familiarity) without evidence on the critical requirement, peak write latency, and a post-launch database change is very costly. Option D transfers the decision to someone with less information rather than generating the missing information.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/performance-optimization",
+      "https://cloud.google.com/spanner/docs/overview"
+    ]
+  },
+  {
+    "id": "d4-bus-025",
+    "domain": 4,
+    "topic": "Risk register",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government agency's cloud migration program has been surprised twice: once by a vendor license that did not permit cloud deployment, and once by a Dedicated Interconnect lead time of several months. The program board wants such issues anticipated and visible before they become emergencies. What should you introduce?",
+    "options": [
+      "A weekly email from each workstream lead listing what went wrong in the previous week.",
+      "A program risk register in which each risk has a probability and impact rating, an owner, a mitigation plan and a trigger, reviewed at every steering committee meeting with the top risks escalated to the sponsor.",
+      "A change advisory board that must approve every technical change in the program.",
+      "A requirement that all vendors and carriers sign contracts before any migration planning starts."
+    ],
+    "answer": [1],
+    "explanation": "A risk register is the standard decision-support artifact for surfacing uncertain future events, quantifying them, assigning ownership and tracking mitigation; reviewing it regularly with governance forums turns surprises into managed risks such as license restrictions and connectivity lead times. Option A is retrospective reporting of issues, not anticipation of risks. Option C controls changes but does not identify external risks such as procurement lead times. Option D is impractical and would delay the program without addressing the broader class of risks.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview"
+    ]
+  },
+  {
+    "id": "d4-bus-026",
+    "domain": 4,
+    "topic": "SLA vs SLO",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A B2B SaaS company measures its API availability with an internal SLO of 99.9% per month. The head of sales proposes writing 99.9% availability into customer contracts with service credits for breaches, arguing 'we already hit that target'. As the architect, what should you advise?",
+    "options": [
+      "Agree, because the SLO and SLA should always be identical to keep reporting simple.",
+      "Raise the internal SLO to 99.99% and offer 99.9% in contracts only after the new SLO has been met for a year.",
+      "Remove the internal SLO and manage reliability directly against the contractual SLA.",
+      "Set the contractual SLA looser than the internal SLO (for example 99.5%), so that the SLO acts as an early warning and the company is not paying credits every time it dips slightly below its internal target."
+    ],
+    "answer": [3],
+    "explanation": "An SLA is a contractual commitment with financial consequences, whereas an SLO is an internal target used to drive engineering decisions; Google's SRE guidance is to keep the SLO stricter than the SLA so that breaching the internal target triggers action before customers are owed credits. Option A removes all safety margin and turns every minor SLO miss into a contractual breach. Option B sets an unnecessarily demanding internal target and delays the commercial offer for a year without need. Option C discards the engineering tool that provides the early warning.",
+    "refs": [
+      "https://cloud.google.com/blog/products/devops-sre/sre-fundamentals-slis-slas-and-slos",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d4-bus-027",
+    "domain": 4,
+    "topic": "Error budgets",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "At an online education company, the product organization pushes for weekly feature releases while the SRE team wants to slow releases after a series of outages. Each side escalates to the VP of Engineering, who asks you for a mechanism that lets the two groups make this trade-off objectively rather than through escalation. What should you propose?",
+    "options": [
+      "Define SLOs for the learning platform and agree an error budget policy: while budget remains, product ships at will; when the budget is exhausted, releases are limited to reliability fixes until the budget recovers.",
+      "Require the SRE team to approve every release through a change advisory board.",
+      "Freeze all feature releases for one quarter so that the platform can stabilize.",
+      "Move release approval to the VP of Engineering so that a single person decides each case."
+    ],
+    "answer": [0],
+    "explanation": "An error budget converts the reliability target into a quantified allowance for failure that both product and SRE agree on in advance, making the velocity-versus-reliability trade-off a data-driven business rule rather than a negotiation; this is the SRE practice endorsed in the Well-Architected Framework's reliability pillar. Option B adds a manual gate that slows every release regardless of actual reliability. Option C is a blanket freeze that ignores whether the platform is actually within its reliability target. Option D institutionalizes the escalation the VP wants to eliminate.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability",
+      "https://cloud.google.com/blog/products/devops-sre/sre-fundamentals-slis-slas-and-slos"
+    ]
+  },
+  {
+    "id": "d4-bus-028",
+    "domain": 4,
+    "topic": "Support plans",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A 40-person startup runs its production e-commerce platform on Google Cloud. It currently has no paid support plan. After an incident at 2 a.m. where the team could not reach Google support, the founders want 24/7 access to technical support with a one-hour response time for critical-impact issues, at the lowest cost that meets this need. Which support offering should you recommend?",
+    "options": [
+      "Basic Support, because it is free and includes access to documentation and community forums.",
+      "Standard Support, because it provides unlimited technical support cases.",
+      "Enhanced Support, because it provides 24/7 support for critical-impact cases with a one-hour target response time.",
+      "Premium Support, because it provides a 15-minute response time and a named Technical Account Manager."
+    ],
+    "answer": [2],
+    "explanation": "Enhanced Support is the lowest tier that offers 24/7 coverage with a one-hour target response time for P1 critical-impact cases, so it satisfies the requirement at minimum cost. Option A provides only billing support and community resources, with no technical case handling. Option B provides technical support during business hours only, with a four-hour P2 response target, so it would not have helped at 2 a.m. Option D meets the requirement but adds a Technical Account Manager and a 15-minute response the startup did not ask for, at a much higher price.",
+    "refs": [
+      "https://cloud.google.com/support"
+    ]
+  },
+  {
+    "id": "d4-bus-029",
+    "domain": 4,
+    "topic": "Support plans",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global broadcaster is launching a streaming service on Google Cloud for a major sporting event with tens of millions of expected viewers. The CTO requires a 15-minute response for critical incidents, a named Google contact who understands the architecture, proactive event-readiness reviews before launch, and support for third-party technologies in the stack. Which support offering meets these requirements?",
+    "options": [
+      "Enhanced Support with the Technical Account Advisor add-on.",
+      "Premium Support, which includes a named Technical Account Manager, 15-minute P1 response, Event Management Service and third-party technology support.",
+      "Standard Support plus a consulting engagement with Google Cloud Consulting for the launch.",
+      "Basic Support combined with a Google Cloud partner's managed service contract."
+    ],
+    "answer": [1],
+    "explanation": "Premium Support is the only Customer Care tier that bundles a named Technical Account Manager, a 15-minute target response for P1 cases, event-readiness services for planned high-traffic launches, and support for third-party technologies. Option A improves guidance but Enhanced Support's P1 response target is one hour, not 15 minutes, and it does not include event management. Option C provides consulting but leaves the incident response commitment at business hours only. Option D provides no Google technical support commitment at all, so the 15-minute response requirement cannot be met.",
+    "refs": [
+      "https://cloud.google.com/support"
+    ]
+  },
+  {
+    "id": "d4-bus-030",
+    "domain": 4,
+    "topic": "SLIs",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A travel booking company wants to define SLOs for its search API as part of a customer success initiative. The operations team proposes using average node CPU utilization and the number of running pods as the service level indicators. You want the SLIs to reflect the customer's experience and be usable for an error budget. Which two SLIs should you recommend instead? (Choose two.)",
+    "options": [
+      "The ratio of successful (non-5xx) search requests to total search requests, measured at the external Application Load Balancer.",
+      "Average CPU utilization across the GKE node pool, measured in Cloud Monitoring.",
+      "The number of pods in the Ready state for the search deployment.",
+      "The proportion of search requests served in under 500 ms, measured at the load balancer.",
+      "The total daily count of search requests, measured from application logs."
+    ],
+    "answer": [0, 3],
+    "explanation": "Good SLIs measure what users experience, typically expressed as a ratio of good events to total events, which makes them directly usable for SLOs and error budgets; availability (successful request ratio) and latency (fraction of fast requests) measured as close to the user as possible are the canonical choices. Option B and option C are internal resource metrics that can look healthy while users see errors, and they cannot be expressed as a good-events ratio. Option E measures traffic volume, which is a demand signal rather than a quality signal.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d4-bus-031",
+    "domain": 4,
+    "topic": "Customer success",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A large retailer's platform team launched an internal developer platform on Google Cloud with golden paths for deploying services. Three months later only four of thirty product teams use it, and the platform team does not understand why. The VP of Platform asks you to establish a customer success practice for the platform. What should you do first?",
+    "options": [
+      "Define adoption and satisfaction KPIs, then establish structured feedback loops with product teams (onboarding interviews, regular office hours, and surveys) and use the findings to reprioritize the platform backlog.",
+      "Mandate that all product teams migrate to the platform within one quarter.",
+      "Add more golden paths and features to make the platform more attractive.",
+      "Hire a marketing specialist to promote the platform internally."
+    ],
+    "answer": [0],
+    "explanation": "Customer success starts with understanding customer outcomes: measuring adoption and satisfaction and creating feedback loops reveals whether the barrier is discoverability, missing capabilities, friction, or trust, which then drives the backlog. Option B forces usage without addressing the reasons for low adoption and generates resentment. Option C invests in features without evidence that missing features are the problem. Option D addresses awareness only, which may or may not be the issue. Treating internal teams as customers with measured outcomes is consistent with the operational excellence pillar's continuous improvement principle.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "d4-bus-032",
+    "domain": 4,
+    "topic": "Business impact analysis",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company is defining disaster recovery requirements for 45 applications before migrating them to Google Cloud. Each application owner has stated that their system needs 'zero downtime and zero data loss'. Implementing that for every application would exceed the entire IT budget. How should you derive realistic RTO and RPO targets?",
+    "options": [
+      "Assign every application a uniform RTO of 4 hours and RPO of 1 hour so that the design is consistent and affordable.",
+      "Let each application owner keep their stated targets but implement only what the budget allows, starting alphabetically.",
+      "Run a business impact analysis that quantifies the financial, regulatory and reputational impact of outage duration and data loss for each business process, classify applications into tiers by maximum tolerable downtime, derive RTO and RPO per tier, and map each tier to a DR pattern (cold, warm, hot) with its cost.",
+      "Select the ten applications with the highest infrastructure cost for hot multi-region DR and give the rest backups only."
+    ],
+    "answer": [2],
+    "explanation": "RTO and RPO must be derived from business impact, not from owner preferences or technical convenience: a business impact analysis quantifies the cost of downtime and data loss per process, which lets the organization tier applications, agree targets per tier, and fund DR patterns proportionately, which is exactly what Google's DR planning guide recommends. Option A ignores real differences in impact and will overspend on some systems and under-protect others. Option B leaves unrealistic targets in place and allocates protection arbitrarily. Option D confuses infrastructure cost with business criticality; a cheap application can be the most critical.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d4-bus-033",
+    "domain": 4,
+    "topic": "BCP vs DR",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A regional bank has a thoroughly tested technical disaster recovery plan on Google Cloud: databases replicate to a second region and infrastructure can be recreated with Terraform within the RTO. During a regulatory review, the examiner notes that the bank has a DR plan but not a business continuity plan and asks what would happen if the head office were inaccessible while systems stayed up. Which two elements would a business continuity plan add that the DR plan does not cover? (Choose two.)",
+    "options": [
+      "Automated failover of Cloud SQL instances to the secondary region.",
+      "Procedures for staff to continue critical business operations, including alternate work locations, secure remote access, and manual workarounds for processes whose systems are degraded.",
+      "A crisis management and communication structure defining who declares an incident, who communicates with customers, regulators and the press, and how decisions are made.",
+      "Cross-region replication of Cloud Storage buckets holding regulatory records.",
+      "A shorter RPO for the core banking database."
+    ],
+    "answer": [1, 2],
+    "explanation": "Disaster recovery addresses restoring technology; business continuity addresses keeping the business operating and is broader, covering people, facilities, processes, communications and governance during a crisis. The missing elements are therefore workforce and process continuity (option B) and a crisis management and communication structure (option C). Options A, D and E are technical DR controls that improve recovery of systems but do not address the examiner's scenario, in which the systems are fine and the organization is what is disrupted.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d4-bus-034",
+    "domain": 4,
+    "topic": "DR testing cadence",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare SaaS provider documented a disaster recovery plan for its Google Cloud environment two years ago. Since then the architecture has changed significantly, and the plan has never been executed. A prospective enterprise customer's security questionnaire asks for evidence of DR testing. What should you recommend to close this gap sustainably?",
+    "options": [
+      "Update the DR document to reflect the current architecture and provide it as evidence.",
+      "Perform a one-time DR test before the customer's deadline and archive the results.",
+      "Ask the customer to accept Google Cloud's regional availability SLAs as a substitute for DR testing.",
+      "Establish a recurring DR testing schedule (at least annually and after major architectural changes), automate recovery with Infrastructure as Code so tests are repeatable, and record results and remediation actions as auditable evidence."
+    ],
+    "answer": [3],
+    "explanation": "A DR plan that is not regularly exercised is unproven, and architectural drift over two years makes it likely to fail; the sustainable answer is a defined testing cadence, automation so tests are cheap and repeatable, and a record of outcomes and follow-ups, which is what auditors and enterprise customers expect. Option A produces a document, not evidence of capability. Option B satisfies one questionnaire but repeats the same decay problem. Option C confuses Google's responsibility for infrastructure availability with the customer's responsibility for recovering its own application and data, and does not answer the question asked.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
+    ]
+  },
+  {
+    "id": "d4-bus-035",
+    "domain": 4,
+    "topic": "Crisis communication",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "During a four-hour outage of a payroll SaaS platform, customers received no updates, three different executives posted conflicting explanations on social media, and support agents gave inconsistent timelines. The technical recovery itself went to plan. The CEO asks you to make sure the communication side never fails like this again. What should you put in place?",
+    "options": [
+      "Add more engineers to the on-call rotation so that outages are resolved before customers notice.",
+      "Define a crisis communication plan as part of the business continuity plan: a single incident commander and communications lead, pre-approved message templates, a public status page updated at fixed intervals, internal briefings for support staff, and clear rules on who may speak publicly.",
+      "Disable executives' social media access during incidents.",
+      "Publish a detailed post-incident report after each outage to explain what happened."
+    ],
+    "answer": [1],
+    "explanation": "Business continuity includes managing communication during a crisis; assigning explicit communication roles, using pre-approved templates and a status page with a fixed update cadence, and briefing customer-facing staff keeps messaging consistent and timely regardless of how long the technical recovery takes. Option A addresses recovery time, which was not the problem. Option C is a control on one symptom and not a plan. Option D is valuable for learning but does nothing for customers and staff during the incident, when consistent communication matters most.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence",
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
+    ]
+  },
+  {
+    "id": "d4-bus-036",
+    "domain": 4,
+    "topic": "Dependency mapping",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company ran its first regional DR failover test on Google Cloud. The order management application and its database came up correctly in the secondary region within the RTO, but the application was unusable because it depended on an internal authentication service, a license server and a Pub/Sub topic that were only deployed in the primary region. The COO asks how to prevent this class of failure. What should you recommend?",
+    "options": [
+      "Perform systematic dependency mapping for each tier-1 business service, including upstream and downstream services, third-party endpoints and shared platform components, bring every critical dependency into DR scope, and validate with end-to-end failover tests of the whole business process rather than individual applications.",
+      "Increase the RTO for the order management application so that the dependencies can be recreated manually after failover.",
+      "Deploy all applications in the company as multi-region active-active so that dependencies are always available.",
+      "Add the authentication service and license server to the DR runbook and consider the test passed."
+    ],
+    "answer": [0],
+    "explanation": "The failure is a scoping error caused by missing dependency mapping; recovering a business service requires that its entire dependency graph, including shared platform services and messaging, is recoverable, and only end-to-end tests of the business process prove this. Option B degrades the business target to accommodate a plan gap rather than fixing the plan. Option C is a blanket, very expensive design decision that is disproportionate for most applications and still fails if dependencies are not identified. Option D fixes the three dependencies found in this test but not the process, so the next unknown dependency will cause the same failure.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads"
+    ]
+  },
+  {
+    "id": "d4-bus-037",
+    "domain": 4,
+    "topic": "Regulatory continuity",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An EU-based bank is moving its core payment processing to Google Cloud. Its regulator requires that critical ICT services have documented and tested continuity arrangements, that concentration risk on a single provider is managed, and that the bank can demonstrate a credible exit strategy. The CISO asks how the architecture and processes should reflect these obligations. What should you recommend?",
+    "options": [
+      "Deploy in a single region with Assured Workloads and rely on Google's compliance certifications to satisfy the regulator.",
+      "Keep the payment system on-premises indefinitely because regulatory continuity requirements cannot be met in a public cloud.",
+      "Design multi-region resilience within the EU with tested failover, use portable building blocks (containers, open-source databases or open interfaces) where practical, document a tested exit and data-portability plan, and include continuity testing evidence and third-party risk assessments in the governance process.",
+      "Run the payment system active-active across Google Cloud and a second cloud provider from day one to eliminate concentration risk."
+    ],
+    "answer": [2],
+    "explanation": "Regulations such as the EU's DORA require financial entities to manage ICT third-party risk, test continuity, and maintain exit strategies; the architecture should provide tested in-region resilience, and the governance process should produce evidence of testing, risk assessment and a realistic exit plan supported by portable technology choices. Option A addresses data residency and compliance attestations but not continuity testing, concentration risk or exit. Option B forfeits the migration on a false premise; regulators permit cloud use with appropriate controls. Option D is the most expensive possible interpretation and introduces major complexity for a payments system; a documented, tested exit strategy is what the regulation requires, not permanent dual-cloud operation.",
+    "refs": [
+      "https://cloud.google.com/security/compliance",
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
+    ]
+  },
+  {
+    "id": "d4-bus-038",
+    "domain": 4,
+    "topic": "Trade-off matrix",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company is choosing between three options for its video transcoding platform: a managed Transcoder API, a GKE-based open-source pipeline, and keeping the existing on-premises farm with a burst to Compute Engine. The engineering lead's scoring matrix favours GKE, the finance lead's matrix favours the managed API, and the operations lead's favours the hybrid option; each built their matrix with different criteria. How should you resolve this?",
+    "options": [
+      "Convene the three leads to agree on a single set of decision criteria and their relative weights first, then jointly score the three options against the agreed matrix and document the result.",
+      "Average the three matrices' scores and select the option with the highest mean.",
+      "Select the option preferred by the most senior of the three leads.",
+      "Ask Google Cloud to recommend the option that best fits the company's needs."
+    ],
+    "answer": [0],
+    "explanation": "A trade-off matrix only produces a legitimate decision when the stakeholders first agree on what matters and how much; agreeing criteria and weights before scoring removes the bias of each party choosing criteria that favour their preferred option. Option B averages incompatible matrices and hides the disagreement instead of resolving it. Option C substitutes hierarchy for reasoning and forfeits buy-in from the other two leads. Option D delegates a decision that depends on the company's own priorities to an outside party.",
+    "refs": [
+      "https://cloud.google.com/architecture/architecture-decision-records",
+      "https://cloud.google.com/architecture/framework"
+    ]
+  },
+  {
+    "id": "d4-bus-039",
+    "domain": 4,
+    "topic": "Composite SLAs",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A SaaS analytics vendor promises customers a contractual 99.95% monthly availability. Its platform is deployed in a single zone and relies on several Google Cloud services, each of which carries its own SLA of 99.9% or higher for that configuration. Customers have started claiming credits after two short outages. The CEO asks how the company should approach its availability commitment. Which two actions should you recommend? (Choose two.)",
+    "options": [
+      "Calculate the composite availability implied by the serial dependencies in the current single-zone design, and redesign with zonal or regional redundancy so the engineered availability comfortably exceeds the contractual 99.95%.",
+      "Rely on the individual Google Cloud SLAs, since each is at least 99.9%, and reject customer credit claims on that basis.",
+      "Raise the contractual SLA to 99.99% to reassure customers that reliability is a priority.",
+      "Set an internal SLO tighter than the contractual SLA with an error budget policy so that engineering action is triggered before customer credits are owed.",
+      "Remove the availability commitment from contracts until the platform has been stable for a year."
+    ],
+    "answer": [0, 3],
+    "explanation": "The availability of a system with serial dependencies is the product of its components' availabilities, so several 99.9% services in a single zone cannot support a 99.95% promise; the engineering fix is redundancy that raises the designed availability above the commitment, and the process fix is an internal SLO stricter than the SLA with an error budget that forces action early. Option B misreads SLAs: Google's SLAs entitle the vendor to credits from Google, they do not guarantee the vendor's composite availability to its own customers. Option C increases the gap between promise and capability. Option E damages commercial trust and does not solve the underlying design problem.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability",
+      "https://cloud.google.com/blog/products/devops-sre/sre-fundamentals-slis-slas-and-slos"
+    ]
+  },
+  {
+    "id": "d4-bus-040",
+    "domain": 4,
+    "topic": "DR tier cost",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A non-profit runs a donor management application on Compute Engine and Cloud SQL in one region. The business impact analysis set an RTO of 24 hours and an RPO of 4 hours for this application, and the finance director has asked for the lowest-cost DR approach that meets those targets. What should you recommend?",
+    "options": [
+      "Deploy an active-active configuration across two regions behind a global external Application Load Balancer with a multi-region database.",
+      "Run a warm standby in a second region with a Cloud SQL cross-region read replica and a scaled-down managed instance group.",
+      "Enable a Cloud SQL high-availability instance with a standby in a second zone of the same region.",
+      "Take automated Cloud SQL backups and persistent disk snapshots at least every 4 hours to a multi-region Cloud Storage location, keep the infrastructure defined in Terraform, and rebuild in another region when needed."
+    ],
+    "answer": [3],
+    "explanation": "A 24-hour RTO and 4-hour RPO are generous targets that a cold DR pattern satisfies: regularly scheduled backups stored in a location that survives a regional outage plus automated infrastructure rebuild keep ongoing cost near zero, which is the cost-optimized match to the business requirement. Option A and option B are hot and warm patterns that provide much lower RTO and RPO than needed at continuous extra cost. Option C protects against a zonal failure but not a regional one, so it does not provide disaster recovery for the region. Matching DR investment to business impact reflects both the reliability and cost optimization pillars.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-for-applications",
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
+    ]
+  }
+]

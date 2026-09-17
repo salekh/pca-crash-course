@@ -1,0 +1,530 @@
+[
+  {
+    "id": "d3-sec-051",
+    "domain": 3,
+    "topic": "Cloud Audit Logs",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A legal-services company stores contracts in a Cloud Storage bucket. After a suspected insider incident, the security team wants to know which users downloaded specific objects during the last month, but finds that Cloud Logging only shows bucket creation and IAM changes. The team wants to ensure that object reads are captured going forward. What should you do?",
+    "options": [
+      "Enable Object Versioning on the bucket so that every read creates a new version entry that can be reviewed.",
+      "Export Admin Activity audit logs to BigQuery, because object downloads are already recorded there once an export exists.",
+      "Enable Data Access audit logs (DATA_READ) for Cloud Storage in the project's audit configuration, since Admin Activity logs do not record object reads.",
+      "Enable System Event audit logs for Cloud Storage so that object access is written to Cloud Logging."
+    ],
+    "answer": [2],
+    "explanation": "Admin Activity audit logs are always on and record configuration changes, but reads and writes of user data are captured by Data Access audit logs, which are disabled by default for most services (BigQuery is the exception) and must be enabled explicitly. Option A tracks object changes, not reads. Option B is wrong because exporting does not add event types that were never logged. Option D is wrong because System Event logs record Google-initiated actions such as live migration, not user data access.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/audit",
+      "https://cloud.google.com/logging/docs/audit/configure-data-access"
+    ]
+  },
+  {
+    "id": "d3-sec-052",
+    "domain": 3,
+    "topic": "Log retention",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A securities firm must retain all Cloud Audit Logs from every project in its organization for seven years in a form that cannot be altered or deleted by project administrators, and it must automatically include projects created in the future. The firm wants to minimize the cost of long-term storage. What should you do?",
+    "options": [
+      "Create an aggregated log sink at the organization level with include-children enabled that routes audit logs to a Cloud Storage bucket in a dedicated logging project, and apply a locked retention policy of seven years to the bucket.",
+      "Increase the retention of the _Default log bucket in each project to 2,555 days and remove the Logging Admin role from project owners.",
+      "Create a log sink in each project that exports audit logs to BigQuery, and set a table expiration of seven years.",
+      "Export audit logs to Pub/Sub in each project and have a Dataflow job write them to Cloud Storage Archive class every night."
+    ],
+    "answer": [0],
+    "explanation": "An organization-level aggregated sink captures logs from all current and future child projects in one place; a Cloud Storage bucket in a separate, tightly controlled project with a locked retention policy (Bucket Lock) provides immutable, low-cost long-term retention that project administrators cannot circumvent. Option B must be repeated per project, does not cover new projects automatically, and Cloud Logging storage costs more than Archive-class Cloud Storage for seven years. Option C is per-project and BigQuery is more expensive for cold data; expiration also allows deletion. Option D is per-project and adds an unnecessary pipeline to maintain.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks",
+      "https://cloud.google.com/storage/docs/bucket-lock"
+    ]
+  },
+  {
+    "id": "d3-sec-053",
+    "domain": 3,
+    "topic": "Cloud Audit Logs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "After a retailer enabled a VPC Service Controls perimeter around its analytics projects, several data scientists report intermittent 'request is prohibited by organization's policy' errors when calling BigQuery from notebooks. The security team needs to identify exactly which requests were blocked and why, including the caller identity and the source of the request. Where should they look?",
+    "options": [
+      "In the Admin Activity audit logs of the BigQuery project, filtered by methodName jobs.insert.",
+      "In Cloud Monitoring, by creating an alert on the BigQuery API error-rate metric.",
+      "In the Access Context Manager console under the access level's usage tab.",
+      "In the Policy Denied audit logs of the project, filtering on the VPC Service Controls unique identifier reported in the error to see the violation details."
+    ],
+    "answer": [3],
+    "explanation": "VPC Service Controls violations are written to Policy Denied audit logs, and each error message includes a unique identifier that can be used to find the specific log entry, which shows the caller, source network or device, target resource and the reason the request was blocked. Option A shows successful configuration actions, not denials. Option B indicates that errors are happening but gives no detail about the cause. Option C does not exist as a troubleshooting view for denied requests.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/troubleshooting",
+      "https://cloud.google.com/logging/docs/audit#policy_denied"
+    ]
+  },
+  {
+    "id": "d3-sec-054",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A health insurer keeps claims data in BigQuery and Cloud Storage. Its main concern is that a user or service account with legitimate access could copy data to a Cloud Storage bucket in a personal Google Cloud project, or that stolen credentials could be used from outside the corporate network. IAM alone cannot prevent these scenarios. Which control addresses this risk most directly?",
+    "options": [
+      "Enable Data Access audit logs for BigQuery and Cloud Storage and build alerts on large export jobs.",
+      "Create a VPC Service Controls perimeter containing the insurer's projects with BigQuery and Cloud Storage as restricted services, and add access levels so that only requests from trusted networks and identities can reach the perimeter.",
+      "Enforce the storage.publicAccessPrevention constraint and the Domain Restricted Sharing constraint on the organization.",
+      "Encrypt the datasets and buckets with CMEK and restrict the Cloud KMS key to the insurer's service accounts."
+    ],
+    "answer": [1],
+    "explanation": "VPC Service Controls creates a service perimeter that blocks data movement between protected services inside the perimeter and resources outside it, and access levels restrict the network and identity context from which the APIs can be called, which directly addresses both credential theft and insider exfiltration to external projects. Option A is detective only. Option C prevents sharing to external identities but does not stop an authorized identity from copying data to an external project it owns. Option D protects at rest but any principal with access still receives plaintext through the API and can copy it.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/overview",
+      "https://cloud.google.com/vpc-service-controls/docs/service-perimeters"
+    ]
+  },
+  {
+    "id": "d3-sec-055",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank has placed its data warehouse projects inside a VPC Service Controls perimeter. Analysts working from the bank's on-premises offices, connected through Dedicated Interconnect, must be able to query BigQuery, but the same identities must be blocked when used from any other location. Which design should you recommend?",
+    "options": [
+      "Give analysts external IP addresses through a corporate NAT and allow those addresses in a VPC firewall rule on the perimeter's projects.",
+      "Add the on-premises CIDR ranges to the perimeter as a member project so that traffic from them is treated as inside the perimeter.",
+      "Route on-premises traffic for Google APIs to the restricted.googleapis.com VIP over the Interconnect, and create an access level in Access Context Manager for the on-premises IP ranges that is used in an ingress rule for BigQuery on the perimeter.",
+      "Configure Private Service Connect for Google APIs in a separate project outside the perimeter and proxy analyst queries through it."
+    ],
+    "answer": [2],
+    "explanation": "The supported pattern for on-premises access to a perimeter is to route API calls privately over the hybrid connection to the restricted VIP (restricted.googleapis.com) and to authorize the on-premises source using an access level based on its IP ranges, referenced from an ingress rule or the perimeter's access levels. Option A is wrong because VPC firewall rules do not govern access to Google APIs protected by VPC Service Controls. Option B is wrong because only projects and VPC networks, not arbitrary CIDR ranges, can be perimeter members. Option D introduces an out-of-perimeter proxy that would itself be blocked and undermines the control.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/private-connectivity",
+      "https://cloud.google.com/vpc-service-controls/docs/ingress-egress-rules"
+    ]
+  },
+  {
+    "id": "d3-sec-056",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pharmaceutical company runs Dataflow pipelines inside a VPC Service Controls perimeter. A research partner in a different Google Cloud organization publishes reference datasets in a Cloud Storage bucket, and the pipelines need to read that single bucket. The security team refuses to remove Cloud Storage from the restricted services or to add the partner's project to the perimeter. What should you do?",
+    "options": [
+      "Create an egress rule on the perimeter that allows the pipeline's service account to call storage.objects.get on the partner's specific project or bucket resource.",
+      "Ask the partner to copy the datasets into a public bucket, since public buckets are exempt from VPC Service Controls.",
+      "Create a perimeter bridge between your perimeter and the partner's project.",
+      "Disable VPC Service Controls enforcement for the Dataflow project and rely on IAM for protection."
+    ],
+    "answer": [0],
+    "explanation": "Egress rules allow a narrowly scoped exception, letting specified identities inside the perimeter access specified resources or projects outside it for particular methods, which is exactly the recommended way to consume a single external bucket without weakening the whole perimeter. Option B is incorrect: perimeters block access to resources outside the perimeter regardless of public sharing unless a rule allows it, and making research data public is inappropriate. Option C is not possible because bridges only connect perimeters within the same access policy/organization, and the partner is in a different organization. Option D removes the control entirely.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/ingress-egress-rules",
+      "https://cloud.google.com/vpc-service-controls/docs/secure-data-exchange"
+    ]
+  },
+  {
+    "id": "d3-sec-057",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media conglomerate maintains two VPC Service Controls perimeters: one for its content-analytics projects and one for its machine-learning projects. A Vertex AI training job in the ML perimeter must read one specific BigQuery dataset in the analytics perimeter, but analytics users must not gain access to the ML perimeter, and no other ML resources may read analytics data. The security team wants the most granular control that follows current Google guidance. What should you do?",
+    "options": [
+      "Merge the two perimeters into a single perimeter so that both sets of projects can communicate freely.",
+      "Move the BigQuery dataset's project into the ML perimeter so that the training job can read it.",
+      "Create a perimeter bridge that includes the analytics project and the ML project so that resources in both can communicate.",
+      "Create an egress rule on the ML perimeter permitting the training job's service account to read the analytics project's BigQuery data, and a matching ingress rule on the analytics perimeter that allows only that identity from the ML perimeter's project."
+    ],
+    "answer": [3],
+    "explanation": "Ingress and egress rules provide directional, identity- and method-scoped exceptions between perimeters, and Google now recommends them over perimeter bridges, which grant bidirectional, all-service access between the bridged projects. Option A dissolves the security boundary between the two domains. Option B violates the analytics team's ownership and exposes the dataset to every ML workload. Option C would allow analytics users to reach ML resources and all ML resources to read analytics data, which the requirements forbid.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/share-across-perimeters",
+      "https://cloud.google.com/vpc-service-controls/docs/ingress-egress-rules"
+    ]
+  },
+  {
+    "id": "d3-sec-058",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company is about to enable VPC Service Controls around 40 production projects that host BigQuery, Cloud Storage, Pub/Sub and Cloud Run services with many cross-project integrations that are not fully documented. Leadership insists that production traffic must not be interrupted during the rollout. How should you introduce the perimeter?",
+    "options": [
+      "Enable the enforced perimeter during a maintenance window and use Policy Denied logs to fix breakages as users report them.",
+      "Configure the perimeter in dry-run mode first, analyze the dry-run violation logs for several weeks to discover legitimate cross-perimeter flows, add the required ingress and egress rules, and then enforce the perimeter.",
+      "Enable the perimeter with only Cloud Storage as a restricted service and add the other services one per week.",
+      "Add all 40 projects plus every project they interact with to a single perimeter so that no cross-perimeter traffic can occur."
+    ],
+    "answer": [1],
+    "explanation": "Dry-run mode logs the requests that would be denied without actually blocking them, so you can discover undocumented dependencies, model the necessary ingress/egress rules, and only then move the configuration to enforced mode with confidence; this is Google's recommended rollout approach. Option A knowingly risks outages. Option C still risks breaking Cloud Storage-dependent flows on day one and slows down protection of other services. Option D over-expands the perimeter, may pull in projects that should not be trusted, and does not address integrations with external partners or SaaS.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/dry-run-mode",
+      "https://cloud.google.com/vpc-service-controls/docs/enable-dry-run-mode"
+    ]
+  },
+  {
+    "id": "d3-sec-059",
+    "domain": 3,
+    "topic": "Context-aware access",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government contractor wants to allow its cloud administrators to use the Google Cloud console and gcloud only from company-managed laptops with disk encryption and an up-to-date OS, and to block these identities from any other device even with valid credentials and MFA. The contractor uses Cloud Identity Premium. What should you do?",
+    "options": [
+      "Deploy Endpoint Verification on managed devices, create an access level in Access Context Manager requiring an encrypted, company-owned device with a compliant OS, and apply it through context-aware access to the Google Cloud console and APIs for the administrator group.",
+      "Create a VPC Service Controls perimeter around all projects with an access level for the corporate IP range, and require administrators to connect through the corporate VPN.",
+      "Enforce 2-Step Verification with hardware security keys for the administrator group, because a hardware key cannot be used from an unmanaged device.",
+      "Configure an IAM Condition on the administrators' roles that checks request.auth.claims for the device serial number."
+    ],
+    "answer": [0],
+    "explanation": "Context-aware access combines Endpoint Verification device signals with Access Context Manager access levels to allow or deny access to the console and APIs based on device posture and identity, which is exactly the zero-trust control described. Option B restricts by network location rather than device state and VPC Service Controls does not govern all console access. Option C strengthens authentication but a hardware key works on any device. Option D is not possible; device attributes are surfaced through access levels, not arbitrary IAM Condition claims.",
+    "refs": [
+      "https://cloud.google.com/access-context-manager/docs/overview",
+      "https://cloud.google.com/endpoint-verification/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-060",
+    "domain": 3,
+    "topic": "Cloud Armor",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An online marketplace serves its web frontend through a global external Application Load Balancer. It has suffered volumetric DDoS attacks and its penetration testers found SQL injection and cross-site scripting vulnerabilities in older API endpoints that cannot be patched for several months. Which actions should you take to mitigate these threats at the edge? (Choose two.)",
+    "options": [
+      "Deploy Cloud IDS behind the load balancer to block malicious requests before they reach the backends.",
+      "Attach a Cloud Armor security policy to the backend service with preconfigured WAF rules for SQL injection and XSS from the OWASP ModSecurity Core Rule Set.",
+      "Replace the global external Application Load Balancer with a regional passthrough Network Load Balancer so that attacks do not reach Google's edge.",
+      "Enable Cloud Armor Adaptive Protection on the security policy to automatically detect and suggest rules against layer 7 DDoS attacks.",
+      "Configure Cloud CDN with a cache-everything policy so that malicious requests are served from cache and never hit the API."
+    ],
+    "answer": [1, 3],
+    "explanation": "Cloud Armor is the WAF and DDoS protection service for Google's global load balancers: its preconfigured WAF rules block OWASP Top 10 attack patterns such as SQLi and XSS, and Adaptive Protection uses machine learning to detect and mitigate layer 7 DDoS attacks. Option A is wrong because Cloud IDS is a detection service that inspects mirrored traffic and does not block inline. Option C removes edge protection and layer 7 inspection entirely. Option E is inappropriate because dynamic API responses cannot be cached safely and caching does not stop injection attacks against uncached endpoints.",
+    "refs": [
+      "https://cloud.google.com/armor/docs/security-policy-overview",
+      "https://cloud.google.com/armor/docs/adaptive-protection-overview"
+    ]
+  },
+  {
+    "id": "d3-sec-061",
+    "domain": 3,
+    "topic": "Security Command Center",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional airline currently uses Security Command Center Standard tier. Its new CISO wants continuous detection of threats such as cryptomining and anomalous IAM grants based on log analysis, container runtime threat detection on GKE, and compliance dashboards mapped to CIS benchmarks, all within Google Cloud. What should you recommend?",
+    "options": [
+      "Continue with Security Command Center Standard and enable Cloud Logging log-based alerts for the required patterns.",
+      "Deploy an open-source SIEM on GKE and forward all audit logs to it.",
+      "Upgrade to Security Command Center Premium, which adds Event Threat Detection, Container Threat Detection and compliance reporting.",
+      "Enable Cloud IDS in every VPC, which provides threat detection and compliance reporting."
+    ],
+    "answer": [2],
+    "explanation": "Security Command Center Premium adds Event Threat Detection (log-based detection of cryptomining, anomalous IAM activity and more), Container Threat Detection, Virtual Machine Threat Detection and compliance reporting against standards such as CIS, all built in. Option A lacks these managed detectors and would require building and maintaining detection logic. Option B adds significant operational overhead. Option D is network-based intrusion detection and does not provide log-based detection or compliance dashboards.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/service-tiers",
+      "https://cloud.google.com/security-command-center/docs/concepts-event-threat-detection-overview"
+    ]
+  },
+  {
+    "id": "d3-sec-062",
+    "domain": 3,
+    "topic": "Event Threat Detection",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company using Security Command Center Premium wants its on-call security engineers to be notified in their incident-management system within minutes whenever Event Threat Detection reports a high-severity finding, such as a service account key being used from an anonymous proxy or a Kubernetes cluster receiving an anonymous role grant. The team does not want to poll the console. What should you do?",
+    "options": [
+      "Schedule a Cloud Run job to call the Security Command Center API every hour and email new findings.",
+      "Configure a Security Command Center continuous export (notification config) with a filter for high-severity findings to a Pub/Sub topic, and integrate the topic with the incident-management system.",
+      "Export Security Command Center findings to BigQuery and build a Looker Studio dashboard the on-call engineer checks each shift.",
+      "Create a log-based metric on Admin Activity logs and alert when the number of IAM changes exceeds a threshold."
+    ],
+    "answer": [1],
+    "explanation": "Security Command Center supports continuous exports of findings to Pub/Sub with filters, which is the recommended near-real-time integration path for SIEM/SOAR and incident-management tools. Option A introduces polling and up to an hour of delay. Option C is useful for analytics but is not a notification mechanism and relies on humans checking a dashboard. Option D reimplements crude detection logic and misses the rich, curated findings that Event Threat Detection already produces.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/how-to-notifications",
+      "https://cloud.google.com/security-command-center/docs/concepts-event-threat-detection-overview"
+    ]
+  },
+  {
+    "id": "d3-sec-063",
+    "domain": 3,
+    "topic": "Web Security Scanner",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university runs a student portal on GKE behind an external Application Load Balancer. Before each semester the IT team wants an automated scan that crawls the application, follows links and forms, and reports common web vulnerabilities such as cross-site scripting, mixed content and outdated JavaScript libraries, without deploying agents or writing custom tests. Which Google Cloud capability should they use?",
+    "options": [
+      "Artifact Analysis vulnerability scanning on the container images in Artifact Registry.",
+      "Cloud IDS with Palo Alto Networks threat signatures on the GKE subnet.",
+      "Cloud Armor preconfigured WAF rules in preview mode.",
+      "Web Security Scanner custom scans in Security Command Center targeting the portal's public URL."
+    ],
+    "answer": [3],
+    "explanation": "Web Security Scanner, part of Security Command Center, is a dynamic application security testing tool that crawls a running web application and reports XSS, mixed content, outdated libraries and similar issues, with no agents required. Option A scans container images for OS and language package CVEs, not running-application behavior such as XSS. Option B detects network-level threats in traffic and does not test application logic. Option C protects against attacks but does not proactively find vulnerabilities in the application.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/concepts-web-security-scanner-overview",
+      "https://cloud.google.com/security-command-center/docs/how-to-use-web-security-scanner"
+    ]
+  },
+  {
+    "id": "d3-sec-064",
+    "domain": 3,
+    "topic": "Cloud IDS",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payment gateway must comply with a requirement for network-based intrusion detection covering both traffic between its Compute Engine tiers and traffic to and from the internet. The security team wants signature-based detection of malware, spyware and command-and-control activity with a managed service, and cannot install agents on the VMs because of vendor support constraints. What should you do?",
+    "options": [
+      "Create a Cloud IDS endpoint in each region and configure packet mirroring policies for the relevant subnets so that traffic is inspected for threats.",
+      "Enable VPC Flow Logs on all subnets and write BigQuery queries to identify suspicious traffic patterns.",
+      "Deploy Cloud NGFW with firewall rules that log all denied connections and review them daily.",
+      "Enable Cloud Armor on the internal load balancers so that east-west traffic is inspected."
+    ],
+    "answer": [0],
+    "explanation": "Cloud IDS is a managed network intrusion detection service that uses Palo Alto Networks threat signatures to inspect mirrored traffic (north-south and east-west) without agents on the workloads. Option B provides connection metadata only, not payload inspection or signature matching. Option C enforces policy and logs decisions but is not an IDS (Cloud NGFW Enterprise intrusion prevention is a separate capability and the question asks for detection with mirrored, agentless inspection). Option D is incorrect because Cloud Armor attaches to external Application Load Balancers and is not an IDS for internal traffic.",
+    "refs": [
+      "https://cloud.google.com/intrusion-detection-system/docs/overview",
+      "https://cloud.google.com/intrusion-detection-system/docs/configuring-ids"
+    ]
+  },
+  {
+    "id": "d3-sec-065",
+    "domain": 3,
+    "topic": "Identity-Aware Proxy",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A consulting firm hosts an internal HR web application on Compute Engine behind an external HTTPS load balancer. Only employees who sign in with their Google Workspace accounts should be able to reach it, from any location, and the firm does not want to operate a VPN or add authentication code to the application. What should you do?",
+    "options": [
+      "Restrict the load balancer's firewall rules to the office IP ranges and require remote employees to work from the office.",
+      "Add HTTP basic authentication to the web server and distribute a shared password to employees.",
+      "Enable Identity-Aware Proxy on the load balancer's backend service and grant the IAP-secured Web App User role to the employee Google Group.",
+      "Deploy Cloud VPN and require employees to connect before accessing the application over its internal IP."
+    ],
+    "answer": [2],
+    "explanation": "Identity-Aware Proxy enforces Google identity authentication and IAM authorization in front of HTTPS load balancer backends, providing zero-trust access from anywhere without a VPN or application changes. Option A blocks remote work and is IP-based rather than identity-based. Option B uses a shared secret with no per-user accountability. Option D adds VPN infrastructure the firm explicitly wants to avoid.",
+    "refs": [
+      "https://cloud.google.com/iap/docs/concepts-overview",
+      "https://cloud.google.com/iap/docs/enabling-compute-howto"
+    ]
+  },
+  {
+    "id": "d3-sec-066",
+    "domain": 3,
+    "topic": "IAP TCP forwarding",
+    "difficulty": "easy",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A fintech company's compliance policy forbids external IP addresses on Compute Engine VMs and prohibits running bastion hosts. Site reliability engineers still need SSH and occasional RDP access to the VMs from their laptops. The access must be authorized per user with IAM and logged. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Set up Cloud VPN from each engineer's home network to the VPC and allow SSH from the VPN ranges.",
+      "Create a VPC firewall rule that allows ingress on ports 22 and 3389 from the Identity-Aware Proxy TCP forwarding range 35.235.240.0/20.",
+      "Assign ephemeral external IPs to the VMs only during incidents and remove them afterwards.",
+      "Grant the engineers the IAP-secured Tunnel User role on the instances and have them connect with gcloud compute ssh --tunnel-through-iap or the IAP desktop tunnel for RDP.",
+      "Deploy a single hardened bastion VM with an external IP and require engineers to jump through it."
+    ],
+    "answer": [1, 3],
+    "explanation": "IAP TCP forwarding tunnels SSH and RDP through Google's edge to VMs without external IPs; the two required pieces are a firewall rule that admits IAP's source range and IAM authorization through the IAP-secured Tunnel User role, and all sessions are recorded in Cloud Audit Logs. Option A requires per-engineer VPN infrastructure and is network-, not identity-based. Option C violates the policy and creates exposure windows. Option E violates the no-bastion policy and reintroduces an internet-facing host to patch.",
+    "refs": [
+      "https://cloud.google.com/iap/docs/using-tcp-forwarding",
+      "https://cloud.google.com/iap/docs/tcp-forwarding-overview"
+    ]
+  },
+  {
+    "id": "d3-sec-067",
+    "domain": 3,
+    "topic": "OS Login",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online-education company manages SSH access for 50 administrators across 300 Linux VMs using SSH keys stored in project metadata. Offboarded staff have retained access for days because keys were not removed promptly. The company wants Linux access tied to Google identities so that removing a user's IAM role revokes access immediately, wants two-factor authentication on SSH, and wants the control enforced across all projects. What should you do?",
+    "options": [
+      "Write a script that removes a user's SSH keys from every project's metadata as part of the offboarding checklist.",
+      "Rotate all SSH keys weekly and distribute the new keys to current administrators through Secret Manager.",
+      "Install an LDAP client on every VM and connect it to a Managed Microsoft AD domain for SSH authentication.",
+      "Enforce the compute.requireOsLogin organization policy, enable OS Login 2-step verification with the enable-oslogin-2fa metadata key, and grant administrators the Compute OS Admin Login or OS Login role as needed."
+    ],
+    "answer": [3],
+    "explanation": "OS Login links Linux account access to Google identities and IAM roles, so revoking the role revokes access instantly; it supports 2-step verification, and the compute.requireOsLogin constraint guarantees that every project uses it instead of metadata SSH keys. Option A remains manual and error-prone. Option B does not address individual revocation or 2FA and rotates shared secrets. Option C adds directory infrastructure and agents to maintain and still does not tie access to Google Cloud IAM.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/oslogin",
+      "https://cloud.google.com/compute/docs/oslogin/set-up-oslogin"
+    ]
+  },
+  {
+    "id": "d3-sec-068",
+    "domain": 3,
+    "topic": "Chrome Enterprise Premium",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pharmaceutical company wants to retire its VPN. Internal web applications hosted on Google Cloud and on-premises must be reachable by employees and by contractors who use their own laptops. Access decisions must consider the user's identity, group membership, and device posture (for example, disk encryption and screen lock), and data-loss-prevention controls must apply to sensitive apps in the browser. Which approach should you recommend?",
+    "options": [
+      "Adopt Chrome Enterprise Premium: publish applications through Identity-Aware Proxy (using the on-premises connector for legacy apps), define access levels using Endpoint Verification device signals, and apply Chrome browser DLP and threat protection policies.",
+      "Replace the VPN with Cloud VPN and require contractors to install the corporate VPN client on their personal laptops.",
+      "Put all applications behind a global external Application Load Balancer with Cloud Armor and allowlist the contractors' home IP addresses.",
+      "Grant contractors Cloud Identity accounts and require them to use Cloud Shell to reach internal applications via SSH port forwarding."
+    ],
+    "answer": [0],
+    "explanation": "Chrome Enterprise Premium is Google's zero-trust access solution: IAP provides identity-based, per-application access (including on-premises apps via the connector), Access Context Manager access levels use Endpoint Verification device attributes, and Chrome Enterprise policies add browser-level DLP and threat protection, all without a VPN. Option B keeps a network-perimeter model and installs corporate software on personal devices. Option C is IP-based rather than identity- and device-aware, and residential IPs change. Option D is an awkward workaround that is neither user-friendly nor device-aware.",
+    "refs": [
+      "https://cloud.google.com/chrome-enterprise-premium/docs/overview",
+      "https://cloud.google.com/iap/docs/enabling-on-prem-howto"
+    ]
+  },
+  {
+    "id": "d3-sec-069",
+    "domain": 3,
+    "topic": "Log routing",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial-technology company's security operations team runs a third-party SIEM outside Google Cloud. They need Admin Activity and Data Access audit logs from every project in the organization to stream to the SIEM in near real time, but they want to exclude high-volume Data Access logs from one specific data-lake project to control cost, and they must not have to reconfigure anything when new projects are created. What should you do?",
+    "options": [
+      "Create a log sink in each project that routes audit logs to a central Pub/Sub topic, and remember to add sinks when new projects are created.",
+      "Create an organization-level aggregated sink with include-children that routes audit logs to a Pub/Sub topic consumed by the SIEM, with a filter that excludes Data Access logs from the data-lake project.",
+      "Configure the SIEM to poll the Cloud Logging API for each project every five minutes using a service account key.",
+      "Export all audit logs to BigQuery and have the SIEM run scheduled queries against the tables."
+    ],
+    "answer": [1],
+    "explanation": "An aggregated sink at the organization level with include-children automatically covers new projects, Pub/Sub provides near-real-time delivery to external SIEMs, and sink filters can exclude specific log types from specific projects to control volume. Option A requires per-project maintenance and misses new projects until someone adds a sink. Option C introduces polling latency, per-project configuration and a long-lived service account key. Option D is batch-oriented rather than streaming and adds storage cost.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks",
+      "https://cloud.google.com/logging/docs/export/configure_export_v2"
+    ]
+  },
+  {
+    "id": "d3-sec-070",
+    "domain": 3,
+    "topic": "Identity-Aware Proxy",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A manufacturing company has enabled Identity-Aware Proxy on an external Application Load Balancer in front of a Compute Engine–hosted internal application. A penetration test found that the application could still be reached directly by connecting to the VM's IP address, bypassing IAP. Which actions should you take to ensure that only requests that passed through IAP are served? (Choose two.)",
+    "options": [
+      "Configure the application to validate the signed JWT in the x-goog-iap-jwt-assertion header on every request before serving content.",
+      "Enable Cloud CDN on the backend service so that requests are only served from Google's edge.",
+      "Configure VPC firewall rules so that the VMs accept traffic only from the load balancer and health-check ranges (130.211.0.0/22 and 35.191.0.0/16), and remove any external IPs from the VMs.",
+      "Move the application to a regional internal Application Load Balancer, because IAP is only enforced on internal load balancers.",
+      "Add an IAM deny policy that denies the IAP-secured Web App User role to all principals outside the company domain."
+    ],
+    "answer": [0, 2],
+    "explanation": "Google's guidance for securing IAP-protected applications is defense in depth: restrict network access so the backends accept traffic only from Google's proxy and health-check ranges (and have no direct external exposure), and have the application verify the IAP-signed JWT header so that requests that did not pass through IAP are rejected. Option B is a caching feature and does not restrict direct access. Option D is incorrect because IAP works with external Application Load Balancers. Option E addresses who can be authorized in IAP but does nothing about traffic that bypasses IAP entirely.",
+    "refs": [
+      "https://cloud.google.com/iap/docs/signed-headers-howto",
+      "https://cloud.google.com/iap/docs/load-balancer-howto"
+    ]
+  },
+  {
+    "id": "d3-sec-071",
+    "domain": 3,
+    "topic": "Log Analytics",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare company's security analysts need to run ad hoc SQL-style investigations over 13 months of Admin Activity and Data Access audit logs from all projects in the organization. Today Data Access logs disappear after 30 days, analysts export logs manually to spreadsheets, and the company wants to avoid running and paying for a separate BigQuery ingestion pipeline. What should you do?",
+    "options": [
+      "Increase the retention of every project's _Default bucket to 400 days and ask analysts to use the Logs Explorer interface for investigations.",
+      "Create per-project sinks to BigQuery with partitioned tables and have analysts query the tables directly.",
+      "Create an organization-level aggregated sink that routes audit logs to a dedicated Cloud Logging bucket with 400-day retention and Log Analytics enabled, and let analysts query the logs with SQL from the Log Analytics page or a linked BigQuery dataset.",
+      "Enable Security Command Center Premium, which retains all audit logs for 13 months and provides SQL querying."
+    ],
+    "answer": [2],
+    "explanation": "A centralized Cloud Logging bucket with custom retention and Log Analytics enabled lets analysts run SQL over audit logs without operating a separate export pipeline, and an aggregated sink guarantees organization-wide coverage including new projects; a linked BigQuery dataset can be created for advanced use without duplicating ingestion. Option A keeps data scattered across projects, does not extend Data Access retention centrally, and Logs Explorer is not SQL. Option B works but is per-project and duplicates ingestion and storage, which the company wants to avoid. Option D is wrong because Security Command Center does not act as a long-term audit log store.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/analyze/query-and-view",
+      "https://cloud.google.com/logging/docs/buckets"
+    ]
+  },
+  {
+    "id": "d3-sec-072",
+    "domain": 3,
+    "topic": "Cloud Armor",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile-game publisher exposes a login API through a global external Application Load Balancer. Attackers are running credential-stuffing campaigns, generating thousands of login attempts per minute per source, mostly from countries where the game is not offered. The company wants to stop the abuse at the edge with the least engineering effort while keeping the API available to legitimate players. What should you do?",
+    "options": [
+      "Scale out the backend with a larger managed instance group and add Memorystore to cache failed login responses.",
+      "Add CAPTCHA logic to the login endpoint in the application code and deploy it to production this week.",
+      "Configure VPC firewall rules on the backend VMs that block the attackers' IP addresses as they are discovered.",
+      "Create a Cloud Armor security policy with a rule that denies requests where origin.region_code is not in the supported countries, and a rate-based ban rule that temporarily blocks clients exceeding a login-attempt threshold, then attach it to the backend service."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Armor supports geography-based rules (origin.region_code) and rate-based throttling and banning per client, enforced at Google's edge before traffic reaches the backend; this stops the abuse with configuration only. Option A absorbs the attack at higher cost rather than stopping it. Option B requires application changes and still consumes backend resources for every attempt. Option C is reactive, does not scale to changing sources, and VPC firewall rules do not see client IPs behind the proxy-based load balancer without additional configuration.",
+    "refs": [
+      "https://cloud.google.com/armor/docs/rate-limiting-overview",
+      "https://cloud.google.com/armor/docs/rules-language-reference"
+    ]
+  },
+  {
+    "id": "d3-sec-073",
+    "domain": 3,
+    "topic": "Security Command Center Enterprise",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A large retailer operates workloads in Google Cloud and AWS. The security team wants a single cloud-native application protection platform that consolidates misconfiguration and vulnerability findings from both clouds, correlates them into attack paths toward high-value resources, and offers built-in case management and response playbooks for the SOC. Which Google Cloud offering should you recommend?",
+    "options": [
+      "Security Command Center Enterprise, connected to the AWS accounts, using its attack path simulation, case management and SOAR playbooks.",
+      "Security Command Center Standard in Google Cloud plus AWS Security Hub, with analysts manually reconciling findings.",
+      "Cloud IDS in Google Cloud and Amazon GuardDuty in AWS, with findings forwarded to a shared Pub/Sub topic.",
+      "Google Cloud Assured Workloads, which provides multi-cloud compliance monitoring."
+    ],
+    "answer": [0],
+    "explanation": "Security Command Center Enterprise is Google's multi-cloud CNAPP tier: it ingests AWS resources and findings, performs attack path simulation, and includes Google Security Operations case management and SOAR playbooks for response. Option B splits visibility across two tools with manual correlation. Option C covers only network and threat detection, with no posture management or case management. Option D is a compliance-controls product for Google Cloud folders, not a multi-cloud CNAPP.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/security-command-center-enterprise-overview",
+      "https://cloud.google.com/security-command-center/docs/service-tiers"
+    ]
+  },
+  {
+    "id": "d3-sec-074",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A credit bureau runs Cloud Run services that read consumer files from Cloud Storage buckets protected by a VPC Service Controls perimeter. The services are failing with VPC Service Controls errors because their egress to Google APIs originates from Google's public front end rather than from the protected VPC. The company wants the services to work inside the perimeter and to be unreachable from the public internet. What should you do?",
+    "options": [
+      "Remove Cloud Storage from the perimeter's restricted services so that Cloud Run can reach the buckets.",
+      "Configure the Cloud Run services with Direct VPC egress (or a Serverless VPC Access connector) routing all traffic through the VPC, enable Private Google Access on the subnet, set ingress to internal, and enforce the run.allowedVPCEgress and run.allowedIngress organization policies for the project.",
+      "Grant the Cloud Run service account the Storage Admin role so that VPC Service Controls treats it as a trusted identity.",
+      "Move the buckets to a project outside the perimeter and create an ingress rule allowing Cloud Run to read them."
+    ],
+    "answer": [1],
+    "explanation": "For serverless products to operate inside a perimeter, their traffic must egress through the VPC so it originates from a network inside the perimeter; Cloud Run supports this with Direct VPC egress or a connector plus Private Google Access, and restricting ingress to internal removes public exposure, while the run.* organization policy constraints ensure new services comply. Option A weakens the perimeter for everyone. Option C is incorrect because VPC Service Controls evaluates request context, not IAM roles. Option D moves sensitive data outside the protection it needs.",
+    "refs": [
+      "https://cloud.google.com/run/docs/securing/using-vpc-service-controls",
+      "https://cloud.google.com/run/docs/configuring/vpc-direct-vpc"
+    ]
+  },
+  {
+    "id": "d3-sec-075",
+    "domain": 3,
+    "topic": "Cloud Audit Logs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media archive enabled Data Access audit logs for Cloud Storage to track human access to a sensitive bucket. A nightly transcoding pipeline running as a dedicated service account now reads tens of millions of objects, generating enormous log volume and Cloud Logging costs, while the security team only cares about reads performed by human users. What should you do?",
+    "options": [
+      "Disable Data Access audit logs for Cloud Storage and instead rely on VPC Flow Logs to identify who accessed the bucket.",
+      "Create a log exclusion filter in the _Default sink that drops all Cloud Storage Data Access logs.",
+      "Move the transcoding pipeline to a different project so that its reads are logged there and delete those logs daily.",
+      "Add the pipeline's service account as an exempted principal for DATA_READ in the project's Data Access audit log configuration for Cloud Storage."
+    ],
+    "answer": [3],
+    "explanation": "Data Access audit log configuration supports exempted principals per service and log type, so the high-volume service account can be excluded from DATA_READ logging while every human access continues to be recorded. Option A removes the required visibility entirely and VPC Flow Logs do not show object-level access. Option B drops the human-access logs the team needs along with the noise. Option C is disruptive, still generates the logs (and cost) until deletion, and weakens audit integrity.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/audit/configure-data-access",
+      "https://cloud.google.com/logging/docs/audit"
+    ]
+  }
+]

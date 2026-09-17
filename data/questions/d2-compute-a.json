@@ -1,0 +1,587 @@
+[
+  {
+    "id": "d2-cmp-001",
+    "domain": 2,
+    "topic": "Managed instance groups",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional grocery chain runs its stateless web tier on Compute Engine in a single zone. After a recent zonal outage caused two hours of downtime, the company wants the web tier to remain available if any single zone in the region fails, with the least amount of operational overhead. What should you do?",
+    "options": [
+      "Create two zonal managed instance groups in different zones from the same instance template and manually rebalance capacity between them during an outage.",
+      "Keep the existing zonal managed instance group and enable autohealing with an HTTP health check so failed VMs are recreated automatically.",
+      "Create a regional managed instance group from an instance template, let it distribute instances evenly across three zones, and place it behind a global external Application Load Balancer.",
+      "Create an unmanaged instance group containing VMs that you provision individually in three zones and attach it to a regional external Application Load Balancer."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "A regional managed instance group (MIG) automatically spreads instances across multiple zones in the region and, combined with a load balancer health check, keeps serving traffic when a zone becomes unavailable, which is the Google-recommended way to achieve zonal resilience for stateless workloads with minimal operations (reliability pillar). Option A works but requires you to operate two groups and rebalance manually, adding toil. Option B improves recovery from individual VM failures, but a single-zone MIG still goes down completely when the zone fails. Option D removes autoscaling, autohealing and template-based updates, so it increases operational overhead rather than reducing it.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d2-cmp-002",
+    "domain": 2,
+    "topic": "Autohealing and health checks",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing company runs a Java application in a managed instance group behind an external Application Load Balancer. Occasionally the application process deadlocks while the VM itself stays running. The load balancer's health check correctly stops sending traffic to the affected VM, but the VM never recovers and capacity slowly degrades until an operator reboots it. You need the platform to recover automatically. What should you do?",
+    "options": [
+      "Configure an autohealing policy on the managed instance group that uses an application-level health check against the application's health endpoint, with an initial delay that covers application startup.",
+      "Increase the timeout and unhealthy threshold of the load balancer health check so that the deadlocked application has more time to recover on its own.",
+      "Add a cron job on each VM that restarts the Java process every hour to clear any deadlocks before they affect capacity.",
+      "Create a Cloud Monitoring alerting policy on the backend health metric and trigger a Cloud Run function that calls the Compute Engine API to reset unhealthy VMs."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Load balancer health checks only control traffic routing; they never repair a VM. MIG autohealing uses its own health check and recreates instances that fail it, so an application-level health check on the MIG (with an initial delay so newly booted VMs are not killed prematurely) is the built-in, Google-recommended solution for exactly this situation. Option B only delays failover and does nothing to restore capacity. Option C is a blunt workaround that causes unnecessary restarts and does not address deadlocks that occur between restarts. Option D re-implements autohealing with custom code, adding operational overhead and failure modes that the managed feature already covers.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/autohealing-instances-in-migs",
+      "https://cloud.google.com/load-balancing/docs/health-check-concepts"
+    ]
+  },
+  {
+    "id": "d2-cmp-003",
+    "domain": 2,
+    "topic": "MIG rolling updates",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments processor deploys a new version of its transaction API to a managed instance group of 20 VMs several times a week. Regulators require that serving capacity never drops below the pre-deployment level during a release, and the team wants the rollout to be gradual and fully automated. How should you configure the update?",
+    "options": [
+      "Start an opportunistic rolling update so that instances are only replaced when the autoscaler or a manual action recreates them.",
+      "Start a proactive rolling update with maxSurge set to 0 and maxUnavailable set to 5 so that five instances are replaced at a time.",
+      "Use the recreate replacement method with maxUnavailable set to 100% so that all instances are updated in one step.",
+      "Start a proactive rolling update with maxSurge set to a positive value (for example 4) and maxUnavailable set to 0 so that new instances are added before old ones are removed."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "The deciding constraint is that capacity must never fall below the current level. Setting maxUnavailable to 0 guarantees that no existing instance is taken out of service until a replacement is healthy, and maxSurge greater than 0 lets the MIG temporarily add extra instances so the rollout still proceeds in waves. Option A (opportunistic) does not actively roll out the change, so the release could take days or never complete. Option B removes five instances at a time, reducing capacity by 25%, which violates the requirement. Option C recreates everything at once and causes a full outage.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups",
+      "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
+    ]
+  },
+  {
+    "id": "d2-cmp-004",
+    "domain": 2,
+    "topic": "Canary releases with MIGs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online education company serves its video portal from a 40-VM managed instance group behind a global external Application Load Balancer. Before every full release the team wants approximately 10% of live traffic to hit the new VM image for one hour while the remaining traffic stays on the current image, without provisioning additional load balancer components. What should you do?",
+    "options": [
+      "Create a second managed instance group with the new template, add it as a second backend, and set its capacity scaler to 0.1 for the canary window.",
+      "Start a rolling update on the existing MIG that specifies the new instance template as a canary with a target size of 10%, observe for one hour, and then start a second update that sets the new template as the group's primary template.",
+      "Create a new MIG behind a separate load balancer and use weighted DNS records in Cloud DNS to send 10% of resolvers to the new address.",
+      "Configure a traffic-splitting URL map on the load balancer with a 90/10 weight between two backend services that both point at the same MIG."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "MIGs natively support canary updates: an update can specify a second instance template with a target size expressed as a fixed number or a percentage, and the group keeps that fraction on the canary version while the rest stays on the primary template. Because the load balancer distributes requests evenly across healthy instances, roughly 10% of traffic lands on the new version with no new load balancer resources. Option A and Option C both add extra infrastructure that the question rules out, and DNS-based splitting is imprecise because of resolver caching. Option D is invalid because two backend services pointing at the same MIG cannot separate old from new versions.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups#starting_a_canary_update",
+      "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
+    ]
+  },
+  {
+    "id": "d2-cmp-005",
+    "domain": 2,
+    "topic": "Startup scripts and custom images",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A sports-betting startup runs an autoscaled managed instance group whose instance template uses a public Debian image plus a startup script that installs Java, pulls dependencies, and downloads a 2 GB application bundle. New instances take about eight minutes to start serving, so the autoscaler cannot keep up with traffic spikes during matches. You need to shorten scale-out time while keeping the deployment process repeatable. What should you do?",
+    "options": [
+      "Bake a custom image with Cloud Build (for example using Packer) that contains Java, the dependencies and the application bundle, reference it in a new instance template, and keep the startup script limited to instance-specific configuration.",
+      "Increase the autoscaler cool-down period to eight minutes so the autoscaler waits for new instances to finish booting before making further decisions.",
+      "Switch the group to predictive autoscaling only, so that instances are created ahead of every forecasted spike.",
+      "Change the instance template to a larger machine type with more vCPUs so that the startup script completes faster."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Slow boot is caused by doing installation work at startup; the Google-recommended pattern is to move that work into an image build pipeline so instances boot pre-configured in well under a minute, which also makes deployments immutable and repeatable (operational excellence). Option B only tells the autoscaler how long to wait and does nothing to make instances ready sooner. Option C can help with regular daily patterns but does not address unpredictable match-day spikes and still leaves an eight-minute boot time. Option D marginally speeds up the script at a higher cost and leaves the root cause in place.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/images/create-custom",
+      "https://cloud.google.com/compute/docs/autoscaler/understanding-autoscaler-decisions"
+    ]
+  },
+  {
+    "id": "d2-cmp-006",
+    "domain": 2,
+    "topic": "OS Login",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A public-sector agency has 300 Linux VMs across several projects. Auditors found that administrators share SSH keys stored in project metadata, and that access is not removed when staff leave. The agency wants SSH access to be tied to each user's Google identity, require two-step verification, and be revocable through IAM. What should you do?",
+    "options": [
+      "Rotate the shared SSH key quarterly and store it in Secret Manager, granting access to the secret through IAM.",
+      "Deploy a bastion host with a single administrative key and require all administrators to connect through it.",
+      "Enable Identity-Aware Proxy TCP forwarding and continue to use project-wide SSH keys for authentication on the VMs.",
+      "Enable OS Login and OS Login two-factor authentication with organization policy and instance metadata, then grant users the roles/compute.osLogin or roles/compute.osAdminLogin role."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "OS Login links Linux account management to Google identities, so access is granted and revoked through IAM roles, and the enable-oslogin-2fa setting enforces 2-step verification; the compute.requireOsLogin organization policy constraint prevents projects from opting out. Option A still relies on a shared credential and only changes where it is stored. Option B centralizes the entry point but keeps a shared key and does not provide per-user identity or IAM revocation. Option C is a good complement for eliminating public IPs, but by itself it leaves metadata-based keys in place, which is the root problem the auditors flagged.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/oslogin",
+      "https://cloud.google.com/compute/docs/oslogin/set-up-oslogin"
+    ]
+  },
+  {
+    "id": "d2-cmp-007",
+    "domain": 2,
+    "topic": "VM Manager patch management",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A hospital network runs about 800 Windows and Linux VMs on Compute Engine. A compliance requirement states that critical OS patches must be applied within 14 days and that the security team must be able to produce a report of patch compliance for every VM. The operations team is small and wants a Google-managed solution. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enable VM Manager and make sure the OS Config agent is installed and enabled on every VM, for example by setting the enable-osconfig metadata key at the project level.",
+      "Run Ansible playbooks from Cloud Build on a schedule that apply updates and write the results to a BigQuery table for reporting.",
+      "Create recurring patch deployments with maintenance windows and rollout controls, and use the VM Manager patch compliance dashboard and reports for audits.",
+      "Enable unattended-upgrades on Linux and Windows Update auto-install on Windows, and rely on Cloud Logging to capture update events for reporting.",
+      "Create a Cloud Scheduler job that triggers a startup-script re-run on every VM each week to install available packages."
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "VM Manager (OS Config) is the Google-managed fleet patching service: once the OS Config agent is enabled on the VMs, you can schedule recurring patch deployments across Windows and Linux with maintenance windows and rollout controls, and the service produces per-VM patch compliance data in the console and API, meeting both the 14-day remediation and the reporting requirements with no custom tooling. Option B works but requires the team to build and operate its own patching and reporting pipeline. Option D applies patches but gives no reliable fleet-wide compliance view and no control over timing across the fleet. Option E is fragile (re-running startup scripts is not a patch mechanism) and offers no reporting.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/os-patch-management",
+      "https://cloud.google.com/compute/vm-manager/docs"
+    ]
+  },
+  {
+    "id": "d2-cmp-008",
+    "domain": 2,
+    "topic": "OS policies",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company requires that the Ops Agent and a corporate endpoint-security package be installed and running on every Compute Engine VM in production, including VMs created by teams that use their own images. Configuration must be continuously enforced so that drift is corrected automatically. What should you do?",
+    "options": [
+      "Add the installation commands to a mandatory startup script in project metadata and require teams to use it.",
+      "Create a Cloud Monitoring uptime check on each agent process and page the on-call engineer when an agent stops.",
+      "Create an OS policy assignment in VM Manager that targets the production VMs by label and zone, declares the required packages and services, and lets VM Manager enforce and remediate the desired state.",
+      "Use Config Connector to declare the required agents as Kubernetes resources and reconcile them from a GKE cluster."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "OS policies in VM Manager are declarative, continuously enforced desired-state configurations for VM fleets: the OS Config agent periodically checks compliance and remediates, so agents that are removed or stopped are reinstalled or restarted, and compliance is visible per VM. Option A runs only at boot, cannot fix later drift and is easily bypassed by custom images. Option B detects the problem but relies on humans to remediate. Option D is wrong because Config Connector manages Google Cloud resources (such as VMs) through the Kubernetes API, not software configuration inside the guest OS.",
+    "refs": [
+      "https://cloud.google.com/compute/vm-manager/docs/os-policies",
+      "https://cloud.google.com/compute/docs/os-configuration-management/working-with-os-policies"
+    ]
+  },
+  {
+    "id": "d2-cmp-009",
+    "domain": 2,
+    "topic": "Confidential and Shielded VMs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A genomics research institute processes patient sequencing data on Compute Engine. A new contract requires that the data be protected not only at rest and in transit but also while it is being processed in memory, so that even the cloud provider's host software cannot read it. The team wants to keep using standard Linux images and minimize application changes. What should you do?",
+    "options": [
+      "Run the workload on Confidential VMs, which use hardware-based memory encryption (for example AMD SEV or Intel TDX) so data remains encrypted in use without code changes.",
+      "Run the workload on Shielded VMs with Secure Boot, vTPM and integrity monitoring enabled so the boot chain is verified.",
+      "Encrypt the persistent disks with customer-managed encryption keys in Cloud KMS and restrict key access to the research team.",
+      "Place the VMs on sole-tenant nodes so that no other customer's workloads share the physical host."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Encryption of data in use is precisely what Confidential VMs provide: memory is encrypted by the CPU with keys that the hypervisor cannot access, and existing images and applications run unmodified. Option B protects against boot-level tampering (rootkits, modified firmware) but does not encrypt memory. Option C strengthens encryption at rest only. Option D provides physical isolation from other tenants for licensing or compliance reasons but does not protect memory contents from the host, so it does not satisfy the requirement.",
+    "refs": [
+      "https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview",
+      "https://cloud.google.com/compute/shielded-vm/docs/shielded-vm"
+    ]
+  },
+  {
+    "id": "d2-cmp-010",
+    "domain": 2,
+    "topic": "Sole-tenant nodes",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company is migrating a Windows Server-based policy administration system to Compute Engine. The company owns per-physical-core Windows Server licenses without Software Assurance, which its vendor says can be used in the cloud only on hardware dedicated to the company and only if the licensed physical server does not change more often than every 90 days. What should you recommend?",
+    "options": [
+      "Use standard Compute Engine VMs with the bring-your-own-license flag and rely on live migration to keep VMs running during host maintenance.",
+      "Deploy the VMs on sole-tenant nodes created with the in-place restart maintenance policy and node affinity labels, and import the existing license as a bring-your-own-license image.",
+      "Purchase committed use discounts for the Windows VMs so that the licenses are covered by the Google-provided pay-as-you-go Windows license.",
+      "Use Confidential VMs so that the physical host is cryptographically bound to the company's workloads."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Sole-tenant nodes give you dedicated physical servers, and the in-place restart (or 'restart in place') maintenance policy keeps the VMs on the same physical server across maintenance events, which is what per-core BYOL licenses with server-affinity restrictions require; node affinity labels ensure the VMs are always scheduled on those nodes. Option A is wrong because standard multi-tenant hosts do not satisfy the dedicated-hardware condition, and live migration moves VMs between hosts. Option C changes the commercial model to Google-provided licenses instead of using the company's existing entitlement, which is more expensive and not what was asked. Option D provides memory encryption, not hardware dedication.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes",
+      "https://cloud.google.com/compute/docs/nodes/bringing-your-own-licenses"
+    ]
+  },
+  {
+    "id": "d2-cmp-011",
+    "domain": 2,
+    "topic": "Reservations",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A game studio is launching a new title in three weeks and expects to scale its matchmaking managed instance group to 600 n2-standard-16 VMs in a single region within the first hour of launch. The studio has confirmed that its quota is sufficient but is worried that the zone may not have capacity at that moment. Which approach guarantees that the capacity will be available on launch day?",
+    "options": [
+      "Purchase a three-year committed use discount for 600 n2-standard-16 VMs, which reserves the resources in the region.",
+      "Open a support case one day before launch asking Google to pre-warm capacity in the zones.",
+      "Configure the MIG with predictive autoscaling so it starts creating instances 30 minutes before the launch.",
+      "Create a reservation for 600 n2-standard-16 VMs in the target zones before launch and configure the MIG's instance template to consume that reservation."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Reservations are the only Compute Engine mechanism that guarantees zonal capacity for a specific machine type until you use or delete them; the MIG's instances automatically consume a matching reservation (or a specifically targeted one via reservation affinity). Option A is a billing commitment that lowers price but does not by itself guarantee capacity in a zone. Option B is not a supported guarantee. Option C only changes when the autoscaler asks for VMs; if the zone has no capacity, the requests still fail.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/reservations-overview",
+      "https://cloud.google.com/compute/docs/instances/reservations-consume"
+    ]
+  },
+  {
+    "id": "d2-cmp-012",
+    "domain": 2,
+    "topic": "Spot VMs",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A visual-effects studio renders animation frames overnight on Compute Engine. Each frame takes about 10 minutes, jobs are pulled from a queue, and a lost frame can simply be rendered again. The finance team wants to reduce the compute bill as much as possible. What should you do?",
+    "options": [
+      "Use standard VMs and buy one-year committed use discounts to cover the nightly render fleet.",
+      "Move the render fleet to sole-tenant nodes to consolidate more work per host and reduce the number of VMs.",
+      "Run the render fleet on Spot VMs, checkpoint progress to Cloud Storage, and use a shutdown script to return in-progress frames to the queue when a preemption notice is received.",
+      "Use standard VMs with the smallest custom machine type that can complete a frame in under 30 minutes."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Spot VMs offer 60-91% discounts compared with on-demand prices and are ideal for fault-tolerant, queue-driven batch work where a preempted task can be retried; a shutdown script has up to 30 seconds after the preemption notice to requeue or checkpoint work. Option A gives at most a 37% discount and commits the studio to paying whether or not rendering happens. Option B is a premium-priced option intended for licensing or isolation, not cost reduction. Option D lowers per-VM cost but keeps paying on-demand rates and increases job duration, so total savings are far lower than with Spot.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/spot",
+      "https://cloud.google.com/compute/docs/instances/create-use-spot"
+    ]
+  },
+  {
+    "id": "d2-cmp-013",
+    "domain": 2,
+    "topic": "Spot VM preemption handling",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A market-data company processes millions of small analytics tasks per day on a managed instance group of Spot VMs to save cost. Recently a burst of preemptions caused several tasks to be lost, and some tasks were processed twice. You need to make the pipeline resilient to preemption without giving up the Spot pricing. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Apply committed use discounts to the Spot VMs so Google is less likely to preempt them.",
+      "Have workers pull tasks from a Pub/Sub subscription and acknowledge a message only after the result is durably written, so unacknowledged tasks are redelivered to another worker.",
+      "Enable live migration in the instance template so that Spot VMs are migrated instead of preempted during host events.",
+      "Add a shutdown script to the instance template that reacts to the preemption notice by checkpointing partial results and stopping the worker cleanly, and make the task processing idempotent.",
+      "Set the on-host-maintenance policy to TERMINATE and the automatic restart option to true so preempted VMs restart automatically."
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Resilience to preemption comes from application design: pulling work from a queue with acknowledgement only after durable completion ensures that a preempted worker's task is redelivered, and a shutdown script that checkpoints and stops cleanly within the preemption window, combined with idempotent processing, prevents both loss and duplicate side effects. Option A is wrong because committed use discounts do not apply to Spot VMs and have no effect on preemption. Option C is wrong because Spot VMs cannot be live migrated; they are always stopped on preemption. Option E is misleading: automatic restart does not apply to preemptions, and a MIG already recreates preempted instances, but that alone does not recover the in-flight task.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/spot#preemption",
+      "https://cloud.google.com/compute/docs/shutdownscript",
+      "https://cloud.google.com/pubsub/docs/subscriber"
+    ]
+  },
+  {
+    "id": "d2-cmp-014",
+    "domain": 2,
+    "topic": "Autoscaling on custom metrics",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A photo-sharing app pushes image-processing requests to a Pub/Sub topic. A managed instance group of workers pulls from the subscription. CPU usage on the workers is low because each task waits on external APIs, so CPU-based autoscaling never adds instances and the backlog grows during peak hours. You need the group to scale with the amount of pending work. What should you do?",
+    "options": [
+      "Configure the autoscaler to use the Cloud Monitoring metric pubsub.googleapis.com/subscription/num_undelivered_messages with a per-instance target value, filtered on the subscription.",
+      "Lower the CPU utilization target of the autoscaler to 10% so that the group scales out more aggressively.",
+      "Replace autoscaling with a schedule that runs the maximum number of instances during known peak hours.",
+      "Create an alerting policy on the backlog metric and have a Cloud Run function call the MIG resize API when the alert fires."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "MIG autoscaling supports Cloud Monitoring metrics, including the Pub/Sub subscription backlog, and with a per-instance target (for example 100 undelivered messages per worker) the group sizes itself according to pending work, which is the documented pattern for queue-based workloads. Option B still ties scaling to a metric that does not reflect load for an I/O-bound worker. Option C wastes money outside peaks and fails when peaks shift. Option D re-implements the autoscaler with custom code and has no built-in scale-in stabilization or cool-down logic.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/autoscaler/scaling-cloud-monitoring-metrics",
+      "https://cloud.google.com/compute/docs/autoscaler"
+    ]
+  },
+  {
+    "id": "d2-cmp-015",
+    "domain": 2,
+    "topic": "Alias IP ranges",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software vendor runs several containers on each Compute Engine VM using its own container runtime. Each container must have its own IP address that is reachable directly from other resources in the VPC network and covered by VPC firewall rules, without configuring NAT on the VM. What should you do?",
+    "options": [
+      "Attach an additional network interface to the VM for each container.",
+      "Assign an external IP address to each container and use Cloud NAT for return traffic.",
+      "Configure iptables on each VM to translate container ports to the VM's primary IP address.",
+      "Create a secondary IP range on the subnet and assign alias IP ranges from it to the VM's network interface, giving each container an address from the alias range."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Alias IP ranges let a single VM interface own additional internal IP addresses (from the primary or a secondary subnet range) that are natively routed by the VPC and subject to firewall rules, which is exactly how GKE assigns Pod IPs and the recommended way to give containers or services on a VM their own addresses. Option A is limited by the number of NICs per VM, and each NIC must be in a different VPC network. Option B is insecure and unnecessary for internal connectivity. Option C is port-based NAT, which the requirement explicitly excludes.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/alias-ip",
+      "https://cloud.google.com/vpc/docs/configure-alias-ip-ranges"
+    ]
+  },
+  {
+    "id": "d2-cmp-016",
+    "domain": 2,
+    "topic": "Multiple network interfaces",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial services firm needs to deploy a third-party next-generation firewall virtual appliance from Cloud Marketplace on Compute Engine so that all traffic between its untrusted DMZ VPC network and its trusted application VPC network is inspected. The appliance must have a presence in both networks. How should you configure the appliance VM?",
+    "options": [
+      "Create the VM with one network interface in the trusted VPC and use alias IP ranges from the DMZ subnet on the same interface.",
+      "Create the VM with two network interfaces at creation time, one in a subnet of the DMZ VPC network and one in a subnet of the trusted VPC network, and configure routes in each network that use the appliance as the next hop.",
+      "Create the VM in the trusted VPC and peer the two VPC networks so that the appliance can reach both.",
+      "Create the VM in the DMZ VPC and use Cloud NAT to forward inspected traffic into the trusted VPC."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "A VM with multiple network interfaces is the standard way to place a network virtual appliance between VPC networks: each interface must belong to a different VPC network, interfaces can only be added when the instance is created, and custom static routes (or an internal passthrough Network Load Balancer as next hop for HA) steer traffic through the appliance. Option A is invalid because alias ranges must come from the subnet of the interface's own network. Option C bypasses the appliance entirely because peered networks route directly to each other. Option D is wrong because Cloud NAT only provides outbound internet address translation and cannot forward traffic between VPC networks.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts",
+      "https://cloud.google.com/architecture/best-practices-vpc-design#network-virtual-appliances"
+    ]
+  },
+  {
+    "id": "d2-cmp-017",
+    "domain": 2,
+    "topic": "GKE VPC-native IP planning",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company's VPC-native GKE Standard cluster was created with a /18 secondary range for Pods and the default maximum of 110 Pods per node. The cluster has grown to 250 nodes and node pool scale-ups now fail with IP-exhaustion errors, although only about 8,000 Pods are actually running. The team cannot tolerate cluster recreation. What should you do?",
+    "options": [
+      "Convert the cluster to a routes-based cluster so that Pod addresses are no longer drawn from the secondary range.",
+      "Enable Cloud NAT on the subnet so that Pods share a smaller number of IP addresses.",
+      "Add an additional Pod IPv4 range to the cluster, create a new node pool that uses this range with a lower maximum Pods per node (for example 32), and migrate workloads to the new pool.",
+      "Delete the cluster and recreate it with a /14 Pod range and the default maximum Pods per node."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "In a VPC-native cluster each node reserves a /24 (256 addresses) for Pods when the maximum is 110, so a /18 (16,384 addresses) is exhausted at 64 nodes regardless of how many Pods actually run. GKE supports adding discontiguous multi-Pod CIDR ranges to an existing cluster and using them for new node pools, and lowering the per-node Pod maximum reduces the per-node reservation to a /26 or /27, which resolves the shortage without recreating the cluster. Option A is not possible; you cannot convert cluster network modes, and routes-based clusters are legacy. Option B addresses outbound internet access, not internal Pod IP allocation. Option D would work but violates the no-recreation constraint.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/alias-ips",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/multi-pod-cidr",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr"
+    ]
+  },
+  {
+    "id": "d2-cmp-018",
+    "domain": 2,
+    "topic": "GKE private clusters",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A bank is creating a GKE cluster for a core-banking microservice. Security policy states that worker nodes must not have public IP addresses and that the Kubernetes API server must be reachable only from the bank's on-premises network, which is connected through HA VPN. Developers will run kubectl from workstations on that network. Which two configuration choices should you make? (Choose two.)",
+    "options": [
+      "Create a private cluster with private nodes and disable the control plane's external endpoint so that only the private endpoint is exposed.",
+      "Create the cluster with public nodes and rely on VPC firewall rules to block inbound SSH traffic to the nodes.",
+      "Configure control plane authorized networks so that only the on-premises CIDR ranges can reach the API server.",
+      "Keep the public control plane endpoint and protect it with Identity-Aware Proxy.",
+      "Place the project in a VPC Service Controls perimeter instead of configuring the cluster's endpoint access."
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "A private cluster gives nodes internal IPs only, and disabling the external control plane endpoint leaves only the private endpoint, which is reachable over VPN or Interconnect; control plane authorized networks then restrict which source ranges (here, on-premises) may reach it. Option B leaves nodes with public IPs, violating the first requirement. Option D keeps a public endpoint, and IAP does not front the GKE API server endpoint. Option E is wrong because VPC Service Controls protects Google API access at the perimeter level and does not replace configuring the cluster's endpoint and authorized networks.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/private-cluster-concept",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/authorized-networks"
+    ]
+  },
+  {
+    "id": "d2-cmp-019",
+    "domain": 2,
+    "topic": "Cloud Run VPC egress",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail company's Cloud Run service must read session data from a Memorystore for Redis instance that has only a private IP address in the company's VPC network. Traffic volume is high and bursty. The team wants the lowest latency and the least infrastructure to manage. What should you do?",
+    "options": [
+      "Create a Serverless VPC Access connector with the maximum number of instances and route all egress from the Cloud Run service through it.",
+      "Configure the Cloud Run service with Direct VPC egress into a subnet of the VPC network and set egress to route only private-range traffic through the VPC.",
+      "Assign a public IP address to the Redis instance and restrict access with an authorized network.",
+      "Deploy a proxy VM in the VPC with an external IP address and have the Cloud Run service connect to Redis through the proxy."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Direct VPC egress attaches the Cloud Run revision directly to a VPC subnet without any intermediary, giving lower latency and higher throughput than a Serverless VPC Access connector and no connector instances to size, pay for or manage. Option A works but introduces a component with fixed costs and throughput limits that you must scale yourself. Option C is not possible because Memorystore for Redis does not support public IP addresses, and it would be less secure anyway. Option D adds a self-managed single point of failure and exposes a public endpoint.",
+    "refs": [
+      "https://cloud.google.com/run/docs/configuring/vpc-direct-vpc",
+      "https://cloud.google.com/run/docs/configuring/connecting-vpc"
+    ]
+  },
+  {
+    "id": "d2-cmp-020",
+    "domain": 2,
+    "topic": "Cloud Run ingress",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company deploys an internal inventory API on Cloud Run. The API must be callable only from workloads inside the company's VPC network and from factory sites connected through Cloud VPN, and it must never be reachable from the public internet. The company wants a single stable internal address for the API. What should you do?",
+    "options": [
+      "Keep the default ingress setting of all traffic and require an IAM identity token on every request.",
+      "Set the ingress setting to internal and load balancing and configure Cloud Armor to block all non-RFC 1918 source addresses.",
+      "Set the ingress setting to all traffic and place the service behind a global external Application Load Balancer with Cloud Armor allowing only the factory public IP addresses.",
+      "Set the ingress setting to internal, create a regional internal Application Load Balancer with a serverless NEG that targets the service, and route factory traffic to the load balancer's internal IP address over the VPN."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "The internal ingress setting rejects any request that does not originate from the VPC (or from an internal load balancer), so the service is invisible to the internet by network control, not just by authentication. A regional internal Application Load Balancer with a serverless NEG provides the single stable internal IP that VPC workloads and on-premises sites can reach over VPN. Option A relies on authentication alone and still exposes the endpoint publicly, which violates the requirement. Option B is wrong because Cloud Armor does not apply to internal Application Load Balancers in that way and internal ingress already blocks external sources. Option C exposes the API on the internet, which is explicitly forbidden.",
+    "refs": [
+      "https://cloud.google.com/run/docs/securing/ingress",
+      "https://cloud.google.com/load-balancing/docs/l7-internal/setting-up-l7-internal-serverless"
+    ]
+  },
+  {
+    "id": "d2-cmp-021",
+    "domain": 2,
+    "topic": "VMware Engine networking",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An airline has lifted-and-shifted 400 VMs into a Google Cloud VMware Engine private cloud. The VMs must connect over private IP addresses to Cloud SQL instances and to Compute Engine VMs in the airline's existing VPC network, and they must also reach the airline's data center through the Dedicated Interconnect that already terminates in that VPC. The airline does not want to buy a second Interconnect. What should you do?",
+    "options": [
+      "Configure an IPsec VPN from the NSX-T edge in the private cloud to the on-premises data center and a second VPN to the VPC network.",
+      "Assign public IP addresses to the VMware Engine VMs and use them to reach Cloud SQL and the data center over the internet.",
+      "Establish a private connection (VPC peering) between the VMware Engine private cloud and the airline's VPC network, and enable custom route export/import on the peering so that on-premises routes learned through the Interconnect are exchanged with the private cloud.",
+      "Order a Partner Interconnect attachment directly into the VMware Engine private cloud and configure static routes to the VPC network."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "VMware Engine connects to a customer VPC through a private connection built on VPC Network Peering; with custom route exchange enabled, the private cloud learns the routes to the VPC's resources and, importantly, the dynamic routes that Cloud Router learned from the on-premises Interconnect, which lets VMware Engine VMs reach the data center over the existing circuit. Private services access on the same VPC also gives access to Cloud SQL private IPs. Option A adds overlay tunnels with throughput limits and operational complexity when native connectivity exists. Option B violates the private IP requirement. Option D requires a new Interconnect purchase, which the airline explicitly ruled out.",
+    "refs": [
+      "https://cloud.google.com/vmware-engine/docs/networking/howto-setup-private-service-access",
+      "https://cloud.google.com/vmware-engine/docs/networking/howto-connect-to-onpremises"
+    ]
+  },
+  {
+    "id": "d2-cmp-022",
+    "domain": 2,
+    "topic": "Terraform and Infrastructure Manager",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A fintech startup provisions its Google Cloud environment with Terraform. Today engineers run terraform apply from their laptops using their own Owner credentials, and the state file lives in each engineer's home directory, which has already caused conflicting applies and a lost state file. You want to align with Google-recommended practices for running Terraform on Google Cloud while keeping the existing configuration files. Which two changes should you make? (Choose two.)",
+    "options": [
+      "Commit the terraform.tfstate file to the Git repository alongside the configuration so every engineer has the latest copy.",
+      "Configure a remote backend in a Cloud Storage bucket with object versioning enabled so that state is shared, locked and recoverable.",
+      "Run deployments through Infrastructure Manager (or a Cloud Build pipeline) using a dedicated least-privilege service account, triggered from the Git repository instead of from laptops.",
+      "Rewrite the configuration as Deployment Manager templates so that Google manages the state.",
+      "Grant each engineer the roles/owner role on the organization so that applies never fail because of missing permissions."
+    ],
+    "answer": [
+      1,
+      2
+    ],
+    "explanation": "The Google-recommended practices for Terraform on Google Cloud are to keep state in a remote Cloud Storage backend (which provides state locking and, with versioning, recovery from corruption) and to execute plans and applies from an automated pipeline such as Infrastructure Manager or Cloud Build under a purpose-built service account, giving auditability and removing the need for broad human credentials (operational excellence and security pillars). Option A is an anti-pattern: state can contain secrets and Git provides no locking. Option D is wrong because Deployment Manager is a legacy tool that Google recommends migrating away from. Option E violates least privilege.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/best-practices-for-terraform",
+      "https://cloud.google.com/infrastructure-manager/docs/overview"
+    ]
+  },
+  {
+    "id": "d2-cmp-023",
+    "domain": 2,
+    "topic": "Config Connector",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS company's platform team manages all application manifests with a GitOps workflow using Config Sync on GKE. Application teams now need Cloud SQL instances, Pub/Sub topics and IAM bindings created alongside their workloads, and the platform team wants these Google Cloud resources to be declared and reconciled in the same Git repositories with the same tooling. What should you do?",
+    "options": [
+      "Add a Cloud Build step to each application pipeline that runs Terraform to create the Google Cloud resources before the manifests are applied.",
+      "Install Config Connector on the cluster and have teams declare Cloud SQL, Pub/Sub and IAM resources as Kubernetes custom resources that Config Sync applies from Git.",
+      "Create the resources with Deployment Manager templates stored in the same repositories and run them from a Cloud Scheduler job.",
+      "Have the applications create the resources at startup using the Google Cloud client libraries and a service account with Editor permissions."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Config Connector is the Kubernetes add-on that represents Google Cloud resources as Kubernetes objects, so they can be stored in Git and continuously reconciled by Config Sync exactly like application manifests, which is the intended way to extend a GitOps workflow to cloud infrastructure. Option A introduces a second tool and a different state model outside the GitOps loop. Option C uses a legacy tool and a scheduler-based imperative flow. Option D couples infrastructure creation with application runtime, over-privileges the application, and provides no declarative drift correction.",
+    "refs": [
+      "https://cloud.google.com/config-connector/docs/overview",
+      "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview"
+    ]
+  },
+  {
+    "id": "d2-cmp-024",
+    "domain": 2,
+    "topic": "Deployment Manager migration",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university's IT department still provisions its Google Cloud projects with a set of Deployment Manager templates written several years ago. Google has announced that Deployment Manager is being deprecated, and the department wants to move to a supported, Google-recommended infrastructure-as-code approach with minimal disruption. What should you do?",
+    "options": [
+      "Convert the templates to Terraform configurations (using Google's Deployment Manager conversion tooling where possible) and run them with Infrastructure Manager.",
+      "Keep the Deployment Manager templates in place, since existing deployments continue to work after the deprecation date.",
+      "Replace the templates with bash scripts that call gcloud commands and run them from Cloud Shell.",
+      "Convert the templates to Kubernetes manifests and manage them with Config Connector even though the department does not run GKE."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Google's guidance for Deployment Manager users is to migrate to Terraform, which Infrastructure Manager runs as a managed service; Google provides a conversion tool that translates many Deployment Manager configurations into Terraform to reduce effort. Option B ignores the deprecation and leaves the department without a supported tool for new changes. Option C replaces declarative IaC with imperative scripts that cannot detect drift or plan changes. Option D forces the department to adopt and operate a GKE cluster it does not need just to host Config Connector.",
+    "refs": [
+      "https://cloud.google.com/deployment-manager/docs/deployment-manager-deprecation",
+      "https://cloud.google.com/infrastructure-manager/docs/overview"
+    ]
+  },
+  {
+    "id": "d2-cmp-025",
+    "domain": 2,
+    "topic": "Autoscaler scale-in controls",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A trading-analytics firm runs a managed instance group whose instances load a 20 GB dataset into memory at boot, which takes about six minutes. Traffic arrives in short, unpredictable bursts. The autoscaler adds instances during a burst, removes most of them a few minutes later, and then has to add them again for the next burst, so users often hit instances that are still loading. The firm does not want to permanently run peak capacity. What should you do?",
+    "options": [
+      "Disable autoscaling and set the group size manually to the highest observed peak so that instances are always warm.",
+      "Enable predictive autoscaling so that the autoscaler forecasts each burst and creates instances in advance.",
+      "Lower the CPU utilization target to 30% so that the autoscaler keeps more instances running at all times.",
+      "Configure scale-in controls that limit how many instances can be removed within a stabilization window (for example at most 10% over 30 minutes), and set the initialization period to the six-minute boot time."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Scale-in controls are designed for exactly this problem: they cap how quickly the autoscaler can shrink the group after a burst, so capacity that is expensive to recreate is retained for a configurable window, while the initialization period tells the autoscaler not to count still-booting instances toward serving capacity. Option A abandons cost optimization entirely, which the firm ruled out. Option B relies on daily or weekly patterns and cannot forecast unpredictable bursts. Option C keeps more instances at all times, which permanently increases cost and still does not stop rapid scale-in after a spike.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/autoscaler/understanding-autoscaler-decisions#scale-in_controls",
+      "https://cloud.google.com/compute/docs/autoscaler/understanding-autoscaler-decisions#initialization_period"
+    ]
+  }
+]

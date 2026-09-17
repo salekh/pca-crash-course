@@ -1,0 +1,588 @@
+[
+  {
+    "id": "d2-ai-001",
+    "domain": 2,
+    "topic": "Vertex AI Pipelines",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail bank's data science team retrains a credit-risk model every month by manually running a sequence of notebooks: data extraction from BigQuery, feature engineering, training, evaluation and deployment. Results are hard to reproduce, and auditors have asked for a record of exactly which data and parameters produced each model version. The team wants a managed, serverless way to automate this end to end. What should you do?",
+    "options": [
+      "Convert the notebooks into a single large Cloud Run job that runs monthly and writes logs to Cloud Logging.",
+      "Deploy Cloud Composer and write an Airflow DAG that executes the notebooks in order with Papermill.",
+      "Rebuild the steps as components of a Vertex AI Pipeline, run it on a schedule, and rely on Vertex ML Metadata to record artifacts, parameters and lineage for every run.",
+      "Store each notebook version in Cloud Source Repositories and tag the commit used for every training run."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Vertex AI Pipelines is the managed, serverless orchestrator for ML workflows: each step becomes a reusable component, runs can be scheduled, and every execution automatically records inputs, outputs, parameters and artifact lineage in Vertex ML Metadata, which is exactly the reproducibility and audit trail requested. Option A automates execution but gives no step-level lineage or artifact tracking. Option B requires operating a Composer environment and does not capture ML metadata natively. Option D versions code but does not tie a model to the data, parameters and intermediate artifacts that produced it.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/pipelines/introduction",
+      "https://cloud.google.com/vertex-ai/docs/ml-metadata/introduction"
+    ]
+  },
+  {
+    "id": "d2-ai-002",
+    "domain": 2,
+    "topic": "Vertex AI Pipelines SDK choice",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A streaming-media company has an existing TensorFlow training workflow that already uses TensorFlow Extended (TFX) components such as ExampleGen, Transform and Evaluator, and processes terabytes of data. The company wants to move the workflow to Vertex AI Pipelines with the least amount of rework. Which approach should you recommend?",
+    "options": [
+      "Keep the TFX pipeline definition, compile it with the TFX SDK targeting Vertex AI Pipelines, and run data-intensive components on Dataflow.",
+      "Rewrite every component as a lightweight Python function component using the Kubeflow Pipelines SDK.",
+      "Package the entire TFX pipeline into one custom container and run it as a single Vertex AI custom training job.",
+      "Move the pipeline to Cloud Composer, since TFX cannot run on Vertex AI Pipelines."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Vertex AI Pipelines executes pipelines defined with either the Kubeflow Pipelines SDK or the TFX SDK; because the company already has TFX components, compiling the existing pipeline for Vertex AI (and using Dataflow as the Beam runner for large-scale Transform and ExampleGen steps) is the path with the least rework. Option B discards working, tested components for no benefit. Option C loses the step-level orchestration, caching and lineage that pipelines provide. Option D is factually wrong because TFX is a first-class option on Vertex AI Pipelines.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/pipelines/build-pipeline",
+      "https://cloud.google.com/vertex-ai/docs/pipelines/introduction#which_sdk_to_use"
+    ]
+  },
+  {
+    "id": "d2-ai-003",
+    "domain": 2,
+    "topic": "Vertex AI Feature Store",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online marketplace computes hundreds of customer and product features nightly in BigQuery. Its fraud model is trained on these features but served online, and the serving application currently recomputes features with separate code, causing training-serving skew. The company needs point-in-time correct training data and feature retrieval at low millisecond latency for online predictions, with minimal custom infrastructure. What should you do?",
+    "options": [
+      "Export the nightly feature tables to Cloud SQL and have both training and serving read from it.",
+      "Have the serving application query BigQuery directly for each prediction request.",
+      "Cache the features in Memorystore with a custom loader and keep the training code reading from BigQuery.",
+      "Register the BigQuery feature tables in Vertex AI Feature Store, use it as the offline store for training with point-in-time lookups, and sync the features to an online store for low-latency serving."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Vertex AI Feature Store uses BigQuery as the offline source of truth and syncs feature values into a managed online store, so training and serving read the same definitions, point-in-time lookups avoid data leakage in training sets, and online retrieval is served in milliseconds, all without building custom pipelines. Option A introduces a relational database with no point-in-time semantics and limited scalability for online reads. Option B is far too slow and expensive for per-request latency. Option C requires the company to build and maintain a loader and still leaves two separate feature-definition paths.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/featurestore/latest/overview",
+      "https://cloud.google.com/vertex-ai/docs/featurestore/latest/serve-feature-values"
+    ]
+  },
+  {
+    "id": "d2-ai-004",
+    "domain": 2,
+    "topic": "Dataset preparation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A drone-inspection company has 200,000 unlabeled images of power lines in Cloud Storage and wants to train a custom object-detection model on Vertex AI to identify damaged insulators. The company has no labeled data and limited internal staff, and it wants the labeled dataset to be directly usable for training and versioning within Vertex AI. What should you do first?",
+    "options": [
+      "Train an AutoML model on the unlabeled images and let Vertex AI infer the labels automatically.",
+      "Create a Vertex AI managed image dataset from the Cloud Storage files and use a data labeling job with clear instructions to have human labelers annotate bounding boxes.",
+      "Use the Cloud Vision API label detection feature to generate the bounding boxes for damaged insulators and import the results.",
+      "Store the images in BigQuery object tables and use BigQuery ML to train the detector directly on the unlabeled data."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Supervised object detection requires labeled bounding boxes; Vertex AI managed datasets integrate with data labeling tasks, so the company can obtain human annotations following its instructions and the resulting dataset is versioned and immediately usable for training. Option A is impossible because supervised training needs labels first. Option C fails because the generic Vision API does not know the domain-specific concept of a damaged insulator and does not produce the training labels required. Option D is wrong because BigQuery ML does not train custom object-detection models and unlabeled data cannot be used for supervised training.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/datasets/datasets",
+      "https://cloud.google.com/vertex-ai/docs/datasets/data-labeling-job"
+    ]
+  },
+  {
+    "id": "d2-ai-005",
+    "domain": 2,
+    "topic": "BigQuery ML",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecom operator stores five years of subscriber usage and billing data in BigQuery. A team of analysts who are proficient in SQL but not in Python wants to build a customer-churn classification model and score all subscribers weekly, without moving data out of BigQuery or standing up ML infrastructure. What should you recommend?",
+    "options": [
+      "Use BigQuery ML to train a logistic regression or boosted tree classifier with CREATE MODEL and score subscribers with ML.PREDICT in scheduled queries.",
+      "Export the data to Cloud Storage and train a custom scikit-learn model on Vertex AI, then batch-predict weekly.",
+      "Create a Vertex AI Workbench instance and have the analysts learn PyTorch to build the model.",
+      "Use the Cloud Natural Language API to classify subscribers based on their billing records."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "BigQuery ML lets SQL users create, evaluate and use ML models entirely inside BigQuery with standard SQL, so the analysts can train classifiers and run weekly scoring with scheduled queries without exporting data or learning a new language; this also honours the least-operational-overhead principle. Option B moves data and requires Python skills the team lacks. Option C imposes a steep learning curve and infrastructure that is unnecessary for tabular classification. Option D is the wrong tool; the Natural Language API analyses text, not tabular usage data.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/bqml-introduction",
+      "https://cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-create"
+    ]
+  },
+  {
+    "id": "d2-ai-006",
+    "domain": 2,
+    "topic": "BigQuery ML forecasting",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A grocery chain keeps daily sales per store and product in BigQuery and wants 30-day demand forecasts for 20,000 store-product combinations, refreshed nightly, with automatic handling of holidays and seasonality. The team wants to avoid building and maintaining separate forecasting infrastructure. What should you do?",
+    "options": [
+      "Export the data to Cloud Storage and train one Vertex AI custom PyTorch model per store-product combination.",
+      "Write a Dataflow pipeline that fits a statistical model per series using a Python library and writes results back to BigQuery.",
+      "Train a BigQuery ML ARIMA_PLUS model with a time-series ID column covering all store-product combinations, enable holiday effects, and produce forecasts with ML.FORECAST in a nightly scheduled query.",
+      "Use Looker Studio's built-in trend lines to project sales for each combination."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "BigQuery ML's ARIMA_PLUS supports training thousands of time series in a single CREATE MODEL statement through the TIME_SERIES_ID_COL option, automatically models seasonality and holiday effects, and produces forecasts with ML.FORECAST, all inside BigQuery with no extra infrastructure. Option A means managing 20,000 models and training jobs, which is enormous operational overhead. Option B is feasible but requires custom pipeline code and maintenance that the managed SQL feature already provides. Option D is a visualization aid, not a forecasting system that can be automated and consumed downstream.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-create-time-series",
+      "https://cloud.google.com/bigquery/docs/arima-plus-forecasting-multiple-time-series-tutorial"
+    ]
+  },
+  {
+    "id": "d2-ai-007",
+    "domain": 2,
+    "topic": "Vertex AI custom training",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pharmaceutical company's researchers train a molecular-property model using a specialized chemistry toolkit with native dependencies that are not included in any Vertex AI prebuilt training container. They want to run training on Vertex AI with GPUs, keep the environment identical between local development and cloud runs, and avoid managing VMs. What should you do?",
+    "options": [
+      "Use a prebuilt PyTorch training container and install the toolkit at runtime using a pip install command in the training script.",
+      "Build a custom training container that includes the toolkit and CUDA libraries, push it to Artifact Registry, and submit a Vertex AI custom training job that references the image and requests GPU accelerators.",
+      "Create a Compute Engine VM with a GPU, install the toolkit, and run training scripts over SSH.",
+      "Run the training on a GKE Standard GPU node pool using a Kubernetes Job."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Vertex AI custom training accepts any container image that follows its contract, so packaging the toolkit and its native dependencies into an image stored in Artifact Registry gives an identical environment locally and in the cloud, while Vertex AI provisions and tears down the GPU machines for each job. Option A works only if the toolkit installs cleanly with pip, which native dependencies often do not, and it slows every job start and breaks reproducibility. Option C and Option D both require the team to operate infrastructure, contradicting the requirement to avoid managing VMs.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/create-custom-container",
+      "https://cloud.google.com/vertex-ai/docs/training/configure-compute"
+    ]
+  },
+  {
+    "id": "d2-ai-008",
+    "domain": 2,
+    "topic": "Distributed training",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A speech-technology company trains a large TensorFlow model on Vertex AI using data parallelism across 8 worker VMs, each with 8 NVIDIA GPUs. Profiling shows that most of each training step is spent in gradient all-reduce communication between workers, so adding more workers gives little speedup. The company wants to reduce training time without rewriting the model. What should you do?",
+    "options": [
+      "Move to a single worker with 8 GPUs and increase the batch size to compensate for the lost workers.",
+      "Replace data parallelism with a manually written parameter-server architecture on Compute Engine.",
+      "Switch to Spot VMs for the worker pool so that more workers can be used for the same budget.",
+      "Add a Reduction Server worker pool to the Vertex AI custom training job so that all-reduce traffic is offloaded to CPU-only reducer nodes with high network bandwidth."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Reduction Server is a Vertex AI feature designed for exactly this bottleneck: it adds a pool of inexpensive CPU-only reducer VMs that aggregate gradients using a bandwidth-optimal algorithm, increasing all-reduce throughput and reducing step time for multi-node GPU data-parallel training with minimal configuration changes. Option A reduces total compute and typically lengthens training. Option B is a large engineering effort and parameter servers are generally slower than optimized all-reduce for dense models. Option C addresses cost, not the communication bottleneck, and adding workers was already shown to give little benefit.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server",
+      "https://cloud.google.com/vertex-ai/docs/training/distributed-training"
+    ]
+  },
+  {
+    "id": "d2-ai-009",
+    "domain": 2,
+    "topic": "AI Hypercomputer GPU selection",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An AI startup is planning two workloads on Google Cloud: pre-training a 30-billion-parameter language model over several weeks across hundreds of GPUs with heavy inter-GPU communication, and serving a small vision model that needs cost-efficient inference with modest memory. Which accelerator families should you recommend for each workload?",
+    "options": [
+      "A3 machine series with NVIDIA H100 or H200 GPUs and GPUDirect networking for pre-training, and G2 machine series with NVIDIA L4 GPUs for inference.",
+      "G2 machine series with NVIDIA L4 GPUs for pre-training, and A3 machine series with NVIDIA H100 GPUs for inference.",
+      "N1 machine series with NVIDIA T4 GPUs for both workloads to keep the fleet uniform.",
+      "A2 machine series with NVIDIA A100 GPUs for inference, and Cloud TPU v5e for pre-training because TPUs are cheaper for every workload."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "A3 VMs pair H100 or H200 GPUs with very high-bandwidth GPU-to-GPU and inter-node networking, which is what large-scale multi-week LLM pre-training needs, whereas G2 VMs with L4 GPUs are optimized for cost-efficient inference of smaller models (performance and cost optimization pillars). Option B inverts the recommendation, using inference-class GPUs for training and premium training GPUs for a small model. Option C uses an older, low-memory GPU that would make training impractically slow. Option D over-provisions inference with A100s, and while TPUs can be excellent for LLM training, claiming they are cheaper for every workload is incorrect and a reason-by-slogan answer.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/gpus",
+      "https://cloud.google.com/compute/docs/accelerator-optimized-machines"
+    ]
+  },
+  {
+    "id": "d2-ai-010",
+    "domain": 2,
+    "topic": "Cloud TPU selection",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A research lab uses JAX and wants to train a frontier-scale multimodal model requiring thousands of chips with the highest interconnect bandwidth and the largest pod scale available, and separately it needs to fine-tune and serve mid-sized models at the lowest cost per token. Which TPU generations should you match to each need?",
+    "options": [
+      "Use TPU v5e for the frontier-scale training run and TPU v5p for cost-efficient fine-tuning and serving.",
+      "Use TPU v2 Pods for both because older generations are the most cost-effective.",
+      "Use the latest large-scale generation (TPU v5p or Trillium) for the frontier training run, and TPU v5e for cost-efficient fine-tuning and serving.",
+      "Use G2 VMs with L4 GPUs for the frontier training run and Trillium TPUs for serving."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Google positions TPU v5p and the newer Trillium (v6e) generation for the largest, most demanding training jobs, with the highest per-chip performance and pod scale, while TPU v5e is designed for cost-efficient training, fine-tuning and serving of small to mid-sized models; JAX is natively supported on all of them. Option A reverses the roles of v5e and v5p. Option B is wrong because older TPU generations have lower performance per dollar and smaller pods. Option D pairs the wrong hardware with the largest training job; L4 GPUs are inference-oriented and cannot scale to thousands of tightly connected chips.",
+    "refs": [
+      "https://cloud.google.com/tpu/docs/system-architecture-tpu-vm",
+      "https://cloud.google.com/tpu/docs/v5e",
+      "https://cloud.google.com/tpu/docs/v5p"
+    ]
+  },
+  {
+    "id": "d2-ai-011",
+    "domain": 2,
+    "topic": "Dynamic Workload Scheduler flex-start",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A computer-vision company runs nightly fine-tuning jobs on Vertex AI that need eight H100 GPUs for about five hours. On-demand GPU capacity is often unavailable in its region, jobs fail to start, and the company does not want to pay for an always-on reservation. The jobs can tolerate starting a few hours late as long as they run to completion once started. What should you do?",
+    "options": [
+      "Submit the jobs as Vertex AI custom training jobs on Spot VMs and retry automatically when they are preempted.",
+      "Submit the custom training jobs with the Dynamic Workload Scheduler flex-start scheduling strategy so that Vertex AI queues the request and starts the job when the full set of GPUs becomes available.",
+      "Purchase a one-year committed use discount for the GPU machine type to guarantee capacity every night.",
+      "Distribute the job across several regions at once and cancel the copies that do not obtain capacity."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Dynamic Workload Scheduler flex-start is designed for accelerator jobs that can wait: the request is queued and all requested GPUs are provisioned together as soon as they are obtainable, then run for up to the requested duration at a discounted price, with no long-term reservation required. Option A does not solve capacity availability and adds preemption risk mid-run, which the jobs cannot tolerate. Option C reduces price but a committed use discount does not reserve capacity. Option D wastes effort and money, may still fail everywhere, and complicates data locality.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/schedule-jobs-dws",
+      "https://cloud.google.com/blog/products/compute/introducing-dynamic-workload-scheduler"
+    ]
+  },
+  {
+    "id": "d2-ai-012",
+    "domain": 2,
+    "topic": "Dynamic Workload Scheduler calendar mode",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university research group has secured funding for a single large training run that must start on a specific date in six weeks and run continuously for 10 days on 64 A3 GPUs. The group cannot afford to hold the GPUs from today until the start date, and the job cannot be interrupted once it begins. Which consumption model should you choose?",
+    "options": [
+      "Create a standard on-demand reservation today for 64 A3 GPUs so capacity is ready when the run starts.",
+      "Use Spot VMs for the training run to keep costs low.",
+      "Rely on on-demand capacity and start the job on the planned date.",
+      "Use Dynamic Workload Scheduler calendar mode to reserve the 64 GPUs for the 10-day window starting on the required date, and run the job against that future reservation."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Calendar mode lets you reserve GPU capacity for a fixed future window (start date and duration) and pay only for that window, which meets the requirements of a guaranteed, uninterrupted run on a set date without paying for six weeks of idle reservation. Option A guarantees capacity but bills for the reserved GPUs from the day the reservation is created. Option B offers no guarantee and Spot VMs can be preempted mid-run. Option C offers no assurance that 64 A3 GPUs will be available on that date.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/reservations-overview",
+      "https://cloud.google.com/blog/products/compute/introducing-dynamic-workload-scheduler"
+    ]
+  },
+  {
+    "id": "d2-ai-013",
+    "domain": 2,
+    "topic": "Spot VMs for training",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An ad-tech company trains a recommendation model for about 12 hours each week on 16 A100 GPUs using Vertex AI custom training. Finance has asked for a significant reduction in training cost. A delay of a few hours in completing the weekly job is acceptable, but losing all progress when a job is interrupted is not. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Run the custom training job on Spot VMs by selecting the Spot scheduling strategy for the worker pool.",
+      "Move the training to sole-tenant nodes to obtain volume pricing.",
+      "Write model checkpoints to Cloud Storage at regular intervals and configure the job to restart from the latest checkpoint when it is preempted.",
+      "Reduce the number of GPUs from 16 to 4 to lower the hourly cost.",
+      "Switch to on-demand A100 VMs with a one-year committed use discount for the 12 hours per week of training."
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Spot VMs can cut accelerator costs by 60% or more, and Vertex AI custom training supports Spot as a scheduling option; the standard pattern for interruption tolerance is periodic checkpointing to Cloud Storage plus automatic restart from the last checkpoint, which turns a preemption into a short delay rather than lost work. Option B increases cost; sole-tenant nodes carry a premium. Option D quadruples wall-clock time and does not reduce total GPU-hours. Option E commits to paying for the machines 24x7, which is far more expensive than 12 hours of weekly use.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/use-spot-vms",
+      "https://cloud.google.com/compute/docs/instances/spot"
+    ]
+  },
+  {
+    "id": "d2-ai-014",
+    "domain": 2,
+    "topic": "Reservations for Vertex AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial-modelling firm runs business-critical Vertex AI training and online prediction workloads that must have access to 32 A100 GPUs at all times in a specific region, because a missed model refresh has direct revenue impact. The firm is willing to pay for the capacity continuously in exchange for certainty and wants to reduce the effective price. What should you do?",
+    "options": [
+      "Rely on on-demand capacity and set up a Cloud Monitoring alert that pages the team if a job fails to start.",
+      "Use Dynamic Workload Scheduler flex-start so that jobs are queued until GPUs are free.",
+      "Create a Compute Engine reservation for the required A100 VMs that is shared with Vertex AI, consume it from the training jobs and prediction endpoints, and apply a committed use discount to reduce the price.",
+      "Run the workloads on Spot A100 VMs across three regions to increase the chance of obtaining capacity."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Compute Engine reservations guarantee capacity for the reserved machine and accelerator type, can be shared with Vertex AI so that custom training jobs and prediction deployments consume them, and are compatible with committed use discounts to lower the cost of capacity you are paying for anyway. Option A does nothing to prevent the failure the firm cannot tolerate. Option B is designed for jobs that can wait, which contradicts the always-available requirement. Option D trades certainty for low price and Spot capacity can disappear at any time.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/reservations",
+      "https://cloud.google.com/compute/docs/instances/reservations-overview"
+    ]
+  },
+  {
+    "id": "d2-ai-015",
+    "domain": 2,
+    "topic": "Batch vs online prediction",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A utility company has a trained propensity model in the Vertex AI Model Registry. Every night it needs to score 50 million customer records stored in BigQuery so that marketing can pick targets the next morning. There is no need for real-time results, and the company wants to minimize cost. What should you do?",
+    "options": [
+      "Deploy the model to a Vertex AI online prediction endpoint with autoscaling and call it from a Dataflow pipeline for each record.",
+      "Run a Vertex AI batch prediction job each night that reads the records from BigQuery and writes the scores back to a BigQuery table.",
+      "Deploy the model to a Cloud Run service and invoke it from a Cloud Run job that iterates through the records.",
+      "Deploy the model to an online endpoint with a minimum of 10 replicas so the nightly run finishes quickly."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Batch prediction is the purpose-built option for high-volume, latency-tolerant scoring: it reads directly from BigQuery or Cloud Storage, provisions workers only for the duration of the job, and writes results back, so there is no endpoint running around the clock. Option A and Option D keep an online endpoint deployed and pay for replicas even when idle, and 50 million individual requests are far more expensive than one batch job. Option C forces the team to build serving and iteration logic that Vertex AI batch prediction already provides.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/predictions/get-batch-predictions",
+      "https://cloud.google.com/vertex-ai/docs/predictions/overview"
+    ]
+  },
+  {
+    "id": "d2-ai-016",
+    "domain": 2,
+    "topic": "Online prediction endpoints",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A mobile payments app calls a fraud model on a Vertex AI online prediction endpoint for every transaction. Traffic ranges from 50 to 5,000 requests per second within minutes, and p99 latency must stay under 100 ms. During morning ramps the endpoint returns errors and latency spikes before more replicas come online. Which two changes should you make to the deployment? (Choose two.)",
+    "options": [
+      "Replace the endpoint with a nightly batch prediction job and cache the scores for use during the day.",
+      "Increase the minimum replica count so that enough capacity is already deployed to absorb the start of the morning ramp.",
+      "Set the endpoint's autoscaling target to 100% CPU utilization so that replicas are fully used before scaling.",
+      "Lower the autoscaling target utilization (for example to 60%) so that new replicas are added before existing ones saturate.",
+      "Disable autoscaling and deploy a single very large machine type with multiple GPUs."
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Vertex AI online endpoints scale replicas based on target utilization, but new replicas take time to load the model, so the Google-recommended approach for steep ramps is to raise the minimum replica count to absorb the initial surge and lower the target utilization so scaling starts earlier (reliability and performance pillars). Option A cannot satisfy a real-time fraud check on new transactions. Option C makes scaling start later and worsens the problem. Option E creates a single point of failure and cannot handle a 100x traffic range efficiently.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#autoscaling",
+      "https://cloud.google.com/vertex-ai/docs/general/deployment"
+    ]
+  },
+  {
+    "id": "d2-ai-017",
+    "domain": 2,
+    "topic": "Vertex AI Model Registry",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company retrains its delivery-time model weekly. The MLOps team wants a central place to keep every trained version with its evaluation metrics, mark which version is currently approved for production, and roll back to a previous version quickly by changing only a pointer rather than redeploying by hand. What should you do?",
+    "options": [
+      "Register each trained model as a new version of the same model in the Vertex AI Model Registry, attach evaluation results, and use version aliases such as default or production to control which version is deployed.",
+      "Save each model to a separate Cloud Storage bucket named after the training date and keep a spreadsheet of metrics.",
+      "Create a new Vertex AI endpoint for each weekly model and update the application's endpoint URL every week.",
+      "Store model files in Artifact Registry as generic artifacts and use tags to track versions."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "The Vertex AI Model Registry is designed for model lifecycle management: it stores versions of a model with lineage and evaluation results, supports aliases so that a stable name can point to the approved version, and integrates with endpoint deployment so promotion or rollback is a matter of moving the alias or redeploying a chosen version. Option B is manual, error-prone and provides no integration with deployment. Option C multiplies endpoints and pushes version control into application configuration. Option D stores bytes but does not offer model evaluations, aliases or deployment integration.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/model-registry/introduction",
+      "https://cloud.google.com/vertex-ai/docs/model-registry/model-alias"
+    ]
+  },
+  {
+    "id": "d2-ai-018",
+    "domain": 2,
+    "topic": "Vertex AI Model Monitoring",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurer deployed a claims-triage model to a Vertex AI online endpoint six months ago. Business users report that its recommendations have become less accurate, and the data science team suspects that the distribution of incoming feature values has changed since training. The team wants to be alerted automatically when this happens in the future rather than discovering it from user complaints. What should you do?",
+    "options": [
+      "Enable Cloud Logging for the endpoint and review the request logs manually each month.",
+      "Increase the endpoint's replica count so that the model can process more requests and improve accuracy.",
+      "Configure Vertex AI Model Monitoring on the endpoint with the training dataset as the baseline, enable feature skew and drift detection with thresholds, and set up email or Cloud Monitoring alerts.",
+      "Retrain the model every day with a Vertex AI Pipeline regardless of whether the data has changed."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Vertex AI Model Monitoring samples production requests, compares feature distributions with the training baseline (skew) and with earlier serving windows (drift), and raises alerts when thresholds are exceeded, providing exactly the automated early warning the team wants. Option A depends on manual review and does not compute statistical comparisons. Option B misunderstands the problem; more replicas affect throughput, not accuracy. Option D spends compute unnecessarily and still gives no signal about when or why the data changed; monitoring should trigger retraining, not replace it.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/model-monitoring/overview",
+      "https://cloud.google.com/vertex-ai/docs/model-monitoring/using-model-monitoring"
+    ]
+  },
+  {
+    "id": "d2-ai-019",
+    "domain": 2,
+    "topic": "ML lineage and governance",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A regulated lending company must be able to prove, for any model in production, which dataset version, code version, hyperparameters and evaluation metrics produced it, and which model version was serving on a given date. The company wants to meet this requirement using managed Vertex AI capabilities rather than custom bookkeeping. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Run all training through Vertex AI Pipelines so that Vertex ML Metadata automatically records artifacts, parameters and lineage for each execution.",
+      "Store trained model files in a Cloud Storage bucket and rely on object versioning as the audit record.",
+      "Register every trained model in the Vertex AI Model Registry with its evaluation, and deploy to endpoints only from registered versions so deployment history is tied to versions.",
+      "Export Cloud Logging entries for the endpoint to BigQuery and reconstruct lineage from request logs when auditors ask.",
+      "Keep a manually maintained wiki page listing model versions and their training details."
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Vertex AI Pipelines together with Vertex ML Metadata capture the full lineage graph of each run (input datasets, code container, parameters, metrics and output models), and the Model Registry keeps versions, evaluations and deployment history so that the serving version on any date can be determined; both are managed features requiring no custom bookkeeping. Option B records only that a file changed, not why or from what inputs. Option D contains prediction traffic, not training lineage. Option E is manual, unreliable and exactly the custom bookkeeping the company wants to avoid.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/ml-metadata/introduction",
+      "https://cloud.google.com/vertex-ai/docs/model-registry/introduction",
+      "https://cloud.google.com/vertex-ai/docs/pipelines/lineage"
+    ]
+  },
+  {
+    "id": "d2-ai-020",
+    "domain": 2,
+    "topic": "Event-driven ML with Cloud Run functions",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A shipping company receives a daily CSV file of new shipments from a partner into a Cloud Storage bucket at an unpredictable time. As soon as the file arrives, the company wants to score it with a model in the Vertex AI Model Registry and write the results to BigQuery, without running any always-on infrastructure. What should you do?",
+    "options": [
+      "Run a Compute Engine VM that polls the bucket every minute and starts a batch prediction job when a new file appears.",
+      "Create a Cloud Run function triggered by the Cloud Storage object finalized event that submits a Vertex AI batch prediction job for the new file with BigQuery as the output destination.",
+      "Schedule a Vertex AI batch prediction job with Cloud Scheduler at midnight every day to process whatever file is present.",
+      "Deploy the model to an online endpoint and have the partner call it row by row instead of uploading a file."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "A Cloud Run function with a Cloud Storage trigger runs only when the file lands, and it can call the Vertex AI API to launch a batch prediction job that reads the file and writes predictions to BigQuery, so the whole flow is event-driven and serverless. Option A keeps a VM running just to poll. Option C runs at a fixed time and may miss or process a stale file because the arrival time is unpredictable. Option D changes the partner's integration and keeps an endpoint deployed continuously for a once-a-day workload.",
+    "refs": [
+      "https://cloud.google.com/run/docs/triggering/storage-triggers",
+      "https://cloud.google.com/vertex-ai/docs/predictions/get-batch-predictions"
+    ]
+  },
+  {
+    "id": "d2-ai-021",
+    "domain": 2,
+    "topic": "Vertex AI Training vs self-managed",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company's ML team writes PyTorch training scripts and wants to run them on multi-GPU machines several times a day. The team has no infrastructure engineers, does not want to manage clusters, drivers or scaling, and needs each run's hyperparameters and metrics to be tracked. Which approach best fits these constraints?",
+    "options": [
+      "Provision a GKE Standard cluster with a GPU node pool and submit Kubernetes Jobs for each training run.",
+      "Create a Compute Engine managed instance group of GPU VMs with a startup script that pulls and runs the latest training code.",
+      "Use Slurm on a Compute Engine cluster deployed with the Cloud HPC Toolkit to schedule training runs.",
+      "Submit each run as a Vertex AI custom training job using a prebuilt PyTorch container, requesting the required GPUs, and log parameters and metrics to Vertex AI Experiments."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Vertex AI custom training provisions the requested GPU machines per job, installs the framework via prebuilt containers, tears the resources down when training finishes, and integrates with Vertex AI Experiments for parameter and metric tracking, so a team without infrastructure engineers gets scalable training with no clusters to operate. Option A, Option B and Option C all require the team to build and maintain compute infrastructure, drivers and schedulers, which contradicts the stated constraint; they are appropriate when a team already has strong Kubernetes or HPC operations skills.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/overview",
+      "https://cloud.google.com/vertex-ai/docs/experiments/intro-vertex-ai-experiments"
+    ]
+  },
+  {
+    "id": "d2-ai-022",
+    "domain": 2,
+    "topic": "Optimizing accelerator consumption",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A climate-analytics company runs dozens of GPU training jobs per week on Google Cloud. None of the jobs is time-critical; each can start hours later than requested and can resume from a checkpoint if interrupted. The company wants to substantially reduce its GPU spend while still obtaining capacity reliably in a region where on-demand GPUs are often scarce. Which two consumption approaches should you combine? (Choose two.)",
+    "options": [
+      "Run interruptible jobs on Spot VMs with frequent checkpointing to Cloud Storage and automatic restart.",
+      "Use Dynamic Workload Scheduler flex-start to queue requests so that jobs start when the full GPU set is available at a discounted rate.",
+      "Package the training code as Cloud Run functions so that GPUs are only billed per invocation.",
+      "Create a permanent on-demand reservation for the peak number of GPUs so that capacity is always present.",
+      "Move the jobs to sole-tenant nodes to obtain dedicated GPU hosts at a lower price."
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "explanation": "For flexible, interruptible workloads the two cost-efficient consumption models are Spot VMs (deepest discount, requires checkpointing because of preemption) and Dynamic Workload Scheduler flex-start (discounted, queued provisioning that improves the odds of obtaining scarce GPUs and runs jobs uninterrupted once started); many teams use flex-start for longer jobs and Spot for the most tolerant ones. Option C is not viable because Cloud Run functions are not a platform for multi-hour GPU training jobs. Option D guarantees capacity but is the most expensive option and contradicts the cost goal. Option E is a premium offering for licensing and isolation needs, not a discount mechanism.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/schedule-jobs-dws",
+      "https://cloud.google.com/vertex-ai/docs/training/use-spot-vms",
+      "https://cloud.google.com/ai-hypercomputer/docs"
+    ]
+  },
+  {
+    "id": "d2-ai-023",
+    "domain": 2,
+    "topic": "Hyperparameter tuning",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A gaming company's data scientists currently run a grid search over 200 hyperparameter combinations for a player-retention model, training each combination sequentially on a single GPU VM, which takes four days. They want to find good hyperparameters faster and cheaper on Vertex AI without writing their own search or parallelization logic. What should you do?",
+    "options": [
+      "Create a Vertex AI hyperparameter tuning job that defines the search space and metric, uses Bayesian optimization (Vertex AI Vizier) with a limited number of trials, and runs several trials in parallel.",
+      "Write a Cloud Run job that launches 200 Vertex AI custom training jobs simultaneously and collects the results in BigQuery.",
+      "Use BigQuery ML with the default hyperparameters to avoid tuning entirely.",
+      "Run the same grid search on a larger VM with eight GPUs so that each trial completes faster."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Vertex AI hyperparameter tuning jobs manage the search for you: you declare the parameter space and objective metric, the Vizier-based Bayesian optimizer proposes trials intelligently so far fewer than 200 are needed, and parallel trials shorten wall-clock time, all with no custom orchestration. Option B parallelizes but still runs every combination (200 jobs) and requires custom coordination code. Option C sidesteps the problem and would not apply to a custom model that needs tuning. Option D only speeds up individual trials while still running an exhaustive grid.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/hyperparameter-tuning-overview",
+      "https://cloud.google.com/vertex-ai/docs/vizier/overview"
+    ]
+  },
+  {
+    "id": "d2-ai-024",
+    "domain": 2,
+    "topic": "Private online prediction",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital group deploys a diagnostic-support model to a Vertex AI online prediction endpoint. Its security policy requires that prediction traffic from the hospital's applications, which run in a VPC and on premises via Interconnect, never traverses the public internet, and it wants to avoid VPC peering because of overlapping IP ranges with the on-premises network. What should you do?",
+    "options": [
+      "Deploy the model to a public endpoint and require an OAuth 2.0 token for every request.",
+      "Configure private services access between the hospital VPC and Vertex AI so that the endpoint gets a peered private IP address.",
+      "Create a Private Service Connect endpoint for the Vertex AI prediction endpoint in the hospital VPC and route application and on-premises traffic to that internal IP address.",
+      "Export the model and run it on a Compute Engine VM inside the VPC with no external IP address."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Vertex AI online prediction supports Private Service Connect: a PSC endpoint with an internal IP in the hospital's VPC forwards traffic to the prediction service over Google's network, is reachable from on premises via Interconnect, and does not require VPC peering or non-overlapping address ranges. Option A authenticates the traffic but still sends it over public IP space, violating policy. Option B uses VPC Network Peering, which the question rules out because of overlapping ranges. Option D abandons the managed serving platform and its autoscaling, monitoring and versioning.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/predictions/private-endpoints",
+      "https://cloud.google.com/vertex-ai/docs/predictions/using-private-service-connect"
+    ]
+  },
+  {
+    "id": "d2-ai-025",
+    "domain": 2,
+    "topic": "Data science environments",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A consultancy is onboarding 40 data scientists who need Jupyter notebooks with access to BigQuery and Vertex AI. The IT team wants zero infrastructure to manage, notebooks that scale to zero when idle, integrated IAM-based sharing and collaboration, and no per-user VM lifecycle to track. Which environment should you recommend?",
+    "options": [
+      "A Vertex AI Workbench instance for each data scientist with idle shutdown enabled.",
+      "Colab Enterprise notebooks backed by managed runtimes with runtime templates that define machine size and idle shutdown.",
+      "A shared Compute Engine VM running JupyterHub that the IT team maintains.",
+      "A GKE Autopilot cluster running Kubeflow Notebooks for each user."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Colab Enterprise provides Google-managed, serverless notebook runtimes inside Vertex AI: administrators define runtime templates, runtimes start on demand and shut down when idle, notebooks are shared through IAM, and there are no VMs for IT to patch or track, which is the least-operational-overhead choice. Option A is a good fit when users need full control of a persistent VM environment, but each instance is a VM that must be managed. Option C and Option D both require the IT team to run and secure infrastructure, contradicting the zero-infrastructure requirement.",
+    "refs": [
+      "https://cloud.google.com/colab/docs/introduction",
+      "https://cloud.google.com/vertex-ai/docs/workbench/notebook-solution"
+    ]
+  }
+]

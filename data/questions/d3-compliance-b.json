@@ -1,0 +1,535 @@
+[
+  {
+    "id": "d3-cmp-026",
+    "domain": 3,
+    "topic": "PCI DSS scope reduction",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mid-sized online furniture retailer runs its storefront on GKE and currently accepts credit card numbers in its own checkout form, which sends the primary account number (PAN) through its API tier to a payment processor. The annual PCI DSS assessment is expensive because the entire platform is in scope. The CFO wants to cut the assessment scope as much as possible without redesigning the storefront. What should you recommend?",
+    "options": [
+      "Move the checkout API to Cloud Run so that the serverless platform's PCI attestation covers the cardholder data environment.",
+      "Integrate the payment processor's hosted payment fields or redirect so that card data goes directly from the customer's browser to the processor, and store only the returned payment token in your systems.",
+      "Encrypt the PAN with a Cloud KMS key in the API tier before storing it in Cloud SQL, and rotate the key every 90 days.",
+      "Place the GKE cluster inside a VPC Service Controls perimeter so that cardholder data cannot be exfiltrated to other projects."
+    ],
+    "answer": [1],
+    "explanation": "The most effective way to shrink PCI DSS scope is to keep cardholder data out of your environment entirely: with hosted fields or a redirect, the PAN travels straight from the browser to the PCI-certified processor and your systems only handle a non-sensitive token, so the storefront largely falls out of the cardholder data environment. Option A is wrong because using a compliant platform does not remove your application from scope if it still processes PANs; compliance is shared. Option C still stores PANs, which keeps the database, keys and surrounding systems in scope. Option D reduces exfiltration risk but does not change what data flows through your systems, so the scope stays the same.",
+    "refs": [
+      "https://cloud.google.com/architecture/pci-dss-compliance-in-gcp",
+      "https://cloud.google.com/security/compliance/pci-dss"
+    ]
+  },
+  {
+    "id": "d3-cmp-027",
+    "domain": 3,
+    "topic": "PCI DSS shared responsibility",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A payments startup is preparing for its first PCI DSS assessment of a cardholder data environment (CDE) built on Compute Engine and Cloud SQL. The Qualified Security Assessor has asked which controls the startup must evidence itself and which it can inherit from Google Cloud. Which two statements are correct? (Choose two.)",
+    "options": [
+      "The startup must implement and evidence network segmentation of the CDE, for example with dedicated VPCs, firewall rules and Cloud NGFW policies.",
+      "Google Cloud's PCI DSS Attestation of Compliance means the startup's application inherits full PCI DSS compliance for the CDE.",
+      "The startup can download Google Cloud's PCI DSS Attestation of Compliance and responsibility matrix from Compliance Reports Manager to evidence inherited physical and infrastructure controls.",
+      "Google Cloud performs quarterly vulnerability scans of the startup's VM operating systems and application code as part of the platform attestation.",
+      "The startup must file its Report on Compliance with Google Cloud before deploying the CDE to production."
+    ],
+    "answer": [0, 2],
+    "explanation": "PCI DSS follows the shared responsibility model: Google's Attestation of Compliance and PCI responsibility matrix, available through Compliance Reports Manager, evidence the physical and infrastructure controls Google operates, while the customer must build and evidence its own controls such as CDE segmentation, patching, logging, vulnerability scanning and access management. Option B overstates inheritance; the platform attestation does not make a customer application compliant. Option D is wrong because scanning customer operating systems and code is the customer's responsibility (Security Command Center's web security scanner can help but the obligation is the customer's). Option E is not a real requirement; reports are filed with acquirers or card brands, not with Google.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/pci-dss",
+      "https://cloud.google.com/security/compliance/compliance-reports-manager",
+      "https://cloud.google.com/architecture/pci-dss-compliance-in-gcp"
+    ]
+  },
+  {
+    "id": "d3-cmp-028",
+    "domain": 3,
+    "topic": "Sensitive data discovery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media conglomerate has more than 500 BigQuery datasets spread across 80 projects, created by different business units over several years. The newly appointed data protection officer needs an inventory of which tables and columns contain personal data, kept up to date as new tables appear, with minimal engineering effort. What should you do?",
+    "options": [
+      "Ask each business unit to fill in a spreadsheet describing the sensitive columns in their datasets and review it annually.",
+      "Write a Dataflow pipeline that samples every table nightly and calls the Sensitive Data Protection content.inspect API on each row.",
+      "Configure Sensitive Data Protection sensitive data discovery at the organization level so that it automatically profiles BigQuery tables and reports data-risk and sensitivity levels per table and column.",
+      "Enable BigQuery Data Access audit logs and analyze query text in Log Analytics to identify columns that look like personal data."
+    ],
+    "answer": [2],
+    "explanation": "Sensitive Data Protection discovery continuously profiles BigQuery data across an organization, folder or project, automatically detecting new and changed tables and producing column-level sensitivity and data-risk profiles, which gives the DPO a self-maintaining inventory without custom code. Option A is manual, inaccurate and quickly stale. Option B reinvents the discovery service, costs more, and requires ongoing maintenance. Option D reveals who queried which tables but does not classify what the columns contain.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/data-profiles",
+      "https://cloud.google.com/sensitive-data-protection/docs/profile-org-folder"
+    ]
+  },
+  {
+    "id": "d3-cmp-029",
+    "domain": 3,
+    "topic": "Format-preserving encryption",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecom operator wants to give its data science team access to call detail records in BigQuery. The records include subscriber phone numbers, which must not be visible in clear text. The analysts need to join records for the same subscriber across several tables, downstream legacy tools validate that the field is exactly 10 digits, and the fraud team must be able to recover the original number for a specific record when a case is escalated. Which Sensitive Data Protection transformation should you use?",
+    "options": [
+      "Format-preserving encryption (FPE-FFX) with a Cloud KMS-wrapped key and a numeric alphabet.",
+      "Cryptographic hashing with a Cloud KMS-wrapped key.",
+      "Replacement with the infoType name, for example PHONE_NUMBER.",
+      "Deterministic encryption (AES-SIV) with a surrogate annotation."
+    ],
+    "answer": [0],
+    "explanation": "FPE-FFX is deterministic, so the same input always yields the same token and joins keep working; it preserves the length and character set of the input, so a 10-digit number remains a 10-digit number for the legacy validation; and it is reversible by an authorized caller holding the wrapped key, which satisfies the fraud team's re-identification need. Option B is deterministic but irreversible, so escalations could not recover the number. Option C destroys both uniqueness and reversibility. Option D is deterministic and reversible but produces a longer base64 surrogate that would fail the 10-digit format check.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/transformations-reference#fpe",
+      "https://cloud.google.com/sensitive-data-protection/docs/pseudonymization"
+    ]
+  },
+  {
+    "id": "d3-cmp-030",
+    "domain": 3,
+    "topic": "Pseudonymization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A loyalty program operator must give an external marketing analytics agency a dataset of purchase events. Under GDPR, the operator's DPO requires that customer email addresses be replaced by a consistent identifier so the agency can compute per-customer metrics, but that the agency must have no technical means of recovering the email address, even if they obtain the transformation configuration. What should you do?",
+    "options": [
+      "Use Sensitive Data Protection deterministic encryption with a key stored in Cloud KMS so that the values can later be reversed by the operator.",
+      "Use Sensitive Data Protection format-preserving encryption so that the output looks like an email address.",
+      "Replace email addresses with a SHA-256 hash of the plain email, which is standard and cannot be reversed.",
+      "Use Sensitive Data Protection cryptographic hashing with a Cloud KMS-wrapped secret key (keyed HMAC) so the identifier is consistent but cannot be reversed or brute-forced by the agency."
+    ],
+    "answer": [3],
+    "explanation": "A keyed cryptographic hash (HMAC) produces the same output for the same email, preserving per-customer analytics, and is one-way; because the key is wrapped in Cloud KMS and never given to the agency, they cannot rebuild the mapping even by hashing candidate emails. Option A is reversible, which the DPO prohibited for the recipient side and adds unnecessary risk. Option B is also reversible and makes the output look like a real email, which is undesirable. Option C is dangerous because an unkeyed hash of a low-entropy value like an email can be reversed with a dictionary or rainbow table attack, so it is not considered effective pseudonymization.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/pseudonymization",
+      "https://cloud.google.com/sensitive-data-protection/docs/transformations-reference#crypto-hashing"
+    ]
+  },
+  {
+    "id": "d3-cmp-031",
+    "domain": 3,
+    "topic": "Re-identification risk analysis",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A public health institute plans to publish a de-identified BigQuery dataset of hospital admissions to academic researchers. Direct identifiers have already been removed, but the dataset still contains ZIP code, birth date and gender. The privacy board is concerned that combinations of these fields could single out individuals and asks for a quantitative measure before release. What should you do?",
+    "options": [
+      "Run a Sensitive Data Protection inspection job on the dataset; if no PERSON_NAME or US_SOCIAL_SECURITY_NUMBER findings appear, approve the release.",
+      "Run a Sensitive Data Protection risk analysis job that computes k-anonymity using ZIP code, birth date and gender as quasi-identifiers, then generalize those fields (for example bucket ages and truncate ZIP codes) until every equivalence class meets the board's minimum k.",
+      "Apply BigQuery column-level security to the ZIP code and birth date columns so that researchers cannot query them.",
+      "Encrypt the ZIP code and birth date columns with a customer-managed encryption key in Cloud KMS before publishing."
+    ],
+    "answer": [1],
+    "explanation": "The concern is re-identification through quasi-identifiers, which is measured with metrics such as k-anonymity; Sensitive Data Protection risk analysis computes k-anonymity (and l-diversity, k-map and delta-presence) over BigQuery tables so the institute can iteratively generalize fields until the dataset satisfies the board's threshold. Option A only looks for direct identifiers and gives false assurance about linkage attacks. Option C blocks the columns entirely, which defeats the research purpose and does not quantify risk. Option D protects data at rest but the published dataset would either be unusable or, once decrypted, just as re-identifiable.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/compute-k-anonymity",
+      "https://cloud.google.com/sensitive-data-protection/docs/concepts-risk-analysis"
+    ]
+  },
+  {
+    "id": "d3-cmp-032",
+    "domain": 3,
+    "topic": "BigQuery column-level security",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A credit union stores a member table in BigQuery with 40 columns, including social security number and date of birth. Marketing analysts need to query most of the table, but only the fraud team may read the two sensitive columns. You want to enforce this in a single table without maintaining copies and to follow Google-recommended practices. What should you do?",
+    "options": [
+      "Create two copies of the table, one with and one without the sensitive columns, and grant each team access to its copy.",
+      "Grant analysts the BigQuery Data Viewer role and rely on a naming convention that tells them not to select the sensitive columns.",
+      "Create a policy tag taxonomy, attach a high-sensitivity policy tag to the SSN and date-of-birth columns, enforce access control on the taxonomy, and grant the fraud team the Fine-Grained Reader role on the tag.",
+      "Encrypt the two columns with AEAD functions and share the key only with the fraud team through Secret Manager."
+    ],
+    "answer": [2],
+    "explanation": "Policy tags provide native BigQuery column-level security: once access control is enforced on the taxonomy, users without the Data Catalog Fine-Grained Reader role on the tag cannot query the tagged columns even though they have table-level access, so analysts can still use SELECT on the remaining columns. Option A duplicates data, doubles storage and creates consistency and governance drift. Option B is not a control at all. Option D works but requires application-level key handling, changes every query, and is harder to audit than the built-in column-level security.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/column-level-security-intro",
+      "https://cloud.google.com/bigquery/docs/column-level-security"
+    ]
+  },
+  {
+    "id": "d3-cmp-033",
+    "domain": 3,
+    "topic": "BigQuery row-level security",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A consumer goods company keeps all sales transactions in one large BigQuery table partitioned by date. Regional sales managers use Looker Studio and ad hoc SQL, and each manager may only see rows for their own region. The data engineering team wants to avoid creating and maintaining a view per region. What should you do?",
+    "options": [
+      "Create row-level access policies on the table that filter on the region column using SESSION_USER() or group membership.",
+      "Create a separate dataset per region and use scheduled queries to copy each region's rows every hour.",
+      "Attach a policy tag to the region column and grant each manager the Fine-Grained Reader role.",
+      "Enable BigQuery dynamic data masking on the region column so that other regions' values appear as NULL."
+    ],
+    "answer": [0],
+    "explanation": "Row-level access policies filter query results per user or group directly on the base table, so a single table serves every manager while each sees only their permitted rows, with no per-region views or copies to maintain. Option B multiplies storage, introduces latency and creates a maintenance burden. Option C controls whether a column can be read at all, not which rows are visible. Option D masks column values but still returns all rows, so managers would see other regions' transactions with the region name hidden.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/row-level-security-intro",
+      "https://cloud.google.com/bigquery/docs/managing-row-level-security"
+    ]
+  },
+  {
+    "id": "d3-cmp-034",
+    "domain": 3,
+    "topic": "BigQuery authorized views",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company's finance team owns a BigQuery dataset containing detailed invoices with customer PII. The operations team needs monthly revenue totals per route but must not be able to read the underlying invoice rows. The finance team wants the simplest secure solution that does not require exporting or duplicating data. What should you do?",
+    "options": [
+      "Grant the operations team the BigQuery Data Viewer role on the finance dataset and ask them to only run aggregate queries.",
+      "Schedule a query that writes monthly totals to a Cloud Storage CSV file and email the link to the operations team.",
+      "Enable row-level security on the invoice table so that operations users can only see aggregated rows.",
+      "Create an aggregating view in a separate dataset that the operations team can read, and authorize that view to access the finance dataset without granting the team access to the source tables."
+    ],
+    "answer": [3],
+    "explanation": "An authorized view lets consumers query the view's results while the view itself is granted access to the source dataset, so the operations team never receives permissions on the underlying invoice rows and no data is copied. Option A gives full read access to the PII, relying on trust rather than a control. Option B creates exported copies with weaker access control and becomes stale. Option C is wrong because row-level security filters rows; it cannot transform detail rows into aggregates.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/authorized-views",
+      "https://cloud.google.com/bigquery/docs/share-access-views"
+    ]
+  },
+  {
+    "id": "d3-cmp-035",
+    "domain": 3,
+    "topic": "BigQuery dynamic data masking",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An airline's customer table in BigQuery contains passenger email addresses. Customer service agents should be able to see only the domain part of the email (for example xxxxx@example.com) to confirm identity, while the CRM integration service account needs the full value. Both use the same reports and SQL, and the airline does not want to maintain separate tables or views. What should you do?",
+    "options": [
+      "Create two views over the table, one applying REGEXP_REPLACE to the email column, and grant each group access to the appropriate view.",
+      "Attach a policy tag to the email column, create a data masking rule that uses the email mask, grant agents the Masked Reader role on the tag and grant the CRM service account the Fine-Grained Reader role.",
+      "Store two copies of the email column, one full and one masked, and use column-level security to hide the full column from agents.",
+      "Use Sensitive Data Protection to redact the email column in place and keep the original values in a separate Cloud SQL table for the CRM."
+    ],
+    "answer": [1],
+    "explanation": "Dynamic data masking is built on policy tags: users with the Masked Reader role see the masked representation (an email mask keeps the domain), while users with the Fine-Grained Reader role see the raw value, and both run the exact same query against the same table, so no views or duplicate columns are needed. Option A requires maintaining parallel views and breaks the requirement that both groups use identical SQL. Option C duplicates data and adds an ETL step. Option D destroys the data in BigQuery and moves the source of truth to another system, which is far more disruptive than necessary.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/column-data-masking-intro",
+      "https://cloud.google.com/bigquery/docs/column-data-masking"
+    ]
+  },
+  {
+    "id": "d3-cmp-036",
+    "domain": 3,
+    "topic": "Tokenization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription-box company stores payment card numbers so it can charge customers monthly. Its call center application shows the card to agents so they can confirm it with customers, which places the call center in PCI DSS scope. The company wants agents to see only the last four digits while the billing system can still retrieve the full number, and wants the number of systems holding clear-text PANs to be minimal. What should you do?",
+    "options": [
+      "Encrypt the PAN column in Cloud SQL with a customer-managed Cloud KMS key and grant both the call center and billing service accounts decrypt permission.",
+      "Mask the PAN in the call center front-end with JavaScript so agents only see the last four digits on screen.",
+      "Tokenize the PAN at ingestion using a dedicated tokenization service built on Sensitive Data Protection deterministic encryption; store only the token and last four digits in application databases, and allow only the billing service account to call the de-tokenization endpoint.",
+      "Store the full PAN in Secret Manager with one secret per customer and grant the billing service account the Secret Accessor role."
+    ],
+    "answer": [2],
+    "explanation": "A tokenization service isolates the only component that can produce clear-text PANs; application databases hold tokens and the last four digits, so the call center is removed from scope and the billing system re-identifies through a tightly controlled endpoint, which is the Google-documented pattern for PCI scope reduction. Option A still delivers the full PAN to the call center application, keeping it in scope. Option B masks only in the browser; the PAN still reaches the client, so the control is ineffective. Option D misuses Secret Manager as a customer database and still gives the application tier access to clear-text PANs.",
+    "refs": [
+      "https://cloud.google.com/architecture/tokenizing-sensitive-cardholder-data-for-pci-dss",
+      "https://cloud.google.com/sensitive-data-protection/docs/pseudonymization"
+    ]
+  },
+  {
+    "id": "d3-cmp-037",
+    "domain": 3,
+    "topic": "PII discovery in Cloud Storage",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A market research firm receives CSV and PDF files from dozens of partners into a Cloud Storage landing bucket. The firm's policy states that files containing personal data must be moved to a restricted bucket with tighter IAM and CMEK before anyone processes them, while non-sensitive files can go to a shared analytics bucket. The firm wants this to happen automatically for every upload. What should you do?",
+    "options": [
+      "Trigger a Cloud Run function on object finalize events that starts a Sensitive Data Protection inspection job on the object, and use a Pub/Sub notification of the job result to move the object to the restricted or shared bucket accordingly.",
+      "Require partners to add a metadata header stating whether the file contains personal data and route based on that header.",
+      "Enable Cloud Storage Autoclass on the landing bucket so that sensitive files are automatically moved to a colder, more secure storage class.",
+      "Run a weekly Dataproc job that greps every file for email address patterns and moves matches to the restricted bucket."
+    ],
+    "answer": [0],
+    "explanation": "This is the reference architecture for automatic classification of uploaded data: an event-driven Cloud Run function invokes a Sensitive Data Protection inspection job per object, and the job's completion notification triggers a move to the appropriate bucket, giving near-real-time classification across many infoTypes and file formats including PDFs. Option B trusts partners to self-declare and provides no technical verification. Option C confuses storage classes with security; Autoclass optimizes cost and does not classify content. Option D runs weekly, so sensitive files sit in the landing bucket for days, and a simple regex misses most PII types.",
+    "refs": [
+      "https://cloud.google.com/architecture/automating-classification-of-data-uploaded-to-cloud-storage",
+      "https://cloud.google.com/sensitive-data-protection/docs/inspecting-storage"
+    ]
+  },
+  {
+    "id": "d3-cmp-038",
+    "domain": 3,
+    "topic": "PII in logs",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A legacy insurance claims application that is being migrated to Compute Engine writes policyholder names and national ID numbers into its application logs. The vendor cannot change the logging behavior for at least a year, but the compliance team requires that personal data not be retained in Cloud Logging and that a sanitized copy of the logs be available to the SRE team for troubleshooting. What should you do?",
+    "options": [
+      "Set the retention of the _Default log bucket to one day so that personal data ages out quickly.",
+      "Enable Sensitive Data Protection redaction on the _Default log bucket so that Cloud Logging masks findings before storage.",
+      "Reduce the Ops Agent log level to ERROR so that fewer entries containing personal data are written.",
+      "Create a log sink that routes the application's logs to Pub/Sub, process them with a Dataflow pipeline that calls Sensitive Data Protection to de-identify findings before writing to a BigQuery dataset for the SREs, and add an exclusion filter so the raw entries are not stored in the _Default bucket."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Logging cannot rewrite entries on ingestion, so the compliant pattern is to route the raw stream through a sink to Pub/Sub, de-identify it with Sensitive Data Protection in Dataflow, land the sanitized copy where the SREs can query it, and use an exclusion filter so the personal data never lands in the _Default bucket; sinks are evaluated before exclusions, so the routed copy is unaffected. Option A still retains personal data for a day and destroys the troubleshooting history. Option B describes a capability that does not exist in log buckets. Option C reduces volume but does not remove personal data from the entries that are still written, and it hampers troubleshooting.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/routing/overview",
+      "https://cloud.google.com/logging/docs/export/configure_export_v2",
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data"
+    ]
+  },
+  {
+    "id": "d3-cmp-039",
+    "domain": 3,
+    "topic": "PCI DSS on GKE",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An online ticketing company processes card payments in a set of microservices on GKE that share a cluster and project with its marketing site, recommendation engine and internal tools. The upcoming PCI DSS assessment will treat everything in that project as in scope. Which two changes would most directly reduce the assessment scope? (Choose two.)",
+    "options": [
+      "Switch the shared cluster from GKE Standard to GKE Autopilot so that Google manages node security.",
+      "Move the payment microservices into a dedicated project and VPC (or Shared VPC subnet) with firewall rules and Cloud NGFW policies that segment the cardholder data environment from other workloads.",
+      "Enable Cloud Armor on the marketing site's load balancer to block OWASP top-10 attacks.",
+      "Enable Binary Authorization on the shared cluster so that only signed images can run.",
+      "Replace stored PANs with tokens from the payment processor so that non-payment services never store, process or transmit cardholder data."
+    ],
+    "answer": [1, 4],
+    "explanation": "PCI DSS scope is determined by which systems store, process or transmit cardholder data or are connected to those systems, so segmenting the CDE into its own project and network with enforced firewall boundaries, and tokenizing so that other services never touch PANs, are the two changes that actually remove systems from scope. Option A improves operational security but the workloads still share the environment. Option C protects the marketing site but has no effect on which systems are in scope. Option D is a valuable supply-chain control and helps meet some requirements, but it applies to every workload equally and does not reduce scope.",
+    "refs": [
+      "https://cloud.google.com/architecture/pci-dss-compliance-in-gcp",
+      "https://cloud.google.com/architecture/pci-dss-and-gke-guide"
+    ]
+  },
+  {
+    "id": "d3-cmp-040",
+    "domain": 3,
+    "topic": "Sensitive Data Protection job triggers",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare analytics company receives new records every day into a BigQuery table used by data scientists. The privacy team wants to scan the table on a fixed schedule for new sensitive data using a consistent set of infoTypes and have findings written to a BigQuery table for review, without writing any code. What should you do?",
+    "options": [
+      "Create a Cloud Scheduler job that invokes a Cloud Run function which calls the Sensitive Data Protection content.inspect method on the table.",
+      "Write a scheduled query using BigQuery ML to classify columns and write the results to a findings table.",
+      "Create a Sensitive Data Protection inspection template with the required infoTypes and a job trigger that runs on a schedule against the table with a Save to BigQuery action.",
+      "Enable BigQuery Data Access audit logs and search for sensitive values in Log Analytics."
+    ],
+    "answer": [2],
+    "explanation": "Job triggers are the built-in scheduling mechanism for Sensitive Data Protection inspection jobs; combined with an inspection template for consistent infoType configuration and the Save to BigQuery action, they cover the requirement with no custom code. Option A works but adds infrastructure and code to maintain. Option B is not a supported approach; BigQuery ML does not perform PII classification out of the box. Option D examines who accessed data, not what the data contains.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/creating-job-triggers",
+      "https://cloud.google.com/sensitive-data-protection/docs/creating-templates-inspect"
+    ]
+  },
+  {
+    "id": "d3-cmp-041",
+    "domain": 3,
+    "topic": "Sensitive data in images",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software vendor's support portal lets customers upload screenshots, which are stored in Cloud Storage and later used to train an internal troubleshooting assistant. Screenshots frequently contain names, email addresses and account numbers. The privacy team requires that this text be removed from the images before they are used for training, with minimal engineering effort. What should you do?",
+    "options": [
+      "Build a custom pipeline with the Vision API to find text, a regular expression to identify PII, and OpenCV to draw boxes over matches.",
+      "Use the Sensitive Data Protection image redaction API to detect and black out sensitive text in the screenshots before they are copied to the training bucket.",
+      "Downscale the screenshots so that text becomes unreadable before training.",
+      "Convert the screenshots to grayscale and rely on the assistant model not memorizing personal data."
+    ],
+    "answer": [1],
+    "explanation": "Sensitive Data Protection can inspect images directly, locate findings such as names, emails and account numbers using its built-in infoTypes, and return a redacted image with the findings blacked out, which is a single API call rather than a bespoke pipeline. Option A assembles the same capability by hand and will be less accurate and more expensive to maintain. Option C degrades the images for the intended training purpose and is unreliable, since larger text may remain readable. Option D does nothing to remove personal data and relies on hope rather than a control.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/redacting-sensitive-data-images",
+      "https://cloud.google.com/sensitive-data-protection/docs/infotypes-reference"
+    ]
+  },
+  {
+    "id": "d3-cmp-042",
+    "domain": 3,
+    "topic": "Policy tag governance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A multinational bank has dozens of data-producing projects that each publish BigQuery tables. The chief data office wants a single, consistent classification scheme (Public, Internal, Confidential, Restricted) applied as column-level security across all projects, with the right to read Restricted columns managed centrally rather than by individual project owners. How should you structure this?",
+    "options": [
+      "Create one policy tag taxonomy in a central data governance project, grant data producers permission to apply its tags to their columns, and manage Fine-Grained Reader grants on the taxonomy centrally.",
+      "Have each project create its own taxonomy with the same four tag names so that project owners can grant access locally.",
+      "Use table labels such as classification=restricted and write a scheduled script that revokes access to tables with that label.",
+      "Store all sensitive tables in a single central project and give the data producers Data Editor access to that project."
+    ],
+    "answer": [0],
+    "explanation": "A policy tag taxonomy can be used by tables in other projects, so hosting one taxonomy in a central governance project lets producers tag columns while the governance team controls who holds the Fine-Grained Reader role on each tag, achieving consistent classification and centralized entitlement. Option B fragments the scheme; identical names do not make tags equivalent, and access is scattered across project owners. Option C uses labels, which are informational metadata with no enforcement, and the script would operate at table rather than column granularity. Option D centralizes data instead of governance and breaks ownership boundaries and cost attribution.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/best-practices-policy-tags",
+      "https://cloud.google.com/bigquery/docs/column-level-security-intro"
+    ]
+  },
+  {
+    "id": "d3-cmp-043",
+    "domain": 3,
+    "topic": "BigQuery authorized datasets",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail analytics team maintains more than 150 curated views in a dataset named curated that read from a locked-down raw dataset containing customer PII. Every time an engineer adds a view, an administrator must authorize it on the raw dataset, which delays releases and has led to broken dashboards. You need to remove this friction while keeping consumers unable to read the raw tables directly. What should you do?",
+    "options": [
+      "Grant the analytics team the BigQuery Data Viewer role on the raw dataset so that new views work immediately.",
+      "Materialize each view into a table in the curated dataset with a scheduled query so that no authorization is needed.",
+      "Replace the views with BigQuery table snapshots taken hourly.",
+      "Authorize the entire curated dataset on the raw dataset (an authorized dataset) so that all current and future views in it can read the raw tables without individual authorization."
+    ],
+    "answer": [3],
+    "explanation": "Authorized datasets extend the authorized view concept to a whole dataset: once curated is authorized on raw, any view created in curated can query raw tables, and consumers still only receive access to curated, so the per-view administrative step disappears without weakening the boundary. Option A gives the whole team direct access to PII, defeating the control. Option B duplicates data, adds cost and staleness, and the scheduled queries would themselves need access. Option C copies raw data into snapshots, which also exposes PII and does not address view authorization.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/authorized-datasets",
+      "https://cloud.google.com/bigquery/docs/authorized-views"
+    ]
+  },
+  {
+    "id": "d3-cmp-044",
+    "domain": 3,
+    "topic": "Data masking precedence",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank configured BigQuery dynamic data masking on an account_number column using a policy tag with a masking rule. A fraud analyst who is in the group holding the Masked Reader role reports that she sees full account numbers rather than masked values, while her colleagues in the same group see masked values. Security asks you to explain and fix the discrepancy. What is the most likely cause and correction?",
+    "options": [
+      "The masking rule was created after her session started; ask her to sign out and back in so the rule takes effect.",
+      "She also holds the Fine-Grained Reader role on the policy tag, directly or through another group, which takes precedence over Masked Reader; remove that grant if she should only see masked data.",
+      "Dynamic data masking only applies to queries from Looker Studio; her SQL workbench bypasses the rule, so she must be moved to Looker Studio.",
+      "The column has two masking rules and BigQuery picked the raw one; delete the second rule."
+    ],
+    "answer": [1],
+    "explanation": "When a principal has both the Fine-Grained Reader and Masked Reader roles on the same policy tag, BigQuery grants full access and returns the raw value, so a user who inherits Fine-Grained Reader through another group will see unmasked data while peers with only Masked Reader see masked results; the fix is to remove the broader grant. Option A is wrong because masking is evaluated at query time, not per session. Option C is false: masking applies to all query paths including the API and SQL tools. Option D misdescribes how rules work; multiple rules are resolved by a documented precedence order, and none of them return raw data to a Masked Reader.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/column-data-masking-intro#roles_and_permissions",
+      "https://cloud.google.com/bigquery/docs/column-data-masking-intro"
+    ]
+  },
+  {
+    "id": "d3-cmp-045",
+    "domain": 3,
+    "topic": "Cardholder data in analytics",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A payment facilitator wants to build fraud models in BigQuery and Vertex AI on transaction history. Its PCI DSS assessor has stated that the analytics platform will be in scope if it stores PANs. The data science team needs to link transactions from the same card and occasionally look up the issuing bank. Which two design choices allow the analytics platform to stay out of PCI DSS scope while meeting the team's needs? (Choose two.)",
+    "options": [
+      "Store a keyed cryptographic hash or token of the PAN instead of the PAN so that transactions can be linked without holding cardholder data.",
+      "Store the full PAN in a BigQuery column protected by a policy tag so that only data scientists can read it.",
+      "Retain only the first six digits (BIN) and last four digits of the card, which are sufficient to identify the issuer and not considered a full PAN.",
+      "Store the PAN encrypted with a customer-managed encryption key in the same dataset and decrypt it in queries with AEAD functions.",
+      "Load the PAN into Vertex AI Feature Store, which is a PCI-compliant managed service."
+    ],
+    "answer": [0, 2],
+    "explanation": "The platform stays out of scope only if it never stores or processes cardholder data: a keyed hash or token preserves linkage across transactions without the PAN, and keeping only the BIN and last four digits gives issuer information while remaining a truncated, non-sensitive representation per PCI DSS truncation guidance. Option B and Option D both keep the full PAN in the analytics platform, so access controls or encryption do not remove it from scope. Option E is wrong because a compliant managed service does not exempt the customer's use of PANs from scope; the customer still stores cardholder data.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/pci-dss",
+      "https://cloud.google.com/architecture/tokenizing-sensitive-cardholder-data-for-pci-dss"
+    ]
+  },
+  {
+    "id": "d3-cmp-046",
+    "domain": 3,
+    "topic": "Sensitive data discovery beyond BigQuery",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional retailer has completed an automated Sensitive Data Protection discovery scan of its BigQuery data and now wants the same continuous, low-effort visibility into personal data held in its Cloud SQL for PostgreSQL databases and Cloud Storage buckets across the organization. What should you do?",
+    "options": [
+      "Extend the organization-level discovery scan configuration to include Cloud SQL instances and Cloud Storage buckets so that data profiles are generated for them as well.",
+      "Export nightly database dumps to BigQuery so that the existing BigQuery discovery scan covers them.",
+      "Install the Ops Agent on the Cloud SQL instances and enable query logging to detect personal data.",
+      "Create a Dataflow pipeline that reads every table through JDBC and calls the inspect API row by row."
+    ],
+    "answer": [0],
+    "explanation": "Sensitive Data Protection discovery supports Cloud SQL and Cloud Storage in addition to BigQuery, so extending the existing scan configuration provides continuous profiling of those sources with no pipelines to build. Option B copies personal data into another system, increasing exposure and cost. Option C is not possible for Cloud SQL, which is managed, and query logs do not classify stored data. Option D reinvents discovery with far more effort and cost.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/data-profiles",
+      "https://cloud.google.com/sensitive-data-protection/docs/profile-cloud-sql"
+    ]
+  },
+  {
+    "id": "d3-cmp-047",
+    "domain": 3,
+    "topic": "Pseudonymization for ML",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A European health insurer wants its data science team to train risk models on claims data in BigQuery. The DPO approves the project under GDPR only if direct identifiers are pseudonymized so that the data science project cannot re-identify members, while the claims operations team retains the ability to re-identify a specific record when a member requests it. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Pseudonymize member identifiers with Sensitive Data Protection deterministic encryption using a key wrapped by a Cloud KMS key that lives in a separate, tightly controlled project.",
+      "Pseudonymize member identifiers with an unkeyed SHA-256 hash computed in a BigQuery SQL query.",
+      "Grant the claims operations service account, and not the data science project, the permissions to invoke re-identification with the wrapped key.",
+      "Grant the data science team the Cloud KMS CryptoKey Decrypter role so they can validate that the pseudonymization is correct.",
+      "Store the wrapped key in the same BigQuery dataset as the pseudonymized data for easier auditing."
+    ],
+    "answer": [0, 2],
+    "explanation": "Deterministic encryption with a KMS-wrapped key preserves joins for modeling while remaining reversible for the operations team, and separating the key into a controlled project and granting re-identification permissions only to the operations identity enforces the separation of duties the DPO requires. Option B is an unkeyed hash that can be reversed by dictionary attack on structured identifiers and is not reversible for legitimate requests. Option D gives the data science team the very capability the DPO prohibited. Option E co-locates the secret with the data, so anyone with dataset access could attempt re-identification.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/pseudonymization",
+      "https://cloud.google.com/sensitive-data-protection/docs/create-wrapped-key",
+      "https://cloud.google.com/privacy/gdpr"
+    ]
+  },
+  {
+    "id": "d3-cmp-048",
+    "domain": 3,
+    "topic": "PII in generative AI training data",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank wants to fine-tune a Gemini model on Vertex AI using five years of customer support chat transcripts to improve an internal assistant. The privacy office will only approve if no customer names, account numbers or contact details are present in the training data, and it wants a repeatable pipeline rather than a one-time manual cleanup. What should you do?",
+    "options": [
+      "Add a system instruction to the fine-tuned model telling it never to reveal customer personal data.",
+      "Apply BigQuery column-level security to the transcript column so that only the training service account can read it.",
+      "Use Model Armor on the assistant's responses to filter out any personal data the model might reproduce.",
+      "Build a Dataflow pipeline that runs the transcripts through Sensitive Data Protection de-identification (replacing findings with infoType surrogates) and writes the sanitized corpus to the training bucket used by Vertex AI."
+    ],
+    "answer": [3],
+    "explanation": "The requirement is to remove personal data from the training set itself, which is a data transformation task: a repeatable Dataflow pipeline calling Sensitive Data Protection de-identification produces a sanitized corpus that can be re-run as new transcripts arrive. Option A does not remove the data; the model would still have been trained on it and prompt instructions can be bypassed. Option B controls who reads the data, not whether personal data is present in what the model learns. Option C is a valuable output guardrail but operates after the fact and does not satisfy the requirement that the training data contain no personal data.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data",
+      "https://cloud.google.com/dataflow/docs/guides/templates/provided/dlp-text-to-bigquery"
+    ]
+  },
+  {
+    "id": "d3-cmp-049",
+    "domain": 3,
+    "topic": "Auditing access to sensitive columns",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An investment firm protects several BigQuery columns with policy tags. A regulator now asks for a report of every user who read the columns tagged as Restricted over the last 12 months, including the query text. The firm has not yet configured anything beyond the default logging. What should you do to satisfy this request going forward and explain why it cannot be fully answered for the past?",
+    "options": [
+      "Query INFORMATION_SCHEMA.JOBS in each project; it retains 12 months of job history including referenced columns.",
+      "Enable BigQuery Data Access audit logs (DATA_READ), route them with a sink to a BigQuery dataset or a log bucket with at least 12-month retention, and report on the columns accessed; explain that Data Access logs were not enabled previously so historical column access cannot be reconstructed.",
+      "Export the Admin Activity audit logs to BigQuery; they already contain 400 days of query history including column names.",
+      "Enable Access Transparency and use its logs to list which users accessed the Restricted columns."
+    ],
+    "answer": [1],
+    "explanation": "Data Access audit logs record BigQuery reads including the query and referenced tables and columns, but they are not enabled by default for most services and, when enabled, are kept only 30 days in the _Default bucket, so a sink to long-term storage is required for a 12-month look-back; because the firm never enabled them, past reads cannot be reconstructed. Option A is wrong because INFORMATION_SCHEMA.JOBS retains roughly 180 days and is not an audit record. Option C is wrong because Admin Activity logs capture configuration changes, not data reads. Option D is wrong because Access Transparency records Google personnel actions, not the customer's users.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/reference/auditlogs",
+      "https://cloud.google.com/logging/docs/audit/configure-data-access",
+      "https://cloud.google.com/logging/quotas#logs_retention_periods"
+    ]
+  },
+  {
+    "id": "d3-cmp-050",
+    "domain": 3,
+    "topic": "Date shifting for health data",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A clinical research organization wants to share patient encounter data from BigQuery with an academic partner. HIPAA Safe Harbor requires removing dates directly related to an individual, but the researchers need to preserve the number of days between each patient's admissions and discharges to study readmission rates. Which de-identification approach should you use?",
+    "options": [
+      "Replace every date with the first day of its year so that no exact dates remain.",
+      "Remove all date columns from the shared dataset and provide the researchers with aggregated readmission counts instead.",
+      "Generalize each date by bucketing it into a calendar month, which is sufficient to compute intervals.",
+      "Apply Sensitive Data Protection date shifting with a per-patient context key so that all dates for the same patient are shifted by the same random offset, preserving intervals while hiding the real dates."
+    ],
+    "answer": [3],
+    "explanation": "Date shifting moves dates by a random number of days within a configured range, and using the patient identifier as the context field ensures every date belonging to that patient is shifted by the same amount, so intervals such as time to readmission remain exact while real dates are hidden, which is the standard technique for this research need. Option A and Option C both lose the day-level precision needed for interval analysis and can still leak information about timing. Option B removes the possibility of the researchers doing their own longitudinal analysis, which is the point of sharing the data.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/concepts-date-shifting",
+      "https://cloud.google.com/sensitive-data-protection/docs/transformations-reference#date-shift"
+    ]
+  }
+]

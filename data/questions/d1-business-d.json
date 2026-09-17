@@ -1,0 +1,538 @@
+[
+  {
+    "id": "d1-bus-076",
+    "domain": 1,
+    "topic": "Windows Server BYOL",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An engineering firm is rehosting 80 Windows Server VMs to Compute Engine. It owns perpetual Windows Server Datacenter licenses that qualify for use in the cloud under its Microsoft agreement and wants to use them instead of paying Google's per-vCPU Windows Server charges. The migration must remain compliant with Microsoft licensing terms. How should you deploy these VMs?",
+    "options": [
+      "Create the VMs from Google's public Windows Server images on regular shared-core hardware and deactivate the Google license key.",
+      "Import the firm's own Windows Server images as bring-your-own-license (BYOL) images and run the VMs on sole-tenant nodes, which provide the dedicated physical hosts Microsoft requires for Windows Server BYOL.",
+      "Run the VMs on regular Compute Engine hardware using License Mobility through Software Assurance for Windows Server.",
+      "Run the VMs in GKE Windows node pools, where licensing is not charged."
+    ],
+    "answer": [1],
+    "explanation": "Microsoft permits bringing existing Windows Server licenses to Google Cloud only on dedicated hardware, which in Google Cloud means sole-tenant nodes; you import your own image (marked as BYOL so Google does not bill the license) and place instances on the sole-tenant node group, optionally using CPU overcommit and node affinity to optimize per-core license usage. Option A violates licensing terms and Google's public images always bill the premium OS license. Option C is wrong because License Mobility through Software Assurance covers server applications such as SQL Server, SharePoint and Exchange, not the Windows Server operating system. Option D is incorrect; Windows Server node pools in GKE are billed with the Windows license included.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/windows/ms-licensing",
+      "https://cloud.google.com/compute/docs/nodes/bringing-your-own-licenses"
+    ]
+  },
+  {
+    "id": "d1-bus-077",
+    "domain": 1,
+    "topic": "SQL Server license mobility",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare analytics company plans to move six SQL Server Enterprise instances to Compute Engine VMs. It owns SQL Server Enterprise licenses with active Software Assurance and wants to avoid paying the pay-as-you-go SQL Server premium, which would double the monthly VM cost. The company prefers ordinary (multi-tenant) VMs to keep the design simple. Which approach is correct?",
+    "options": [
+      "SQL Server cannot be brought to Google Cloud; use Cloud SQL for SQL Server, which includes the license.",
+      "Use the public Compute Engine SQL Server images and open a billing support case requesting removal of the license charge.",
+      "Deploy on sole-tenant nodes because all Microsoft products require dedicated hardware for BYOL.",
+      "Use License Mobility through Software Assurance: install SQL Server from the company's own media on Windows Server VMs (paying only for the Windows Server license or running Windows BYOL on sole-tenant nodes), and complete Microsoft's license verification form."
+    ],
+    "answer": [3],
+    "explanation": "SQL Server is an eligible product for Microsoft License Mobility through Software Assurance, which allows customers to deploy their own licensed server applications on shared (multi-tenant) cloud hardware, so the company can install SQL Server from its own media on Compute Engine VMs and avoid the pay-as-you-go SQL Server charge; the Windows Server OS underneath is still licensed separately (PAYG on regular VMs or BYOL on sole-tenant nodes). Option A is false; SQL Server BYOL is supported and Cloud SQL would still charge for the license. Option B does not work because Google's SQL Server images are inseparable from their license billing. Option C overstates the requirement; dedicated hardware applies to Windows Server BYOL, not to License Mobility-eligible applications such as SQL Server.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/windows/ms-licensing",
+      "https://cloud.google.com/compute/docs/instances/sql-server/creating-sql-server-instances"
+    ]
+  },
+  {
+    "id": "d1-bus-078",
+    "domain": 1,
+    "topic": "Oracle licensing and Oracle Database@Google Cloud",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A large retailer's ERP depends on an Oracle Exadata deployment on-premises. The company is moving everything else to Google Cloud and wants the Oracle databases close to the migrated applications with low latency. It wants to keep its Oracle licenses and support relationship, retain Exadata features such as RAC and smart scan, minimize the licensing compliance risk associated with running Oracle on generic cloud VMs, and offload database infrastructure operations to the vendor. Which option should you recommend?",
+    "options": [
+      "Use Oracle Database@Google Cloud, deploying Oracle Exadata Database Service in the Google Cloud region with bring-your-own-license, purchased through Google Cloud Marketplace.",
+      "Rehost the Exadata workloads onto large Compute Engine VMs with local SSDs and install Oracle RAC yourself.",
+      "Migrate the databases to Cloud SQL for PostgreSQL with Database Migration Service to eliminate Oracle licensing entirely.",
+      "Keep the Exadata on-premises and connect it to the migrated applications over Cloud VPN."
+    ],
+    "answer": [0],
+    "explanation": "Oracle Database@Google Cloud runs Oracle Exadata Database Service and Autonomous Database on Oracle-managed infrastructure physically located in Google Cloud regions, offering low latency to Google Cloud workloads, support for existing licenses (BYOL) or license-included pricing, Oracle-operated infrastructure, and procurement through Google Cloud Marketplace, which meets every stated requirement while avoiding the licensing ambiguity of Oracle on general-purpose cloud VMs. Option B loses Exadata features, requires the company to operate RAC itself, and carries the compliance risk the company wants to avoid; Bare Metal Solution would be the better self-managed alternative. Option C ignores the requirement to keep Oracle and would be a multi-year ERP re-platforming project. Option D keeps the data center dependency and introduces WAN latency and VPN bandwidth limits between application and database tiers.",
+    "refs": [
+      "https://cloud.google.com/oracle/database/docs/overview",
+      "https://cloud.google.com/bare-metal/docs/bms-planning"
+    ]
+  },
+  {
+    "id": "d1-bus-079",
+    "domain": 1,
+    "topic": "SAP HANA on Google Cloud",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A consumer goods manufacturer is migrating its SAP S/4HANA system with a 6 TB SAP HANA database to Google Cloud. SAP will only provide support if the system runs on certified infrastructure. The company owns its SAP licenses and wants to keep managing the system with its existing basis team. Which compute and licensing approach should you plan?",
+    "options": [
+      "Run SAP HANA on GKE Autopilot pods sized to 6 TB to benefit from autoscaling.",
+      "Run SAP HANA on general-purpose N2 VMs with custom machine types to save cost, using the company's own SAP licenses.",
+      "Deploy SAP HANA on SAP-certified memory-optimized Compute Engine machine types (for example, the M-series) using an SAP-specific certified OS image, bringing the company's own SAP licenses (SAP software is always BYOL) and paying for the OS subscription through Google Cloud.",
+      "Deploy SAP HANA on Cloud SQL and connect the SAP application servers to it."
+    ],
+    "answer": [2],
+    "explanation": "SAP supports HANA only on certified machine types and operating systems; on Google Cloud these are the memory-optimized families (M1, M2, M3, X4 and certain others) combined with SLES for SAP or RHEL for SAP images, which Google offers on a pay-as-you-go basis. SAP software licenses are never sold by Google, so the customer always brings its own SAP licenses; this must be captured in the migration plan's license and financial analysis. Option A is not certified and HANA is not supported in containers on GKE. Option B uses uncertified machine types, which voids SAP support. Option D is impossible; SAP HANA is its own database engine and is not offered as a Cloud SQL engine.",
+    "refs": [
+      "https://cloud.google.com/solutions/sap/docs/certifications-sap-hana",
+      "https://cloud.google.com/solutions/sap/docs/sap-hana-planning-guide"
+    ]
+  },
+  {
+    "id": "d1-bus-080",
+    "domain": 1,
+    "topic": "License implications of rehosting Windows workloads",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A financial advisory firm is preparing the financial impact analysis for rehosting 150 Windows Server VMs to Compute Engine. The CFO asks the architecture team to explain how Windows licensing will affect the monthly bill and the design. Which two statements should the team include in the analysis? (Choose two.)",
+    "options": [
+      "Using Google's pay-as-you-go Windows Server images adds a per-vCPU license charge on top of the VM price, so rightsizing the vCPU count directly reduces licensing cost.",
+      "Windows Server licenses are included free of charge on Compute Engine, so licensing has no financial impact.",
+      "Bringing the firm's existing Windows Server licenses (BYOL) requires running the VMs on sole-tenant nodes, whose dedicated host cost must be weighed against the license savings.",
+      "Windows Server VMs can only be run in a single zone per project, which affects the high availability design.",
+      "Windows licensing costs disappear if the VMs are moved into a managed instance group."
+    ],
+    "answer": [0, 2],
+    "explanation": "The two real licensing considerations are the pay-as-you-go model, where the Windows Server premium is billed per vCPU (so rightsizing and choosing fewer, appropriately sized vCPUs cuts license spend), and the BYOL model, which Microsoft allows only on dedicated hardware, meaning sole-tenant nodes whose node cost and CPU overcommit options must be modeled against the saved license fees. Option B is false; Windows is a premium image with a license charge. Option D is an invented constraint with no basis. Option E is wrong because managed instance groups change how VMs are created and scaled, not how the OS is licensed.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/windows/ms-licensing",
+      "https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes",
+      "https://cloud.google.com/compute/disks-image-pricing#premiumimages"
+    ]
+  },
+  {
+    "id": "d1-bus-081",
+    "domain": 1,
+    "topic": "Red Hat Enterprise Linux subscriptions",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecom operator has 400 Red Hat Enterprise Linux servers covered by an enterprise subscription agreement with Red Hat that it will keep paying for after migrating to Compute Engine. The migration team's cost estimate used Google's public RHEL images, which adds a significant per-instance charge. The operator wants to avoid paying twice for RHEL. What should you recommend?",
+    "options": [
+      "Continue using Google's public RHEL images and ask Red Hat for a refund on the enterprise agreement.",
+      "Switch all servers to a free RHEL-compatible distribution during migration to eliminate the cost.",
+      "Use Google's public RHEL images but select Spot VMs so the license charge is waived.",
+      "Enroll in Red Hat Cloud Access to move the existing subscriptions to Google Cloud, and migrate the servers as bring-your-own-subscription (BYOS) images (for example, by importing the existing disks with Migrate to Virtual Machines or the image import tool) so that Google does not bill the RHEL premium."
+    ],
+    "answer": [3],
+    "explanation": "Red Hat Cloud Access lets customers apply eligible existing subscriptions to certified cloud providers including Google Cloud. By importing their own RHEL disks or images as BYOS, the operator's VMs are not billed the Google RHEL premium image charge, so the subscription is paid only once, which should be reflected in the migration TCO. Option A is not how licensing works and Red Hat will not refund a contract. Option B is a significant operational and support change for 400 production servers that the question does not call for. Option C is false; Spot pricing discounts compute, not premium OS license fees.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/images/os-details",
+      "https://cloud.google.com/compute/docs/import/importing-virtual-disks"
+    ]
+  },
+  {
+    "id": "d1-bus-082",
+    "domain": 1,
+    "topic": "Cloud-first governance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "After completing its data center exit, a retail bank's board has adopted a 'cloud-first' policy for all new initiatives. Six months later, several teams have still provisioned VMs on Compute Engine to self-host databases, message brokers and CI servers, citing habit and familiarity. The CTO asks you to make the policy effective without slowing teams down. What should you recommend?",
+    "options": [
+      "Require the CTO's personal approval for every new Compute Engine instance.",
+      "Publish an architecture decision framework in which teams must first evaluate SaaS and managed services (for example, Cloud SQL, Pub/Sub, Cloud Build) and justify any self-managed alternative in a lightweight architecture review, supported by a service catalog of approved patterns and templates.",
+      "Block Compute Engine at the organization level with an organization policy so that only serverless products can be used.",
+      "Leave the teams alone, because cloud-first only concerns where infrastructure runs, not which services are used."
+    ],
+    "answer": [1],
+    "explanation": "A cloud-first approach means preferring the highest level of abstraction that satisfies the requirements: SaaS, then managed or serverless services, then self-managed infrastructure, with self-managed choices needing justification. Making this a decision framework backed by approved patterns, templates and a lightweight review changes behavior while keeping teams autonomous and fast, which reflects the operational excellence pillar. Option A creates a bottleneck and does not build understanding. Option C is too blunt; many legitimate workloads need VMs, and blanket prohibition drives shadow IT. Option D misreads cloud-first, which is about exploiting cloud capabilities, not merely relocating VMs.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence",
+      "https://cloud.google.com/architecture/framework"
+    ]
+  },
+  {
+    "id": "d1-bus-083",
+    "domain": 1,
+    "topic": "Designing for evolving business needs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech startup serving one country runs its ledger on Cloud SQL for PostgreSQL, currently at 5% of the largest instance size. Investors expect the company to expand to a dozen countries within three years, at which point a globally consistent, horizontally scalable database is likely to be needed. The engineering team is small and wants to focus on features now. How should you plan for this evolution?",
+    "options": [
+      "Keep Cloud SQL now, but isolate database access behind a well-defined data access layer, avoid PostgreSQL features that hinder portability, and define measurable triggers (write throughput, storage size, multi-region latency needs) at which the team will evaluate Spanner, which offers a PostgreSQL interface.",
+      "Migrate to Spanner immediately so the team never has to migrate later.",
+      "Shard Cloud SQL manually across instances now so that the sharding logic exists before it is needed.",
+      "Move the ledger to Bigtable now because it scales horizontally."
+    ],
+    "answer": [0],
+    "explanation": "Envisioning future improvements means designing so that change is cheap when business needs evolve, not paying for the future prematurely. Encapsulating data access and avoiding lock-in to niche features keeps the later move inexpensive, and defining objective triggers turns a vague future risk into a planned decision; Spanner's PostgreSQL interface further eases that migration. Option B commits a small team to a higher-cost, more complex platform years before it is needed. Option C introduces sharding complexity, one of the hardest engineering problems, with no current benefit. Option D is a poor fit for a ledger requiring relational transactions and would require a rewrite.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/postgresql-interface",
+      "https://cloud.google.com/architecture/framework"
+    ]
+  },
+  {
+    "id": "d1-bus-084",
+    "domain": 1,
+    "topic": "Envisioning AI-driven improvements",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A home-improvement retailer has finished migrating its e-commerce platform to Google Cloud. Product catalog and order data are now in BigQuery and Cloud SQL. The business wants to improve conversion by letting shoppers ask natural-language questions such as 'which drill can I use for concrete under 200 dollars' and receive grounded answers with product links. The company has no machine learning engineers and wants the feature live in one quarter with minimal custom code. Which approach should you recommend?",
+    "options": [
+      "Hire a data science team to train a custom large language model on the product catalog using TPUs.",
+      "Deploy an open-source LLM from Model Garden on GKE with GPUs and build a retrieval pipeline from scratch.",
+      "Use Vertex AI Search (Agent Builder) to index the product catalog as a data store and expose a search and answer experience grounded in the catalog, integrating it into the storefront through its API or widget.",
+      "Send every shopper question directly to a Gemini model with no additional context and display the response."
+    ],
+    "answer": [2],
+    "explanation": "Vertex AI Search in Agent Builder is a managed generative search and retrieval product: you connect structured or unstructured data (including BigQuery and Cloud Storage), and it provides semantic search, summaries and grounded answers with citations out of the box, which fits a team without ML engineers and a one-quarter timeline. Option A is the most expensive and slowest path and is unnecessary for catalog question answering. Option B is feasible but requires building and operating retrieval, ranking, serving and GPU infrastructure, contradicting the minimal-code constraint. Option D produces ungrounded answers that may hallucinate products and prices, which is unacceptable for a commerce experience.",
+    "refs": [
+      "https://cloud.google.com/generative-ai-app-builder/docs/introduction",
+      "https://cloud.google.com/generative-ai-app-builder/docs/enterprise-search-introduction"
+    ]
+  },
+  {
+    "id": "d1-bus-085",
+    "domain": 1,
+    "topic": "Cloud-first design principle",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A municipal government has adopted a cloud-first strategy. A department requests a new document-approval workflow system and its IT lead proposes purchasing two servers for the city's server room because 'that is how we have always done it'. As the enterprise architect, how should you apply the cloud-first strategy to this request?",
+    "options": [
+      "Approve the servers because the workload is small and the server room has spare capacity.",
+      "Require the department to build a custom application on Compute Engine VMs in Google Cloud.",
+      "Reject the request and ask the department to wait until a city-wide cloud migration program is finished.",
+      "Evaluate options in order of preference: an existing SaaS or Google Cloud Marketplace workflow product first, then a managed or serverless Google Cloud build (for example, Cloud Run with Firestore and Workflows), and permit on-premises hardware only with a documented justification."
+    ],
+    "answer": [3],
+    "explanation": "Cloud-first means the default answer for any new capability is a cloud-delivered service, evaluated from the highest abstraction downward (SaaS, then managed and serverless platforms, then infrastructure), with on-premises hardware requiring an explicit exception based on constraints such as data sovereignty or connectivity. This maximizes agility and minimizes operational overhead and capital spend. Option A perpetuates capital purchases and undifferentiated operations. Option B prescribes the lowest abstraction and custom build without considering buy options. Option C blocks the business need unnecessarily; cloud-first applies to new work regardless of legacy migration status.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/marketplace"
+    ]
+  },
+  {
+    "id": "d1-bus-086",
+    "domain": 1,
+    "topic": "Post-migration optimization",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A shipping company completed a lift-and-shift of 300 VMs to Compute Engine three months ago. The CFO notes that the monthly bill is higher than the migration business case predicted and asks the platform team where to start. The team has limited time and wants data-driven, low-risk actions first. What should you do first?",
+    "options": [
+      "Refactor the largest applications into microservices to reduce their resource usage.",
+      "Review the Recommender and Active Assist insights (idle VM, rightsizing, idle disk and committed use discount recommendations) and billing reports, apply the low-risk rightsizing and cleanup actions, then purchase commitments for the stable baseline.",
+      "Move all VMs to Spot VMs to obtain the maximum discount.",
+      "Switch the billing account to invoiced billing to negotiate a better rate."
+    ],
+    "answer": [1],
+    "explanation": "Google's migration framework ends with an optimize phase, and the fastest wins after a rehost come from Google's built-in recommendations: machine type rightsizing based on observed usage, idle VM and disk cleanup, and commitment purchase recommendations, all of which are low-risk and data-driven. Only after the baseline is efficient does it make sense to buy committed use discounts. Option A is a long, expensive program with uncertain cost impact. Option C would cause outages for stateful and long-running production workloads. Option D changes payment mechanics, not consumption, and does not by itself reduce cost.",
+    "refs": [
+      "https://cloud.google.com/recommender/docs/overview",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-087",
+    "domain": 1,
+    "topic": "Roadmap after lift-and-shift",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An online marketplace rehosted its three-tier PHP application to Compute Engine a year ago: a managed instance group of web servers, a self-managed MySQL primary with manual failover, static assets served from the web servers, and deployments done by hand over SSH. Leadership now wants a 12-month improvement roadmap that reduces operational toil and outage risk and prepares the platform for expansion into new markets, without rewriting the application. Which three improvements should the roadmap prioritize? (Choose three.)",
+    "options": [
+      "Replatform the self-managed MySQL to Cloud SQL for MySQL with high availability and automated backups using Database Migration Service.",
+      "Rewrite the application in Go as microservices before making any other change.",
+      "Serve static assets from Cloud Storage behind Cloud CDN and a global external Application Load Balancer, reducing web tier load and latency for new markets.",
+      "Increase the number of web servers in the managed instance group to reduce the impact of any failure.",
+      "Adopt infrastructure as code (Terraform) and a CI/CD pipeline (Cloud Build and Cloud Deploy) to replace manual SSH deployments with repeatable, auditable releases.",
+      "Move MySQL to a larger VM with local SSD to speed up manual failover."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "The roadmap should target the sources of toil and risk while respecting the no-rewrite constraint. Moving the database to Cloud SQL HA eliminates manual failover and backup work (reliability and operational excellence), Cloud Storage plus Cloud CDN behind a global load balancer offloads static content and improves latency for users in new markets (performance), and IaC with CI/CD replaces error-prone manual deployments with repeatable releases. Option B violates the no-rewrite constraint and delays every other benefit. Option D adds cost without addressing the real single points of failure (database and manual processes). Option F keeps the fragile self-managed database and manual failover, merely on bigger hardware.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/sql/docs/mysql/high-availability",
+      "https://cloud.google.com/deploy/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-088",
+    "domain": 1,
+    "topic": "License costs in TCO",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional insurer's migration business case shows that 35% of the projected Google Cloud run-rate for its policy administration system is the pay-as-you-go SQL Server Enterprise license charge on 24 vCPU VMs. The application's database uses only standard relational features, and the company does not own SQL Server licenses. The CFO asks how to reduce the financial impact of licensing over the next two years. What should you recommend?",
+    "options": [
+      "Include the license cost explicitly in the TCO, then evaluate in order: rightsizing the vCPU count, moving to SQL Server Standard edition if Enterprise features are unused, and planning a later migration to Cloud SQL for PostgreSQL or AlloyDB with Database Migration Service to remove the license cost entirely.",
+      "Remove the license line from the TCO because it is a Microsoft cost, not a Google Cloud cost.",
+      "Keep SQL Server Enterprise but run it on Spot VMs to offset the license fee.",
+      "Purchase a 3-year committed use discount for the VMs, which also discounts the SQL Server license charge."
+    ],
+    "answer": [0],
+    "explanation": "Determining software license implications and their financial impact is an explicit migration-planning task. The license premium is billed per vCPU, so rightsizing reduces it immediately; if the application uses only standard features, Standard edition costs a fraction of Enterprise; and a planned heterogeneous migration to a PostgreSQL-compatible managed service (a replatform supported by Database Migration Service) removes the license entirely over the two-year horizon. Option B hides a real cost from decision makers. Option C is unsuitable for a production database because Spot VMs can be preempted. Option D is incorrect; committed use discounts apply to compute resources and do not discount premium OS or SQL Server license charges.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/sql-server/creating-sql-server-instances",
+      "https://cloud.google.com/database-migration/docs/overview",
+      "https://cloud.google.com/docs/cuds"
+    ]
+  },
+  {
+    "id": "d1-bus-089",
+    "domain": 1,
+    "topic": "Choosing PAYG vs BYOL per workload",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company is migrating two groups of Windows Server workloads: a customer-facing IIS web tier that autoscales from 4 to 60 instances during live events, and 25 legacy back-office servers that run steadily around the clock. The company owns Windows Server licenses eligible for BYOL and wants the lowest overall licensing and infrastructure cost with the least operational complexity. Which approach should you recommend?",
+    "options": [
+      "Use BYOL on sole-tenant nodes for all Windows workloads, sizing the node groups for the 60-instance peak.",
+      "Use pay-as-you-go Windows images for all workloads to avoid managing licenses.",
+      "Use pay-as-you-go Windows images in a managed instance group for the autoscaling web tier, and BYOL on sole-tenant nodes for the steady back-office servers where the dedicated node cost is offset by continuous license savings.",
+      "Use BYOL on regular shared-tenant VMs for both groups to avoid sole-tenant costs."
+    ],
+    "answer": [2],
+    "explanation": "Licensing choices should be made per workload profile. An elastic tier benefits from pay-as-you-go licensing, which is billed only while instances run and needs no license inventory management, whereas keeping dedicated sole-tenant capacity for a 60-instance peak would sit mostly idle. Steady, always-on servers are where BYOL on sole-tenant nodes pays off, because the fixed node cost is amortized continuously against saved per-vCPU license fees. Option A over-provisions expensive dedicated hosts for a bursty workload. Option B forgoes real savings on the 25 steady servers. Option D violates Microsoft's requirement for dedicated hardware for Windows Server BYOL.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/windows/ms-licensing",
+      "https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes"
+    ]
+  },
+  {
+    "id": "d1-bus-090",
+    "domain": 1,
+    "topic": "Evolving from fixed capacity to elastic design",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A sports streaming service rehosted its stateless video-manifest API onto 40 fixed-size Compute Engine VMs sized for the largest match of the year. Traffic outside marquee events is about 5% of peak, and the company plans to add several new leagues next season, making peak demand unpredictable. Leadership wants the architecture to evolve so that cost tracks actual demand and new leagues can be onboarded without capacity projects. What should you recommend?",
+    "options": [
+      "Keep the 40 VMs and buy a 3-year committed use discount for all of them to lower the unit price.",
+      "Add 20 more VMs before next season to cover the new leagues.",
+      "Ask each league to provide an audience forecast and resize the fleet manually before every event.",
+      "Containerize the API and run it on Cloud Run or GKE Autopilot with request-based autoscaling and a minimum instance count for baseline, using load tests to validate scale-out speed before the season."
+    ],
+    "answer": [3],
+    "explanation": "Cloud-first design exploits elasticity: a stateless API is a natural fit for Cloud Run or GKE Autopilot, where autoscaling makes cost proportional to demand and unpredictable peaks no longer require capacity planning projects, while a minimum instance count avoids cold starts for the baseline. Load testing before the season validates that scale-out keeps pace with traffic spikes. Option A locks in payment for capacity that is 95% idle most of the year. Option B increases fixed waste and still relies on guesswork. Option C keeps a manual, forecast-driven process that breaks whenever an event over-performs.",
+    "refs": [
+      "https://cloud.google.com/run/docs/about-instance-autoscaling",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-091",
+    "domain": 1,
+    "topic": "Multicloud integration after an acquisition",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company that standardized on Google Cloud has acquired a competitor whose entire platform runs on AWS. For at least two years both platforms will operate side by side, exchanging shipment data continuously at several gigabits per second with consistent latency. The integration must be private and highly available. Which connectivity option should you propose as the foundation for this evolving multicloud architecture?",
+    "options": [
+      "Public internet endpoints protected by API keys, since both clouds are already internet-connected.",
+      "Cross-Cloud Interconnect, providing dedicated, redundant physical connectivity between the Google Cloud VPC and the AWS environment.",
+      "Cloud VPN over the internet with a single tunnel to keep cost low.",
+      "Shipping Transfer Appliances between the two providers' data centers monthly."
+    ],
+    "answer": [1],
+    "explanation": "Cross-Cloud Interconnect is Google Cloud's managed dedicated connectivity between a Google Cloud VPC and another cloud provider such as AWS, delivering high bandwidth (10 or 100 Gbps), predictable latency and, when deployed redundantly, a high availability SLA, which is what a multi-year, high-throughput multicloud integration requires. Option A exposes business data flows to the public internet with variable latency and weaker security. Option C is capped in bandwidth per tunnel, offers no SLA with a single tunnel, and has variable internet latency. Option D is for bulk offline transfers, not continuous data exchange.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/cross-cloud-interconnect-overview",
+      "https://cloud.google.com/architecture/hybrid-multicloud-patterns"
+    ]
+  },
+  {
+    "id": "d1-bus-092",
+    "domain": 1,
+    "topic": "SAP migration options and disposition",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mid-sized manufacturer runs SAP ECC on-premises with a small basis team that struggles to keep up with patching and upgrades. SAP mainstream maintenance for ECC ends in 2027, so the company must move to S/4HANA. Leadership wants the move to Google Cloud to reduce the operational burden as much as possible, prefers a subscription over capital spend, and wants the option to use Google Cloud analytics and AI on SAP data. Which approach should you recommend?",
+    "options": [
+      "Adopt RISE with SAP on Google Cloud, where SAP delivers S/4HANA as a subscription-based, SAP-managed service running on Google Cloud, and integrate SAP data with BigQuery through the Google Cloud Cortex Framework.",
+      "Rehost the existing ECC system to Compute Engine with Migrate to Virtual Machines and postpone the S/4HANA conversion indefinitely.",
+      "Have the basis team perform a self-managed greenfield S/4HANA implementation on Compute Engine and operate it themselves.",
+      "Replace SAP with a custom ERP built on Cloud Run and Spanner."
+    ],
+    "answer": [0],
+    "explanation": "The requirements point to a 'buy' disposition with the lowest operational burden: RISE with SAP on Google Cloud is SAP's subscription offering in which SAP operates S/4HANA on Google Cloud infrastructure, removing patching and upgrade work from the small basis team while keeping the data inside Google Cloud, where Cortex Framework accelerates SAP data integration with BigQuery and Vertex AI. Option B merely relocates the problem and does not address the 2027 end of maintenance. Option C is the highest-effort path for a team that already struggles with operations. Option D is an enormous, high-risk bespoke build for a commodity capability that no manufacturer should treat as a differentiator.",
+    "refs": [
+      "https://cloud.google.com/solutions/sap",
+      "https://cloud.google.com/cortex/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-093",
+    "domain": 1,
+    "topic": "Oracle on Bare Metal Solution",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payment switch operator runs a latency-critical Oracle RAC 19c database on-premises with a specialized configuration that its own DBAs tune extensively. It is migrating the application tier to Compute Engine in a specific Google Cloud region. The company must keep its existing Oracle licenses, needs RAC, requires sub-millisecond latency from the application VMs to the database, and wants to keep full control of the database software and operating system. Which platform should you recommend for the database?",
+    "options": [
+      "Cloud SQL for PostgreSQL, migrated with Database Migration Service to eliminate Oracle.",
+      "Oracle RAC installed on a pair of large Compute Engine VMs using shared persistent disks.",
+      "Oracle Autonomous Database through Oracle Database@Google Cloud, which is fully managed by Oracle.",
+      "Bare Metal Solution: certified bare-metal servers in a regional extension adjacent to the Google Cloud region, connected to the VPC over a low-latency Partner Interconnect, with the company's own Oracle RAC installation and BYOL."
+    ],
+    "answer": [3],
+    "explanation": "Bare Metal Solution provides dedicated, Oracle-certified hardware in a facility adjacent to the Google Cloud region with a managed low-latency interconnect into the VPC, where customers install and fully control their own Oracle RAC software and operating system under their existing licenses, which matches every requirement here. Option A ignores the requirement to keep Oracle and would be a re-platforming project. Option B is not supported by Oracle for RAC and creates licensing and support ambiguity. Option C is attractive for teams that want Oracle to manage the database, but it removes the operating system and deep tuning control that this operator's DBAs require.",
+    "refs": [
+      "https://cloud.google.com/bare-metal/docs/bms-planning",
+      "https://cloud.google.com/oracle/database/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-094",
+    "domain": 1,
+    "topic": "Triggers for architectural evolution",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An architecture review board at a growing marketplace company wants to define objective signals that indicate when a workload's architecture should be re-evaluated rather than simply scaled up. The company runs a monolithic order service on Compute Engine backed by a Cloud SQL instance. Which two signals most strongly indicate that an architectural change, not just resizing, is needed? (Choose two.)",
+    "options": [
+      "Average CPU utilization of the order service VMs is 40% during business hours.",
+      "The Cloud SQL primary is at the largest available machine size, write latency is rising, and adding read replicas no longer helps because the bottleneck is write throughput.",
+      "The monthly bill increased 8% while order volume increased 10%.",
+      "Release frequency has dropped to once a month because any change to the monolith requires full regression testing of every business function, and teams block each other.",
+      "A new engineer suggests that Kubernetes is more modern than managed instance groups."
+    ],
+    "answer": [1, 3],
+    "explanation": "Envisioning future improvements should be driven by evidence that the current design has hit structural limits. A vertically maxed-out relational primary with a write-throughput bottleneck cannot be fixed by more replicas; it is a trigger to evaluate horizontally scalable options such as Spanner or a different data partitioning strategy. Likewise, when delivery speed collapses because of coupling, decomposing the monolith into independently deployable services (or extracting the most volatile domains) addresses the business need for agility. Option A is healthy utilization. Option C shows cost growing slower than volume, which is improving unit economics. Option E is a technology preference without a business or technical driver.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/spanner/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-095",
+    "domain": 1,
+    "topic": "Cloud-first data platform decision",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer's on-premises enterprise data warehouse appliance reaches end of life in 12 months, and the vendor has quoted a multi-million-dollar hardware and license renewal. The company has a cloud-first policy, a team fluent in SQL, and 400 nightly ETL jobs written in the appliance's SQL dialect. Leadership wants to avoid the capital renewal and modernize analytics, but is worried about the cost of translating 400 jobs. What should you recommend?",
+    "options": [
+      "Run an assessment with the BigQuery Migration Service (including its SQL translation and assessment tooling) to size the translation effort, then migrate the warehouse to BigQuery in phases using BigQuery Data Transfer Service for data movement, declining the appliance renewal.",
+      "Renew the appliance for five more years and revisit cloud after the next end-of-life.",
+      "Lift the appliance software onto Compute Engine VMs to preserve the SQL dialect exactly.",
+      "Rewrite all 400 ETL jobs as Dataflow pipelines in Java before moving any data."
+    ],
+    "answer": [0],
+    "explanation": "The cloud-first policy and the imminent capital renewal make this the ideal moment to replace the appliance with BigQuery, and Google provides tooling to de-risk the translation concern: BigQuery Migration Service includes assessment reports and batch SQL translation for major warehouse dialects, and BigQuery Data Transfer Service moves the data. A phased migration lets the team validate results before the renewal deadline. Option B commits significant CapEx against the company's own policy. Option C is generally not licensed or supported by appliance vendors and keeps the license cost. Option D is an unnecessary rewrite in a new language when SQL translation preserves the team's existing skills.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/migration-intro",
+      "https://cloud.google.com/bigquery/docs/migration/teradata-overview"
+    ]
+  },
+  {
+    "id": "d1-bus-096",
+    "domain": 1,
+    "topic": "Per-core ISV licensing",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A geospatial company uses a commercial simulation engine licensed per physical CPU core, with an annual fee per core that exceeds the cost of the servers themselves. The vendor's terms require that licensed software run only on hosts whose physical cores can be identified and counted. The company plans to run 30 instances of the engine on Google Cloud and wants to minimize the total cost of licenses plus infrastructure. What should you recommend?",
+    "options": [
+      "Run the instances on regular Compute Engine VMs and count vCPUs as cores in the license report.",
+      "Run the instances on Spot VMs so that infrastructure savings offset the license cost.",
+      "Run the instances on sole-tenant nodes, which expose dedicated physical hosts with a known core count, and use node affinity plus CPU overcommit to pack as many instances as practical onto the fewest licensed cores.",
+      "Run the instances on GKE Autopilot so that the platform abstracts away physical hardware."
+    ],
+    "answer": [2],
+    "explanation": "Sole-tenant nodes give you a dedicated physical server with a documented socket and core count, satisfying vendor terms that tie licenses to identifiable physical cores; node affinity keeps the licensed workloads on the licensed hosts, and CPU overcommit lets you run more VMs per node when the workload tolerates it, minimizing the number of cores that must be licensed. Option A cannot satisfy terms requiring physical core identification and typically over-counts licenses because two vCPUs map to one physical core. Option B does not address the licensing requirement at all and risks preemption. Option D abstracts hardware, making physical core attribution impossible.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes",
+      "https://cloud.google.com/compute/docs/nodes/bringing-your-own-licenses"
+    ]
+  },
+  {
+    "id": "d1-bus-097",
+    "domain": 1,
+    "topic": "Evolving batch workloads toward serverless",
+    "difficulty": "medium",
+    "type": "single",
+
+    "caseStudy": null,
+    "question": "After rehosting, a utility company runs 120 nightly batch scripts (Python and shell) on a single always-on Compute Engine VM driven by cron. The VM is idle 20 hours a day, a failed job is noticed only when someone checks the logs, and the VM has become a single point of failure. The company wants the next evolution of this workload to reduce cost, improve reliability and observability, and keep code changes minimal. What should you recommend?",
+    "options": [
+      "Move the scripts to a larger VM with a second VM as a manual standby.",
+      "Rewrite each script as a Dataflow pipeline to gain parallelism.",
+      "Package the scripts as container images and run them as Cloud Run jobs triggered by Cloud Scheduler (or orchestrated by Workflows for dependencies), with execution logs, retries and alerting in Cloud Observability.",
+      "Keep the VM but add a Cloud Monitoring uptime check so that the team is alerted if the VM goes down."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Run jobs are designed for containerized batch tasks that run to completion: the scripts are packaged mostly unchanged, compute is billed only while jobs run (eliminating 20 idle hours), each execution is logged and can be retried, failures raise alerts, and there is no single VM to fail. Cloud Scheduler replaces cron and Workflows can express job dependencies. Option A doubles cost and remains manual. Option B is a rewrite into a different programming model that most simple scripts do not need. Option D detects VM failure but does not address idle cost, job-level visibility or the single point of failure.",
+    "refs": [
+      "https://cloud.google.com/run/docs/create-jobs",
+      "https://cloud.google.com/scheduler/docs/overview",
+      "https://cloud.google.com/workflows/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-098",
+    "domain": 1,
+    "topic": "Anticipating regulatory evolution",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A European insurer runs its claims platform in Google Cloud regions in the EU. Regulators have announced that within two years, insurers will be required to demonstrate that regulated data is stored and processed only in the EU, that Google support personnel accessing the data are located in the EU, and that customers control the encryption keys. The insurer wants to prepare now with minimal re-architecture and a clear audit trail. What should you recommend?",
+    "options": [
+      "Wait for the regulation to take effect and then move the workloads to an on-premises data center.",
+      "Create an Assured Workloads folder with the appropriate EU sovereign controls package, migrate the claims projects into it so that data residency, personnel access and Cloud KMS key controls are enforced and monitored, and use Access Transparency and Access Approval for auditability.",
+      "Enable VPC Service Controls around the projects, which guarantees data residency and restricts support personnel access.",
+      "Encrypt all data client-side in the application before writing it to any Google Cloud service."
+    ],
+    "answer": [1],
+    "explanation": "Envisioning future improvements includes anticipating regulatory change. Assured Workloads applies a controls package at the folder level that enforces resource location restrictions, limits Google support personnel by location, requires customer-managed keys where applicable, and continuously monitors for violations, while Access Transparency and Access Approval provide the audit trail for any Google access; moving projects into the folder is far less disruptive than re-architecting. Option A abandons cloud benefits and is unnecessary. Option C is wrong because VPC Service Controls mitigates data exfiltration between services; it does not enforce data residency or personnel location. Option D requires intrusive application changes, breaks server-side processing and analytics, and still does not address personnel or residency requirements.",
+    "refs": [
+      "https://cloud.google.com/assured-workloads/docs/overview",
+      "https://cloud.google.com/assured-workloads/docs/control-packages",
+      "https://cloud.google.com/assured-workloads/docs/access-transparency"
+    ]
+  },
+  {
+    "id": "d1-bus-099",
+    "domain": 1,
+    "topic": "Commitments during modernization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company has just rehosted its platform to Compute Engine and spends a predictable amount each month. Its 24-month roadmap will move most services to Cloud Run and GKE Autopilot as they are containerized. The finance team wants to lock in discounts on the stable spend now but is worried about being stuck paying for Compute Engine resources that will no longer exist in a year. Which commitment strategy should you recommend?",
+    "options": [
+      "Buy 3-year resource-based committed use discounts for the current Compute Engine vCPU and memory footprint to maximize the discount percentage.",
+      "Avoid all commitments until the modernization is complete, paying on-demand prices for two years.",
+      "Purchase spend-based Compute flexible committed use discounts, which apply to eligible spend across Compute Engine, Cloud Run and GKE Autopilot, so the commitment continues to be consumed as workloads move between these services.",
+      "Buy 1-year resource-based commitments for Cloud Run instances now in anticipation of the migration."
+    ],
+    "answer": [2],
+    "explanation": "Compute flexible CUDs are spend-based commitments that apply to eligible usage across Compute Engine VM families, Cloud Run and GKE Autopilot, so as workloads are containerized and move platforms the commitment is still consumed; this fits a company whose total compute spend is stable but whose service mix will change. Option A ties the commitment to specific resource types and regions, creating exactly the stranded-commitment risk finance fears. Option B forgoes substantial savings on spend that is predictable in aggregate. Option D is invalid because Cloud Run is covered by spend-based flexible commitments, not resource-based instance commitments purchased in advance.",
+    "refs": [
+      "https://cloud.google.com/docs/cuds-flexible",
+      "https://cloud.google.com/docs/cuds"
+    ]
+  },
+  {
+    "id": "d1-bus-100",
+    "domain": 1,
+    "topic": "Designing for future change",
+    "difficulty": "easy",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A national newspaper is writing a three-year cloud architecture roadmap for its digital platform on Google Cloud. The editor-in-chief notes that the business model changed twice in the last three years (from advertising to subscriptions, and now toward AI-generated personalization), so the architecture must be able to absorb changes the company cannot yet predict. Which two design principles should anchor the roadmap? (Choose two.)",
+    "options": [
+      "Standardize on a single large relational database shared by all applications so that data is always in one place.",
+      "Build the platform as loosely coupled services with well-defined APIs and asynchronous events (for example, Pub/Sub), so individual capabilities can be replaced or extended without rewriting the whole platform.",
+      "Freeze the technology stack for three years to avoid the cost of change.",
+      "Prefer managed and serverless Google Cloud services and infrastructure as code, so the team's effort goes into new business capabilities rather than operating infrastructure, and environments can be recreated or evolved quickly.",
+      "Require every new feature to be approved by the board to reduce the rate of change."
+    ],
+    "answer": [1, 3],
+    "explanation": "Architectures that absorb unpredictable business change share two traits: loose coupling through APIs and events, which lets capabilities such as a personalization engine be added or swapped without a platform rewrite, and a bias toward managed services and infrastructure as code, which minimizes undifferentiated operations and makes environments reproducible and easy to evolve. Both are core Well-Architected Framework recommendations for operational excellence and cloud-first design. Option A creates a tightly coupled data monolith that makes every change risky. Option C guarantees the platform falls behind the business. Option E slows delivery without improving adaptability.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/pubsub/docs/overview"
+    ]
+  }
+]

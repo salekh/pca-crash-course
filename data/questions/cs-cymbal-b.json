@@ -1,0 +1,431 @@
+[
+  {
+    "id": "cs-cym-021",
+    "domain": 1,
+    "topic": "Workflows with human approval callbacks",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. The enrichment pipeline generates content for a product, waits for an associate's decision in the review UI, which can take minutes or several days, and then publishes the approved content to the catalog and downstream channels. You need to orchestrate this long-running, multi-step process with the least operational overhead. What should you do?",
+    "options": [
+      "Run a Cloud Run function that calls Gemini and then sleeps in a loop until the associate's decision appears in the database.",
+      "Use Workflows to orchestrate the steps: call Gemini, create a callback endpoint and store its URL with the review item, pause until the review UI posts the decision to the callback, then continue with the publish steps.",
+      "Schedule a Cloud Composer DAG to run every minute and check whether any review decisions are pending.",
+      "Deploy a GKE CronJob that scans the review table hourly and publishes approved items."
+    ],
+    "answer": [1],
+    "explanation": "Workflows is serverless and supports callback endpoints, so an execution can wait for up to a year for an external event (the associate's approval) without consuming compute, then resume the remaining steps with built-in retries and error handling, which is exactly the human-in-the-loop orchestration pattern. Option A hits Cloud Run request timeouts, burns billable time while sleeping, and is not resilient. Option C uses a heavyweight, always-on Composer environment and one-minute polling for what is an event-driven wait. Option D introduces up to an hour of delay and still requires a cluster and custom scheduling logic.",
+    "refs": [
+      "https://cloud.google.com/workflows/docs/creating-callback-endpoints",
+      "https://cloud.google.com/workflows/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-cym-022",
+    "domain": 2,
+    "topic": "Integration Connectors for SFTP suppliers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Dozens of Cymbal's suppliers can deliver product feeds only by placing files on their own SFTP servers, and each feed must be picked up daily and fed into the catalog enrichment pipeline. Cymbal does not want to run servers or write custom polling code for this. What should you do?",
+    "options": [
+      "Require all suppliers to switch to Cymbal's REST API within thirty days and stop accepting SFTP feeds.",
+      "Deploy a Compute Engine VM with cron and an SFTP client that downloads the files and copies them to Cloud Storage.",
+      "Order a Transfer Appliance for each supplier to ship their product feeds.",
+      "Use Application Integration with the SFTP connector from Integration Connectors to poll each supplier's SFTP server on a schedule, land the files in Cloud Storage, and trigger the enrichment pipeline."
+    ],
+    "answer": [3],
+    "explanation": "Application Integration is Google Cloud's managed integration platform, and Integration Connectors include an SFTP connector, so scheduled retrieval from supplier SFTP servers, mapping, error handling, and delivery to Cloud Storage or Pub/Sub can be configured without servers or custom code, aligning with the goal of streamlined third-party integrations. Option A is a business risk Cymbal cannot impose on dozens of suppliers on short notice. Option B is exactly the self-managed, script-based approach the case study wants to retire. Option C is for one-time bulk migrations, not daily feeds.",
+    "refs": [
+      "https://cloud.google.com/integration-connectors/docs/connectors/sftp/configure",
+      "https://cloud.google.com/application-integration/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-cym-023",
+    "domain": 1,
+    "topic": "Event-driven catalog consistency",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. A business requirement is to ensure product information is consistent across all sales channels: the website, the mobile app, third-party marketplaces, and the call center's order system. Today each channel is updated on its own schedule, so descriptions and prices diverge for hours or days. How should you design the publishing of approved catalog content?",
+    "options": [
+      "Treat the approved catalog as the system of record, publish a 'product updated' event to Pub/Sub on every approval, and have each channel integration (Vertex AI Search for commerce catalog import, web and app cache invalidation, marketplace feed generators, call center system) consume the events idempotently and acknowledge only after success.",
+      "Have each channel call Gemini independently to regenerate the product content whenever it needs to display the product.",
+      "Run a nightly full export of the catalog and push a file to each channel over SFTP.",
+      "Ask associates to update each channel's administration console manually after approving content."
+    ],
+    "answer": [0],
+    "explanation": "Consistency across many consumers is achieved with a single source of truth and event-driven fan-out: Pub/Sub delivers each change to every subscribed channel in near real time, idempotent consumers make retries safe, and acknowledgement after success means no channel silently misses an update; Vertex AI Search for commerce is updated through its catalog import API as one of those consumers. Option B guarantees inconsistency because each channel would generate different text. Option C keeps the divergence window at up to 24 hours and perpetuates the SFTP batch integrations. Option D is manual, slow, and error-prone.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/overview",
+      "https://cloud.google.com/retail/docs/import-catalog",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "cs-cym-024",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Customer PII and order history will be stored in BigQuery and Cloud Storage and used by Vertex AI for personalization. The security team wants to reduce the risk that a compromised credential or a misconfigured IAM binding lets this data be copied to a project or account outside Cymbal. What should you do?",
+    "options": [
+      "Rely on carefully reviewed IAM policies alone, since IAM already restricts who can read the data.",
+      "Put all resources into one project owned by the security team so there is nowhere else to copy data.",
+      "Create a VPC Service Controls perimeter around the projects that contain BigQuery, Cloud Storage, and Vertex AI, with access levels for trusted networks and identities, and use customer-managed encryption keys for the most sensitive datasets.",
+      "Block all internet egress with VPC firewall rules so data cannot leave the network."
+    ],
+    "answer": [2],
+    "explanation": "VPC Service Controls adds a data-exfiltration boundary that IAM cannot: even a principal with valid permissions cannot copy BigQuery tables or Cloud Storage objects to a project outside the perimeter or call the APIs from untrusted networks, and CMEK adds a further control that Cymbal can revoke. Option A is precisely the single point of failure the team is worried about. Option B does not prevent copying data out via the APIs and hurts separation of duties. Option D controls VM network traffic, but data exfiltration through Google APIs (for example, bq cp to another project) does not depend on VPC egress.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/overview",
+      "https://cloud.google.com/kms/docs/cmek"
+    ]
+  },
+  {
+    "id": "cs-cym-025",
+    "domain": 6,
+    "topic": "SLOs for AI-powered services",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. After launch, Cymbal wants proactive monitoring of the new product discovery and virtual agent services so that degradations are detected before customers complain and before sales conversion drops. Which monitoring approach should you recommend?",
+    "options": [
+      "Alert on CPU and memory utilization of the GKE nodes that host the web application.",
+      "Define SLIs and SLOs for the user-facing behavior (search p95 latency and error rate, agent response availability, conversation containment rate), create burn-rate alerts in Cloud Monitoring, add synthetic monitors that exercise search and chat flows, and export conversation history to BigQuery for quality dashboards.",
+      "Have the product team review a weekly report of customer complaints and search abandonment.",
+      "Create a log-based alert for every log entry that contains the word 'error' across all projects."
+    ],
+    "answer": [1],
+    "explanation": "Proactive monitoring means measuring what users experience and alerting when the error budget is being consumed too fast; SLO burn-rate alerts, synthetic monitors that continuously exercise critical flows, and quality metrics such as containment rate and escalation rate reveal problems in the managed AI services even when infrastructure looks healthy. Option A monitors infrastructure that is mostly managed and does not reflect search relevance or agent failures. Option C is reactive and weekly. Option D produces alert fatigue, the same problem that makes today's alerts ignored.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/monitoring/synthetic-monitors",
+      "https://cloud.google.com/dialogflow/cx/docs/concept/analytics"
+    ]
+  },
+  {
+    "id": "cs-cym-026",
+    "domain": 5,
+    "topic": "Infrastructure and AI configuration as code",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's platform team must stand up identical development, staging, and production environments that include GKE clusters, Cloud SQL, Vertex AI Search for commerce resources, and the Conversational Agents agent, and they want every change reviewed and reproducible. Which two practices should you adopt? (Choose two.)",
+    "options": [
+      "Define the infrastructure in Terraform executed by Cloud Build with remote state in a Cloud Storage bucket and pull-request review before apply.",
+      "Create each environment by clicking through the console and documenting the steps in a wiki.",
+      "Manage the Conversational Agents agent and Vertex AI Search resources as code by exporting the agent and applying it with the API or Terraform provider in the CI pipeline for each environment.",
+      "Keep the Terraform state file on the lead engineer's laptop so that only one person can apply changes.",
+      "Use a single shared production project for all three environments to keep configuration identical."
+    ],
+    "answer": [0, 2],
+    "explanation": "Reproducibility requires that both the infrastructure and the AI application resources be declared in version control and applied by a pipeline: Terraform with Cloud Build and remote state handles projects, GKE, Cloud SQL and supporting resources, and Conversational Agents supports export/restore and Terraform resources so the agent can be promoted as code alongside data store definitions. Option B is manual and drifts immediately. Option D loses state on a lost laptop and blocks collaboration. Option E removes environment isolation, so a staging mistake becomes a production outage.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/best-practices-for-terraform",
+      "https://cloud.google.com/dialogflow/cx/docs/concept/agent#export"
+    ]
+  },
+  {
+    "id": "cs-cym-027",
+    "domain": 2,
+    "topic": "GKE autoscaling for promotions",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's containerized storefront services run on self-managed Kubernetes clusters that are sized by hand before each promotion and are frequently either overloaded or over-provisioned. The scalability requirement says the platform must accommodate growth without compromising user experience. What should you do?",
+    "options": [
+      "Keep the current clusters and have engineers add worker nodes manually two days before every promotion.",
+      "Rehost the services on fixed-size managed instance groups of Compute Engine VMs.",
+      "Rewrite every service for Cloud Run in the next two weeks and decommission Kubernetes.",
+      "Migrate the clusters to GKE (Autopilot where possible), configure Horizontal Pod Autoscaler on request and custom metrics with cluster autoscaling, and load test with realistic traffic before promotions."
+    ],
+    "answer": [3],
+    "explanation": "GKE gives the existing containerized services elastic capacity: HPA scales pods on load and Autopilot or cluster autoscaler adds nodes automatically, so promotions are absorbed without manual sizing and idle capacity is released afterward; load testing validates the scaling configuration ahead of time. Option A remains manual and error-prone. Option B loses orchestration the services already rely on and does not autoscale. Option C is an unnecessary rewrite on an unrealistic timeline for workloads that already run well on Kubernetes.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/horizontalpodautoscaler",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler"
+    ]
+  },
+  {
+    "id": "cs-cym-028",
+    "domain": 3,
+    "topic": "PCI DSS scope reduction",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's SQL Server order database currently stores full payment card numbers that call center agents key in, which places most of the environment in PCI DSS scope. As part of the modernization you must design the target state to minimize compliance scope and risk. What should you do?",
+    "options": [
+      "Stop storing primary account numbers by tokenizing card data through a PCI DSS-compliant payment processor, isolate any remaining cardholder data environment in dedicated projects and VPC with tightly restricted access, and use Sensitive Data Protection discovery to verify that card numbers do not leak into other datastores or logs.",
+      "Keep the card numbers in SQL Server but encrypt the column with customer-managed encryption keys from Cloud KMS.",
+      "Move the database to Cloud SQL for SQL Server and rely on Google Cloud's PCI DSS certification to cover Cymbal's obligations.",
+      "Move the card numbers into Firestore, which is a different database and therefore outside the PCI scope of the order system."
+    ],
+    "answer": [0],
+    "explanation": "The most effective PCI control is to not possess cardholder data: tokenization through a compliant processor removes PANs from Cymbal's systems, segmentation isolates whatever residual cardholder data environment remains, and Sensitive Data Protection discovery continuously scans BigQuery, Cloud SQL, and Cloud Storage to catch accidental copies. Option B keeps PANs in scope; encryption is required but does not shrink scope. Option C misreads the shared responsibility model; Google's certification covers the platform, not Cymbal's applications and data handling. Option D just moves the sensitive data and extends scope to another system.",
+    "refs": [
+      "https://cloud.google.com/architecture/limiting-compliance-scope-pci-environments-google-cloud",
+      "https://cloud.google.com/security/compliance/pci-dss",
+      "https://cloud.google.com/sensitive-data-protection/docs/data-profiles"
+    ]
+  },
+  {
+    "id": "cs-cym-029",
+    "domain": 2,
+    "topic": "Keeping the retail search index fresh",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. The new product discovery experience is live, but results rank poorly for new products and stale prices appear during promotions. The catalog changes continuously and the team is unsure how to feed Vertex AI Search for commerce correctly. What should you do?",
+    "options": [
+      "Re-import the full catalog once a day and do not send user events, because the catalog alone determines ranking.",
+      "Send only purchase events, since they are the only signal that indicates real intent.",
+      "Use incremental catalog imports (from BigQuery or inline updates) as products and prices change, and stream user events such as search, detail-page-view, add-to-cart, and purchase through the API or JavaScript pixel so the ranking models learn continuously.",
+      "Export user events to Cloud Storage once a month and import them in bulk."
+    ],
+    "answer": [2],
+    "explanation": "Vertex AI Search for commerce relevance depends on two feeds: a current catalog, which should be updated incrementally as attributes, prices, and availability change, and a rich stream of real-time user events, which the models use to learn personalization and ranking; both are recommended to be near real time. Option A leaves prices stale for up to a day and starves the model of behavioral signals. Option B omits the browse and search events needed for ranking, and event volume would be too low to train well. Option D delays learning by a month and delivers events without the context the models need.",
+    "refs": [
+      "https://cloud.google.com/retail/docs/import-catalog",
+      "https://cloud.google.com/retail/docs/record-user-events"
+    ]
+  },
+  {
+    "id": "cs-cym-030",
+    "domain": 4,
+    "topic": "Change management for AI adoption",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Catalog associates are anxious that gen AI enrichment will make their jobs redundant, and early pilot feedback is negative even though quality metrics are good. As the architect advising the program lead, what should you recommend to secure adoption?",
+    "options": [
+      "Mandate use of the new tool and track individual rejection rates in performance reviews.",
+      "Involve associates in designing the review workflow, position the human-in-the-loop role as the quality authority, provide training, publish shared metrics such as time saved and error reduction, and iterate on their feedback.",
+      "Remove the human-in-the-loop step so that associates are no longer exposed to the AI output.",
+      "Pause the program until the model produces content that never needs edits."
+    ],
+    "answer": [1],
+    "explanation": "Adoption is a stakeholder-management problem: involving the people whose work changes, making their expertise explicitly part of the process, training them, and sharing transparent outcome metrics builds trust and improves the system through their feedback. Option A creates fear and gaming of metrics. Option C removes a control the case study requires and eliminates the very role that makes associates valuable. Option D sets an impossible bar and forfeits the business value the executive statement expects.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence",
+      "https://cloud.google.com/architecture/framework/perspectives/ai-ml"
+    ]
+  },
+  {
+    "id": "cs-cym-031",
+    "domain": 1,
+    "topic": "Cloud SQL for SQL Server",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's order management system uses Microsoft SQL Server with extensive stored procedures, and the DBA team is skilled in SQL Server administration but small. Cymbal wants to move this database to Google Cloud to cut data-center hosting costs with the least application change and the least ongoing effort. What should you do?",
+    "options": [
+      "Migrate the database to AlloyDB for PostgreSQL to take advantage of its performance.",
+      "Migrate the database to Spanner for unlimited scale.",
+      "Run SQL Server in a StatefulSet on GKE to align with the container platform.",
+      "Migrate to Cloud SQL for SQL Server with high availability enabled, using backup and restore or Database Migration Service, so that stored procedures and drivers keep working while Google manages patching, backups, and failover."
+    ],
+    "answer": [3],
+    "explanation": "A homogeneous migration to Cloud SQL for SQL Server preserves the T-SQL stored procedures, tooling, and the team's skills while offloading infrastructure administration to Google, which satisfies both the least-change and least-effort constraints and lowers hosting cost. Option A and Option B are heterogeneous migrations that would require rewriting stored procedures and extensive testing. Option C keeps the database self-managed and running a commercial RDBMS in a StatefulSet adds complexity for backups, failover, and licensing.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/sqlserver/best-practices",
+      "https://cloud.google.com/database-migration/docs/sqlserver"
+    ]
+  },
+  {
+    "id": "cs-cym-032",
+    "domain": 5,
+    "topic": "Agent Assist for human agents",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Even after the virtual agent is deployed, some complex calls still reach human call center agents who must search several systems and then type long notes after each call. Cymbal wants to shorten handle time for these remaining calls. What should you do?",
+    "options": [
+      "Deploy Agent Assist for the live agents with real-time transcription, knowledge and product suggestions, and generative call summarization, connected to the order system so context is carried over from the virtual agent.",
+      "Give each agent a general-purpose Gemini chat window in a browser tab to ask questions during calls.",
+      "Record every call and have a quality team review recordings the following week.",
+      "Add more IVR menu options so that fewer calls reach human agents."
+    ],
+    "answer": [0],
+    "explanation": "Agent Assist is designed for exactly this case: it listens to the live conversation, surfaces relevant knowledge and next-step suggestions in real time, and generates a summary at the end so the agent does not type notes, and hand-off from the Conversational Agents virtual agent passes conversation context along, all of which cut handle time and cost. Option B provides no conversation context, no integration, and risks pasting customer PII into an unmanaged tool. Option C is retrospective and does not help during the call. Option D degrades the customer experience rather than helping agents.",
+    "refs": [
+      "https://cloud.google.com/agent-assist/docs/basics",
+      "https://cloud.google.com/agent-assist/docs/summarization"
+    ]
+  },
+  {
+    "id": "cs-cym-033",
+    "domain": 3,
+    "topic": "Least-privilege access for the review UI",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. In the human-in-the-loop review application, junior associates may approve or reject suggestions, but only category leads may publish changes to the live catalog, and auditors must be able to see who did what. How should you implement access control?",
+    "options": [
+      "Grant all associates the Editor role on the project so that the application can rely on project permissions.",
+      "Use Cloud Identity groups for reviewers and publishers mapped to least-privilege application roles, enforce them in the app using the identity asserted by Identity-Aware Proxy, and record actions in Cloud Audit Logs and application audit tables.",
+      "Have all associates share a single service account credential that the application trusts.",
+      "Assign basic IAM roles to each associate individually and update them whenever someone changes team."
+    ],
+    "answer": [1],
+    "explanation": "Group-based, least-privilege authorization is the recommended IAM pattern: membership changes are handled once in the directory, the application distinguishes reviewer and publisher roles based on the authenticated identity that IAP asserts in signed headers, and audit logs provide the accountability auditors need. Option A grants broad project permissions unrelated to the task. Option C destroys individual accountability. Option D uses coarse basic roles and does not scale administratively.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/using-iam-securely",
+      "https://cloud.google.com/iap/docs/signed-headers-howto"
+    ]
+  },
+  {
+    "id": "cs-cym-034",
+    "domain": 1,
+    "topic": "Recommendations to increase engagement",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal wants to increase customer engagement and reduce product returns by showing each shopper items that genuinely fit their preferences on product pages, in the cart, and within the conversational agent. The data science team is small and the catalog spans many sub-verticals. Which approach should you recommend?",
+    "options": [
+      "Display the global best-sellers list on every page so that the most popular items are always visible.",
+      "Build collaborative filtering models on Dataproc with Spark MLlib and retrain them weekly.",
+      "Use Vertex AI Search for commerce recommendation models (for example 'Others you may like', 'Frequently bought together', and 'Recommended for you') trained on the catalog and user events, serve them on the web, app, and through the agent's tools, and track return rate and click-through as KPIs.",
+      "Ask a Gemini model to guess each customer's preferences from their name and location."
+    ],
+    "answer": [2],
+    "explanation": "Vertex AI Search for commerce includes managed recommendation models that use the same catalog and user-event feeds as search, offer optimization objectives such as click-through, conversion, or revenue, and can be served in any channel including as a tool for the conversational agent, which lets a small team deliver personalization at scale. Option A is not personalized and does nothing for returns. Option B requires ongoing feature engineering, training infrastructure, and expertise the team lacks. Option D is not grounded in behavior, would be inaccurate, and raises fairness and privacy concerns.",
+    "refs": [
+      "https://cloud.google.com/retail/docs/recommendations-overview",
+      "https://cloud.google.com/retail/docs/models"
+    ]
+  },
+  {
+    "id": "cs-cym-035",
+    "domain": 3,
+    "topic": "Data residency for generative AI",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal is expanding to the European Union, where regulators require that EU customers' personal data and their conversations with virtual agents be stored and processed only within the EU. Cymbal's current gen AI resources are all in the United States. What should you do?",
+    "options": [
+      "Call Gemini through EU regional Vertex AI endpoints, create the Vertex AI Search for commerce and Conversational Agents resources for EU customers in EU locations, and enforce the resource locations organization policy on the EU folder so nothing is created elsewhere.",
+      "Keep the existing US resources and use the global Vertex AI endpoint, which automatically respects the customer's location.",
+      "Use the Gemini Developer API from Google AI Studio for EU traffic because it is a separate service.",
+      "Encrypt EU customer data with an EU-hosted Cloud KMS key before sending it to the US resources."
+    ],
+    "answer": [0],
+    "explanation": "Data residency for AI services is achieved by selecting the region or multi-region where the resources live and the data is processed at rest: Vertex AI offers regional endpoints in EU locations, Vertex AI Search and Conversational Agents can be created in the EU multi-region, and the organization policy constraint prevents accidental creation of resources outside the EU. Option B is wrong because the global endpoint may process requests in any region and does not provide residency guarantees. Option C is a consumer/developer API without the enterprise data-governance and residency commitments of Vertex AI. Option D does not change where the data is processed; the model must decrypt it in the US.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/data-governance",
+      "https://cloud.google.com/dialogflow/cx/docs/concept/region"
+    ]
+  },
+  {
+    "id": "cs-cym-036",
+    "domain": 6,
+    "topic": "Load testing before peak events",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's first holiday sales event on Google Cloud is in eight weeks, and it will drive ten times normal traffic through the storefront on GKE, Vertex AI Search for commerce, and the conversational agent. The SRE lead asks how to ensure the solution and operations are ready. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Rely on autoscaling to handle whatever traffic arrives, since GKE and the managed AI services scale automatically.",
+      "Run distributed load tests against a production-like environment that replay realistic customer traffic patterns, including search and agent conversations, and fix the bottlenecks found.",
+      "Test capacity for the first time during the live event so that results reflect real customer behavior.",
+      "Verify API quotas and autoscaler limits for GKE, Vertex AI Search for commerce, and Conversational Agents, request increases in advance, and confirm SLO-based alerting and on-call runbooks are in place.",
+      "Test only the database tier, because compute and AI services are managed by Google."
+    ],
+    "answer": [1, 3],
+    "explanation": "Reliability under peak load must be demonstrated before the event: realistic load tests reveal bottlenecks such as connection pools, Memorystore sizing, or slow downstream calls, and a quota and limits review catches ceilings that autoscaling cannot exceed (regional CPU quota, per-minute API quotas, node-pool maximums), while alerting and runbooks make the on-call response effective. Option A ignores quotas and dependencies that autoscaling cannot fix. Option C risks revenue and reputation on the most important day of the year. Option E leaves the majority of the request path untested.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability",
+      "https://cloud.google.com/docs/quotas/view-manage",
+      "https://cloud.google.com/kubernetes-engine/docs/tutorials/distributed-load-testing-using-gke"
+    ]
+  },
+  {
+    "id": "cs-cym-037",
+    "domain": 4,
+    "topic": "Quality control for generated content",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal must ensure the accuracy and consistency of gen AI-generated attributes and descriptions as models and prompts evolve, without relying on associates to read every item forever. Which two quality-control measures should you put in place? (Choose two.)",
+    "options": [
+      "Use the Vertex AI Gen AI evaluation service with a golden set of approved products and rubric-based metrics to score every prompt or model change before it is rolled out.",
+      "Accept all generated output automatically once the model has been in production for a month.",
+      "Track human-in-the-loop approval, edit, and rejection rates per category and per prompt version as ongoing quality metrics, and feed frequent corrections back into prompt and schema improvements.",
+      "Rely on the model's self-reported confidence score as the sole indicator of quality.",
+      "Disable safety filters so that fewer items are blocked and throughput increases."
+    ],
+    "answer": [0, 2],
+    "explanation": "Quality control for gen AI combines pre-release evaluation and in-production measurement: the Gen AI evaluation service compares outputs against a curated golden set with computation- and model-based metrics so regressions are caught before deployment, and HITL decision rates are a real-world quality signal that also identifies which categories or prompts need work, allowing sampling rather than full review over time. Option B removes control entirely. Option D is unreliable because LLM confidence is not calibrated to factual accuracy. Option E trades safety for throughput, which conflicts with the compliance requirement.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview",
+      "https://cloud.google.com/architecture/framework/perspectives/ai-ml"
+    ]
+  },
+  {
+    "id": "cs-cym-038",
+    "domain": 4,
+    "topic": "Data-center cost reduction planning",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal operates a mix of on-premises and cloud systems and has a business requirement to reduce data-center hosting costs. The CFO wants a credible plan with a defensible business case rather than a big-bang move. What should you do first?",
+    "options": [
+      "Migrate every on-premises system to Google Cloud during a single weekend to stop paying for the data center as soon as possible.",
+      "Use Migration Center to discover the on-premises inventory and utilization, produce a total-cost-of-ownership comparison and right-sized targets, then plan migration waves that prioritize workloads with expiring hardware or high hosting cost and apply committed use discounts for steady-state usage.",
+      "Purchase new on-premises hardware to lower per-unit costs and revisit the cloud in three years.",
+      "Keep all existing systems on-premises and add only the new gen AI workloads in Google Cloud."
+    ],
+    "answer": [1],
+    "explanation": "A defensible plan starts with data: Migration Center collects inventory and performance data, recommends right-sized Google Cloud targets, and generates TCO reports that the CFO can compare against current hosting costs; wave planning by hardware lifecycle and cost impact captures savings early while limiting risk, and committed use discounts lower the steady-state run rate. Option A is high-risk and gives no business case. Option C locks in capital expense and contradicts the modernization goal. Option D leaves the hosting cost, the silos, and the legacy integrations untouched.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/docs/cuds"
+    ]
+  },
+  {
+    "id": "cs-cym-039",
+    "domain": 2,
+    "topic": "Spanner for globally scalable inventory",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal is building a new real-time inventory service that must serve the storefront, the conversational agent, and marketplaces across several continents with strongly consistent stock counts, relational queries, and transactional reservations, and it must scale horizontally as the catalog and order volume grow. The team is willing to adopt a new database for this greenfield service. Which database should you recommend?",
+    "options": [
+      "Cloud SQL for MySQL with application-level sharding across many instances.",
+      "Bigtable with one row per SKU and per-row atomic updates.",
+      "Spanner in a multi-region configuration, using its relational schema, SQL, and externally consistent transactions.",
+      "Firestore in Native mode with a document per SKU and client-side transactions."
+    ],
+    "answer": [2],
+    "explanation": "Spanner is the only option that combines horizontal scalability, relational schema and SQL joins, and strongly consistent, multi-row transactions across regions with a 99.999% multi-region SLA, which is exactly what a global inventory service with reservations needs. Option A pushes sharding, rebalancing, and cross-shard transaction logic into the application. Option B offers only single-row atomicity and no SQL joins, so reservations spanning multiple rows are not transactional. Option D lacks relational joins and complex query patterns required here, making it a poorer fit for a relational inventory model.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/overview",
+      "https://cloud.google.com/spanner/docs/instance-configurations"
+    ]
+  },
+  {
+    "id": "cs-cym-040",
+    "domain": 5,
+    "topic": "API management for third-party integrations",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. As part of technical stack modernization, Cymbal wants marketplaces, logistics partners, and suppliers to integrate through secure product and order APIs instead of file exchanges, with per-partner quotas and usage analytics. What should you do?",
+    "options": [
+      "Exchange the API contracts by email and let each partner connect to the internal service addresses.",
+      "Create a dedicated Cloud VPN tunnel for each partner into Cymbal's VPC network.",
+      "Expose the GKE services directly through public IP addresses and rely on IP allowlists per partner.",
+      "Publish the product and order APIs through Apigee as API products with OAuth 2.0 security, quota and spike-arrest policies, a developer portal for partner onboarding, and API analytics."
+    ],
+    "answer": [3],
+    "explanation": "Apigee is Google Cloud's API management platform and directly delivers the requested capabilities: secure exposure with OAuth and threat protection, per-partner quotas, a self-service developer portal that accelerates onboarding, and analytics on usage and errors, all without changing backend services. Option A provides no security, quota, or visibility. Option B is expensive to scale to many partners and still lacks API-level controls. Option C exposes internal services without authentication, rate limiting, or analytics.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/get-started/what-apigee",
+      "https://cloud.google.com/apigee/docs/api-platform/publish/what-api-product"
+    ]
+  }
+]

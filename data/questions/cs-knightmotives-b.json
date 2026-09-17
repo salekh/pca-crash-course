@@ -1,0 +1,431 @@
+[
+  {
+    "id": "cs-km-021",
+    "domain": 6,
+    "topic": "Load testing and SLOs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. The rearchitected build-to-order system is about to launch on Cloud Run and Spanner. Dealers were burned by the old system's unreliability, and leadership wants evidence before launch that the new system meets its availability and latency targets at three times the expected peak configurator traffic, and that the team will know within minutes if those targets are at risk in production. What should you do?",
+    "options": [
+      "Launch to all dealers and rely on Cloud Run autoscaling to absorb whatever traffic arrives.",
+      "Ask a few dealers to try the system manually the week before launch and report any slowness.",
+      "Define availability and latency SLOs for the ordering API, run distributed load tests (for example Locust or k6 on GKE, or Cloud Load Balancing traffic replay) against a production-like environment at 3x peak, fix bottlenecks found, and create SLO burn-rate alerts in Cloud Monitoring before launch.",
+      "Provision the maximum instance count on Cloud Run and the largest Spanner configuration so that performance testing is unnecessary."
+    ],
+    "answer": [2],
+    "explanation": "Reliability must be verified, not assumed: explicit SLOs make the target measurable, load testing at a multiple of peak validates the design (including Spanner schema hotspots and downstream dependencies) before dealers are exposed, and burn-rate alerts provide the production early warning leadership asked for. Option A repeats the old system's approach of discovering problems in production. Option B is unscientific and cannot reproduce peak load. Option D wastes money and still does not prove behavior under load, because bottlenecks such as hot keys or third-party dependencies are not solved by capacity. Testing frameworks and reliability validation are explicit exam objectives.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+    ]
+  },
+  {
+    "id": "cs-km-022",
+    "domain": 6,
+    "topic": "Chaos engineering and DR testing",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. The new build-to-order platform is deployed across two Google Cloud regions with a global external Application Load Balancer and multi-region Spanner. The architecture document claims the system survives a regional outage, but the claim has never been exercised, and the dealer council wants proof. Which two practices should you adopt to validate and continuously maintain this resilience? (Choose two.)",
+    "options": [
+      "Review the architecture diagram annually with the dealer council and sign an attestation.",
+      "Schedule regular game days in which a region's backends are deliberately drained or failed (for example by disabling the backend service in one region or injecting faults) while measuring recovery time against the RTO.",
+      "Turn off health checks so the load balancer never removes backends and traffic is always served.",
+      "Run automated chaos experiments in pre-production on every release that inject latency and failures into dependencies, with the pipeline failing if SLOs are violated.",
+      "Keep a manual runbook that instructs the on-call engineer to change DNS records during an outage.",
+      "Reduce the Spanner configuration to a single region to simplify failover testing."
+    ],
+    "answer": [1, 3],
+    "explanation": "The Well-Architected Framework reliability pillar recommends proving recovery through regular DR drills and chaos engineering: game days validate real failover behavior and measure RTO, and automated fault-injection tests in the pipeline keep the guarantee true as the system evolves. Option A is documentation, not evidence. Option C blinds the load balancer and would send traffic to a failed region. Option E reintroduces manual, slow failover that the multi-region design was meant to eliminate. Option F removes the very resilience being tested. Chaos engineering and reliability testing appear explicitly in exam objective 6.6.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
+      "https://cloud.google.com/architecture/disaster-recovery"
+    ]
+  },
+  {
+    "id": "cs-km-023",
+    "domain": 1,
+    "topic": "Edge computing with Google Distributed Cloud",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives wants to deploy a computer-vision quality-inspection model on assembly lines in its plants. Inspection results must be returned in under 50 milliseconds to stop the line on a defect, the plants have limited and sometimes unreliable connectivity to headquarters and the cloud, and the AI team wants to keep training models in Vertex AI and manage plant deployments centrally with the same Kubernetes tooling used in the cloud. What should you do?",
+    "options": [
+      "Stream camera frames to a Vertex AI endpoint in the nearest Google Cloud region and return the inference result to the line controller.",
+      "Run inference on Cloud Run functions triggered by frames uploaded to Cloud Storage.",
+      "Install standalone GPU workstations on each line with manually copied model files.",
+      "Deploy Google Distributed Cloud (connected) at each plant to run the inference containers on-site with local GPUs, manage the clusters as fleet members from Google Cloud, and push new model versions from Vertex AI through the same GitOps pipeline."
+    ],
+    "answer": [3],
+    "explanation": "A 50-millisecond, line-stopping decision with unreliable WAN links must be computed on-premises; Google Distributed Cloud connected brings GKE-managed hardware with GPUs into the plant, operates during disconnection, and is managed centrally as part of a fleet, so models trained in Vertex AI can be rolled out consistently across all plants. Option A and Option B depend on the WAN round trip and connectivity that the case study says is a challenge, and cannot meet the latency bound. Option C works locally but is unmanaged, inconsistent across plants, and impossible to update safely at scale. This is a performance and operational-excellence decision for an edge workload.",
+    "refs": [
+      "https://cloud.google.com/distributed-cloud/connected/docs/overview",
+      "https://cloud.google.com/distributed-cloud/connected/docs/gke-on-gdc-connected"
+    ]
+  },
+  {
+    "id": "cs-km-024",
+    "domain": 2,
+    "topic": "GKE Enterprise multicloud",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives will run containerized dealer and vehicle services on GKE in Google Cloud, but contractual and latency reasons mean some Kubernetes clusters must remain on the other cloud provider and in the headquarters data center for several years. The platform team wants a single inventory of clusters, uniform security policies, and one deployment workflow across all three locations. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Register the on-premises and other-cloud Kubernetes clusters into the GKE Enterprise fleet as attached clusters (or run GKE on AWS/Azure) so they appear alongside the GKE clusters.",
+      "Migrate every cluster to Google Cloud before attempting any standardization.",
+      "Use Config Sync and Policy Controller at fleet scope to apply the same namespaces, RBAC, and policy constraints to all member clusters from Git.",
+      "Maintain a separate CI/CD pipeline and policy repository per cloud to respect each provider's conventions.",
+      "Build custom dashboards per environment by exporting each cluster's metrics to a spreadsheet.",
+      "Connect the clusters with VPC Network Peering between the clouds."
+    ],
+    "answer": [0, 2],
+    "explanation": "GKE Enterprise fleets are the multicloud management plane: attached clusters (and GKE on other clouds) bring external clusters into the same inventory, and fleet-scoped Config Sync and Policy Controller enforce identical configuration and guardrails everywhere from a single Git source, giving one workflow across Google Cloud, the other cloud, and on-premises. Option B ignores the contractual and latency constraints. Option D institutionalizes the fragmentation the case study is trying to remove. Option E is manual and not a management solution. Option F is wrong because VPC Network Peering only connects Google Cloud VPC networks, not other clouds or data centers.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/multi-cloud/docs/attached/overview",
+      "https://cloud.google.com/kubernetes-engine/fleet-management/docs"
+    ]
+  },
+  {
+    "id": "cs-km-025",
+    "domain": 1,
+    "topic": "Time-series storage selection",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' connected fleet will send sensor telemetry (speed, battery state, lane events) at millions of writes per second. Vehicle services need single-digit-millisecond retrieval of the most recent readings for a given vehicle, while data scientists need to run large analytical queries over months of history for safety statistics. You want a design with managed services and minimal operational overhead. What should you do?",
+    "options": [
+      "Write all telemetry to Cloud SQL for PostgreSQL with a table partitioned by day and run analytics on a read replica.",
+      "Ingest through Pub/Sub into Dataflow, write hot per-vehicle time series to Bigtable with a row key of vehicle ID and reversed timestamp, and stream the same events into BigQuery for analytics.",
+      "Store every reading as a JSON object in Cloud Storage and query it with BigQuery external tables.",
+      "Write all telemetry directly to Spanner and run both operational and analytical queries there."
+    ],
+    "answer": [1],
+    "explanation": "Bigtable is designed for massive write throughput and low-latency key-based reads of time-series data, and a vehicle-ID-plus-reversed-timestamp row key makes 'latest readings for a vehicle' a fast scan; BigQuery serves the analytical workload, and Pub/Sub plus Dataflow feeds both without custom infrastructure. Option A cannot sustain millions of writes per second. Option C produces billions of small objects and slow external-table scans, and cannot provide millisecond lookups. Option D is far more expensive at this ingest volume and Spanner is optimized for relational transactions, not petabyte-scale analytics. This is a performance and cost-optimization decision.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/schema-design-time-series",
+      "https://cloud.google.com/architecture/connected-devices"
+    ]
+  },
+  {
+    "id": "cs-km-026",
+    "domain": 2,
+    "topic": "Content distribution and signed URLs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. To bring modern features to legacy hybrid and ICE vehicles, KnightMotives will deliver multi-gigabyte over-the-air software packages to millions of vehicles worldwide. Packages must be downloadable only by authenticated vehicles, rolled out in stages (1%, 10%, 100%) so a bad release can be halted, and delivered quickly to vehicles in every region without overloading the origin. What should you do?",
+    "options": [
+      "Host the packages on a Compute Engine web server in one region and let vehicles download directly.",
+      "Email dealers a USB image and have vehicles updated during service visits.",
+      "Publish packages to a public Cloud Storage bucket and announce the URL to all vehicles simultaneously.",
+      "Store packages in Cloud Storage behind Cloud CDN, issue short-lived signed URLs (or signed cookies) to authenticated vehicles from an update service that assigns each vehicle to a rollout cohort, and expand cohorts only when telemetry shows the release is healthy."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Storage with Cloud CDN scales global distribution of large binaries with edge caching, signed URLs restrict downloads to authenticated vehicles for a limited time, and an update service controlling cohorts implements staged rollout with the ability to halt, which together meet security, scale, and safety requirements. Option A is a single-region, single-server bottleneck with poor latency for distant vehicles. Option B contradicts the goal of modern, over-the-air experiences and takes months. Option C is insecure and a simultaneous global release cannot be halted if defective. This blends performance optimization with release-management safety.",
+    "refs": [
+      "https://cloud.google.com/cdn/docs/using-signed-urls",
+      "https://cloud.google.com/storage/docs/access-control/signed-urls"
+    ]
+  },
+  {
+    "id": "cs-km-027",
+    "domain": 3,
+    "topic": "Key management and separation of duties",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. Following past breaches, KnightMotives' security team requires that all driver PII stored in BigQuery and Cloud Storage be encrypted with keys that the security team, not the data-platform team, controls; that keys be rotated automatically; that any data-platform administrator be unable to disable or destroy the keys; and that for the EU autonomous-platform data specifically, Google cannot decrypt the data without a justified, logged request approved by KnightMotives. What should you do?",
+    "options": [
+      "Create Cloud KMS key rings in a dedicated security project owned by the security team with automatic rotation, grant the data-platform service agents only the CryptoKey Encrypter/Decrypter role, apply CMEK to the datasets and buckets, and for the EU data use Cloud EKM keys held in an external key manager with Key Access Justifications.",
+      "Rely on Google default encryption at rest for all data and enable Data Access audit logs so key usage can be reviewed.",
+      "Create Cloud KMS keys inside the data-platform project so the platform team can manage encryption alongside the data, and rotate keys manually every quarter.",
+      "Encrypt the data client-side with a key stored in Secret Manager in the data-platform project before uploading."
+    ],
+    "answer": [0],
+    "explanation": "Separation of duties is achieved by keeping keys in a security-owned project where data administrators only have permission to use, not manage, the keys; CMEK with automatic rotation covers BigQuery and Cloud Storage; and Cloud External Key Manager with Key Access Justifications gives KnightMotives an externally held key and the ability to approve or deny each Google access to it, which satisfies the EU sovereignty requirement. Option B provides no customer control over keys. Option C puts key control in the hands of the team it must be separated from and relies on manual rotation. Option D creates an operational burden, breaks native BigQuery querying, and stores the key where the data team controls it. Managing CMEK with Cloud KMS is an explicit exam objective.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/separation-of-duties",
+      "https://cloud.google.com/kms/docs/ekm",
+      "https://cloud.google.com/assured-workloads/key-access-justifications/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-km-028",
+    "domain": 5,
+    "topic": "Environment provisioning and guardrails",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. Dozens of KnightMotives product teams will start building on Google Cloud during the modernization. Today each new project takes weeks of tickets and ends up configured differently, and the security team fears repeating the misconfigurations that contributed to past breaches. You need teams to get compliant, consistently configured projects within hours, with security baselines they cannot remove. What should you do?",
+    "options": [
+      "Grant each team lead the Organization Administrator role so they can create projects themselves.",
+      "Create one shared project for all teams to avoid the overhead of provisioning many projects.",
+      "Implement a Terraform-based project factory (for example from the Cloud Foundation Fabric or Toolkit modules) run through Cloud Build or Infrastructure Manager that creates projects in the correct folder with baseline logging, IAM, networking, and enforce organization policy constraints at the folder level; optionally expose it through Service Catalog for self-service.",
+      "Document a 40-page manual checklist that each team must follow when creating a project."
+    ],
+    "answer": [2],
+    "explanation": "A project factory automates repeatable, reviewed provisioning of projects with the security baseline built in, and organization policy constraints inherited from the folder cannot be removed by project-level administrators, giving both speed and enforced guardrails; Service Catalog adds governed self-service. Option A hands out a highly privileged role, violating least privilege and inviting the misconfigurations feared. Option B eliminates isolation between teams and blast-radius containment. Option D is slow, unenforced, and will drift exactly as before. Service catalog and provisioning is an explicit exam objective under technical processes.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/blueprints/terraform-blueprints",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
+    ]
+  },
+  {
+    "id": "cs-km-029",
+    "domain": 1,
+    "topic": "Migration strategy for VMware workloads",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' headquarters data center hosts about 600 VMware virtual machines for manufacturing execution and dealer back-office applications, many with licensing tied to vSphere features and operated by a team skilled only in vSphere tooling. The data center contract ends in nine months, and there is no time to refactor. You want to move these workloads to Google Cloud with the least risk and change. What should you do?",
+    "options": [
+      "Refactor the applications into containers on GKE Autopilot before the contract ends.",
+      "Migrate the VMs to Google Cloud VMware Engine using HCX, keeping the vSphere tooling and licensing model, and modernize individual applications later.",
+      "Rebuild each application on Cloud Run and migrate the databases to Spanner.",
+      "Extend the data-center contract by five years and revisit migration later."
+    ],
+    "answer": [1],
+    "explanation": "Google Cloud VMware Engine is the lift-and-shift path for VMware estates: HCX migrates VMs with minimal downtime, vSphere-dependent licensing and operational skills carry over unchanged, and modernization can follow incrementally, which is the lowest-risk option against a hard deadline. Option A and Option C are refactoring efforts that cannot be completed safely for 600 VMs in nine months and require skills the team lacks. Option D postpones the modernization the business needs and continues the capital spending the CFO is trying to shift. Google Cloud VMware Engine is explicitly listed in the exam guide's compute topics.",
+    "refs": [
+      "https://cloud.google.com/vmware-engine/docs/overview",
+      "https://cloud.google.com/vmware-engine/docs/workloads/howto-migrate-vms-using-hcx"
+    ]
+  },
+  {
+    "id": "cs-km-030",
+    "domain": 2,
+    "topic": "ML lifecycle and reproducibility",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. Regulators in KnightMotives' first autonomous-driving launch region can, after an incident, request proof of exactly which dataset version, preprocessing code, hyperparameters, and evaluation results produced the perception model running in a given vehicle software release. Today the team trains in ad hoc notebooks and cannot answer such questions. Which approach should you recommend?",
+    "options": [
+      "Ask engineers to record training details in a shared document after each successful run.",
+      "Save every model file with the training date in its filename in a Cloud Storage bucket.",
+      "Keep the notebooks but require a screenshot of the evaluation metrics to be attached to each release ticket.",
+      "Implement the training workflow as a Vertex AI Pipeline that consumes versioned Vertex AI managed datasets, records artifacts and parameters automatically in Vertex ML Metadata, registers evaluated models in Vertex AI Model Registry, and links the registered model version to the vehicle software release."
+    ],
+    "answer": [3],
+    "explanation": "Vertex AI Pipelines automatically track lineage—dataset versions, code artifacts, parameters, metrics, and produced models—in Vertex ML Metadata, and Model Registry provides versioned, evaluated models that can be tied to a release, giving a reproducible, auditable trail that satisfies regulatory evidence requests and the case study's demand for compliance with evolving autonomous-vehicle regulations. Option A and Option C depend on human diligence and are incomplete and unverifiable. Option B captures the model binary but none of the data, code, or evaluation lineage. Using pipelines to automate and orchestrate the ML lifecycle is an explicit exam objective.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/pipelines/introduction",
+      "https://cloud.google.com/vertex-ai/docs/ml-metadata/introduction"
+    ]
+  },
+  {
+    "id": "cs-km-031",
+    "domain": 1,
+    "topic": "Generative AI in-vehicle assistant",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives wants a conversational in-vehicle assistant that behaves identically across BEV, hybrid, and ICE models. Drivers should be able to ask questions answered from the correct owner's manual for their exact model and year, and issue commands such as 'schedule a service appointment at my dealer' that call KnightMotives' backend APIs. Answers must not be fabricated, and the assistant must be updatable centrally without changing vehicle firmware. What should you do?",
+    "options": [
+      "Build the assistant on Vertex AI using a Gemini model with grounding on a Vertex AI Search data store of owner's manuals filtered by model and year, use function calling (tools) to invoke the dealer-scheduling and vehicle APIs, and expose it through a versioned API that the vehicles call.",
+      "Embed a different fine-tuned model in each vehicle line's firmware, trained on that line's manual.",
+      "Use the Natural Language API to extract entities from the driver's speech and match them against a keyword table of manual sections.",
+      "Prompt a Gemini model with no external data and instruct it to answer from its general knowledge of cars."
+    ],
+    "answer": [0],
+    "explanation": "Grounding Gemini in a Vertex AI Search data store restricts answers to the authoritative manual content (with metadata filters for model and year), which prevents fabrication; function calling lets the model invoke backend actions; and exposing it as a centrally managed API delivers the cohesive experience across all models while allowing updates without firmware changes. Option B multiplies models, drifts across lines, and cannot be updated centrally, recreating the fragmentation problem. Option C is not conversational and cannot execute actions. Option D will hallucinate model-specific details and has no access to KnightMotives' systems. This supports the case study's consistent-experience and AI-feature requirements.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/grounding/overview",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling"
+    ]
+  },
+  {
+    "id": "cs-km-032",
+    "domain": 4,
+    "topic": "Business intelligence and row-level access",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives wants to give hundreds of dealers self-service dashboards on inventory, order pipeline, and service performance built from the BigQuery data platform. Each dealer must see only its own data, KnightMotives analysts must see all dealers, and the business wants to avoid creating and maintaining a separate dashboard or dataset per dealer. What should you do?",
+    "options": [
+      "Create a BigQuery dataset and a Looker Studio report for each dealer and share each one individually.",
+      "Export each dealer's data nightly to a spreadsheet and email it to the dealer principal.",
+      "Build the dashboards in Looker on a shared semantic model, and enforce dealer scoping with Looker user attributes mapped to dealer IDs (or BigQuery row-level security policies on the underlying tables), so one dashboard serves every dealer with filtered data.",
+      "Give every dealer the BigQuery Data Viewer role on the shared dataset and ask them to filter by their dealer ID."
+    ],
+    "answer": [2],
+    "explanation": "Looker's governed semantic layer with user attributes (or BigQuery row-level security enforced at the data layer) lets a single dashboard definition serve all dealers while each user sees only permitted rows; analysts get an unrestricted attribute. Option A multiplies maintenance by the number of dealers, the very outcome to avoid. Option B is not self-service and leaks data through email. Option D relies on dealers voluntarily filtering and exposes every dealer's data to every other dealer, a serious confidentiality failure for a company recovering from breaches. This is an operational-efficiency and security decision supporting the dealer-experience requirement.",
+    "refs": [
+      "https://cloud.google.com/looker/docs/admin-panel-users-user-attributes",
+      "https://cloud.google.com/bigquery/docs/row-level-security-intro"
+    ]
+  },
+  {
+    "id": "cs-km-033",
+    "domain": 3,
+    "topic": "Sensitive Data Protection",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. Before KnightMotives publishes datasets for monetization, the privacy office must know which of the thousands of BigQuery tables and Cloud Storage buckets contain personal data such as names, addresses, vehicle identification numbers, and precise locations, and must keep that inventory current automatically as new data arrives. What should you do?",
+    "options": [
+      "Ask each data owner to fill in a quarterly questionnaire about the columns in their tables.",
+      "Enable Sensitive Data Protection discovery (data profiling) at the organization level for BigQuery and Cloud Storage, and publish the resulting profiles and risk scores to Dataplex Universal Catalog and Security Command Center.",
+      "Write SQL queries with regular expressions against every table each month to look for PII patterns.",
+      "Run the Cloud Data Loss Prevention API once on a sample of tables during the initial project and document the results."
+    ],
+    "answer": [1],
+    "explanation": "Sensitive Data Protection discovery continuously profiles BigQuery and Cloud Storage data across the organization, classifies infoTypes such as names, addresses, and locations, assigns sensitivity and risk levels, and integrates with Dataplex and Security Command Center so the inventory stays current without manual effort. Option A is unreliable and stale. Option C is brittle, expensive at scale, and misses many infoTypes. Option D is a one-time snapshot that becomes outdated as soon as new data lands. Sensitive Data Protection is an explicitly named tool in the exam's security objectives.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/data-profiles",
+      "https://cloud.google.com/sensitive-data-protection/docs/sensitive-data-protection-overview"
+    ]
+  },
+  {
+    "id": "cs-km-034",
+    "domain": 1,
+    "topic": "Mainframe data integration",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. While the mainframe supply-chain system is being modernized over several years, the data platform team needs daily copies of the mainframe's parts inventory and supplier datasets in BigQuery so that dealer tools and monetization products can use them. The mainframe team will not allow new online transactions or agents that add MIPS-heavy processing during business hours, and the data is stored in EBCDIC-encoded VSAM and sequential files. What should you do?",
+    "options": [
+      "Install a Datastream agent on the mainframe to capture changes from the VSAM files in real time.",
+      "Have dealer tools query the mainframe directly through a REST gateway during the day.",
+      "Use the Google Cloud Mainframe Connector in the mainframe's nightly batch JCL to transcode the EBCDIC datasets to a BigQuery-compatible format, upload them to Cloud Storage, and load them into BigQuery, offloading the transcoding to Cloud Run where possible to reduce mainframe CPU usage.",
+      "Print the datasets to PDF reports and process them with Document AI."
+    ],
+    "answer": [2],
+    "explanation": "The Mainframe Connector is designed for exactly this case: it runs inside existing batch JCL, converts EBCDIC/copybook data, moves it to Cloud Storage, and loads BigQuery, and it supports remote transcoding on Cloud Run to minimize mainframe MIPS, respecting the constraint against daytime online load. Option A is wrong because Datastream does not support mainframe VSAM sources. Option B adds online load to the mainframe during business hours and leaves the data siloed rather than in the platform. Option D is an absurdly lossy and fragile path for structured data. This is an integration-pattern decision that unblocks the data-monetization goal during a phased migration.",
+    "refs": [
+      "https://cloud.google.com/mainframe-connector/docs/overview",
+      "https://cloud.google.com/mainframe-connector/docs/remote-transcoding"
+    ]
+  },
+  {
+    "id": "cs-km-035",
+    "domain": 5,
+    "topic": "Secure developer environments",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. To attract talent and accelerate the modernization, KnightMotives is onboarding many contract developers and a remote engineering team. After past breaches, the security team will not allow source code or credentials for the vehicle and dealer platforms to reside on unmanaged laptops, yet developers need fully configured environments with the SDKs and gcloud tooling on day one. What should you do?",
+    "options": [
+      "Provide Cloud Workstations with preconfigured, security-hardened images inside a VPC, accessed through the browser or local IDE with Identity-Aware Proxy, so code and credentials stay in Google Cloud.",
+      "Ship each contractor a company laptop and require them to install the tooling from a wiki page.",
+      "Let contractors use their own laptops but require them to email the code to the security team weekly for review.",
+      "Create a shared Compute Engine VM with a single user account that all contractors SSH into with a shared key."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Workstations provide managed, ephemeral, centrally configured development environments running inside KnightMotives' VPC; source and credentials never leave Google Cloud, images are standardized and patched centrally, and access is governed by IAM and IAP, meeting both the security and day-one productivity goals. Option B is slow, costly, and still places code on endpoints. Option C exposes code on unmanaged devices with only after-the-fact review. Option D uses shared credentials with no isolation or auditability, a serious anti-pattern. Cloud Shell Editor, Cloud Code, and developer tooling fall under exam objective 5.2.",
+    "refs": [
+      "https://cloud.google.com/workstations/docs/overview",
+      "https://cloud.google.com/workstations/docs/architecture"
+    ]
+  },
+  {
+    "id": "cs-km-036",
+    "domain": 3,
+    "topic": "Regional deployment and organization policy",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives will launch fully autonomous driving first in two countries with favorable regulation, whose regulators require that vehicle data from their roads is processed and stored only inside their national borders. Engineering teams, however, tend to default to a US region when creating resources. You must guarantee, not merely recommend, that every resource in the autonomous-platform projects for each launch country is created only in the approved in-country region, without slowing development elsewhere in the company. What should you do?",
+    "options": [
+      "Publish a wiki page listing approved regions and audit resources manually each quarter.",
+      "Create one folder per launch country, place that country's autonomous-platform projects in it, and set the constraints/gcp.resourceLocations organization policy on each folder to allow only the approved in-country region(s), leaving the constraint unrestricted on other folders.",
+      "Set the resourceLocations constraint at the organization root to allow only the two launch countries' regions.",
+      "Use a Terraform variable for region and trust code review to catch mistakes."
+    ],
+    "answer": [1],
+    "explanation": "The resource-locations organization policy constraint is enforced by the platform at creation time, so resources cannot be created outside allowed locations; scoping it per country folder gives each launch its own allow list while other folders stay unrestricted, satisfying the 'guarantee' and 'do not slow other teams' requirements. Option A and Option D are advisory controls that depend on humans and only detect violations after the fact. Option C applies the restriction to the entire company, blocking legitimate global workloads and mixing the two countries' data locations together. Resource hierarchy and organization policy are core exam security topics.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy"
+    ]
+  },
+  {
+    "id": "cs-km-037",
+    "domain": 6,
+    "topic": "Observability strategy",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. The old build-to-order system often failed silently, and dealers were the first to notice. The new system spans Cloud Run services, Apigee, Spanner, and a SaaS CRM. The engineering lead wants to detect user-visible degradation before dealers do and quickly find which component causes a slow or failed order. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Configure a single email alert that fires on every logged error across all services.",
+      "Instrument the services with OpenTelemetry to emit distributed traces and structured logs with a correlation ID, exported to Cloud Trace and Cloud Logging so an order can be followed across Cloud Run, Apigee, and Spanner calls.",
+      "Set every service's logging level to DEBUG permanently to capture maximum detail.",
+      "Define SLOs on order-submission success rate and latency measured at the edge (load balancer or Apigee), and alert on error-budget burn rate routed to an on-call rotation.",
+      "Review dashboards in a weekly meeting and file tickets for anomalies observed.",
+      "Rely on Cloud Profiler alone to identify slow orders."
+    ],
+    "answer": [1, 3],
+    "explanation": "Detecting user-visible degradation requires SLOs measured where users experience the service, with burn-rate alerts that reach an on-call responder before dealers notice, and diagnosing multi-service failures requires distributed tracing with correlated structured logs so a single order can be followed end to end. Option A is noisy, drowns real signals, and repeats the email-only failure pattern. Option C explodes log volume and cost without improving detection. Option E is far too slow for production incidents. Option F profiles CPU and memory in a process; it does not trace requests across services. Alerting strategies and observability tooling are core to exam section 6.",
+    "refs": [
+      "https://cloud.google.com/trace/docs/setup",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate"
+    ]
+  },
+  {
+    "id": "cs-km-038",
+    "domain": 6,
+    "topic": "Progressive delivery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. The build-to-order platform on Cloud Run receives frequent releases for new promotions and dealer discounts. A recent release contained a pricing bug that affected every dealer for two hours before it was rolled back manually. KnightMotives wants future releases to reach a small fraction of traffic first, be promoted automatically only if error rate and latency stay healthy, and roll back without human intervention otherwise. What should you do?",
+    "options": [
+      "Deploy new revisions directly to 100% of traffic but schedule releases at 3 a.m. when order volume is low.",
+      "Maintain two identical Cloud Run services and switch DNS between them after manual verification.",
+      "Add more manual QA sign-offs before each release to catch bugs earlier.",
+      "Use Cloud Deploy with a canary deployment strategy for the Cloud Run target, shifting traffic in steps (for example 5%, 25%, 100%) with automated verification against Cloud Monitoring metrics and automatic rollback when verification fails."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Deploy natively supports canary strategies for Cloud Run using revision traffic splitting, with verification phases that can evaluate metrics and automatically roll back or halt promotion, which limits the blast radius of a bad release to a small share of traffic and removes the human delay. Option A still exposes all dealers to a defect and ignores global time zones. Option B is a blue/green pattern that relies on manual checks and DNS propagation, offering no gradual exposure. Option C slows delivery and cannot catch every production-only issue. Deployment and release management is an explicit exam objective in section 6.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+      "https://cloud.google.com/deploy/docs/verify-deployment"
+    ]
+  },
+  {
+    "id": "cs-km-039",
+    "domain": 4,
+    "topic": "Ransomware resilience and backup",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' incident response plan must cover a ransomware scenario in which an attacker with stolen administrator credentials encrypts or deletes production data. The dealer back-office systems run on Compute Engine and Google Cloud VMware Engine, and the build-to-order orders live in Spanner. The recovery point objective is 1 hour and backups must survive even if the attacker has project Owner permissions. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Take persistent disk snapshots into the same project and grant the backup operator the Owner role for convenience.",
+      "Use Backup and DR Service with a backup vault in a separate, tightly controlled project, with enforced minimum retention (immutable and indelible backups), for the Compute Engine and VMware Engine workloads.",
+      "Rely on Spanner's multi-region replication as the backup, because data is already copied to another region.",
+      "Enable Spanner point-in-time recovery with a retention period of several days, and schedule Spanner backups (copied to a separate project or region) to recover from logical deletion or malicious writes.",
+      "Store backups on a Filestore share mounted read-write on the production VMs for fast restores.",
+      "Disable Cloud Audit Logs to reduce the amount of data an attacker could tamper with."
+    ],
+    "answer": [1, 3],
+    "explanation": "Ransomware resilience requires backups that a compromised production administrator cannot alter: Backup and DR Service backup vaults are isolated from the source project and enforce retention so backups cannot be deleted early even by an Owner, and Spanner point-in-time recovery plus scheduled backups protect against malicious writes and deletes, which replication alone faithfully propagates. Option A keeps backups within the attacker's reach and over-privileges the operator. Option C confuses high availability with backup; replication copies the encryption or deletion instantly. Option E exposes backups to the same compromised hosts. Option F destroys forensic evidence needed for incident response. Disaster recovery and business continuity are core exam topics under section 4.",
+    "refs": [
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-vault",
+      "https://cloud.google.com/spanner/docs/pitr"
+    ]
+  },
+  {
+    "id": "cs-km-040",
+    "domain": 4,
+    "topic": "Migration wave prioritization",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' steering committee must choose the first workload for its five-year modernization program. It wants an early, visible success that builds dealer trust and organizational confidence, teaches the teams cloud practices, and limits business risk if the first attempt has problems. Candidates are the mainframe supply-chain system, the ERP, the online build-to-order system, and the in-vehicle software platform. Which workload should you recommend migrating first, and why?",
+    "options": [
+      "The online build-to-order system, because it is a self-contained web workload with clear business pain, measurable dealer-facing benefits, and manageable dependencies, making it a low-risk, high-visibility first win.",
+      "The mainframe supply-chain system, because it is the oldest and therefore should be retired before anything else.",
+      "The in-vehicle software platform, because it has the largest long-term revenue potential.",
+      "The ERP, because finance owns the budget for the program."
+    ],
+    "answer": [0],
+    "explanation": "Google's migration guidance recommends starting with workloads that have low complexity and dependencies but meaningful business value, so early wins build momentum and skills; the build-to-order system matches this profile and directly addresses the dealer-relationship pain described in the case study. Option B chooses the highest-risk, most entangled system with scarce skills as the first move, which could derail the program. Option C involves safety-critical embedded systems, hardware constraints, and regulatory complexity that are unsuitable for a first project. Option D selects based on budget ownership rather than risk and value. This reflects the exam's decision-making and stakeholder-management objectives.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-assessing-and-discovering-your-workloads",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  }
+]

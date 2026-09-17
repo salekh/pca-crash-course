@@ -1,0 +1,531 @@
+[
+  {
+    "id": "d1-rel-001",
+    "domain": 1,
+    "topic": "High availability",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional insurance company runs a stateless quote-calculation web tier on a zonal managed instance group (MIG) in us-central1-a behind an external Application Load Balancer. Last quarter a zonal outage took the service offline for two hours. Management requires the service to survive the loss of a single zone with no manual intervention and no change to the application code. What should you do?",
+    "options": [
+      "Create a second zonal MIG in us-central1-b and write a Cloud Run function that redirects traffic when a health check fails.",
+      "Convert the instances to a sole-tenant node group in us-central1-a to guarantee dedicated hardware.",
+      "Replace the zonal MIG with a regional MIG that distributes instances across three zones in us-central1 and keep the same instance template.",
+      "Enable live migration on each instance so the VMs are automatically moved to another zone during an outage."
+    ],
+    "answer": [2],
+    "explanation": "A regional MIG spreads identical instances across multiple zones in a region and continues serving from the surviving zones when one fails, which is the Google-recommended pattern for zone-resilient stateless tiers and requires no code change. Option A introduces custom failover logic that a regional MIG already provides natively and adds operational overhead. Option B addresses tenancy isolation, not zonal availability; the node group is still in one zone. Option D is wrong because live migration moves VMs between hosts during maintenance within a zone; it does not protect against a zonal outage. This reflects the reliability pillar guidance to eliminate single points of failure.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-rel-002",
+    "domain": 1,
+    "topic": "Regional Persistent Disk",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company runs a legacy licensing server on a single Compute Engine VM. The software cannot be clustered and stores its state on an attached disk. The company needs the server to be recoverable in another zone within minutes with an RPO of zero, and it wants to avoid re-architecting the application. Which approach should you recommend?",
+    "options": [
+      "Attach a regional Persistent Disk that is synchronously replicated to a second zone, and use a health-check-driven process to force-attach the disk to a standby VM in the other zone.",
+      "Schedule hourly zonal Persistent Disk snapshots and restore the latest snapshot to a new VM in another zone during an outage.",
+      "Configure a regional MIG with a target size of two so that both VMs share the licensing state.",
+      "Store the state on a Hyperdisk Extreme volume in the same zone and increase the provisioned IOPS."
+    ],
+    "answer": [0],
+    "explanation": "Regional Persistent Disks replicate writes synchronously to two zones in the same region, giving an RPO of zero, and can be force-attached to a replacement VM in the second zone within minutes, which satisfies both the RPO and the recovery-time requirement without changing the application. Option B is incorrect because hourly snapshots imply up to an hour of data loss, violating the zero-RPO requirement. Option C is wrong because the software cannot be clustered and two VMs cannot share a single zonal boot or data disk in read-write mode. Option D improves performance but remains in one zone and offers no failover capability.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/high-availability-regional-persistent-disk",
+      "https://cloud.google.com/compute/docs/disks/repd-failover"
+    ]
+  },
+  {
+    "id": "d1-rel-003",
+    "domain": 1,
+    "topic": "Cloud SQL high availability",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup runs its order-management PostgreSQL database on a single-zone Cloud SQL instance. After an incident, the CTO asks that the database automatically fail over within a few minutes if the primary zone becomes unavailable, with no data loss. The team wants the least operational overhead. What should you do?",
+    "options": [
+      "Create a read replica in a different zone and write a script that promotes it when Cloud Monitoring detects the primary is down.",
+      "Export the database to Cloud Storage every 10 minutes and restore it to a new instance during an outage.",
+      "Migrate the database to a self-managed PostgreSQL cluster on Compute Engine with Patroni for automated failover.",
+      "Enable the high availability configuration on the Cloud SQL instance so a synchronous standby is maintained in another zone of the same region."
+    ],
+    "answer": [3],
+    "explanation": "Cloud SQL high availability provisions a standby instance in a second zone with synchronous replication of data through regional persistent disks, and Cloud SQL automatically fails over in a few minutes with no data loss, which is exactly the requirement with minimal operational overhead. Option A uses asynchronous read replicas, so promotion could lose committed transactions and requires custom automation. Option B has an RPO of up to 10 minutes and a long RTO. Option C adds significant operational burden, contradicting the constraint, and the reliability and operational excellence pillars favor managed services for this need.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/postgres/high-availability"
+    ]
+  },
+  {
+    "id": "d1-rel-004",
+    "domain": 1,
+    "topic": "Spanner",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global payments company is designing a ledger that must remain available for reads and writes during the loss of an entire region, provide strong consistency, and offer a 99.999% availability SLA. Users are concentrated in North America and Europe. Which configuration should you recommend?",
+    "options": [
+      "A regional Spanner instance in us-east1 with a Cloud SQL cross-region read replica in europe-west1 for reads.",
+      "A Spanner instance using a multi-region configuration such as nam-eur-asia1 or another configuration that places read-write replicas in more than one region.",
+      "A Cloud SQL Enterprise Plus instance with high availability enabled and a cross-region replica that can be promoted during a regional outage.",
+      "A Bigtable instance with replication across clusters in us-east1 and europe-west1 and multi-cluster routing."
+    ],
+    "answer": [1],
+    "explanation": "Only Spanner multi-region configurations deliver a 99.999% availability SLA with synchronous replication across regions and strong consistency; a configuration spanning North America and Europe places read-write replicas near both user populations and survives a regional failure. Option A is a mixed design; a regional Spanner instance provides 99.99% and does not survive a regional loss for writes, and Cloud SQL cannot replicate from Spanner. Option C tops out at a 99.99% SLA and requires promotion of an asynchronous replica, so it neither meets the SLA nor guarantees zero data loss. Option D offers eventual consistency across clusters and does not support the strongly consistent transactional semantics a ledger requires.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/instance-configurations",
+      "https://cloud.google.com/spanner/sla"
+    ]
+  },
+  {
+    "id": "d1-rel-005",
+    "domain": 1,
+    "topic": "Memorystore",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile gaming company caches player session data in a Memorystore for Redis Basic Tier instance. During a recent zone maintenance event the cache was unavailable for several minutes and the backend database was overwhelmed. The company needs the cache to fail over automatically across zones with an availability SLA, and it wants to offload read traffic without changing the application protocol. What should you do?",
+    "options": [
+      "Upgrade to a Memorystore for Redis Standard Tier instance with read replicas so a replica in another zone is promoted automatically on failure.",
+      "Keep the Basic Tier instance and deploy a second Basic Tier instance in another zone, with the application writing to both.",
+      "Replace Memorystore with a Cloud SQL instance configured for high availability and cache query results in tables.",
+      "Move the session data to Firestore and enable multi-region replication."
+    ],
+    "answer": [0],
+    "explanation": "Standard Tier Memorystore for Redis maintains a replica in a different zone with automatic failover and a 99.9% SLA, and read replicas let the application distribute reads through a read endpoint while retaining the Redis protocol. Option B requires dual-write logic in the application, provides no SLA and risks inconsistent caches. Option C replaces an in-memory cache with a relational database, adding latency and defeating the purpose of caching. Option D changes the data model and client protocol, which violates the constraint of not changing the application protocol.",
+    "refs": [
+      "https://cloud.google.com/memorystore/docs/redis/high-availability",
+      "https://cloud.google.com/memorystore/docs/redis/about-read-replicas"
+    ]
+  },
+  {
+    "id": "d1-rel-006",
+    "domain": 1,
+    "topic": "Cloud Storage replication",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company ingests raw video footage into Cloud Storage in us-central1 and processes it with Dataflow. Regulators require that footage be recoverable in a geographically separate region with a recovery point objective (RPO) of 15 minutes, backed by a contractual guarantee. The company wants the simplest design that meets this requirement. What should you do?",
+    "options": [
+      "Use a standard dual-region bucket and rely on default asynchronous replication between the two regions.",
+      "Use a regional bucket and configure Storage Transfer Service to copy new objects to a bucket in another region every hour.",
+      "Use a dual-region bucket with turbo replication enabled so newly written objects are replicated across regions within 15 minutes.",
+      "Use a multi-region bucket in the US location and enable Object Versioning."
+    ],
+    "answer": [2],
+    "explanation": "Turbo replication on a dual-region bucket provides an SLA-backed RPO of 15 minutes for newly written objects between the two selected regions, which is precisely the regulatory guarantee required. Option A is wrong because default dual-region replication is asynchronous with no guaranteed replication time for every object. Option B produces an RPO of at least an hour and adds a transfer pipeline to operate. Option D provides geo-redundancy but offers no RPO guarantee and versioning protects against overwrites, not regional loss with a time bound.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/availability-durability#turbo-replication",
+      "https://cloud.google.com/storage/docs/locations"
+    ]
+  },
+  {
+    "id": "d1-rel-007",
+    "domain": 1,
+    "topic": "Cloud SQL disaster recovery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare SaaS provider runs Cloud SQL for MySQL Enterprise Plus edition with high availability in europe-west3. The business continuity plan now requires the database to be recoverable in a second region with an RTO under 30 minutes and an RPO of a few seconds, and after a disaster the team must be able to return to the original region with minimal manual steps. Which approach should you recommend?",
+    "options": [
+      "Take automated backups every four hours with a custom backup location in europe-west1 and restore them during a disaster.",
+      "Use Database Migration Service to continuously migrate the database to a second Cloud SQL instance in europe-west1 and cut over during a disaster.",
+      "Enable point-in-time recovery and clone the instance to europe-west1 when a disaster is declared.",
+      "Create a cross-region read replica in europe-west1 designated as the DR replica and use the Enterprise Plus advanced disaster recovery replica failover and switchback capabilities."
+    ],
+    "answer": [3],
+    "explanation": "Cloud SQL Enterprise Plus advanced disaster recovery lets you designate a cross-region read replica as the DR replica, perform a replica failover with near-zero data loss when the primary region is unavailable, and later switch back to the original region while Cloud SQL rebuilds the replication topology, which meets the RTO, RPO and return-to-primary requirements. Option A produces an RPO measured in hours. Option B misuses Database Migration Service, which is designed for migrations rather than ongoing DR with orchestrated switchback. Option C is incorrect because point-in-time recovery restores to a point within the same region and does not help if that region is unavailable.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/mysql/advanced-disaster-recovery",
+      "https://cloud.google.com/sql/docs/mysql/replication/cross-region-replicas"
+    ]
+  },
+  {
+    "id": "d1-rel-008",
+    "domain": 1,
+    "topic": "Point-in-time recovery",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A developer at an e-commerce company accidentally ran a DELETE statement without a WHERE clause against the production Cloud SQL for PostgreSQL database at 14:32. Nightly automated backups exist, but the business cannot lose a full day of orders. You need to recover the data to the state just before the mistake. What should you do?",
+    "options": [
+      "Restore the most recent nightly backup to the existing instance and replay today's application logs manually.",
+      "Use point-in-time recovery to create a new instance restored to 14:31 and copy the affected table back to production.",
+      "Promote the cross-region read replica, which still contains the deleted rows.",
+      "Fail over to the high availability standby instance, which holds the data from before the DELETE."
+    ],
+    "answer": [1],
+    "explanation": "Point-in-time recovery uses continuously archived write-ahead logs to restore a Cloud SQL instance to a specific timestamp, so restoring to 14:31 on a new instance recovers the rows and avoids overwriting later valid data. Option A loses everything written since the nightly backup and depends on error-prone manual replay. Option C fails because the replica asynchronously applies the same DELETE within seconds. Option D is wrong because the HA standby is a synchronous copy of the primary and already reflects the deletion; HA protects against infrastructure failure, not logical data errors.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/postgres/backup-recovery/pitr"
+    ]
+  },
+  {
+    "id": "d1-rel-009",
+    "domain": 1,
+    "topic": "Backup and DR Service",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial services firm has migrated 400 Compute Engine VMs, several SAP HANA databases, and a Google Cloud VMware Engine environment to Google Cloud. Auditors require centrally managed backups with a 30-day retention that cannot be deleted or shortened by a compromised project administrator, plus regular restore testing reports. The infrastructure team wants a single managed solution. What should you do?",
+    "options": [
+      "Deploy the Backup and DR Service with backup plans that store copies in a backup vault with enforced minimum retention, covering Compute Engine, SAP HANA, and VMware Engine workloads.",
+      "Configure snapshot schedules for all Persistent Disks and rely on IAM to prevent administrators from deleting snapshots.",
+      "Install an open-source backup agent on every VM and write backups to a Cloud Storage bucket with a 30-day lifecycle rule.",
+      "Use Cloud Storage Object Versioning on exported VM images and set a retention policy on the bucket."
+    ],
+    "answer": [0],
+    "explanation": "Backup and DR Service provides a centralized, managed backup solution for Compute Engine, VMware Engine, and databases such as SAP HANA, and backup vaults store immutable, indelible copies with an enforced minimum retention that even project administrators cannot shorten, satisfying the audit requirement from a single console. Option B covers only disks; project owners can still delete snapshots and there is no unified coverage for SAP HANA or VMware Engine. Option C is agent-heavy, unmanaged, and a lifecycle rule does not prevent deletion. Option D handles images, not running databases or VMware workloads, and does not offer application-consistent backups or restore testing reports.",
+    "refs": [
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-dr",
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-vault"
+    ]
+  },
+  {
+    "id": "d1-rel-010",
+    "domain": 1,
+    "topic": "Disaster recovery patterns",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank runs its online banking platform on GKE and Cloud SQL in us-east4. The business has defined an RTO of one hour and an RPO of five minutes for a regional disaster. The platform receives 2,000 requests per second and running a full duplicate environment permanently is considered too expensive, but the bank cannot accept a multi-hour rebuild. Which DR pattern should you recommend?",
+    "options": [
+      "Cold pattern: store Terraform code and database backups in a multi-region bucket and rebuild the entire environment in us-central1 after a disaster is declared.",
+      "Hot pattern: run an active-active deployment across us-east4 and us-central1 behind a global external Application Load Balancer with Spanner replacing Cloud SQL.",
+      "Warm pattern: keep a minimally sized GKE cluster and a continuously replicating cross-region Cloud SQL read replica in us-central1, and scale the cluster up and promote the replica when a disaster is declared.",
+      "Pilot-light pattern using only Cloud Storage snapshots taken every 30 minutes and restored to a new Cloud SQL instance during failover."
+    ],
+    "answer": [2],
+    "explanation": "A warm standby keeps the data tier continuously replicated and a small compute footprint pre-provisioned, so failover consists of promoting the replica and scaling out, which fits comfortably within a one-hour RTO and a five-minute RPO at a fraction of the cost of a fully active second region. Option A is cheaper but a complete rebuild plus restore rarely fits in one hour and backups alone cannot meet a five-minute RPO. Option B meets the objectives but duplicates the full environment and requires a database re-platform, exceeding the stated cost tolerance. Option D violates the RPO because 30-minute snapshots allow up to 30 minutes of loss. Choosing the least expensive pattern that satisfies RTO and RPO is core guidance in the cost optimization and reliability pillars.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/dr-scenarios-for-applications"
+    ]
+  },
+  {
+    "id": "d1-rel-011",
+    "domain": 1,
+    "topic": "Autoscaling",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing company runs its web tier on a regional MIG that autoscales on CPU utilization. The application takes about four minutes to initialize on a new VM, and every weekday at 09:00 traffic doubles within a few minutes, causing errors before new instances become ready. Traffic patterns have been consistent for the past month. You want to fix the issue with minimal manual configuration. What should you do?",
+    "options": [
+      "Add a scaling schedule that sets a higher minimum number of instances every weekday from 08:30 to 10:00.",
+      "Enable predictive autoscaling on the MIG so that instances are created ahead of the forecasted CPU load, taking the initialization period into account.",
+      "Reduce the CPU utilization target to 30% so the group scales out earlier.",
+      "Increase the autoscaler cool-down period to 600 seconds so the group adds more instances per scaling event."
+    ],
+    "answer": [1],
+    "explanation": "Predictive autoscaling uses historical CPU utilization to forecast load and starts instances in advance of the expected demand, factoring in the configured initialization period, which is designed exactly for recurring, predictable spikes with slow-starting applications. Option A can work but requires manual schedule maintenance and does not adapt if the pattern shifts. Option C wastes capacity continuously and still reacts only after load rises. Option D is a misunderstanding; a longer cool-down (initialization period) delays scaling decisions rather than making them earlier or larger.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/autoscaler/predictive-autoscaling",
+      "https://cloud.google.com/compute/docs/autoscaler/scaling-cpu"
+    ]
+  },
+  {
+    "id": "d1-rel-012",
+    "domain": 1,
+    "topic": "GKE autoscaling",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A retailer runs a stateless checkout API on a GKE Standard cluster. During flash sales, request latency rises because the number of pods does not increase, and when pods do get scheduled they often remain Pending because the node pool has no free capacity. You want the platform to scale automatically at both the pod and node level while following Google-recommended practices. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Configure a Horizontal Pod Autoscaler for the checkout Deployment that targets CPU utilization or a request-based custom metric.",
+      "Configure a Vertical Pod Autoscaler in Auto mode on the checkout Deployment so pods receive more CPU during the sale.",
+      "Enable the cluster autoscaler on the node pool with an appropriate minimum and maximum node count.",
+      "Manually resize the node pool to the maximum expected size before each flash sale.",
+      "Set the Deployment replica count to a fixed high value and remove resource requests so more pods fit on each node."
+    ],
+    "answer": [0, 2],
+    "explanation": "The Horizontal Pod Autoscaler adds pod replicas as load rises, and the cluster autoscaler provisions additional nodes when pods cannot be scheduled, so together they provide end-to-end elasticity for a stateless service. Option B is not appropriate because VPA changes per-pod resource requests rather than replica count, and combining VPA and HPA on the same CPU metric is discouraged. Option D is a manual, error-prone approach that contradicts the automation goal and wastes cost. Option E removes resource requests, which breaks scheduling decisions and autoscaler signals and is an anti-pattern.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/horizontalpodautoscaler",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler"
+    ]
+  },
+  {
+    "id": "d1-rel-013",
+    "domain": 1,
+    "topic": "Cloud CDN",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A news publisher serves images and article pages from a backend running on Cloud Run in us-central1 behind a global external Application Load Balancer. Readers in Asia and Europe report slow page loads, and the backend is spending most of its capacity serving the same popular assets. You want to reduce latency for global readers and cut backend load with minimal changes. What should you do?",
+    "options": [
+      "Deploy additional Cloud Run services in asia-east1 and europe-west1 and use DNS round robin to distribute readers.",
+      "Move the images to a Compute Engine VM with a larger machine type and enable HTTP/3.",
+      "Add Memorystore for Redis in front of Cloud Run to cache rendered pages.",
+      "Enable Cloud CDN on the load balancer backend service and set appropriate Cache-Control headers so static assets and cacheable pages are served from Google edge locations."
+    ],
+    "answer": [3],
+    "explanation": "Cloud CDN caches content at Google edge points of presence close to readers worldwide, which directly lowers latency for distant users and offloads repeated requests from the origin, and enabling it is a configuration change on the existing load balancer. Option A adds multi-region compute and DNS complexity but still requires every request to reach an origin. Option B does nothing for geographic latency. Option C caches near the backend in one region, which reduces compute work but does not cut the round-trip time for readers in Asia or Europe.",
+    "refs": [
+      "https://cloud.google.com/cdn/docs/overview",
+      "https://cloud.google.com/cdn/docs/caching"
+    ]
+  },
+  {
+    "id": "d1-rel-014",
+    "domain": 1,
+    "topic": "Network tiers and load balancing",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech startup is launching a trading dashboard that will be used by customers in North America, Europe, and Australia. The requirements are a single anycast IP address, automatic routing of each user to the nearest healthy backend region, and the lowest possible latency by keeping traffic on Google's backbone as long as possible. A junior engineer proposes using Standard network tier to save money. What should you recommend?",
+    "options": [
+      "Use the Premium network tier with a global external Application Load Balancer and backends in multiple regions.",
+      "Use the Standard network tier with a regional external Application Load Balancer in each region and geo-based Cloud DNS routing policies.",
+      "Use the Standard network tier with a global external Application Load Balancer, because the tier only affects egress pricing.",
+      "Use the Premium network tier with a regional external passthrough Network Load Balancer in us-central1 and Cloud CDN."
+    ],
+    "answer": [0],
+    "explanation": "A global external Application Load Balancer with a single anycast IP and cross-region backend selection requires the Premium network tier, which also carries user traffic on Google's private backbone from the nearest edge (cold-potato routing) for the lowest latency. Option B could approximate geo-routing but gives multiple IPs, depends on DNS caching for failover, and Standard tier hands traffic to the public internet early, increasing latency. Option C is technically impossible because global load balancers are not available in Standard tier. Option D uses a regional Layer 4 balancer in one region, so international users would traverse long paths and Cloud CDN does not help dynamic dashboard traffic.",
+    "refs": [
+      "https://cloud.google.com/network-tiers/docs/overview",
+      "https://cloud.google.com/load-balancing/docs/application-load-balancer"
+    ]
+  },
+  {
+    "id": "d1-rel-015",
+    "domain": 1,
+    "topic": "Caching",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online marketplace stores product catalog data in Cloud SQL for MySQL. Profiling shows that 90% of queries read a small set of hot product records, and p99 read latency has grown to 80 ms as traffic increased, while the database CPU is saturated. The team wants to reduce read latency to single-digit milliseconds and relieve the database without a large redesign. Which approach should you recommend?",
+    "options": [
+      "Increase the Cloud SQL machine size and add three read replicas behind a connection pooler.",
+      "Migrate the catalog to Spanner and rely on its distributed architecture for lower latency.",
+      "Introduce Memorystore for Redis as a cache-aside layer so the application checks the cache before querying Cloud SQL and populates it on a miss.",
+      "Enable Cloud CDN on the API load balancer with a long TTL for catalog responses."
+    ],
+    "answer": [2],
+    "explanation": "A cache-aside pattern with Memorystore for Redis serves hot product reads from memory in sub-millisecond to low-millisecond times and dramatically reduces query volume against Cloud SQL, requiring only modest application changes; this is the performance optimization pillar's recommended approach for read-heavy hot data. Option A scales the database but still incurs disk and network round trips and higher cost, and does not reach single-digit-millisecond latency reliably. Option B is a major migration and Spanner is not inherently lower latency for single-row reads than an in-memory cache. Option D caches HTTP responses at the edge, which is unsuitable for personalized or frequently changing API responses and offers limited invalidation control.",
+    "refs": [
+      "https://cloud.google.com/memorystore/docs/redis/redis-overview",
+      "https://cloud.google.com/architecture/framework/performance-optimization"
+    ]
+  },
+  {
+    "id": "d1-rel-016",
+    "domain": 1,
+    "topic": "Region selection",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A German public-sector agency is deploying a citizen services portal. Personal data must remain stored and processed within Germany, the portal needs to survive a single data-center failure, and the agency wants to minimize latency for users across the country. Which deployment design should you recommend?",
+    "options": [
+      "Deploy in the europe multi-region for Cloud Storage and use a global external Application Load Balancer with backends in europe-west1 and europe-west3.",
+      "Deploy across multiple zones in europe-west3 (Frankfurt) using regional resources, with a resource location organization policy restricting resources to that region.",
+      "Deploy in europe-west3 and europe-west1 with a Spanner multi-region configuration so the data is replicated across two European regions.",
+      "Deploy in a single zone of europe-west3 with daily backups copied to europe-west10 (Berlin)."
+    ],
+    "answer": [1],
+    "explanation": "Data residency limited to Germany means the design must use German regions only; using regional resources spread across the three zones of europe-west3 delivers protection against a data-center (zone) failure, keeps data in Germany, and serves users nationally with low latency, while the resource location constraint enforces this policy. Options A and C are wrong because the europe multi-region and europe-west1 (Belgium) store data outside Germany. Option D keeps data in Germany but a single zone fails the availability requirement even though backups exist in Berlin. This applies the security and compliance pillar together with reliability.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-rel-017",
+    "domain": 1,
+    "topic": "Cost optimization pillar",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A logistics company has been on Google Cloud for a year. A review shows a steady-state fleet of 200 Compute Engine VMs that run 24/7 with an average CPU utilization of 12%, plus a nightly batch job on 100 VMs that can tolerate interruptions and restarts. The CFO wants to cut compute cost substantially without affecting reliability. Which two recommendations follow the Well-Architected Framework cost optimization pillar? (Choose two.)",
+    "options": [
+      "Apply the machine type recommendations from Active Assist to rightsize the steady-state VMs, then purchase committed use discounts for the resulting baseline.",
+      "Move the steady-state VMs to Spot VMs to obtain the largest available discount.",
+      "Run the nightly batch job on Spot VMs with a managed instance group that recreates preempted instances.",
+      "Purchase three-year committed use discounts for the batch VMs to lock in savings.",
+      "Migrate all VMs to sole-tenant nodes to consolidate workloads onto fewer physical hosts."
+    ],
+    "answer": [0, 2],
+    "explanation": "Rightsizing chronically underutilized VMs based on Active Assist recommendations removes waste, and committing to the resulting predictable baseline earns significant discounts without risk, while fault-tolerant batch work is the ideal candidate for Spot VMs at up to 91% savings with a MIG handling recreation. Option B is wrong because Spot VMs can be preempted at any time and are unsuitable for always-on production services where reliability matters. Option D commits to spend for an interruptible workload that runs only a few hours per day, which is more expensive than Spot usage. Option E increases cost; sole-tenant nodes are for compliance or licensing needs, not savings.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/cost-optimization",
+      "https://cloud.google.com/compute/docs/instances/spot"
+    ]
+  },
+  {
+    "id": "d1-rel-018",
+    "domain": 1,
+    "topic": "Sustainability pillar",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company has committed publicly to reducing the carbon footprint of its cloud operations. It is about to deploy a new batch analytics platform that has no data residency or latency constraints. The sustainability lead asks how to choose where to run the workload so that emissions are minimized while cost is also considered. What should you do?",
+    "options": [
+      "Deploy in the region closest to the company headquarters to minimize network transfer emissions.",
+      "Deploy in the region with the lowest compute list price, because lower price implies newer, more efficient hardware.",
+      "Deploy in whichever region has the newest machine series available.",
+      "Use the Google Cloud Region Picker and Carbon Footprint data to select a low-carbon region with a high carbon-free energy percentage, and review the choice against price."
+    ],
+    "answer": [3],
+    "explanation": "The sustainability pillar recommends choosing regions with a high carbon-free energy (CFE) percentage and low grid carbon intensity when the workload allows it, and the Region Picker tool combines carbon, price, and latency criteria while Carbon Footprint reports measure the outcome. Option A wrongly assumes network distance dominates emissions; compute location matters far more for a batch workload. Option B is unfounded because price and grid carbon intensity are not correlated. Option C is unrelated to emissions of the underlying electricity grid.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/sustainability",
+      "https://cloud.google.com/sustainability/region-carbon"
+    ]
+  },
+  {
+    "id": "d1-rel-019",
+    "domain": 1,
+    "topic": "Operational excellence pillar",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A telecommunications provider's operations team manually creates environments through the Cloud console, has no defined availability targets, and learns about outages from customer complaints. Leadership asks you to propose a first set of changes that align with the operational excellence pillar of the Well-Architected Framework and produce measurable improvement within one quarter. Which two actions should you recommend? (Choose two.)",
+    "options": [
+      "Define SLIs and SLOs for the key user journeys in Cloud Monitoring and configure burn-rate alerts on the error budget.",
+      "Purchase Premium Support and route all incidents to Google so the team can focus on development.",
+      "Migrate every workload to Cloud Run so that Google handles reliability and the team no longer needs monitoring.",
+      "Manage all infrastructure declaratively with Terraform delivered through a CI/CD pipeline instead of console changes.",
+      "Enable all Cloud Audit Logs and export them to BigQuery so that outages can be investigated after the fact."
+    ],
+    "answer": [0, 3],
+    "explanation": "Operational excellence emphasizes measuring what matters through SLIs and SLOs, alerting on error-budget burn so the team learns of problems before customers do, and automating infrastructure with declarative IaC and CI/CD to eliminate drift and manual errors; both steps are concrete and measurable within a quarter. Option B outsources support but does not fix missing observability or manual provisioning. Option C is a large migration that still requires SLOs and monitoring; managed platforms do not remove the need to observe your own service. Option E improves post-incident forensics but does nothing to detect outages proactively or to prevent configuration errors.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+    ]
+  },
+  {
+    "id": "d1-rel-020",
+    "domain": 1,
+    "topic": "Gemini Cloud Assist",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A small platform team at a retail startup is repeatedly paged for intermittent 5xx errors from a service running on GKE that calls Cloud SQL. Investigations take hours because the engineers must correlate logs, metrics, recent deployments, and configuration changes by hand. The team also wants help evaluating alternative architectures before its next quarterly planning session. They want to reduce time-to-diagnosis using capabilities built into the Google Cloud console. What should you recommend?",
+    "options": [
+      "Export all logs to BigQuery and hire a data analyst to build correlation dashboards in Looker Studio.",
+      "Use Gemini Cloud Assist investigations to analyze the failing resources, related logs and recent changes for probable root causes, and use Gemini Cloud Assist chat to explore and compare architecture options.",
+      "Enable Cloud Trace on the application and rely on trace waterfall views to explain the failures.",
+      "Deploy a third-party AIOps platform alongside Cloud Observability and forward all telemetry to it."
+    ],
+    "answer": [1],
+    "explanation": "Gemini Cloud Assist is integrated in the console and its investigations feature automatically gathers signals across logs, metrics, configuration and recent changes for the affected resources to propose probable causes and remediation steps, while the conversational assistant can help design and compare architectures using project context, which addresses both requests with no new tooling. Option A is slow and costly and relies on building correlation logic by hand. Option C helps with latency analysis but only for instrumented request paths and does not correlate configuration changes or database events. Option D adds cost and operational overhead for a small team when a native capability exists.",
+    "refs": [
+      "https://cloud.google.com/gemini/docs/cloud-assist/overview",
+      "https://cloud.google.com/gemini/docs/cloud-assist/investigations"
+    ]
+  },
+  {
+    "id": "d1-rel-021",
+    "domain": 1,
+    "topic": "Persistent Disk snapshots",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A biotech company runs 60 Compute Engine VMs in asia-southeast1 with data disks containing lab results. The company needs daily backups retained for 14 days that remain usable if the whole region becomes unavailable, and it wants to avoid custom scripting. What should you do?",
+    "options": [
+      "Write a Cloud Scheduler job that calls a Cloud Run function to create snapshots and delete old ones.",
+      "Create a snapshot schedule resource policy with a daily schedule and 14-day retention, set the snapshot storage location to asia-southeast1 to minimize restore latency, and attach it to all data disks.",
+      "Create a snapshot schedule resource policy with a daily schedule and 14-day retention, set the snapshot storage location to a multi-region or a different region, and attach it to all data disks.",
+      "Enable Persistent Disk asynchronous replication to a disk in asia-southeast1-c and rely on it for point-in-time restores."
+    ],
+    "answer": [2],
+    "explanation": "Snapshot schedules are a managed resource policy that automates creation and retention of disk snapshots without scripts, and choosing a storage location in a multi-region or another region ensures the backups remain accessible during an outage of asia-southeast1. Option A works but recreates a managed capability with custom code, adding operational burden. Option B is wrong because storing the snapshots in the same region as the disks means they become inaccessible in exactly the regional-outage scenario the company must survive. Option D is wrong because asynchronous replication targets a different region (not a zone in the same region) and provides a single continuously updated replica rather than 14 days of point-in-time history.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/scheduled-snapshots",
+      "https://cloud.google.com/compute/docs/disks/snapshots#selecting_a_storage_location"
+    ]
+  },
+  {
+    "id": "d1-rel-022",
+    "domain": 1,
+    "topic": "Database RPO/RTO design",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A stock exchange operator is designing an order-matching audit store. Requirements are a regional-disaster RPO of zero, an RTO under one minute with no operator action, strict serializability for transactions, and a schema with relational joins. The application team is comfortable with standard SQL and wants a managed service. Which database should you recommend?",
+    "options": [
+      "Cloud SQL for PostgreSQL Enterprise Plus with high availability and a cross-region replica.",
+      "AlloyDB for PostgreSQL with a cross-region secondary cluster.",
+      "Bigtable with multi-cluster replication across two regions and single-row transactions.",
+      "Spanner with a multi-region instance configuration."
+    ],
+    "answer": [3],
+    "explanation": "Only Spanner multi-region configurations synchronously commit transactions across regions using Paxos, so a regional loss causes zero data loss and the service continues without operator-initiated failover, while providing external consistency (strict serializability) and relational SQL with joins. Option A relies on asynchronous cross-region replication, so RPO is non-zero and promotion is required. Option B similarly uses asynchronous cross-region replication to a secondary cluster and requires promotion, so RPO is not zero. Option C provides only eventual consistency across clusters and lacks multi-row transactions and relational joins.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/replication",
+      "https://cloud.google.com/spanner/docs/true-time-external-consistency"
+    ]
+  },
+  {
+    "id": "d1-rel-023",
+    "domain": 1,
+    "topic": "Multi-region active-active design",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A video-streaming startup is designing an active-active deployment of its stateless API across us-west1 and us-east1 so that a regional outage causes no user-visible downtime. The API is served from regional MIGs and stores session state in a database. Which three design elements are required to achieve seamless regional failover? (Choose three.)",
+    "options": [
+      "A global external Application Load Balancer with backend services in both regions and health checks that remove unhealthy backends automatically.",
+      "Capacity planning so that each region can absorb the full load of the other region, or autoscaling limits set high enough to do so quickly.",
+      "Session state stored in a database that is available in both regions, such as Spanner multi-region or Firestore multi-region, rather than in a single-region store.",
+      "A Cloud DNS failover routing policy with a 24-hour TTL pointing to regional load balancer IPs.",
+      "A Cloud Interconnect connection between the two regions to replicate the MIG instance templates.",
+      "A regional internal Application Load Balancer in each region with cross-region routing disabled."
+    ],
+    "answer": [0, 1, 2],
+    "explanation": "Active-active across regions needs a global front door that routes users to the nearest healthy region and automatically drains failed backends, enough headroom in the surviving region to serve all traffic, and shared state that is not pinned to a single region; without any one of these, a regional outage leads to downtime, overload, or lost sessions. Option D is wrong because a 24-hour TTL would keep clients pointed at the failed region for up to a day. Option E misunderstands Interconnect, which connects on-premises networks to Google Cloud; instance templates are global resources needing no replication. Option F uses internal regional balancers that cannot route external users across regions.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-for-applications",
+      "https://cloud.google.com/load-balancing/docs/https/setting-up-global-multi-region"
+    ]
+  },
+  {
+    "id": "d1-rel-024",
+    "domain": 1,
+    "topic": "Autoscaling policies",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS company runs an I/O-bound API on a regional MIG behind an external Application Load Balancer. CPU utilization rarely exceeds 25% even when instances are saturated by concurrent connections, so the CPU-based autoscaler never scales out and latency degrades under load. Load testing shows each instance can handle about 400 requests per second before latency breaches the SLO. You want the group to scale based on actual request pressure with the least custom code. What should you do?",
+    "options": [
+      "Set the backend service balancing mode to RATE with a max rate of 400 requests per second per instance and configure the autoscaler to scale on load balancing serving capacity utilization.",
+      "Lower the CPU utilization target to 10% so the group scales out before CPU becomes the bottleneck.",
+      "Write a sidecar that publishes open connection counts to Cloud Monitoring and autoscale on that custom metric.",
+      "Replace autoscaling with a scaling schedule that sets a fixed number of instances during business hours."
+    ],
+    "answer": [0],
+    "explanation": "Autoscaling on load balancing serving capacity uses the backend service's configured per-instance capacity (here 400 RPS in RATE mode) and scales the group to keep utilization of that capacity at the target, which directly reflects request pressure and requires no application changes. Option B keeps scaling tied to CPU, which is not correlated with the real bottleneck and would over-provision at idle. Option C works but requires building and maintaining custom instrumentation when a native signal exists. Option D removes elasticity entirely and cannot respond to unexpected load.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/autoscaler/scaling-load-balancing",
+      "https://cloud.google.com/load-balancing/docs/backend-service#balancing-mode"
+    ]
+  },
+  {
+    "id": "d1-rel-025",
+    "domain": 1,
+    "topic": "Reliability pillar",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A food-delivery platform experienced a cascading failure: a slow downstream pricing service caused upstream services to retry aggressively, exhausting connection pools and taking down the entire ordering flow. You are asked to redesign the service interactions according to the reliability pillar so that a degraded dependency no longer causes a full outage. Which two changes should you recommend? (Choose two.)",
+    "options": [
+      "Implement retries with exponential backoff, jitter, and a bounded retry budget, combined with circuit breakers so callers stop hammering an unhealthy dependency.",
+      "Design graceful degradation so that when pricing is unavailable the ordering flow falls back to cached or default prices and continues to accept orders.",
+      "Increase the connection pool size and request timeouts on all services so retries have more capacity to succeed.",
+      "Configure every service to retry failed calls immediately up to 20 times to maximize the chance of success.",
+      "Move all services onto a single large VM so calls become local and network failures are eliminated."
+    ],
+    "answer": [0, 1],
+    "explanation": "The reliability pillar recommends bounding retries with exponential backoff and jitter, adding circuit breakers to fail fast, and building graceful degradation so a non-critical dependency failure reduces functionality rather than availability; together these break the retry storm and keep the core user journey working. Option C treats symptoms and can worsen overload by holding resources longer. Option D is the exact anti-pattern that produced the cascading failure. Option E creates a single point of failure and eliminates horizontal scalability, violating basic reliability principles.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/build-highly-available-systems",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  }
+]

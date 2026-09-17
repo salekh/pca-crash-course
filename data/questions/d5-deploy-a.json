@@ -1,0 +1,535 @@
+[
+  {
+    "id": "d5-dep-001",
+    "domain": 5,
+    "topic": "Cloud Run traffic splitting",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online retailer runs its checkout API on Cloud Run. The team wants to release a new container image to only 5% of production users, observe error rates for an hour, and be able to send all traffic back to the current revision within seconds if problems appear. You want to follow Google-recommended practices with the least operational overhead. What should you do?",
+    "options": [
+      "Deploy the new image to a second Cloud Run service and use a global external Application Load Balancer with weighted backend services to send 5% of traffic to it.",
+      "Deploy the new image with gcloud run deploy so it immediately serves 100% of traffic, and roll back by redeploying the previous image if errors occur.",
+      "Deploy the new image as a new revision with --no-traffic, then use gcloud run services update-traffic to route 5% to the new revision and shift or revert the split as needed.",
+      "Deploy the new image with a Cloud Run tag, publish the tagged URL to 5% of users through a feature flag in the mobile app, and remove the tag to roll back."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Run natively supports revision-based traffic splitting. Deploying with --no-traffic creates the revision without serving users, and gcloud run services update-traffic --to-revisions lets you send exactly 5% to it and instantly revert to 100% on the previous revision — no extra infrastructure or code. Option A works but adds a second service and a load balancer to manage, which is unnecessary operational overhead. Option B exposes all users to the change and makes rollback a full redeploy rather than an instant traffic shift. Option D relies on client-side feature flags and a tag URL; it does not give a controlled percentage split of production traffic and requires app changes. This reflects the operational excellence pillar: use platform-native progressive rollout mechanisms.",
+    "refs": [
+      "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration",
+      "https://cloud.google.com/run/docs/deploying#revision"
+    ]
+  },
+  {
+    "id": "d5-dep-002",
+    "domain": 5,
+    "topic": "GKE workload types",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company is moving a self-managed Apache Kafka cluster to GKE Standard. Each broker must keep a stable hostname that other brokers reference, retain its own persistent disk across pod restarts and rescheduling, and be started and stopped in a defined order. Which Kubernetes approach should you recommend?",
+    "options": [
+      "Deploy the brokers as a StatefulSet with volumeClaimTemplates and a headless Service so each pod gets a stable ordinal identity and its own PersistentVolumeClaim.",
+      "Deploy the brokers as a Deployment with three replicas that share a single ReadWriteMany Filestore PersistentVolume for their log segments.",
+      "Deploy the brokers as a DaemonSet so exactly one broker runs on every node and uses that node's local SSD for storage.",
+      "Deploy each broker as a separate bare Pod with a hostPath volume and a dedicated ClusterIP Service per broker."
+    ],
+    "answer": [0],
+    "explanation": "StatefulSets are the Kubernetes controller designed for stateful, clustered applications: they provide stable, ordinal pod names (kafka-0, kafka-1), stable DNS via a headless Service, per-pod PersistentVolumeClaims created from volumeClaimTemplates, and ordered, graceful deployment and scaling. Option B is wrong because Deployments provide no stable identity, and Kafka brokers must not share one log directory. Option C ties broker count to node count and loses data when a node is replaced, since local SSD is ephemeral. Option D is unmanaged — bare pods are not rescheduled if a node fails, and hostPath pins data to a node. Reliability is the deciding pillar here.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/statefulset",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/stateful-apps"
+    ]
+  },
+  {
+    "id": "d5-dep-003",
+    "domain": 5,
+    "topic": "GKE DaemonSet",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Your security team requires that a third-party runtime threat-detection agent run on every node of a GKE Standard cluster, including nodes added later by the cluster autoscaler. The agent needs access to the node's host network. Which deployment method should you use?",
+    "options": [
+      "Create a Deployment with the number of replicas equal to the current node count and pod anti-affinity rules to spread pods across nodes.",
+      "Add the agent container as a sidecar to every application Pod spec using a Kustomize patch.",
+      "Install the agent in a custom node image and create a new node pool that uses that image.",
+      "Create a DaemonSet with hostNetwork enabled and appropriate tolerations so a pod is scheduled automatically on every current and future node."
+    ],
+    "answer": [3],
+    "explanation": "A DaemonSet guarantees exactly one copy of a pod on each node that matches its node selector and tolerations, and the controller automatically schedules pods onto new nodes added by the autoscaler — this is the canonical pattern for node agents such as log collectors and security sensors. Option A breaks as soon as the node count changes and does not guarantee one-per-node placement. Option B places the agent in every application pod rather than once per node, wasting resources and missing system pods. Option C is not possible on GKE, which only supports Google-provided node images (Container-Optimized OS, Ubuntu); node customization is done through DaemonSets.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/daemonset",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/node-system-config"
+    ]
+  },
+  {
+    "id": "d5-dep-004",
+    "domain": 5,
+    "topic": "MIG rolling updates",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company serves video metadata from a regional managed instance group (MIG) of 40 Compute Engine VMs behind an external Application Load Balancer. The team wants to roll a new instance template to only 10% of the instances, keep both versions running for a day while comparing latency in Cloud Monitoring, and then complete the rollout without downtime. What should you do?",
+    "options": [
+      "Create a second MIG with the new template and 4 instances, add it as a backend with a lower capacity scaler, then delete the old MIG after one day.",
+      "Start a rolling update with gcloud compute instance-groups managed rolling-action start-update specifying the new template as --canary-version with target-size=10%, then start a second update targeting 100% after validation.",
+      "Set the new template with set-instance-template and set the update type to OPPORTUNISTIC so instances are recreated gradually as the autoscaler replaces them.",
+      "Use gcloud compute instance-groups managed recreate-instances on 4 instances after changing the instance template, then recreate the rest the next day."
+    ],
+    "answer": [1],
+    "explanation": "MIG rolling updates support a canary configuration: --version keeps the current template and --canary-version with a target-size (fixed number or percentage) rolls the new template to a subset. The MIG keeps both versions running until you start another update that moves the canary to 100%, and the rolling policy (max surge / max unavailable, health checks) preserves availability. Option A works but duplicates load balancer and autoscaler configuration, adding overhead compared to the native canary. Option C provides no control over the 10% target and depends on unrelated autoscaler churn; OPPORTUNISTIC updates may never happen. Option D is a manual recreate with no health-check gating and no MIG tracking of the two versions.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups",
+      "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
+    ]
+  },
+  {
+    "id": "d5-dep-005",
+    "domain": 5,
+    "topic": "App Engine versions",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A public-sector agency runs a citizen portal on App Engine standard. For the next release they need to deploy the new code without any user seeing it, run smoke tests against it, and then gradually move users so that each individual user consistently lands on the same version during the migration. Which sequence should you recommend?",
+    "options": [
+      "Run gcloud app deploy --promote, then use gcloud app services set-traffic with --split-by=random to move 10% increments.",
+      "Run gcloud app deploy --version=v2, then immediately use gcloud app versions migrate v2 to shift users.",
+      "Run gcloud app deploy --no-promote, test the version at its versioned URL, then use gcloud app services set-traffic --splits=v1=0.9,v2=0.1 --split-by=cookie and increase the share over time.",
+      "Run gcloud app deploy --no-promote, then run gcloud app versions start v2 and stop v1 once smoke tests pass."
+    ],
+    "answer": [2],
+    "explanation": "Deploying with --no-promote creates a version that receives no traffic but is reachable at its version-specific URL for smoke testing. gcloud app services set-traffic with --split-by=cookie routes each user consistently to the same version (via the GOOGAPPUID cookie), which satisfies the sticky requirement, and the splits can be adjusted incrementally. Option A promotes immediately (all users see it) and random splitting is not sticky per user. Option B's versions migrate moves 100% of traffic at once. Option D starts/stops versions but never splits traffic; stopping v1 would cut over all users abruptly.",
+    "refs": [
+      "https://cloud.google.com/appengine/docs/standard/splitting-traffic",
+      "https://cloud.google.com/sdk/gcloud/reference/app/services/set-traffic"
+    ]
+  },
+  {
+    "id": "d5-dep-006",
+    "domain": 5,
+    "topic": "Cloud Deploy",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare SaaS provider deploys a containerized API to three GKE clusters (dev, staging, prod). Compliance requires that the exact same image digest that passed staging is what reaches production, that a release manager explicitly approves production rollouts, that production receives traffic in 10%/50%/100% phases, and that every rollout is auditable. The platform team wants a managed service instead of scripting this in Cloud Build. What should you recommend?",
+    "options": [
+      "Create a Cloud Deploy delivery pipeline with dev, staging, and prod targets, set requireApproval on the prod target, and configure a canary deployment strategy with phases of 10, 50, and 100 percent for prod.",
+      "Create three Cloud Build triggers, one per environment, that each rebuild the image from the git tag and apply Kubernetes manifests with kubectl, with the prod trigger requiring manual invocation.",
+      "Use Config Sync to sync the same manifests repository to all three clusters, and use a branch per environment with a pull-request approval on the prod branch.",
+      "Use Cloud Deploy with a single prod target and a standard strategy, and rely on Binary Authorization attestations to guarantee the image came from staging."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Deploy is the managed continuous-delivery service built for exactly this: a release captures rendered manifests and immutable image digests once, then promotes the same artifact through a sequence of targets; requireApproval enforces a human gate before production; the canary strategy (with Gateway API or service-based traffic splitting on GKE) automates phased traffic; and every release, rollout, and approval is recorded in Cloud Audit Logs. Option B rebuilds the image per environment, so the prod digest may differ from what passed staging, and it is custom scripting. Option C is a GitOps config approach, but branch-per-environment does not guarantee digest promotion or give phased canaries and rollout approvals. Option D omits the dev/staging promotion chain and the phased rollout; Binary Authorization verifies provenance but does not implement progression.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/overview",
+      "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+      "https://cloud.google.com/deploy/docs/promote-release"
+    ]
+  },
+  {
+    "id": "d5-dep-007",
+    "domain": 5,
+    "topic": "Secret Manager integration",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A startup's Cloud Run service currently reads its Cloud SQL password from a plaintext environment variable set in the deployment script, and a recent security review flagged this. You need the service to obtain the password securely, rotate it without rebuilding the image, and follow Google-recommended practices. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Copy the password into the container image at build time and restrict who can pull the image from Artifact Registry.",
+      "Store the password in Secret Manager and reference it in the service with --set-secrets so it is exposed as an environment variable or mounted volume pointing at a specific or latest version.",
+      "Encrypt the password with Cloud KMS, store the ciphertext in the environment variable, and download a service account JSON key at startup to decrypt it.",
+      "Grant the Cloud Run service's dedicated runtime service account the roles/secretmanager.secretAccessor role on that secret only.",
+      "Store the password in a ConfigMap-style JSON file in a public Cloud Storage bucket and fetch it at startup over HTTPS."
+    ],
+    "answer": [1, 3],
+    "explanation": "Cloud Run integrates natively with Secret Manager: --set-secrets (or the console equivalent) injects a secret version as an environment variable or file without the secret appearing in the deployment configuration, and mounting a volume lets you pick up new versions on rotation without a rebuild. The service must run as a dedicated, least-privilege service account that has secretAccessor on just the secrets it needs. Option A bakes the secret into an immutable artifact — rotation requires a rebuild and anyone with image access sees it. Option C introduces a downloadable JSON key, an anti-pattern that Google explicitly discourages; the attached runtime service account already provides credentials. Option E stores a credential in a public bucket, which is a data exposure risk.",
+    "refs": [
+      "https://cloud.google.com/run/docs/configuring/services/secrets",
+      "https://cloud.google.com/secret-manager/docs/best-practices"
+    ]
+  },
+  {
+    "id": "d5-dep-008",
+    "domain": 5,
+    "topic": "Kustomize",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A gaming studio maintains Kubernetes manifests for a matchmaking service that is deployed to development, staging, and production GKE clusters. The manifests are 95% identical; only replica counts, resource limits, and an image tag differ. Developers dislike templating languages and want to keep plain YAML that can be validated with kubectl. Which approach should you recommend?",
+    "options": [
+      "Maintain three complete copies of the manifests in separate directories and use a Cloud Build step to diff them before every deployment.",
+      "Package the manifests as a Helm chart and put the differing values into a values-<env>.yaml file per environment.",
+      "Write a Python script that reads a per-environment JSON file and generates the manifests before running kubectl apply.",
+      "Create a Kustomize base with the shared manifests and one overlay per environment that patches replicas, resources, and the image tag; apply with kubectl apply -k."
+    ],
+    "answer": [3],
+    "explanation": "Kustomize is template-free: the base holds plain, valid Kubernetes YAML and overlays apply strategic-merge or JSON patches for the environment-specific fields, which matches the requirement of avoiding a templating language while keeping manifests kubectl-validatable. It is built into kubectl (-k) and supported natively by Cloud Deploy and Config Sync. Option A duplicates configuration and causes drift. Option B (Helm) is a valid packaging tool but introduces Go templating, which the team explicitly wants to avoid, and is better suited to distributing third-party software. Option C is bespoke tooling that must be maintained and adds operational burden.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/tutorials/kustomize",
+      "https://cloud.google.com/deploy/docs/using-skaffold/managing-manifests"
+    ]
+  },
+  {
+    "id": "d5-dep-009",
+    "domain": 5,
+    "topic": "Helm",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company deploys a vendor-supplied observability stack to several GKE clusters. The vendor publishes it only as a Helm chart, and the company needs to pin chart versions, override about 30 values per cluster, keep the charts available even if the vendor's public repository is down, and deploy through Cloud Build. What should you recommend?",
+    "options": [
+      "Render the chart once with helm template, commit the resulting YAML to Git, and hand-edit it for each cluster.",
+      "Mirror the pinned chart versions as OCI artifacts in Artifact Registry, store a per-cluster values file in Git, and run helm upgrade --install with --version from Cloud Build using Workload Identity-based credentials.",
+      "Convert the chart into a Kustomize base and overlays so the team no longer depends on Helm.",
+      "Install the chart manually with helm install from an engineer's laptop and export the release with helm get manifest for audit."
+    ],
+    "answer": [1],
+    "explanation": "Artifact Registry supports Helm charts as OCI artifacts, so mirroring the pinned versions removes the dependency on the vendor repository while keeping the chart intact for upgrades. Per-cluster values files in source control plus helm upgrade --install --version in Cloud Build give a repeatable, reviewable pipeline without any long-lived credentials. Option A discards the chart's upgrade path and makes 30 overrides per cluster a manual editing exercise. Option C is a large rewrite that must be repeated on every vendor release. Option D is a manual, non-repeatable process with no CI and depends on an individual's workstation.",
+    "refs": [
+      "https://cloud.google.com/artifact-registry/docs/helm",
+      "https://cloud.google.com/build/docs/deploying-builds/deploy-gke"
+    ]
+  },
+  {
+    "id": "d5-dep-010",
+    "domain": 5,
+    "topic": "Infrastructure Manager",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company's small platform team writes Terraform for its Google Cloud landing zone. Today engineers run terraform apply from laptops, state is in a local file that occasionally conflicts, and there is no record of who applied what. The team does not want to operate CI runners or a Terraform enterprise product, and wants a Google-managed way to run, store state for, and audit their existing Terraform configurations. What should you recommend?",
+    "options": [
+      "Migrate the state to a Cloud Storage bucket and continue applying from laptops, relying on bucket object versioning to reconstruct history.",
+      "Rewrite the configuration as Config Connector resources and let a GKE cluster reconcile the infrastructure.",
+      "Use Infrastructure Manager to create deployments from the Terraform configuration in their Git repository, letting it run Terraform, store state, and record each deployment revision.",
+      "Install a self-hosted Terraform runner on a Compute Engine VM and trigger applies with Cloud Scheduler."
+    ],
+    "answer": [2],
+    "explanation": "Infrastructure Manager is Google's managed service for deploying Terraform: it takes a configuration from Git or Cloud Storage, executes it with a chosen service account, manages the state, keeps revisions of each deployment, and writes to Cloud Audit Logs — all without operating runners. Option A fixes state locking (GCS backends lock via object metadata) but leaves execution unaudited and dependent on laptop credentials. Option B requires a rewrite and a GKE cluster to operate, contradicting the requirement to reuse existing Terraform. Option D is self-managed infrastructure that the team explicitly wants to avoid. This aligns with the operational excellence pillar: prefer managed services for repeatable operations.",
+    "refs": [
+      "https://cloud.google.com/infrastructure-manager/docs/overview",
+      "https://cloud.google.com/infrastructure-manager/docs/deploy-infrastructure"
+    ]
+  },
+  {
+    "id": "d5-dep-011",
+    "domain": 5,
+    "topic": "Application configuration",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics startup runs a Node.js API on GKE Autopilot. Each environment needs different non-sensitive settings (feature flags, upstream URLs, log level) and a few sensitive values (API tokens). Today developers build a different image per environment with the settings hard-coded, which slows releases and once leaked a token into an image layer. You want one image promoted across all environments. What should you recommend?",
+    "options": [
+      "Keep one image per environment but scan images with Artifact Analysis to detect leaked tokens before deployment.",
+      "Build a single image; supply non-sensitive settings from a per-environment ConfigMap as environment variables, and mount tokens from Secret Manager using the Secret Manager add-on for GKE (CSI driver) with Workload Identity Federation for GKE.",
+      "Build a single image that downloads a config.json from a Cloud Storage bucket at startup using a service account key stored in a Kubernetes Secret.",
+      "Build a single image and pass all settings, including tokens, as container args in the Deployment manifest stored in Git."
+    ],
+    "answer": [1],
+    "explanation": "Twelve-factor practice separates configuration from the artifact: the same immutable image is promoted, ConfigMaps inject environment-specific non-sensitive values, and sensitive values come from Secret Manager mounted through the GKE Secret Manager add-on, with the pod's Kubernetes service account mapped through Workload Identity Federation for GKE — no keys, no secrets in Git or image layers. Option A keeps the slow per-environment build and only detects leaks after the fact. Option C introduces a downloadable service account key, an anti-pattern, and custom bootstrap code. Option D commits tokens to Git in plain text, which is a security and audit failure.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/use-secret-manager-add-on",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/configmap",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity"
+    ]
+  },
+  {
+    "id": "d5-dep-012",
+    "domain": 5,
+    "topic": "Cloud Build",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail analytics company keeps a Go microservice in a GitHub repository. They want every pull request to build the container and run unit tests, but only commits tagged like v1.2.3 should push an image to Artifact Registry and deploy to Cloud Run. Builds must not use long-lived credentials. Which configuration should you recommend?",
+    "options": [
+      "A single Cloud Build trigger on every push that runs build, test, push, and deploy; add a shell step that exits early when the branch is not main.",
+      "A Cloud Build trigger on pull requests that runs all steps, plus a GitHub Actions workflow with a stored service account JSON key that deploys on tags.",
+      "Two cloudbuild.yaml files run by a Jenkins server on Compute Engine, with a webhook from GitHub for tags.",
+      "Two Cloud Build triggers connected to the repository: a pull-request trigger that runs build and test steps, and a tag trigger with regex ^v\\d+\\.\\d+\\.\\d+$ that additionally pushes the image and runs gcloud run deploy using a dedicated build service account."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Build triggers can be scoped by event type — pull request, branch, or tag with a regular expression — so the release path is enforced by the trigger configuration rather than by conditional shell logic. Each trigger can use its own user-specified, least-privilege service account, so no keys are needed. Option A runs release steps on every push and depends on fragile branch checks in scripts; it also does not implement tag-based releases. Option B introduces a service account JSON key in a third-party system when Cloud Build (or Workload Identity Federation) can avoid it. Option C adds a self-managed Jenkins server, which increases operational overhead compared to the managed service.",
+    "refs": [
+      "https://cloud.google.com/build/docs/automating-builds/create-manage-triggers",
+      "https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts"
+    ]
+  },
+  {
+    "id": "d5-dep-013",
+    "domain": 5,
+    "topic": "Environment strategy",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A regional bank is defining how development, test, and production environments for a new lending platform should be laid out in Google Cloud. Requirements: production data must never be reachable from non-production workloads, each environment must be provisioned identically, and cost per environment must be visible to finance. Which two design decisions should you recommend? (Choose two.)",
+    "options": [
+      "Place each environment in its own project (or set of projects) under environment-specific folders so IAM, VPC boundaries, VPC Service Controls perimeters, and billing reports separate naturally.",
+      "Use a single project with environment-specific labels on every resource and separate Kubernetes namespaces for dev, test, and prod.",
+      "Provision every environment from the same versioned Terraform modules, varying only input variables such as project ID, sizing, and region per environment.",
+      "Provision production with Terraform but let developers create dev and test resources manually in the console to move faster.",
+      "Give all developers the Editor role in the production project so they can reproduce incidents quickly."
+    ],
+    "answer": [0, 2],
+    "explanation": "Google's enterprise foundations guidance recommends project-per-environment under environment folders: projects are the boundary for IAM, networking, VPC Service Controls, quotas, and billing exports, which directly satisfies isolation and cost visibility. Reusing the same versioned Terraform modules with different variables guarantees environments are provisioned identically and lets changes be promoted through dev and test before prod. Option B keeps everything in one trust and billing boundary; namespaces are not a security boundary between prod and non-prod data. Option D makes dev and test drift from prod, undermining test validity. Option E violates least privilege and separation of duties.",
+    "refs": [
+      "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy",
+      "https://cloud.google.com/docs/terraform/best-practices/general-style-structure"
+    ]
+  },
+  {
+    "id": "d5-dep-014",
+    "domain": 5,
+    "topic": "Apigee traffic management",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing company exposes its seat-availability API through Apigee X. When a popular concert goes on sale, thousands of requests per second arrive within a few seconds and overwhelm the legacy backend, even though the daily allowance for each partner is nowhere near exhausted. You need to smooth out these bursts to a rate the backend can sustain. Which Apigee policy should you apply?",
+    "options": [
+      "Quota policy with a per-day limit for each developer app.",
+      "ResponseCache policy to serve cached availability responses for 10 minutes.",
+      "SpikeArrest policy that limits the request rate (for example 500ps) to protect the backend from sudden traffic spikes.",
+      "ConcurrentRateLimit policy set to allow unlimited connections during sale windows."
+    ],
+    "answer": [2],
+    "explanation": "SpikeArrest is designed to protect backends from sudden surges: it smooths traffic to a configured rate per second or minute regardless of the caller's business-level allowance. The Quota policy (option A) enforces a business allowance over a longer window (per day/month) and will not stop a burst that stays below the daily total — the scenario explicitly says quotas are not exhausted. Option B caching a seat-availability response is dangerous for fast-changing inventory and would not control the rate to the backend for cache misses. Option D (an older, deprecated policy) configured to allow unlimited connections does nothing to protect the backend.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/reference/policies/spike-arrest-policy",
+      "https://cloud.google.com/apigee/docs/api-platform/develop/comparing-quota-spike-arrest-and-concurrent-rate-limit-policies"
+    ]
+  },
+  {
+    "id": "d5-dep-015",
+    "domain": 5,
+    "topic": "Apigee API products",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A travel platform uses Apigee X and wants to offer its flight-search API to partners in Bronze (1,000 calls/day), Silver (50,000 calls/day) and Gold (unlimited) tiers. Partners self-register, and the company wants to change tier limits without redeploying proxies. How should you implement this?",
+    "options": [
+      "Deploy three copies of the API proxy with different hard-coded limits and give each partner the URL of the proxy that matches their tier.",
+      "Create three API products that bundle the same proxy with tier-specific quota settings, and use a Quota policy that references the product's quota variables; assign partner apps to the product for their tier.",
+      "Implement rate limiting in the backend service by looking up each partner's tier in a Cloud SQL table on every request.",
+      "Use Cloud Armor rate-based rules in front of Apigee with a separate rule per partner IP address range."
+    ],
+    "answer": [1],
+    "explanation": "In Apigee the API product is the unit of packaging and entitlement: it bundles proxies/operations with quota parameters, and developer apps are approved for products, which yields an API key or OAuth credential. A Quota policy that reads the product's quota variables (verifyapikey.*.apiproduct.developer.quota.limit etc.) enforces tier limits, and changing a product's quota takes effect without redeploying the proxy. Option A multiplies proxies to maintain and still requires redeploying to change limits. Option C pushes API-management concerns into the backend and adds a database lookup to every request. Option D operates on IP ranges, which do not map to partner identity or business tiers, and is meant for network-layer protection rather than business quotas.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/publish/what-api-product",
+      "https://cloud.google.com/apigee/docs/api-platform/reference/policies/quota-policy"
+    ]
+  },
+  {
+    "id": "d5-dep-016",
+    "domain": 5,
+    "topic": "API Gateway",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A three-person startup has built its backend as several Cloud Run functions. They need a single public hostname, API-key validation, and per-key usage metrics for a mobile app, and they want to spend as little as possible on API management. They already have an OpenAPI 2.0 spec. Which service should you recommend?",
+    "options": [
+      "Apigee X with a paid subscription, using the developer portal for API key issuance.",
+      "A global external Application Load Balancer with a serverless NEG per function and Cloud Armor for key validation.",
+      "Cloud Endpoints with an ESPv2 container running on a Compute Engine VM in front of the functions.",
+      "API Gateway with the OpenAPI spec defining routes to each function backend and security definitions for API keys."
+    ],
+    "answer": [3],
+    "explanation": "API Gateway is the fully managed, pay-per-call gateway designed for serverless backends (Cloud Run, Cloud Run functions, App Engine). You upload an OpenAPI 2.0 spec that maps paths to backends and declares API-key security, and Google manages the ESPv2-based infrastructure; usage is visible per key in the Endpoints/Service Usage metrics. Option A is far more capable but its cost and complexity do not fit a tiny startup with basic needs. Option B provides routing but Cloud Armor cannot validate API keys or emit per-key usage metrics. Option C is functionally similar but you would have to run and patch your own ESPv2 VM, adding cost and operational overhead.",
+    "refs": [
+      "https://cloud.google.com/api-gateway/docs/about-api-gateway",
+      "https://cloud.google.com/api-gateway/docs/get-started-cloud-run"
+    ]
+  },
+  {
+    "id": "d5-dep-017",
+    "domain": 5,
+    "topic": "Apigee developer portal and monetization",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media conglomerate wants to turn its content-recommendation engine into a paid product for external developers. Requirements: developers must self-register, read documentation, and obtain credentials without contacting the company; usage must be billed per 1,000 calls with a free tier; the company needs analytics on adoption per developer; and the company does not want to build billing logic. Which approach should you recommend?",
+    "options": [
+      "Expose the API through Apigee X, publish it via the integrated developer portal for self-service onboarding, define rate plans with Apigee monetization for the free tier and per-1,000-call pricing, and use Apigee Analytics for adoption reporting.",
+      "Expose the API through API Gateway, build a custom React portal on Cloud Run for sign-up, and write a Dataflow job that computes charges from Cloud Logging entries.",
+      "Expose the API through Cloud Endpoints and create API keys manually for each developer who emails the support team; track usage in BigQuery.",
+      "Expose the API through a global external Application Load Balancer with Identity-Aware Proxy and export load balancer logs to BigQuery to compute invoices."
+    ],
+    "answer": [0],
+    "explanation": "This is the canonical Apigee X full-lifecycle use case. The integrated developer portal provides self-service sign-up, interactive documentation, and app/credential management; Apigee monetization lets you define rate plans (free tier, per-unit pricing) and generates billing documents without custom code; and Apigee Analytics reports adoption, latency and error metrics per developer and app. Option B assembles the same capabilities from scratch — custom portal and custom billing logic — which is explicitly what the company wants to avoid. Option C fails the self-service requirement. Option D uses IAP, which is for internal users with Google identities, not external developers, and offers no monetization or portal.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/monetization/overview",
+      "https://cloud.google.com/apigee/docs/api-platform/publish/portal/build-integrated-portal",
+      "https://cloud.google.com/apigee/docs/api-platform/analytics/analytics-services-overview"
+    ]
+  },
+  {
+    "id": "d5-dep-018",
+    "domain": 5,
+    "topic": "Apigee security policies",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile banking app authenticates users with Identity Platform, which issues signed JWTs. The app calls backend microservices through Apigee X. The security team wants Apigee to reject requests with missing, expired, or tampered tokens before they reach the backends, and to make the user ID available to downstream policies, without storing any signing secrets in Apigee. What should you configure?",
+    "options": [
+      "A VerifyAPIKey policy that treats the JWT as the API key and checks it against registered developer apps.",
+      "A BasicAuthentication policy that decodes the token and forwards the user ID as a header.",
+      "A VerifyJWT policy configured with the identity provider's JWKS URI so Apigee fetches public keys, validates signature, issuer, audience and expiry, and populates jwt.* flow variables.",
+      "An OAuthV2 policy with the GenerateAccessToken operation so Apigee issues its own tokens instead of accepting the app's tokens."
+    ],
+    "answer": [2],
+    "explanation": "VerifyJWT validates externally issued JWTs: pointing it at the issuer's JWKS endpoint lets Apigee retrieve and cache the public keys, so no secret is stored, and it verifies signature, expiry, issuer, and audience claims while exposing claims such as sub in jwt.{policy}.claim.* variables for later policies. Option A misuses API-key verification, which checks a static key against developer apps and cannot validate signatures or expiry. Option B is for base64 username:password, not JWTs. Option D would make Apigee an authorization server and force an additional token exchange flow — unnecessary because the app already has valid tokens from Identity Platform.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/reference/policies/verify-jwt-policy",
+      "https://cloud.google.com/apigee/docs/api-platform/security/oauth/using-jwt-policies"
+    ]
+  },
+  {
+    "id": "d5-dep-019",
+    "domain": 5,
+    "topic": "Apigee hybrid",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A European telecom must keep API request payloads for subscriber services inside its own data centers because of national regulation, but it wants to use Google's managed API management control plane for proxy development, analytics, and developer onboarding. The telecom already operates Kubernetes clusters on-premises. Which deployment model should you recommend?",
+    "options": [
+      "Apigee X with a Private Service Connect endpoint in the on-premises network so traffic is private.",
+      "Apigee hybrid, with the management plane in Google Cloud and the runtime plane deployed on the telecom's on-premises Kubernetes clusters.",
+      "Apigee X deployed in a Google Cloud region within the country with Assured Workloads enforcing data residency.",
+      "API Gateway with backends reachable through Cloud VPN to the data center."
+    ],
+    "answer": [1],
+    "explanation": "Apigee hybrid splits the platform: Google hosts the management plane (API design, deployment orchestration, analytics aggregation, portal) while the runtime plane — the message processors that actually handle API traffic and payloads — runs in a customer-managed Kubernetes cluster, on-premises or in another cloud. That keeps request/response data in the customer's data center as the regulation requires. Options A and C still process payloads in Google-managed runtime infrastructure; PSC only privatizes the connection and Assured Workloads controls the Google Cloud region, neither of which satisfies an on-premises processing requirement. Option D is a Google-hosted serverless gateway with no on-premises runtime option.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/hybrid/latest/what-is-hybrid",
+      "https://cloud.google.com/apigee/docs/api-platform/get-started/compare-apigee-products"
+    ]
+  },
+  {
+    "id": "d5-dep-020",
+    "domain": 5,
+    "topic": "API versioning",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An e-commerce company's public Orders API, managed in Apigee X, needs a breaking change: several response fields are being renamed and a required parameter is being added. Hundreds of partner integrations use the current API and cannot all update at once. You want to introduce the change following Google-recommended API design practices. What should you do?",
+    "options": [
+      "Deploy the changed proxy to the same base path and notify partners by email that they have 30 days to update.",
+      "Add a custom header X-Api-Behavior=new that partners can send to opt into the changed responses on the existing endpoint.",
+      "Keep the existing proxy unchanged and make the new behavior available only when partners regenerate their API keys.",
+      "Publish the change as a new major version under a new base path (for example /orders/v2), keep /orders/v1 running with a documented deprecation timeline, and add both to appropriate API products so partners migrate at their own pace."
+    ],
+    "answer": [3],
+    "explanation": "Google API design guidance and Apigee best practice is to expose breaking changes as a new major version in the URI base path, run old and new versions side by side, publish a deprecation and sunset schedule, and use API products so consumers can be entitled to either version. Option A breaks every partner integration simultaneously. Option B hides a breaking change behind a header, making behavior non-discoverable and complicating documentation, caching and analytics. Option C couples an unrelated credential lifecycle to API behavior and offers no clear migration path.",
+    "refs": [
+      "https://cloud.google.com/apis/design/versioning",
+      "https://cloud.google.com/apigee/docs/api-platform/fundamentals/best-practices-api-proxy-design-and-development"
+    ]
+  },
+  {
+    "id": "d5-dep-021",
+    "domain": 5,
+    "topic": "gRPC vs REST",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ride-sharing company is redesigning communication between about 40 internal microservices on GKE that exchange small, high-frequency messages and need bidirectional streaming for location updates. The same data must also be consumed by a browser-based dispatcher dashboard maintained by a separate front-end team that prefers JSON over HTTP. Which approach should you recommend?",
+    "options": [
+      "Use gRPC with Protocol Buffers for service-to-service communication and expose a JSON/HTTP interface for the browser through transcoding (for example ESPv2 or an Envoy gRPC-JSON transcoder) generated from the same .proto definitions.",
+      "Use REST with JSON for all communication so that a single API style is used everywhere, and implement streaming with long polling.",
+      "Use gRPC everywhere, including the browser, by requiring the front-end team to adopt a WebSocket bridge they maintain themselves.",
+      "Use Pub/Sub topics between all microservices and have the browser subscribe to Pub/Sub directly with a service account key."
+    ],
+    "answer": [0],
+    "explanation": "gRPC is the recommended choice for internal, latency-sensitive, strongly typed service communication: binary Protocol Buffers, HTTP/2 multiplexing, and native bidirectional streaming. Because browsers cannot speak native gRPC, the standard pattern is to generate a REST/JSON mapping from the same proto (google.api.http annotations) and use a transcoding proxy such as ESPv2 or Envoy — one source of truth, two protocols. Option B sacrifices the performance and streaming benefits for the 40 internal services. Option C forces a browser-incompatible protocol on the front end and adds a custom bridge to maintain. Option D turns request/response calls into asynchronous messaging and exposes a service account key to a browser, which is a serious security anti-pattern.",
+    "refs": [
+      "https://cloud.google.com/endpoints/docs/grpc/transcoding",
+      "https://cloud.google.com/endpoints/docs/grpc/about-grpc"
+    ]
+  },
+  {
+    "id": "d5-dep-022",
+    "domain": 5,
+    "topic": "Cloud Load Balancing and Cloud Armor for APIs",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A sports-betting company hosts its public REST API on Cloud Run in two regions. It has experienced layer-7 floods and must block traffic from jurisdictions where it is not licensed. Regulators also require that the API only be reachable through the company's protected edge, never via the default run.app URL. Which three actions should you take? (Choose three.)",
+    "options": [
+      "Place the services behind a global external Application Load Balancer using serverless NEGs in each region.",
+      "Configure Cloud NAT on the Cloud Run services' VPC egress so that inbound requests are filtered by country.",
+      "Attach a Cloud Armor security policy to the backend service with geo-based deny rules and rate-based ban rules (optionally Adaptive Protection).",
+      "Create VPC firewall rules that deny ingress to the Cloud Run services from the blocked countries' IP ranges.",
+      "Set each Cloud Run service's ingress setting to internal-and-cloud-load-balancing so the default URL no longer accepts public traffic.",
+      "Enable Cloud CDN on the backend service to absorb floods by caching all API responses for one hour."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "The recommended edge for public serverless APIs is a global external Application Load Balancer with serverless NEGs (giving a single anycast IP, multi-region routing, and TLS termination), Cloud Armor attached to the backend service for geo-blocking, rate limiting, and L7 DDoS protection, and the Cloud Run ingress setting restricted to internal-and-cloud-load-balancing so the run.app URL cannot bypass the edge controls. Option B misunderstands Cloud NAT, which handles outbound traffic only. Option D fails because VPC firewall rules do not apply to Cloud Run ingress and cannot express country-based rules. Option F would cache dynamic betting responses, which is incorrect for the workload and is not a security control.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/https/setup-global-ext-https-serverless",
+      "https://cloud.google.com/armor/docs/security-policy-overview",
+      "https://cloud.google.com/run/docs/securing/ingress"
+    ]
+  },
+  {
+    "id": "d5-dep-023",
+    "domain": 5,
+    "topic": "Cloud Endpoints ESPv2",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A health-tech company runs a gRPC pricing service on GKE. Partners need to call it with REST/JSON, requests must be authenticated with API keys tied to Google Cloud projects so usage can be attributed and rate limited per partner, and the team wants latency and error metrics in Cloud Monitoring without instrumenting the service. The service must stay on GKE. What should you recommend?",
+    "options": [
+      "Rewrite the service as a REST API in Cloud Run and use API Gateway to add API keys.",
+      "Deploy Cloud Endpoints for gRPC: add google.api.http annotations to the proto, deploy the service configuration with gcloud endpoints services deploy, and run the ESPv2 (Envoy) container as a sidecar that performs transcoding, API-key validation, quota, and telemetry.",
+      "Put an internal passthrough Network Load Balancer in front of the pods and validate API keys inside the service code using the Service Control API.",
+      "Use Apigee hybrid on the GKE cluster and write JavaScript policies to convert JSON into protobuf binary payloads."
+    ],
+    "answer": [1],
+    "explanation": "Cloud Endpoints for gRPC is built for this: the Extensible Service Proxy V2 runs as a sidecar (or separate deployment) on GKE, transcodes HTTP/JSON to gRPC using the proto's HTTP annotations, validates API keys against the Service Control API, enforces per-consumer quotas, and emits latency, traffic and error metrics plus logs to Cloud Observability — all without modifying the service. Option A violates the constraint that the service stay on GKE and requires a rewrite. Option C adds custom code and a load balancer that does not perform L7 API management. Option D is heavyweight, and Apigee does not natively transcode JSON to gRPC payloads via JavaScript policies; it would be a fragile custom implementation.",
+    "refs": [
+      "https://cloud.google.com/endpoints/docs/grpc/get-started-kubernetes-engine",
+      "https://cloud.google.com/endpoints/docs/grpc/restricting-api-access-with-api-keys"
+    ]
+  },
+  {
+    "id": "d5-dep-024",
+    "domain": 5,
+    "topic": "MIG update policy",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments processor runs a regional MIG of 30 VMs whose in-memory session state is drained over about 90 seconds on shutdown. Operations rolls out OS patches monthly via new instance templates. During updates they must never fall below the current serving capacity, must not exceed it by more than 3 VMs to stay within committed spend, must ensure a new VM is actually healthy before another old one is removed, and must finish the rollout automatically once started. Which update configuration should you recommend?",
+    "options": [
+      "Type OPPORTUNISTIC with maxSurge=3 and maxUnavailable=0 so that the autoscaler replaces instances gradually.",
+      "Type PROACTIVE with maxSurge=0 and maxUnavailable=3 and minimal action REPLACE so the update completes quickly.",
+      "Type PROACTIVE with maxSurge=30 and maxUnavailable=0 so all new instances are created in parallel and old ones removed at once.",
+      "Type PROACTIVE with maxSurge=3, maxUnavailable=0, minimal action REPLACE, a MIG health check with autohealing configured, and an initial delay that covers boot time plus the 90-second drain."
+    ],
+    "answer": [3],
+    "explanation": "A PROACTIVE rolling update actively replaces instances until complete; maxUnavailable=0 guarantees capacity never drops, maxSurge=3 caps temporary over-provisioning at 3 VMs, and the MIG waits for new instances to pass the configured health check (with the initial delay respecting boot and drain time) before deleting old ones. This is the Google-documented pattern for zero-downtime updates with cost caps. Option A is OPPORTUNISTIC, which only updates when the MIG resizes for other reasons and may never finish. Option B reduces capacity by 3 during the update, violating the never-below-capacity requirement. Option C surges to 60 VMs, blowing through the 3-VM cost limit.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups#max_surge",
+      "https://cloud.google.com/compute/docs/instance-groups/autohealing-instances-in-migs"
+    ]
+  },
+  {
+    "id": "d5-dep-025",
+    "domain": 5,
+    "topic": "Cloud Run rollback",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Ten minutes after a developer deployed a new revision of a Cloud Run service that serves 100% of traffic, the on-call engineer sees 5xx errors spike in Cloud Monitoring. The previous revision is still listed in the service. You need to restore service as quickly as possible. What should you do?",
+    "options": [
+      "Run gcloud run services update-traffic SERVICE --to-revisions=PREVIOUS_REVISION=100 to shift all traffic back to the known-good revision.",
+      "Check out the previous git commit, rebuild the container image, and run gcloud run deploy with the rebuilt image.",
+      "Delete the Cloud Run service and recreate it from the previous image stored in Artifact Registry.",
+      "Set the new revision's maximum instances to 0 so Cloud Run stops routing requests to it."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Run keeps previous revisions, so rolling back is a traffic operation, not a build: update-traffic to the previous revision at 100% takes effect in seconds and preserves the faulty revision for investigation. Option B requires a full rebuild and redeploy — minutes to tens of minutes — and risks producing a slightly different artifact. Option C deletes the service, causing an outage and losing its URL/IAM configuration until recreated. Option D is not a supported rollback mechanism; max instances applies to the service configuration and setting it to 0 would fail or remove capacity rather than reroute traffic.",
+    "refs": [
+      "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration#rollback",
+      "https://cloud.google.com/sdk/gcloud/reference/run/services/update-traffic"
+    ]
+  }
+]

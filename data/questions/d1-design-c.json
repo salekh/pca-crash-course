@@ -1,0 +1,532 @@
+[
+  {
+    "id": "d1-des-051",
+    "domain": 1,
+    "topic": "Dataflow",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ride-sharing company needs to compute per-city driver supply and rider demand every 30 seconds from a stream of GPS events, correctly handling events that arrive up to 10 minutes late and guaranteeing that each event is counted exactly once. The team wants a managed service that autoscales with traffic and does not require cluster administration. Which service should you use?",
+    "options": [
+      "Dataflow with a streaming Apache Beam pipeline using event-time windows, watermarks, and allowed lateness.",
+      "Dataproc running Spark Structured Streaming on a long-lived cluster with autoscaling.",
+      "Cloud Run functions triggered by each Pub/Sub message that increment counters in Memorystore.",
+      "BigQuery scheduled queries that aggregate the events table every 30 seconds."
+    ],
+    "answer": [0],
+    "explanation": "Dataflow is Google's fully managed, serverless runner for Apache Beam and is the recommended choice for stream processing that needs event-time semantics: windows, watermarks, allowed lateness for late data, and exactly-once processing are native Beam concepts, and Dataflow autoscales workers without any cluster to manage. Option B can express similar logic but requires operating a Dataproc cluster and provides weaker late-data and exactly-once guarantees out of the box. Option C is at-least-once per message and cannot implement windowing or late-data correction without significant custom state management. Option D is batch-oriented; scheduled queries cannot run every 30 seconds and would count late events in the wrong window.",
+    "refs": [
+      "https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines",
+      "https://cloud.google.com/dataflow/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-des-052",
+    "domain": 1,
+    "topic": "Dataproc",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecommunications company has 300 nightly Apache Spark and Hive jobs running on an on-premises Hadoop cluster that is reaching end of life. The data engineering team is highly skilled in Spark and Hive but has no experience with other frameworks, and the migration must be completed in three months with minimal job rewrites. Which approach should you recommend?",
+    "options": [
+      "Rewrite the jobs as Apache Beam pipelines and run them on Dataflow.",
+      "Rewrite the jobs as BigQuery SQL and schedule them with scheduled queries.",
+      "Migrate the data to Cloud Storage and run the existing Spark and Hive jobs on Dataproc using ephemeral, per-job clusters.",
+      "Rebuild the transformations visually in Cloud Data Fusion."
+    ],
+    "answer": [2],
+    "explanation": "Dataproc is the managed Hadoop/Spark service, so existing Spark and Hive code runs with little or no change and the team's skills transfer directly; storing data in Cloud Storage via the Cloud Storage connector and using ephemeral job-scoped clusters (or Serverless for Apache Spark) follows Google's recommended cost and operations pattern. Option A requires rewriting 300 jobs in a new programming model, which is infeasible in three months with the stated skills. Option B is a full rewrite into SQL and not every Spark job can be expressed in SQL. Option D also means rebuilding every pipeline in a different tool.",
+    "refs": [
+      "https://cloud.google.com/dataproc/docs/concepts/overview",
+      "https://cloud.google.com/architecture/hadoop/hadoop-gcp-migration-overview"
+    ]
+  },
+  {
+    "id": "d1-des-053",
+    "domain": 1,
+    "topic": "BigQuery ELT",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription business already loads its raw billing and CRM data into BigQuery every night. Analysts need cleaned and joined tables ready each morning. The transformations are simple joins, filters, and aggregations, and the analytics team knows SQL but no programming languages. Which approach requires the least additional infrastructure?",
+    "options": [
+      "Export the raw tables to Cloud Storage and process them with a Dataproc Spark job.",
+      "Perform the transformations in BigQuery using scheduled queries (or Dataform) that write the result tables.",
+      "Build a Dataflow batch pipeline that reads from BigQuery, transforms, and writes back to BigQuery.",
+      "Create a Cloud Composer environment with a DAG that runs Python transformations."
+    ],
+    "answer": [1],
+    "explanation": "When data is already in BigQuery and the logic is SQL-expressible, the Google-recommended pattern is ELT inside BigQuery: scheduled queries or Dataform run the SQL on a schedule, use BigQuery's serverless compute, and require no additional services or code, matching the team's SQL skill set. Option A moves data out and back and adds a cluster for no benefit. Option C introduces a programming framework the analysts do not know and adds Dataflow cost for logic BigQuery handles natively. Option D adds an always-on Airflow environment that is unnecessary for a simple nightly SQL chain.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/scheduling-queries",
+      "https://cloud.google.com/dataform/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-des-054",
+    "domain": 1,
+    "topic": "Cloud Data Fusion",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail company's business intelligence team must integrate data from Salesforce, SAP, an on-premises Oracle database, and several SFTP feeds into BigQuery. The team consists of data analysts who are comfortable with drag-and-drop tools but do not write code, and the company wants built-in data lineage for audit purposes. Which service should you recommend?",
+    "options": [
+      "Dataflow with the Google-provided Flex Templates for each source.",
+      "Dataproc with Sqoop jobs orchestrated by Cloud Composer.",
+      "Custom Python connectors deployed on Cloud Run and scheduled with Cloud Scheduler.",
+      "Cloud Data Fusion, using its prebuilt connectors and visual pipeline designer."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Data Fusion is the fully managed, code-free data integration service built on CDAP: it ships with more than 150 prebuilt connectors (Salesforce, SAP, Oracle, SFTP, and more), a visual pipeline designer for non-programmers, and integrated metadata and lineage tracking, which meets the analyst skill set and the audit requirement. Option A requires Beam programming for anything beyond the limited template set and has no visual designer. Option B is code-centric and adds two services to operate. Option C is entirely custom development and provides no lineage without additional work.",
+    "refs": [
+      "https://cloud.google.com/data-fusion/docs/concepts/overview",
+      "https://cloud.google.com/data-fusion/plugins"
+    ]
+  },
+  {
+    "id": "d1-des-055",
+    "domain": 1,
+    "topic": "Cloud Composer",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pharmaceutical company's daily data pipeline has 40 interdependent steps: it waits for files to land in Cloud Storage, runs a Dataproc job, loads results into BigQuery, triggers a Vertex AI training pipeline, and finally calls an on-premises REST API. Steps must run in dependency order, failed steps must be retried and alert the on-call engineer, and the team already writes Python. Which service should orchestrate this pipeline?",
+    "options": [
+      "Cloud Scheduler with one cron job per step, staggered by expected duration.",
+      "Cloud Composer, defining the pipeline as an Apache Airflow DAG with operators for each Google Cloud service.",
+      "Eventarc triggers chained from one service's completion event to the next.",
+      "A single Dataflow pipeline that calls each downstream service in sequence."
+    ],
+    "answer": [1],
+    "explanation": "Cloud Composer (managed Apache Airflow) is designed for complex, multi-system workflows with explicit dependencies, sensors that wait for files, retries, SLAs, alerting, and a rich library of Google Cloud and generic operators, all authored in Python, which the team already knows. Option A relies on timing rather than true dependencies, so a slow step causes downstream failures and there is no retry or dependency graph. Option C works for simple event chains but becomes unmanageable for 40 steps with branching and retries and offers no central view of the workflow. Option D misuses a data-processing engine as an orchestrator; Dataflow is for transforming data, not coordinating heterogeneous services.",
+    "refs": [
+      "https://cloud.google.com/composer/docs/concepts/overview",
+      "https://cloud.google.com/composer/docs/composer-3/composer-overview"
+    ]
+  },
+  {
+    "id": "d1-des-056",
+    "domain": 1,
+    "topic": "Pub/Sub",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online marketplace wants order events produced by its checkout service to be consumed independently by four downstream systems: fraud scoring, inventory, notifications, and analytics. New consumers will be added over time without changing the producer, each consumer must receive every event at least once, and consumers must be able to replay the last seven days of events after a bug fix. Which messaging design should you use?",
+    "options": [
+      "Have the checkout service call each downstream service's REST API synchronously in order.",
+      "Write events to a Cloud SQL table that each consumer polls with a timestamp cursor.",
+      "Publish events to a Pub/Sub topic with one subscription per consumer, enable message retention on the topic, and use seek to replay when needed.",
+      "Use Eventarc to route a Cloud Audit Log entry for each order to the four services."
+    ],
+    "answer": [2],
+    "explanation": "Pub/Sub is the managed, globally available publish-subscribe service for exactly this fan-out pattern: one topic, independent subscriptions per consumer (so adding a consumer never touches the producer), at-least-once delivery with acknowledgements, and topic message retention (up to 31 days) combined with seek to replay past events. Option A tightly couples the producer to every consumer and fails or slows the checkout when any downstream system is down. Option B turns a database into a queue, which scales poorly and requires custom cursor management. Option D misuses Eventarc: business events are not audit log entries, and Eventarc is a routing layer built on Pub/Sub rather than the right primitive for custom application events with replay.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/overview",
+      "https://cloud.google.com/pubsub/docs/replay-overview"
+    ]
+  },
+  {
+    "id": "d1-des-057",
+    "domain": 1,
+    "topic": "Eventarc",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A data governance team wants to run a Cloud Run service automatically whenever a new dataset is created in BigQuery in any project of the organization, so that default labels and access policies can be applied. They want a managed, event-driven trigger without polling or writing custom log-processing code. What should you do?",
+    "options": [
+      "Create an Eventarc trigger for the BigQuery Cloud Audit Log event (datasetservice.insert) that targets the Cloud Run service.",
+      "Create a Cloud Scheduler job that lists datasets every minute and invokes the service when a new one appears.",
+      "Export Cloud Audit Logs to BigQuery and run a scheduled query that calls the service through a remote function.",
+      "Create a Dataflow streaming pipeline that reads the Cloud Logging export and calls the service."
+    ],
+    "answer": [0],
+    "explanation": "Eventarc delivers events from Google Cloud services, including Cloud Audit Log entries such as BigQuery dataset creation, to Cloud Run, Cloud Run functions, GKE, and Workflows destinations using CloudEvents format; it is the managed, no-code way to react to platform events. Option B is polling, adds latency, and consumes API quota. Option C introduces log sinks, scheduled queries, and remote functions, which is a heavyweight and delayed way to react to an event. Option D builds and runs a streaming pipeline for a task Eventarc handles natively.",
+    "refs": [
+      "https://cloud.google.com/eventarc/docs/overview",
+      "https://cloud.google.com/eventarc/docs/reference/supported-events"
+    ]
+  },
+  {
+    "id": "d1-des-058",
+    "domain": 1,
+    "topic": "Datastream",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank wants near-real-time analytics on transactions stored in an on-premises Oracle database. The database team will not allow any tool that adds significant query load to the production instance, and analysts need the data in BigQuery within a few minutes of each commit. The bank wants a serverless solution with minimal custom code. Which approach should you recommend?",
+    "options": [
+      "Schedule a Dataproc Sqoop job every five minutes that runs SELECT queries for rows changed since the last run.",
+      "Install a Cloud Data Fusion batch pipeline that performs full table extracts hourly.",
+      "Use BigQuery Data Transfer Service to pull from the Oracle database on a five-minute schedule.",
+      "Use Datastream to capture changes from the Oracle redo logs and stream them into BigQuery with the built-in BigQuery destination."
+    ],
+    "answer": [3],
+    "explanation": "Datastream is Google's serverless change data capture (CDC) service: it reads the Oracle redo/archive logs (log-based CDC), which places negligible load on the source compared with query-based extraction, and streams inserts, updates, and deletes directly into BigQuery with minute-level latency and no pipeline code. Option A is query-based polling that repeatedly hits production tables and requires change-tracking columns. Option B performs full extracts hourly, which is both high-load and too slow. Option C is wrong because BigQuery Data Transfer Service does not have an Oracle connector for CDC, and its schedules are for bulk loads from supported SaaS and storage sources.",
+    "refs": [
+      "https://cloud.google.com/datastream/docs/overview",
+      "https://cloud.google.com/datastream/docs/sources-oracle"
+    ]
+  },
+  {
+    "id": "d1-des-059",
+    "domain": 1,
+    "topic": "BigQuery loading",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company receives about 2,000 CSV files per day from partners into a Cloud Storage bucket. The files already match the target schema and need no transformation before they are queried in BigQuery. The company wants the lowest-cost way to make the data available in BigQuery each day. What should you do?",
+    "options": [
+      "Create a Dataflow batch job that reads the CSV files and writes rows to BigQuery with the streaming API.",
+      "Use BigQuery load jobs (for example, via the BigQuery Data Transfer Service for Cloud Storage or a scheduled bq load) to append the files to the table.",
+      "Run a Dataproc cluster that converts the files to Parquet and inserts them with Spark.",
+      "Insert the rows with the BigQuery Storage Write API from a Cloud Run service."
+    ],
+    "answer": [1],
+    "explanation": "BigQuery load jobs from Cloud Storage are free (they use a shared pool of slots and do not count against query pricing), support CSV natively, and the Cloud Storage transfer in BigQuery Data Transfer Service can schedule and track them automatically; when no transformation is needed this is the simplest and cheapest path. Option A adds Dataflow worker cost and streaming insert charges for data that could be batch loaded. Option C adds a cluster and conversion work with no requirement for it. Option D uses a streaming write path that is billed per GB and requires custom code, which is unnecessary for daily batch files.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/batch-loading-data",
+      "https://cloud.google.com/bigquery/docs/cloud-storage-transfer-overview"
+    ]
+  },
+  {
+    "id": "d1-des-060",
+    "domain": 1,
+    "topic": "Streaming architecture",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An industrial IoT company will ingest telemetry from 2 million machines worldwide. Requirements: buffer bursts of up to 1 million messages per second without loss, enrich and aggregate messages in near real time with autoscaling and exactly-once semantics, and make both raw and aggregated data available for SQL analytics and dashboards. The company wants managed services only. Which three services should form the core of the design? (Choose three.)",
+    "options": [
+      "Pub/Sub as the global ingestion and buffering layer.",
+      "Cloud SQL for PostgreSQL as the ingestion buffer with a table per machine.",
+      "Dataflow streaming pipelines for enrichment and windowed aggregation.",
+      "A long-running Dataproc cluster running a custom Kafka broker on Persistent Disk.",
+      "BigQuery as the analytical store for raw and aggregated telemetry.",
+      "Filestore as the landing zone for telemetry files."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "The reference streaming analytics architecture on Google Cloud is Pub/Sub for durable, globally available ingestion that absorbs bursts, Dataflow for autoscaling stream processing with exactly-once semantics and event-time windows, and BigQuery as the serverless analytical warehouse that dashboards (for example Looker Studio) query with SQL; all three are fully managed. Option B cannot absorb a million messages per second and is not a message broker. Option D is self-managed Kafka on a cluster you must operate and size, contradicting the managed-only requirement. Option F is a file share, which is unsuitable as a high-throughput streaming landing zone.",
+    "refs": [
+      "https://cloud.google.com/architecture/streaming-analytics",
+      "https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines"
+    ]
+  },
+  {
+    "id": "d1-des-061",
+    "domain": 1,
+    "topic": "Pub/Sub BigQuery subscription",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile game publisher streams player events to a Pub/Sub topic. Analysts want every event stored in BigQuery within seconds exactly as published; no transformation, deduplication, or enrichment is needed. The publisher wants to minimize both cost and the number of components to operate. What should you do?",
+    "options": [
+      "Create a Pub/Sub BigQuery subscription that writes messages directly to the BigQuery table using the topic schema.",
+      "Deploy the Google-provided Pub/Sub-to-BigQuery Dataflow template as a streaming job.",
+      "Write a Cloud Run service that pulls messages and inserts them with the legacy streaming API.",
+      "Export messages to Cloud Storage with a Cloud Storage subscription and load them into BigQuery hourly."
+    ],
+    "answer": [0],
+    "explanation": "A Pub/Sub BigQuery subscription writes messages straight into a BigQuery table through the Storage Write API with no intermediate compute, so there is no pipeline to run or scale and no Dataflow worker cost; Google recommends it whenever no transformation is needed between Pub/Sub and BigQuery. Option B works and is the right choice when transformation, deduplication, or error handling is required, but it adds always-on Dataflow workers and cost for a pass-through use case. Option C is custom code that must be operated and uses the more expensive legacy streaming API. Option D adds an hour of latency, which violates the seconds requirement.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/bigquery",
+      "https://cloud.google.com/pubsub/docs/create-bigquery-subscription"
+    ]
+  },
+  {
+    "id": "d1-des-062",
+    "domain": 1,
+    "topic": "Dataproc cost optimization",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A market research firm has migrated its Spark workloads to a single Dataproc cluster that runs 24x7 with 40 workers, even though jobs run for only about six hours per night. Data is stored in HDFS on the cluster's Persistent Disks. Leadership has asked for a significant cost reduction without rewriting the Spark jobs. Which two changes should you make? (Choose two.)",
+    "options": [
+      "Migrate the Spark jobs to Dataflow to benefit from per-second billing.",
+      "Move the data from HDFS to Cloud Storage and use ephemeral, job-scoped clusters (or Serverless for Apache Spark) that are deleted when jobs finish.",
+      "Double the number of workers so the jobs finish faster and the cluster can be idle longer.",
+      "Add Spot VMs as secondary workers for the fault-tolerant processing stages.",
+      "Enable HDFS erasure coding to reduce Persistent Disk usage."
+    ],
+    "answer": [1, 3],
+    "explanation": "The Google-recommended Dataproc cost pattern is to separate storage from compute: keep data in Cloud Storage (via the Cloud Storage connector, which Spark reads natively) so clusters become ephemeral and are billed only for the six hours they run, or use Serverless for Apache Spark and eliminate cluster management entirely. Within a cluster, Spot secondary workers cut compute cost by 60-91% for the stages that tolerate preemption because they do not store HDFS data. Option A requires a rewrite from Spark to Beam. Option C increases cost; idle clusters still bill. Option E slightly reduces disk cost but keeps the fundamental problem of a persistent cluster storing data it must keep running to serve.",
+    "refs": [
+      "https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/secondary-vms",
+      "https://cloud.google.com/architecture/hadoop/hadoop-gcp-migration-jobs"
+    ]
+  },
+  {
+    "id": "d1-des-063",
+    "domain": 1,
+    "topic": "Serverless for Apache Spark",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech startup has a handful of PySpark batch jobs that run at unpredictable times when new data files arrive. The team does not want to size, start, or stop clusters, and it wants to pay only while a job is executing, while keeping the jobs as PySpark. Which option should you choose?",
+    "options": [
+      "A Dataproc cluster with autoscaling and a minimum of two workers.",
+      "A GKE Autopilot cluster running the Spark operator.",
+      "Rewriting the jobs as BigQuery SQL stored procedures.",
+      "Google Cloud Serverless for Apache Spark (Dataproc Serverless) batch workloads, submitted when files arrive."
+    ],
+    "answer": [3],
+    "explanation": "Serverless for Apache Spark runs PySpark, Spark SQL, Scala, and R batches without any cluster: Google provisions and autoscales the executors per workload and bills only for the duration of the batch, so the jobs stay unchanged and there is no cluster to size or leave idle. Option A still bills for the minimum workers and master nodes while idle and requires cluster configuration. Option B replaces Dataproc operations with Kubernetes operations and the Spark operator, which the team must maintain. Option C is a rewrite that abandons PySpark, violating the stated constraint.",
+    "refs": [
+      "https://cloud.google.com/dataproc-serverless/docs/overview",
+      "https://cloud.google.com/dataproc-serverless/docs/quickstarts/spark-batch"
+    ]
+  },
+  {
+    "id": "d1-des-064",
+    "domain": 1,
+    "topic": "Workflows",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company needs to orchestrate a claims process that calls three Cloud Run services and one external REST API in sequence, with conditional branching based on responses and automatic retries on transient errors. The process runs a few thousand times per day, must not incur cost when idle, and the team has no Airflow experience. Which orchestration service should you use?",
+    "options": [
+      "Cloud Composer with a DAG that uses HTTP operators for each call.",
+      "A Dataflow streaming pipeline that invokes each service in a ParDo.",
+      "Workflows, defining the steps, conditions, and retry policies in YAML and invoking the HTTP endpoints directly.",
+      "Cloud Scheduler jobs that call each service at fixed intervals."
+    ],
+    "answer": [2],
+    "explanation": "Workflows is the serverless orchestrator for service-to-service and API call sequences: it supports conditional logic, error handling, retries, and parallel steps, scales to zero, and bills per step executed, which suits a lightweight, high-frequency business process without requiring Airflow skills. Option A is the right tool for heavyweight data pipelines but it runs an always-on environment with a significant monthly cost and requires Airflow knowledge. Option B misuses a data-processing engine for control flow. Option D has no notion of dependencies, branching, or retries between calls.",
+    "refs": [
+      "https://cloud.google.com/workflows/docs/overview",
+      "https://cloud.google.com/workflows/docs/choose-orchestration"
+    ]
+  },
+  {
+    "id": "d1-des-065",
+    "domain": 1,
+    "topic": "VPC design",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company is setting up its first Google Cloud environment. It will run application servers in us-east1 and europe-west1 that must communicate with each other over private IP addresses, and it wants to avoid configuring VPNs or peering between regions. How should you design the network?",
+    "options": [
+      "Create a single VPC network with one subnet in us-east1 and one subnet in europe-west1; instances communicate over internal IPs by default.",
+      "Create one VPC per region and connect them with HA VPN tunnels.",
+      "Create one VPC per region and connect them with VPC Network Peering.",
+      "Create a single subnet that spans both regions so all instances share one IP range."
+    ],
+    "answer": [0],
+    "explanation": "Google Cloud VPC networks are global resources while subnets are regional, so a single VPC can contain subnets in any number of regions and instances in different regions communicate privately over Google's backbone with no additional configuration; this is the simplest and Google-recommended starting design. Options B and C add unnecessary inter-VPC connectivity, cost, and administrative complexity. Option D is invalid because a subnet belongs to exactly one region.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/overview",
+      "https://cloud.google.com/architecture/best-practices-vpc-design"
+    ]
+  },
+  {
+    "id": "d1-des-066",
+    "domain": 1,
+    "topic": "Shared VPC",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An enterprise has a central network team that must own IP address allocation, firewall rules, and hybrid connectivity, while 30 application teams each need their own project with their own IAM, billing visibility, and quotas. Application VMs in different teams' projects must communicate over private IPs. Which network design should you recommend?",
+    "options": [
+      "Give each application team its own VPC and connect all 30 VPCs with VPC Network Peering.",
+      "Use a Shared VPC with the network team's project as the host project and each application project attached as a service project.",
+      "Put all application resources in a single project with one VPC and separate teams by labels.",
+      "Create a separate VPC per team and connect them with HA VPN tunnels managed by the network team."
+    ],
+    "answer": [1],
+    "explanation": "Shared VPC is designed for exactly this separation of duties: the host project owns the VPC, subnets, firewall rules, routes, and Interconnect/VPN, while service projects consume subnets and keep their own IAM, quotas, and billing; all workloads share one network so they communicate privately without peering. Option A creates a 30-way non-transitive peering mesh with quota limits and duplicated firewall administration. Option C removes project-level isolation, IAM boundaries, and quota separation that the teams require. Option D adds encryption overhead, bandwidth limits, and 30 sets of tunnels for traffic that would otherwise stay on the VPC fabric.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/shared-vpc",
+      "https://cloud.google.com/architecture/best-practices-vpc-design"
+    ]
+  },
+  {
+    "id": "d1-des-067",
+    "domain": 1,
+    "topic": "VPC Network Peering",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A company has acquired a startup that runs in its own Google Cloud organization. Both companies' applications need to communicate over internal IP addresses with low latency and no bandwidth bottleneck, their VPC ranges do not overlap, and neither side wants to reorganize projects or share administrative control of its network. Only direct communication between the two VPCs is required. What should you do?",
+    "options": [
+      "Migrate the startup's projects into the parent organization and attach them to the parent's Shared VPC.",
+      "Connect the two VPCs with an HA VPN pair of tunnels.",
+      "Expose every startup service through external load balancers with Cloud Armor allowlists.",
+      "Establish VPC Network Peering between the two VPC networks across the organizations."
+    ],
+    "answer": [3],
+    "explanation": "VPC Network Peering connects two VPC networks, even across different projects and organizations, so that resources communicate over internal IPs on Google's backbone with no bandwidth bottleneck, no gateway, and each side retaining full administrative control of its own network; it requires non-overlapping ranges, which is satisfied. Option A is a major organizational change that neither party wants. Option B works but caps throughput per tunnel, adds latency from encryption, and introduces gateways to manage where peering is not needed. Option C exposes internal traffic to the public internet path and requires per-service load balancers.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/vpc-peering",
+      "https://cloud.google.com/vpc/docs/using-vpc-peering"
+    ]
+  },
+  {
+    "id": "d1-des-068",
+    "domain": 1,
+    "topic": "Private Google Access and Cloud NAT",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A security policy forbids external IP addresses on Compute Engine VMs. VMs in a subnet must still write to Cloud Storage and BigQuery APIs, and they must download operating system packages from public third-party repositories. Inbound connections from the internet must remain impossible. Which two configurations should you implement? (Choose two.)",
+    "options": [
+      "Enable Private Google Access on the subnet so VMs without external IPs can reach Google APIs.",
+      "Attach an external IP address only during package updates and remove it afterwards.",
+      "Configure a Cloud NAT gateway on the region's Cloud Router for the subnet to provide outbound-only internet access.",
+      "Create a VPC Network Peering connection to Google's API network.",
+      "Deploy an external passthrough Network Load Balancer in front of the VMs to proxy their outbound traffic."
+    ],
+    "answer": [0, 2],
+    "explanation": "Two separate needs require two features: Private Google Access lets VMs with only internal IPs reach Google APIs and services (Cloud Storage, BigQuery) through Google's network, and Cloud NAT provides outbound-only, source-NAT internet access for third-party repositories while accepting no unsolicited inbound connections; together they satisfy the policy. Option B violates the policy and is operationally error-prone. Option D is not a real capability; Google APIs are not reached through VPC peering (that is private services access, for managed services). Option E is wrong because a load balancer distributes inbound traffic and does not provide outbound NAT.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/private-google-access",
+      "https://cloud.google.com/nat/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-des-069",
+    "domain": 1,
+    "topic": "Network Connectivity Center",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A conglomerate has 35 VPC networks across several business units. Today they are connected in a hub-and-spoke topology with VPC Network Peering, but spoke-to-spoke traffic is impossible because peering is not transitive, and the peering group limits are being reached. All VPCs also need reachability to on-premises data centers connected via Dedicated Interconnect in the hub. The company wants full any-to-any private connectivity with centralized management. What should you do?",
+    "options": [
+      "Add direct peering connections between every pair of spoke VPCs to create a full mesh.",
+      "Deploy network virtual appliances in the hub and route all spoke traffic through them.",
+      "Create a Network Connectivity Center hub, attach each VPC as a VPC spoke, and attach the Interconnect VLAN attachments as hybrid spokes.",
+      "Consolidate all 35 networks into a single Shared VPC host project."
+    ],
+    "answer": [2],
+    "explanation": "Network Connectivity Center (NCC) provides a managed hub with VPC spokes that delivers transitive, any-to-any connectivity between spoke VPCs and, through hybrid spokes (Interconnect VLAN attachments, HA VPN, Router appliances), to on-premises networks, with routes exchanged automatically and centralized visibility, avoiding peering-group limits. Option A requires hundreds of peerings (n*(n-1)/2), exceeds quotas, and remains non-transitive to on-premises. Option B introduces appliances to size, patch, and make highly available, adding cost and a throughput bottleneck. Option D is a massive migration of existing resources and removes the autonomy the business units currently have.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview",
+      "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/vpc-spokes-overview"
+    ]
+  },
+  {
+    "id": "d1-des-070",
+    "domain": 1,
+    "topic": "Private Service Connect",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS vendor hosts an API on Google Cloud behind an internal load balancer and must offer private connectivity to hundreds of enterprise customers who also run on Google Cloud. Many customers use overlapping RFC 1918 ranges, the vendor must not expose its VPC topology or accept routes from customer networks, and onboarding a customer must not require network changes on the vendor side. Which connectivity model should you use?",
+    "options": [
+      "Establish VPC Network Peering with each customer VPC and require them to renumber overlapping ranges.",
+      "Publish the service with Private Service Connect using a service attachment, and have each customer create a PSC endpoint in their own VPC.",
+      "Deploy an HA VPN gateway per customer and exchange routes with Cloud Router.",
+      "Expose the API on a global external Application Load Balancer restricted by Cloud Armor IP allowlists."
+    ],
+    "answer": [1],
+    "explanation": "Private Service Connect is built for producer-consumer service publishing at scale: the producer creates one service attachment in front of its internal load balancer, consumers create endpoints with IPs from their own VPC, traffic is NATed so overlapping address space is irrelevant, no routes are exchanged, and the producer's topology stays hidden; onboarding is just accepting a consumer project on the attachment. Option A fails on overlapping ranges, exposes full network reachability, and hits peering quotas at hundreds of customers. Option C requires per-customer gateways, route exchange, and address coordination. Option D routes traffic over public IPs, which is not the private connectivity that was required.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/private-service-connect",
+      "https://cloud.google.com/vpc/docs/about-vpc-hosted-services"
+    ]
+  },
+  {
+    "id": "d1-des-071",
+    "domain": 1,
+    "topic": "GKE networking",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech plans a production GKE Standard cluster that will grow to 500 nodes and 40,000 pods, will connect to on-premises systems over Interconnect, and must not exhaust private IP space that is shared with the corporate network. The network team has offered a /20 for the node subnet but is reluctant to allocate large primary ranges. How should you plan the cluster networking?",
+    "options": [
+      "Create a VPC-native cluster with alias IP ranges, using the /20 as the primary node range and separate secondary ranges for pods and services sized for growth; reduce the per-node pod CIDR from /24 to a smaller block, and use non-RFC 1918 or privately used public ranges for pods if routable space is scarce.",
+      "Create a routes-based cluster so that pod IPs are not allocated from the VPC and do not consume corporate address space.",
+      "Create a VPC-native cluster and reuse the same /20 for nodes, pods, and services to conserve addresses.",
+      "Create one GKE Autopilot cluster per 100 nodes so that each cluster fits in a small subnet."
+    ],
+    "answer": [0],
+    "explanation": "VPC-native (alias IP) clusters are the Google-recommended and default mode: pod and service ranges are secondary ranges on the node subnet, natively routable over Interconnect, and sized independently; reducing the maximum pods per node (for example /26 instead of /24 per node) shrinks the pod range dramatically, and GKE supports non-RFC 1918 and privately used public IP ranges for pods when routable RFC 1918 space is scarce. Option B uses legacy routes-based networking, which is deprecated for new clusters, still consumes a pod range, and pods are not directly reachable from on-premises. Option C is invalid because pod and service ranges must be secondary ranges distinct from the primary. Option D fragments the platform and raises operational overhead without solving the address planning problem.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/alias-ips",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr"
+    ]
+  },
+  {
+    "id": "d1-des-072",
+    "domain": 1,
+    "topic": "Firewall policies",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A security team must ensure that no VM in any of the organization's 200 projects accepts SSH or RDP connections from the internet, while still allowing administrative access through Identity-Aware Proxy TCP forwarding (source range 35.235.240.0/20). Project owners must not be able to override this control, and the team wants to manage it in one place. What should you do?",
+    "options": [
+      "Create VPC firewall rules in every project that deny 0.0.0.0/0 on ports 22 and 3389 and use Cloud Build to redeploy them nightly.",
+      "Use an organization policy constraint to block all firewall rules that reference 0.0.0.0/0.",
+      "Ask each project owner to remove the default-allow-ssh and default-allow-rdp rules and enforce it through periodic audits.",
+      "Create a hierarchical firewall policy at the organization node with a high-priority rule allowing 35.235.240.0/20 on ports 22 and 3389 and a rule denying those ports from all other sources, and associate it with the organization."
+    ],
+    "answer": [3],
+    "explanation": "Hierarchical firewall policies are evaluated before VPC firewall rules and are inherited by every folder and project under the node where they are attached, so an organization-level policy that allows the IAP range and denies all other sources for ports 22 and 3389 is enforced everywhere and cannot be overridden by project-level rules; it is managed centrally. Option A is a per-project control that owners can edit between redeployments and is operationally heavy. Option B is wrong because no organization policy constraint validates firewall rule contents in that way; it is the wrong control type. Option C relies on manual compliance and does not prevent new permissive rules from being created.",
+    "refs": [
+      "https://cloud.google.com/firewall/docs/firewall-policies",
+      "https://cloud.google.com/iap/docs/using-tcp-forwarding"
+    ]
+  },
+  {
+    "id": "d1-des-073",
+    "domain": 1,
+    "topic": "Cloud DNS hybrid",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A manufacturer connects its VPC to on-premises data centers with Dedicated Interconnect. Cloud workloads must resolve on-premises hostnames under corp.example.com from the on-premises Active Directory DNS servers, and on-premises servers must resolve Compute Engine hostnames in the Cloud DNS private zone gcp.example.com. Which two Cloud DNS configurations should you create? (Choose two.)",
+    "options": [
+      "A public DNS zone for corp.example.com in Cloud DNS that mirrors the on-premises records.",
+      "A private forwarding zone for corp.example.com that forwards queries to the on-premises DNS server IPs.",
+      "A DNS peering zone from the on-premises network to the VPC.",
+      "An inbound server policy on the VPC so on-premises resolvers can forward gcp.example.com queries to Cloud DNS entry points reachable over the Interconnect.",
+      "A Cloud NAT gateway so that on-premises servers can reach the Cloud DNS public resolver."
+    ],
+    "answer": [1, 3],
+    "explanation": "Hybrid DNS in Google Cloud uses two complementary features: a private forwarding zone sends queries for the on-premises domain from the VPC to the on-premises name servers over the Interconnect (outbound forwarding), and an inbound server policy exposes Cloud DNS forwarder entry points inside the VPC so on-premises resolvers can conditionally forward the cloud domain to them. Option A publishes internal names on the internet and requires manual synchronization. Option C is impossible; DNS peering works only between VPC networks, not from on-premises. Option E is unrelated: Cloud NAT provides VM egress and has nothing to do with inbound DNS resolution from on-premises.",
+    "refs": [
+      "https://cloud.google.com/dns/docs/best-practices",
+      "https://cloud.google.com/dns/docs/zones/zones-overview"
+    ]
+  },
+  {
+    "id": "d1-des-074",
+    "domain": 1,
+    "topic": "Routing and network appliances",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regulated enterprise requires all internet-bound traffic from its Google Cloud VPC to pass through a third-party next-generation firewall appliance for inspection and logging. The appliances run as VMs from the Cloud Marketplace. The design must survive the failure of a single appliance without manual intervention and must not rely on a single VM as the next hop. How should you design the egress path?",
+    "options": [
+      "Create a custom static route for 0.0.0.0/0 with the next hop set to the primary appliance's instance and a second route with lower priority pointing at the standby appliance.",
+      "Configure Cloud NAT to send all traffic to the appliance's internal IP before it leaves the VPC.",
+      "Deploy the appliances in a managed instance group behind an internal passthrough Network Load Balancer and create a custom static route for 0.0.0.0/0 whose next hop is the internal load balancer's forwarding rule.",
+      "Assign the appliance a static external IP address and configure each VM's operating system default gateway to point to the appliance."
+    ],
+    "answer": [2],
+    "explanation": "Google's recommended pattern for highly available network virtual appliances is a custom static route whose next hop is an internal passthrough Network Load Balancer: the load balancer health-checks the appliance MIG, distributes flows across healthy instances, and removes failed appliances automatically, so egress survives an appliance failure without route changes. Option A relies on route priorities with instance next hops; Google Cloud does not health-check instance next hops, so traffic continues to be sent to a failed primary. Option B is wrong because Cloud NAT is a distributed NAT for VM egress and cannot be chained through an appliance. Option D is invalid because Compute Engine VMs must use the subnet gateway; guest-OS gateway changes do not alter VPC routing.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/internal/ilb-next-hop-overview",
+      "https://cloud.google.com/vpc/docs/routes"
+    ]
+  },
+  {
+    "id": "d1-des-075",
+    "domain": 1,
+    "topic": "Private Service Connect for Google APIs",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank enforces a VPC Service Controls perimeter around its analytics projects. Both Compute Engine VMs without external IPs and on-premises data scientists connected over Dedicated Interconnect must reach BigQuery and Cloud Storage APIs through a dedicated internal IP address that the bank controls, using DNS names that the bank's security team can allowlist. Access to Google APIs that are not supported by VPC Service Controls must be blocked. What should you do?",
+    "options": [
+      "Create a Private Service Connect endpoint for Google APIs using the vpc-sc (restricted) bundle with an internal IP from the VPC, advertise that IP to on-premises via Cloud Router, and create private DNS records for googleapis.com pointing to it.",
+      "Enable Private Google Access on the subnet and allow on-premises hosts to reach private.googleapis.com over the Interconnect.",
+      "Deploy a Cloud NAT gateway with a static IP and allowlist that IP in the VPC Service Controls perimeter.",
+      "Create a VPC Network Peering connection to the BigQuery service producer network."
+    ],
+    "answer": [0],
+    "explanation": "A Private Service Connect endpoint for Google APIs gives you a single internal IP in your VPC for Google APIs; the vpc-sc (restricted) bundle exposes only VPC Service Controls-supported APIs, so unsupported APIs are blocked at the network level. Because the endpoint IP lives in the VPC, it can be advertised to on-premises through Cloud Router over Interconnect, and private DNS zones map the API hostnames to it, satisfying both the on-premises requirement and the allowlisting requirement. Option B works for restricted.googleapis.com but uses Google-owned shared IP ranges (199.36.153.4/30), not a customer-controlled IP, and Private Google Access itself does not apply to on-premises hosts. Option C sends API traffic over the internet path and NAT IPs are not a perimeter mechanism for API access. Option D is not how Google APIs are accessed; peering is for private services access to managed instances.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/private-service-connect#benefits-apis",
+      "https://cloud.google.com/vpc/docs/configure-private-service-connect-apis"
+    ]
+  }
+]

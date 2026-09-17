@@ -1,0 +1,536 @@
+[
+  {
+    "id": "d1-bus-026",
+    "domain": 1,
+    "topic": "Transfer Appliance",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A film post-production studio needs to move 800 TB of archived raw footage from its on-premises storage array to Cloud Storage. The studio's internet connection is 200 Mbps and is shared with daily operations. The project sponsor wants the data available in Cloud Storage within six weeks and does not want to purchase new network circuits. What should you do?",
+    "options": [
+      "Use gcloud storage cp with parallel composite uploads over the existing internet connection.",
+      "Order a Dedicated Interconnect and use Storage Transfer Service once it is provisioned.",
+      "Order Transfer Appliances, copy the footage onto them on-premises, and ship them to Google for upload into the target bucket.",
+      "Compress the footage and use Storage Transfer Service with the on-premises agent to upload it over the internet."
+    ],
+    "answer": [2],
+    "explanation": "At 200 Mbps, even with the whole link dedicated, 800 TB would take roughly a year to upload, so no online method meets the six-week deadline. Transfer Appliance is Google's offline transfer service designed for tens of terabytes to petabytes when bandwidth is insufficient; appliances are shipped, loaded on-site, returned, and the data is uploaded to the bucket. Option A and D are online transfers limited by the same link, and video footage compresses poorly, so compression does not change the outcome. Option B would require weeks to months for circuit provisioning and violates the constraint against buying new connectivity. Google's guidance is to use the transfer time calculation (data size divided by usable bandwidth) to decide between online and offline transfer.",
+    "refs": [
+      "https://cloud.google.com/transfer-appliance/docs/4.0/overview",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-transferring-your-large-datasets"
+    ]
+  },
+  {
+    "id": "d1-bus-027",
+    "domain": 1,
+    "topic": "Storage Transfer Service from other clouds",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An advertising analytics company receives 3 TB of new log files every day in an Amazon S3 bucket owned by a partner. The company wants the files copied to a Cloud Storage bucket each night so that BigQuery can process them, and it wants the solution to be serverless, handle retries, and require the least amount of code to maintain. What should you do?",
+    "options": [
+      "Create a scheduled Storage Transfer Service job with the S3 bucket as the source and the Cloud Storage bucket as the sink, using a filter to transfer only objects created since the previous run.",
+      "Write a Cloud Run job that lists the S3 bucket with the AWS SDK and streams each object into Cloud Storage, triggered nightly by Cloud Scheduler.",
+      "Deploy a Compute Engine VM running a cron job that executes aws s3 sync to a local disk and then gcloud storage rsync to the bucket.",
+      "Ask the partner to ship a Transfer Appliance every week with the accumulated files."
+    ],
+    "answer": [0],
+    "explanation": "Storage Transfer Service natively supports Amazon S3 as a source, can run on a schedule, handles parallelism, retries and integrity checks, and can be configured to copy only newer objects; it is fully managed, so there is no code to maintain. Option B works but requires writing, securing and operating custom transfer code, contradicting the minimal-code requirement. Option C introduces a VM to patch and monitor, adds a double copy through local disk, and is the highest-overhead option. Option D is meant for one-time bulk transfers when bandwidth is inadequate, not for daily incremental feeds of a few terabytes. Choosing a managed service for a recurring data movement task follows the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/storage-transfer/docs/overview",
+      "https://cloud.google.com/storage-transfer/docs/create-transfers"
+    ]
+  },
+  {
+    "id": "d1-bus-028",
+    "domain": 1,
+    "topic": "Datastream change data capture",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail chain runs its point-of-sale system on an on-premises Oracle database. The analytics team wants sales data available in BigQuery with a delay of no more than a few minutes to drive same-day replenishment decisions. The DBA team insists that the solution must not add significant load to the production database and that the company should not have to operate replication servers. Which approach should you recommend?",
+    "options": [
+      "Schedule an hourly Dataproc job that runs full table extracts through JDBC and overwrites the BigQuery tables.",
+      "Install a third-party replication tool on a Compute Engine VM to read Oracle redo logs and write to BigQuery.",
+      "Use Database Migration Service to migrate the Oracle database into BigQuery continuously.",
+      "Use Datastream to capture changes from the Oracle redo logs over a private connection and stream them directly into BigQuery."
+    ],
+    "answer": [3],
+    "explanation": "Datastream is Google's serverless change data capture and replication service; it reads Oracle (and MySQL, PostgreSQL, SQL Server) transaction logs, which imposes minimal load on the source, and it can deliver changes directly into BigQuery with low latency using private connectivity over Interconnect or VPN. It requires no servers to operate. Option A adds heavy query load with full extracts and delivers data with up to an hour of latency, failing both constraints. Option B meets the technical need but requires the company to license, patch and operate the replication server, which the DBA team wants to avoid. Option C is wrong because Database Migration Service targets Cloud SQL, AlloyDB and Spanner as destinations for database migrations, not BigQuery for analytics replication.",
+    "refs": [
+      "https://cloud.google.com/datastream/docs/overview",
+      "https://cloud.google.com/datastream/docs/sources-oracle"
+    ]
+  },
+  {
+    "id": "d1-bus-029",
+    "domain": 1,
+    "topic": "Database Migration Service",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription box startup runs a 400 GB self-managed MySQL 8.0 database on a VM in another cloud provider. It wants to move to Cloud SQL for MySQL to reduce database administration effort. The business allows a maintenance window of no more than 15 minutes for the cutover, and the team has one engineer available for the migration. What should you do?",
+    "options": [
+      "Take a mysqldump backup, upload it to Cloud Storage, import it into Cloud SQL, and repoint the application during a weekend outage.",
+      "Use Database Migration Service to perform a continuous migration from the source MySQL to Cloud SQL, let it replicate until lag is near zero, then promote the Cloud SQL instance during a short cutover window.",
+      "Create a Cloud SQL instance and write a custom Dataflow pipeline that copies tables in parallel and reconciles differences.",
+      "Use Transfer Appliance to ship the database files to Google and attach them to the Cloud SQL instance."
+    ],
+    "answer": [1],
+    "explanation": "Database Migration Service (DMS) is the managed, no-cost way to migrate MySQL to Cloud SQL with minimal downtime: it performs an initial load and then continuous replication of changes, so the application keeps running until you promote the destination in a cutover that typically takes minutes. It requires no custom code, which matters with a single engineer. Option A is a one-shot dump and restore that would take hours for 400 GB, far exceeding the 15-minute window. Option C demands significant engineering for a problem a managed service already solves and does not handle ongoing changes cleanly. Option D is nonsensical for a managed database; Cloud SQL does not accept raw data files from appliances, and the volume does not justify offline transfer.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/mysql",
+      "https://cloud.google.com/database-migration/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-030",
+    "domain": 1,
+    "topic": "Heterogeneous database migration",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company wants to move its 2 TB on-premises Oracle database to a PostgreSQL-compatible managed service on Google Cloud to eliminate Oracle license fees. The application uses PL/SQL stored procedures and Oracle-specific data types. The company has limited PostgreSQL experience, wants a managed conversion workflow, minimal downtime at cutover, and the highest PostgreSQL performance available. Which approach should you recommend?",
+    "options": [
+      "Run Oracle on Compute Engine with bring-your-own-license and switch to PostgreSQL later when the team has more experience.",
+      "Export the Oracle schema and data with Data Pump, manually rewrite every stored procedure, and import into Cloud SQL for PostgreSQL during a weekend outage.",
+      "Use Database Migration Service with a conversion workspace to convert the Oracle schema and code objects (using Gemini-assisted conversion where needed), then run a continuous migration into AlloyDB for PostgreSQL and cut over when replication lag is minimal.",
+      "Use Datastream to replicate the Oracle tables into BigQuery and rewrite the application to use BigQuery as its transactional database."
+    ],
+    "answer": [2],
+    "explanation": "DMS supports heterogeneous Oracle to PostgreSQL migrations with a conversion workspace that converts schema and code objects, flags items needing attention and offers Gemini-assisted conversion and explainability, addressing the team's limited PostgreSQL skills. It then performs continuous replication for a low-downtime cutover, and AlloyDB is the PostgreSQL-compatible option with the highest performance and availability. Option A does not achieve the business goal of eliminating Oracle license fees. Option B is a manual, error-prone approach with a long outage and no tooling assistance. Option D is architecturally wrong because BigQuery is an analytical warehouse, not an OLTP database, and would require a complete application rewrite.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/oracle-to-alloydb",
+      "https://cloud.google.com/alloydb/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-031",
+    "domain": 1,
+    "topic": "DR tiers and trade-offs",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A healthcare software company is defining a business continuity plan for its 30 applications on Google Cloud. To control cost, the architecture team proposes classifying applications into tiers and applying a different disaster recovery pattern to each tier rather than protecting everything the same way. Which two tier-to-pattern mappings are appropriate? (Choose two.)",
+    "options": [
+      "Tier 1 (patient-facing scheduling, RPO near zero, RTO of minutes): multi-region active-active deployment with a globally replicated database such as Spanner behind a global load balancer.",
+      "Tier 1 (patient-facing scheduling, RPO near zero, RTO of minutes): nightly persistent disk snapshots copied to a second region with manual rebuild.",
+      "Tier 3 (internal reporting, RPO of 24 hours, RTO of 2 days): hot standby with a fully scaled duplicate environment in a second region.",
+      "Tier 3 (internal reporting, RPO of 24 hours, RTO of 2 days): daily backups to a multi-region Cloud Storage bucket with infrastructure recreated on demand from Terraform.",
+      "All tiers: single-zone deployment with weekly backups, because Google Cloud zones rarely fail."
+    ],
+    "answer": [0, 3],
+    "explanation": "The reliability pillar recommends matching DR investment to the business impact of each workload. A near-zero RPO with minute-level RTO can only be met by active-active multi-region architecture with synchronous replication, which justifies the cost for Tier 1. A 24-hour RPO and 2-day RTO for internal reporting is fully satisfied by inexpensive daily backups plus infrastructure-as-code rebuild. Option B fails Tier 1 objectives outright: nightly snapshots imply up to 24 hours of data loss and manual rebuild takes hours. Option C over-engineers Tier 3, spending hot-standby money on a workload that tolerates days of downtime. Option E ignores the stated objectives and provides no regional resilience for critical patient-facing systems.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/dr-scenarios-for-applications"
+    ]
+  },
+  {
+    "id": "d1-bus-032",
+    "domain": 1,
+    "topic": "External API integration with Apigee",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional airline is opening its flight-status and booking services, currently running on GKE, to third-party travel agencies. The business wants to onboard partners in a self-service portal, issue API keys, enforce per-partner quotas, monetize premium tiers, and produce usage analytics, all without changing the existing backend services. Which solution should you recommend?",
+    "options": [
+      "Expose the GKE services through an external passthrough Network Load Balancer and distribute IP allowlists to partners.",
+      "Place Apigee in front of the services as the API management layer, publishing the APIs through a developer portal with key issuance, quota, monetization and analytics policies.",
+      "Add rate-limiting and API-key logic to each microservice and publish OpenAPI documents on the company website.",
+      "Use Cloud Armor rate-based rules on the load balancer to limit each partner and track usage in Cloud Logging."
+    ],
+    "answer": [1],
+    "explanation": "The requirements (partner onboarding portal, credentials, quotas, monetization, analytics, no backend changes) describe a full API management platform, which is exactly Apigee's role as the integration pattern for external consumers; policies are applied at the proxy layer so backends remain unchanged. Option A provides no authentication, quotas or analytics and relies on brittle IP allowlists. Option C spreads cross-cutting concerns across every service, duplicating code and changing the backend, and provides no monetization or portal. Option D can throttle by IP but cannot identify partners, issue keys, meter usage per tier or bill; Cloud Armor is a WAF and DDoS layer, not an API product platform.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/get-started/what-apigee",
+      "https://cloud.google.com/architecture/hybrid-multicloud-patterns-and-practices"
+    ]
+  },
+  {
+    "id": "d1-bus-033",
+    "domain": 1,
+    "topic": "Asynchronous integration with legacy systems",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A furniture retailer has launched a new order-capture application on Cloud Run. Every order must eventually be recorded in an on-premises ERP system that can process at most 50 transactions per second and is taken offline for 4 hours every Sunday for maintenance. During promotions the web application generates bursts of 500 orders per second. Customers must never see errors caused by the ERP being slow or unavailable. Which integration pattern should you use?",
+    "options": [
+      "Have Cloud Run call the ERP synchronously over Cloud Interconnect and increase the ERP's capacity to 500 transactions per second.",
+      "Store orders in Cloud SQL and have the ERP poll the database every minute through a VPN tunnel.",
+      "Configure Cloud Run to retry failed ERP calls with exponential backoff for up to 4 hours.",
+      "Publish each order to a Pub/Sub topic and run an on-premises subscriber that pulls messages at the rate the ERP can handle, with a dead-letter topic for poison messages."
+    ],
+    "answer": [3],
+    "explanation": "This is the classic asynchronous, queue-based load-leveling pattern. Pub/Sub durably buffers bursts and retains messages for days, so the front end is decoupled from the ERP's throughput limits and maintenance windows; a pull subscriber on-premises drains the topic at 50 per second, and dead-lettering prevents a bad message from blocking the flow. Option A couples customer requests to ERP availability and demands a costly capacity increase in a legacy system. Option B works as a crude buffer but introduces polling latency, database coupling and custom code on both sides where a managed messaging service already exists. Option C keeps requests open in Cloud Run for hours, exhausting instances and still surfacing errors when retries expire, and it does not solve the throughput mismatch.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/overview",
+      "https://cloud.google.com/architecture/hybrid-multicloud-patterns-and-practices"
+    ]
+  },
+  {
+    "id": "d1-bus-034",
+    "domain": 1,
+    "topic": "SaaS integration with Application Integration",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A B2B distributor uses Salesforce for CRM and a custom pricing engine on Cloud Run. The sales operations team, which has no developers, wants new Salesforce opportunities to automatically trigger a price calculation and have the result written back to Salesforce and posted to a Slack channel. The IT department wants to avoid writing and maintaining bespoke integration code and wants centralized monitoring of every integration run. Which approach should you recommend?",
+    "options": [
+      "Use Application Integration with the Salesforce and Slack Integration Connectors and a REST task calling the pricing API, orchestrated visually with built-in monitoring and error handling.",
+      "Write a Cloud Run function that polls the Salesforce API every minute, calls the pricing engine, and posts to Slack via a webhook.",
+      "Export Salesforce opportunities nightly to BigQuery with BigQuery Data Transfer Service and email the results to the sales team.",
+      "Install an open-source workflow engine on a Compute Engine VM and build custom connectors for Salesforce and Slack."
+    ],
+    "answer": [0],
+    "explanation": "Application Integration is Google Cloud's managed integration-platform-as-a-service; combined with Integration Connectors (which provide prebuilt, event-capable connectivity to SaaS systems such as Salesforce and Slack), it lets a low-code team model the trigger-transform-write-back flow visually while giving IT central execution logs, metrics and retry handling. Option B requires custom code, polling latency, credential management and self-built monitoring, exactly what IT wants to avoid. Option C is a batch analytics pattern with a 24-hour delay and no write-back, failing the real-time requirement. Option D adds a server to operate and custom connectors to maintain, the highest-overhead choice. This decision reflects the operational excellence pillar's preference for managed services over bespoke glue code.",
+    "refs": [
+      "https://cloud.google.com/application-integration/docs/overview",
+      "https://cloud.google.com/integration-connectors/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-035",
+    "domain": 1,
+    "topic": "Bucket-to-bucket data movement",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A genomics research institute stores 2 PB of sequencing data in a Cloud Storage bucket in us-east1. A new analysis platform is being built in europe-west4, and data residency rules for a new grant require the working copy to reside in Europe. The institute wants to copy the data with the least operational effort and be able to track progress and re-run for new objects. What should you do?",
+    "options": [
+      "Run gcloud storage cp -r from a Compute Engine VM in europe-west4 and monitor the process manually.",
+      "Order a Transfer Appliance, download the data to it from us-east1, and ship it to a European data center.",
+      "Create a Storage Transfer Service job with the us-east1 bucket as the source and the europe-west4 bucket as the sink, optionally scheduled to pick up new objects.",
+      "Write a Dataflow pipeline that reads each object and writes it to the destination bucket."
+    ],
+    "answer": [2],
+    "explanation": "Storage Transfer Service is the recommended tool for bucket-to-bucket transfers, especially at petabyte scale: it is serverless, parallelizes the copy inside Google's network, provides progress and logging, supports incremental scheduled runs, and preserves metadata. Option A is feasible but ties up a VM for days, requires manual supervision and is fragile on failure. Option B is an offline device intended for on-premises sources; it makes no sense for data already inside Google Cloud. Option D requires writing and running a custom pipeline for a task a managed service already performs. Note that a multi-region bucket alone would not satisfy the residency requirement; an EU region bucket does.",
+    "refs": [
+      "https://cloud.google.com/storage-transfer/docs/cloud-storage-to-cloud-storage",
+      "https://cloud.google.com/storage-transfer/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-036",
+    "domain": 1,
+    "topic": "gcloud storage vs gsutil",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company's nightly pipeline uses a shell script with gsutil cp to upload about 15,000 rendered video files totaling 6 TB from an on-premises render farm to Cloud Storage over a 10 Gbps Interconnect. The upload takes almost 9 hours, far longer than the link speed should allow, and frequently times out on large files. The team wants a faster, more reliable upload with a minimal change to the script. What should you do?",
+    "options": [
+      "Switch to Transfer Appliance and ship a device to Google every night.",
+      "Replace gsutil cp with gcloud storage cp, which performs parallel and composite uploads by default and handles retries, and consider Storage Transfer Service agents if the workload grows further.",
+      "Split the upload across ten Compute Engine VMs that each run gsutil cp on a subset of the files.",
+      "Reduce the number of files by compressing the videos into a single archive before uploading."
+    ],
+    "answer": [1],
+    "explanation": "gcloud storage is the recommended successor to gsutil and is significantly faster for large transfers because it parallelizes uploads and uses parallel composite uploads automatically, with better retry behavior; changing the command in the script is a minimal change. For very large or continuous on-premises transfers, Storage Transfer Service with agents is the next step. Option A is an offline solution for bandwidth-constrained situations, not for a nightly job on a 10 Gbps link. Option C adds infrastructure and complexity for a problem solved by the tool itself, and VMs in Google Cloud cannot read the on-premises render farm without extra plumbing. Option D adds hours of compression time, video compresses poorly, and a single huge archive makes retries and partial failures worse.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/gsutil",
+      "https://cloud.google.com/sdk/gcloud/reference/storage",
+      "https://cloud.google.com/storage-transfer/docs/on-prem-overview"
+    ]
+  },
+  {
+    "id": "d1-bus-037",
+    "domain": 1,
+    "topic": "Business impact analysis",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university is drafting a business continuity plan for its 60 Google Cloud workloads. The IT director proposes giving every workload a multi-region hot standby to be safe, but the budget office rejects the estimated cost. You are asked to propose a method for deciding the appropriate level of protection for each workload. What should you do first?",
+    "options": [
+      "Conduct a business impact analysis with the workload owners to quantify the financial, regulatory and reputational impact of downtime and data loss for each workload, and derive RTO and RPO targets from those impacts.",
+      "Apply the same 1-hour RTO and 15-minute RPO to all workloads to keep the plan simple and consistent.",
+      "Select the DR pattern for each workload based on which team has the most Terraform experience.",
+      "Provision the hot standby only for the workloads that consume the most compute, since they are the most expensive to rebuild."
+    ],
+    "answer": [0],
+    "explanation": "A business impact analysis is the foundation of a BCP: it establishes how much downtime and data loss each business process can tolerate and what it would cost, which yields per-workload RTO and RPO. Those targets then dictate the cheapest DR pattern (backup and restore, pilot light, warm standby, hot standby) that satisfies them, resolving the tension between the IT director and the budget office with evidence. Option B ignores that a student portal and a research archive have very different criticality, leading to both over-spending and under-protection. Option C bases resilience on team skills rather than business need. Option D confuses compute size with business criticality; a small licensing server can be more critical than a large batch cluster.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-bus-038",
+    "domain": 1,
+    "topic": "DR testing and validation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments company's auditors have flagged that its disaster recovery plan for a Google Cloud-hosted settlement system has never been proven to work. The plan documents a warm standby in a second region with Cloud SQL cross-region replicas and Terraform-defined compute. Management wants ongoing evidence that the RTO of 30 minutes can actually be met, without risking the production service. What should you recommend?",
+    "options": [
+      "Add a statement to the plan that the architecture is designed to meet a 30-minute RTO and have the CTO sign it.",
+      "Perform a one-time failover during the next public holiday and archive the results for future audits.",
+      "Increase the size of the standby region resources so that failover will certainly complete within 30 minutes.",
+      "Schedule recurring DR exercises that promote a replica and stand up the application in the secondary region using the Terraform pipeline in an isolated test project or with production traffic drained, measure the achieved RTO and RPO, and record the results and remediation actions."
+    ],
+    "answer": [3],
+    "explanation": "The reliability pillar states that a recovery plan that is not regularly tested cannot be trusted. Recurring, automated exercises that execute the actual failover steps (replica promotion, infrastructure creation, DNS or load balancer switchover) and measure the time achieved provide auditable evidence and reveal drift, such as untested Terraform changes or missing secrets, before a real disaster. Option A is documentation, not evidence. Option B provides a single data point that becomes stale as the system changes; auditors expect a repeatable cadence. Option C spends money on capacity without validating the process, and most RTO failures come from process and automation gaps rather than raw capacity.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-bus-039",
+    "domain": 1,
+    "topic": "Resilient integration with constrained systems",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An insurance company is building new customer self-service applications on Google Cloud that need policy data from an on-premises mainframe connected through Dedicated Interconnect. The mainframe can serve about 200 requests per second, charges the company per CPU-second consumed, and is unavailable for 2 hours every night during batch processing. The new applications are expected to generate several thousand read requests per second during the day and must remain responsive at night. Which two design decisions should you make? (Choose two.)",
+    "options": [
+      "Have each new microservice open direct DB2 connections to the mainframe so that reads always reflect the latest data.",
+      "Introduce an API facade in front of the mainframe with response caching (for example, Apigee with a cache policy or Memorystore) so repeated policy reads are served without consuming mainframe CPU.",
+      "Set up VPC Network Peering between the on-premises data center and the application VPC to reduce latency.",
+      "Increase the mainframe's licensed capacity to handle the peak load from the new applications.",
+      "Replicate policy data into a cloud data store (for example, via nightly extracts or change data capture into Cloud SQL, AlloyDB or Bigtable) and serve the high-volume reads from that copy, treating the mainframe as the system of record for writes."
+    ],
+    "answer": [1, 4],
+    "explanation": "The deciding factors are the throughput mismatch (thousands versus 200 requests per second), the per-CPU-second cost model, and the nightly unavailability. Serving reads from a cloud-side replica (an operational data store fed by CDC or extracts) satisfies the volume and availability requirements at low cost, while an API facade with caching absorbs repeated reads and centralizes access control and throttling for calls that must still reach the mainframe. Option A ties every service to mainframe capacity and availability and maximizes the pay-per-use cost. Option C is invalid because VPC Network Peering connects VPC networks, not on-premises data centers, and latency is not the bottleneck. Option D is the most expensive path and still leaves the applications unresponsive during the nightly batch window.",
+    "refs": [
+      "https://cloud.google.com/architecture/hybrid-multicloud-patterns-and-practices",
+      "https://cloud.google.com/apigee/docs/api-platform/reference/policies/response-cache-policy",
+      "https://cloud.google.com/datastream/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-040",
+    "domain": 1,
+    "topic": "BigQuery Data Transfer Service",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A digital marketing agency wants to consolidate campaign performance data from Google Ads, YouTube channel reports and a Teradata data warehouse into BigQuery. The agency has a small data team that prefers configuration over coding and wants the loads to run automatically on a schedule with backfill support. What should you do?",
+    "options": [
+      "Write Apache Beam pipelines on Dataflow for each source and trigger them with Cloud Composer.",
+      "Export each source to CSV files manually every week and load them with the bq load command.",
+      "Use BigQuery Data Transfer Service, which provides managed, scheduled connectors for Google Ads, YouTube and Teradata migrations, including backfill of historical data.",
+      "Use Datastream to capture changes from Google Ads and YouTube and stream them into BigQuery."
+    ],
+    "answer": [2],
+    "explanation": "BigQuery Data Transfer Service is purpose-built for this: it offers managed, scheduled, no-code connectors for Google SaaS sources (Google Ads, YouTube, Campaign Manager, Google Play, and more), third-party SaaS via partner connectors, and data warehouse migrations from Teradata and Amazon Redshift, with scheduled runs and historical backfills. Option A works but requires writing and maintaining pipelines and an orchestration layer, which contradicts the configuration-over-code preference. Option B is manual, error-prone and not automated. Option D is wrong because Datastream sources are relational databases (Oracle, MySQL, PostgreSQL, SQL Server), not SaaS advertising platforms.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/dts-introduction",
+      "https://cloud.google.com/bigquery/docs/migration/teradata-overview"
+    ]
+  },
+  {
+    "id": "d1-bus-041",
+    "domain": 1,
+    "topic": "Large on-premises dataset transfer with ongoing changes",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A seismic imaging company must migrate 4 PB of files from an on-premises NAS to Cloud Storage. The dataset changes daily as new surveys arrive, the company already has a 10 Gbps Dedicated Interconnect that is lightly used, and the cutover to the cloud must happen with the final dataset fully synchronized. The storage team wants to avoid custom scripts and to limit the bandwidth the transfer consumes during business hours. What should you do?",
+    "options": [
+      "Order several Transfer Appliances, load the entire dataset, and ask users to stop adding files until the appliances have been uploaded.",
+      "Deploy Storage Transfer Service agents on-premises, run an initial transfer of the NAS to the bucket with a bandwidth limit, schedule incremental transfers to copy only new or changed files, and run a final delta sync at cutover.",
+      "Run a single gcloud storage rsync command from an on-premises server and wait for it to finish before cutover.",
+      "Mount the bucket on the NAS with Cloud Storage FUSE and let users write directly to it from now on."
+    ],
+    "answer": [1],
+    "explanation": "Storage Transfer Service for on-premises data uses lightweight agents that scale out, resume on failure, verify integrity, support bandwidth caps per agent pool, and can be scheduled for incremental synchronization, so it fits a multi-petabyte transfer with a changing source and an existing high-bandwidth Interconnect (4 PB over 10 Gbps is roughly 40 days of full-link time, feasible in the background). Option A is unnecessary given the available bandwidth and requires an operational freeze that the business cannot sustain for the weeks of appliance turnaround. Option C is a single-threaded, non-resumable process for a job of this scale and offers no bandwidth control. Option D changes the working model for users and does not migrate the existing 4 PB.",
+    "refs": [
+      "https://cloud.google.com/storage-transfer/docs/on-prem-overview",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-transferring-your-large-datasets"
+    ]
+  },
+  {
+    "id": "d1-bus-042",
+    "domain": 1,
+    "topic": "SQL Server migration to Cloud SQL",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A property management company runs a 1.2 TB Microsoft SQL Server 2019 database on-premises that backs its tenant portal. It wants to migrate to Cloud SQL for SQL Server to shed patching and backup duties, and the business can accept only a short cutover window overnight. The DBA wants a Google-supported method that uses native SQL Server backups rather than third-party replication software. What should you do?",
+    "options": [
+      "Use Database Migration Service for SQL Server: upload a full backup and then continuous transaction log backups to a Cloud Storage bucket, let DMS restore and apply them to Cloud SQL, then promote the instance during the cutover window.",
+      "Use Datastream to replicate the SQL Server tables into Cloud SQL for SQL Server continuously.",
+      "Take a full backup, import it into Cloud SQL, and accept a multi-hour outage while the import runs.",
+      "Migrate the SQL Server VM with Migrate to Virtual Machines and keep SQL Server self-managed on Compute Engine."
+    ],
+    "answer": [0],
+    "explanation": "Database Migration Service supports homogeneous SQL Server migrations to Cloud SQL by consuming native full, differential and transaction log backup files placed in Cloud Storage; it restores them continuously so the destination stays nearly current, and the cutover only requires applying the last log backup and promoting, which fits a short overnight window. Option B is wrong because Datastream destinations are BigQuery and Cloud Storage (and Spanner), not Cloud SQL for SQL Server. Option C is a one-shot import whose outage scales with the 1.2 TB size, failing the window requirement. Option D moves the server but leaves the company operating SQL Server itself, which defeats the goal of shedding patching and backup responsibilities.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/sqlserver",
+      "https://cloud.google.com/sql/docs/sqlserver"
+    ]
+  },
+  {
+    "id": "d1-bus-043",
+    "domain": 1,
+    "topic": "File-based integration with external partners",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A freight forwarder receives customs manifests from 40 external partners several times a day. Partners cannot call APIs; they can only upload files. The company wants each uploaded manifest to be validated and loaded into its shipment system on Cloud Run within seconds of arrival, wants partners to have access only to their own upload location without holding long-lived credentials, and wants no servers to run. Which design should you recommend?",
+    "options": [
+      "Run an SFTP server on a Compute Engine instance, poll its directories every minute with a cron job, and call the shipment API for new files.",
+      "Give each partner a service account key with Storage Object Creator on a shared bucket and run a scheduled Cloud Run job every hour to process new files.",
+      "Ask partners to email manifests to a shared mailbox and have staff upload them to Cloud Storage.",
+      "Provide partners with time-limited signed URLs (or per-partner prefixes secured by IAM conditions) for uploads to a Cloud Storage bucket, and use an Eventarc trigger on object finalization to invoke the Cloud Run validation service immediately."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Storage plus Eventarc is the serverless event-driven integration pattern for file-based exchange: object-finalized events invoke Cloud Run within seconds, signed URLs (or IAM conditions on per-partner prefixes) scope access to each partner's location without distributing long-lived secrets, and there are no servers to run. Option A introduces a VM to patch, a polling delay and a single point of failure. Option B distributes long-lived service account keys, which is a security anti-pattern, and an hourly schedule fails the seconds-level latency requirement. Option C is manual and slow and provides no consistent security or auditability.",
+    "refs": [
+      "https://cloud.google.com/eventarc/docs/overview",
+      "https://cloud.google.com/storage/docs/access-control/signed-urls",
+      "https://cloud.google.com/run/docs/triggering/using-eventarc"
+    ]
+  },
+  {
+    "id": "d1-bus-044",
+    "domain": 1,
+    "topic": "Availability vs cost trade-off",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional utility company is building a customer billing portal that serves one country. The business requirement is 99.9% monthly availability for the relational database, with the ability to recover from a zonal outage automatically, and the finance team has set a tight budget. The development team is experienced with PostgreSQL. Which database configuration best balances these requirements?",
+    "options": [
+      "A Spanner multi-region instance spanning three continents to achieve 99.999% availability.",
+      "A single-zone Cloud SQL for PostgreSQL instance with daily automated backups.",
+      "A Cloud SQL for PostgreSQL instance with the regional high availability configuration (synchronous standby in a second zone and automatic failover).",
+      "A self-managed PostgreSQL cluster on three Compute Engine VMs across zones with Patroni for failover."
+    ],
+    "answer": [2],
+    "explanation": "The stated requirements are 99.9% availability, automatic zonal failover, PostgreSQL skills and low cost. Cloud SQL's regional HA configuration provides a synchronous standby in another zone with automatic failover and a 99.95% SLA, exceeding the target at a fraction of the cost and complexity of alternatives. Option A vastly over-engineers a single-country workload and is the most expensive choice, violating the budget constraint. Option B has no zonal resilience and relies on manual restore from backups, so it cannot meet the automatic-failover requirement. Option D can achieve the target but shifts patching, replication and failover operations to the team, increasing operational overhead and risk compared with the managed option. Design trade-offs should match the requirement rather than maximize every attribute.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/postgres/high-availability",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-045",
+    "domain": 1,
+    "topic": "Storage Transfer Service from URL lists",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A climate research startup needs to copy about 30 TB of publicly available satellite imagery, published as thousands of HTTPS download links on a government website, into a Cloud Storage bucket. The startup has no on-premises infrastructure and wants a managed approach that verifies each file and can be re-run when the government publishes new links. What should you do?",
+    "options": [
+      "Provision a large Compute Engine VM, download the files with wget, and upload them with gcloud storage cp.",
+      "Create a Storage Transfer Service job using a URL list (a TSV file of HTTPS URLs with sizes and MD5 checksums) as the source and the bucket as the sink.",
+      "Order a Transfer Appliance and ask the government agency to load the files onto it.",
+      "Write a Dataflow pipeline that fetches each URL and writes the bytes to Cloud Storage."
+    ],
+    "answer": [1],
+    "explanation": "Storage Transfer Service supports a URL list source: a hosted TSV file listing HTTP or HTTPS URLs together with object size and MD5 hash, which the service downloads directly into the bucket with integrity verification and no infrastructure to manage; updating the list and re-running the job handles new publications. Option A works but requires provisioning, supervising and paying for a VM and offers no built-in verification. Option C is inappropriate because the data is not on the startup's premises and the agency will not load a device. Option D is custom code for a solved problem and adds cost and maintenance.",
+    "refs": [
+      "https://cloud.google.com/storage-transfer/docs/create-url-list",
+      "https://cloud.google.com/storage-transfer/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-bus-046",
+    "domain": 1,
+    "topic": "DR with data residency constraints",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A German public health agency is designing the business continuity plan for a citizen vaccination records system on Google Cloud. Regulations require that all data, including backups and disaster recovery copies, remain within Germany. The plan must survive the loss of an entire region with an RTO of 4 hours. Which approach should you recommend?",
+    "options": [
+      "Deploy the primary environment in europe-west3 (Frankfurt) and the DR environment in europe-west10 (Berlin), replicating data and storing backups in buckets located in those German regions.",
+      "Deploy the primary environment in europe-west3 and use the EU multi-region Cloud Storage location for backups so data is spread across Europe for maximum durability.",
+      "Deploy across three zones in europe-west3 only, because zonal redundancy is sufficient and keeps data in Germany.",
+      "Deploy the primary environment in europe-west3 and the DR environment in europe-west1 (Belgium), because both are inside the EU."
+    ],
+    "answer": [0],
+    "explanation": "The constraint is country-level residency, not just EU residency, combined with a regional-loss requirement. Google Cloud offers two regions in Germany, Frankfurt and Berlin, so a primary and DR pair within Germany satisfies both the residency rule and the regional-failure requirement, with an organization policy resource-location constraint enforcing placement. Option B violates residency because the EU multi-region replicates data to other EU countries. Option C keeps data in Germany but a multi-zone deployment does not survive a regional outage, failing the BCP requirement. Option D violates the German-only rule because Belgium is a different country, even though it is in the EU.",
+    "refs": [
+      "https://cloud.google.com/about/locations",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
+    ]
+  },
+  {
+    "id": "d1-bus-047",
+    "domain": 1,
+    "topic": "Egress integration requiring static IPs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticket resale marketplace running on GKE Autopilot must integrate with an external payment processor that only accepts requests from a short, pre-registered list of source IP addresses. The GKE nodes have no external IPs and scale up and down throughout the day. The security team wants to keep the nodes private and minimize the number of IPs registered with the processor. What should you do?",
+    "options": [
+      "Give each GKE node an external IP address and register the node IP range with the payment processor.",
+      "Route payment calls through a single Compute Engine proxy VM with a static external IP.",
+      "Ask the payment processor to allowlist all of Google Cloud's published IP ranges.",
+      "Configure Cloud NAT for the cluster's subnet with a small set of manually reserved static external IP addresses, and register those addresses with the payment processor."
+    ],
+    "answer": [3],
+    "explanation": "Cloud NAT lets private nodes reach the internet through a managed, highly available gateway, and when configured with manually allocated static external IPs it provides a stable, small set of source addresses that can be registered with the external system, no matter how many nodes exist. Option A exposes nodes publicly and produces changing IPs as the cluster autoscales, violating both security and the short-list requirement. Option B creates a single point of failure and a bottleneck that the team must patch and scale. Option C is impractical (the ranges are huge and change) and would effectively allow any Google Cloud customer to reach the processor, which it will reject.",
+    "refs": [
+      "https://cloud.google.com/nat/docs/overview",
+      "https://cloud.google.com/nat/docs/gke-example"
+    ]
+  },
+  {
+    "id": "d1-bus-048",
+    "domain": 1,
+    "topic": "Choosing Datastream vs Database Migration Service",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hotel chain runs a 3 TB PostgreSQL 14 database on-premises for reservations. Two initiatives are planned: first, move the operational database to Cloud SQL for PostgreSQL with minimal downtime; second, after the move, give the revenue-management team a continuously updated copy of the reservations tables in BigQuery for near-real-time pricing models, without running extra servers. Which combination of Google Cloud services should you recommend?",
+    "options": [
+      "Use Datastream for the migration to Cloud SQL and BigQuery Data Transfer Service to copy tables from Cloud SQL to BigQuery hourly.",
+      "Use Database Migration Service for both the migration to Cloud SQL and the ongoing replication into BigQuery.",
+      "Use Database Migration Service to migrate the database into Cloud SQL with continuous replication and a short cutover, then use Datastream to capture changes from the Cloud SQL instance and stream them into BigQuery.",
+      "Use Transfer Appliance to move the database to Cloud SQL and federated queries from BigQuery to Cloud SQL for the pricing models."
+    ],
+    "answer": [2],
+    "explanation": "The two initiatives map to two purpose-built services. Database Migration Service handles homogeneous PostgreSQL migrations to Cloud SQL with an initial load, continuous replication and a minimal-downtime cutover. Datastream is the serverless CDC service whose destinations include BigQuery, so once the database lives in Cloud SQL it can stream row-level changes into BigQuery with low latency and no servers. Option A reverses the roles: Datastream does not migrate into Cloud SQL, and hourly copies are not near-real-time. Option B is wrong because DMS does not target BigQuery. Option D misuses Transfer Appliance (not applicable to managed databases) and federated queries put analytical load on the operational database rather than providing a replicated copy.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/postgres",
+      "https://cloud.google.com/datastream/docs/overview",
+      "https://cloud.google.com/datastream/docs/destination-bigquery"
+    ]
+  },
+  {
+    "id": "d1-bus-049",
+    "domain": 1,
+    "topic": "Planning a large data transfer",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A bank plans to move 600 TB of historical transaction archives from an on-premises storage system to Cloud Storage over an existing 10 Gbps Partner Interconnect that is also used by production applications. The transfer must not disrupt production traffic, must be verifiable for regulators, and must finish within 30 days. Which two actions should you include in the data movement plan? (Choose two.)",
+    "options": [
+      "Copy the archives to a single large Compute Engine persistent disk first and then move them to Cloud Storage.",
+      "Calculate the transfer time from the usable bandwidth (about 600 TB at a fraction of 10 Gbps) to confirm the 30-day window is achievable online, and define the fallback to Transfer Appliance if it is not.",
+      "Use Storage Transfer Service with on-premises agents configured with a bandwidth limit and scheduled windows, and retain the transfer logs and checksum verification results as evidence.",
+      "Disable checksum validation to speed up the transfer and verify a random sample of files manually afterward.",
+      "Run the transfer at full link speed during business hours to complete it as quickly as possible."
+    ],
+    "answer": [1, 2],
+    "explanation": "Google's data transfer guidance starts with a bandwidth-and-time calculation: 600 TB at roughly half of a 10 Gbps link takes about 11 days, so an online transfer fits the window with margin, but the plan should state the offline fallback. Storage Transfer Service agents provide bandwidth throttling to protect production traffic, scheduled execution, automatic integrity checks and Cloud Logging records that satisfy the regulator's verification requirement. Option A adds an unnecessary intermediate copy and a disk size limit problem. Option D removes the integrity evidence regulators need; checksums are cheap relative to the transfer. Option E would saturate the shared Interconnect and disrupt production applications, violating a stated constraint.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-google-cloud-transferring-your-large-datasets",
+      "https://cloud.google.com/storage-transfer/docs/on-prem-overview",
+      "https://cloud.google.com/storage-transfer/docs/bandwidth-limit"
+    ]
+  },
+  {
+    "id": "d1-bus-050",
+    "domain": 1,
+    "topic": "Documenting design trade-offs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online education company is choosing between Memorystore for Redis Cluster and a self-managed Redis deployment on GKE for its session and leaderboard cache. One engineer wants a specific Redis module that the managed service does not support; the operations lead wants zero database patching duties; the CFO wants the option that is cheaper over three years. The team keeps revisiting the same debate in every meeting. As the architect, how should you resolve the decision?",
+    "options": [
+      "Choose the self-managed option because it satisfies the most vocal engineer's feature request.",
+      "Postpone the decision until the managed service supports the module, and use an in-memory cache inside the application for now.",
+      "Choose the managed service and instruct the engineer to stop raising the module requirement.",
+      "Write an architecture decision record that lists the requirements and constraints, evaluates each option against them including three-year TCO with operations effort, identifies whether the module is a must-have or could be replaced, and records the chosen trade-off and its revisit conditions."
+    ],
+    "answer": [3],
+    "explanation": "Design trade-offs should be made explicitly and documented, which is a core Well-Architected Framework practice. An architecture decision record forces the team to classify the module as a must-have or a nice-to-have, quantify the operational cost of self-management against the managed service price, and record why the trade-off was accepted, ending the recurring debate and giving future engineers context. Option A prioritizes a single voice over evidence. Option B avoids the decision and introduces a caching design that will not scale across instances. Option C may land on the right service but without analysis it ignores a possibly legitimate functional requirement and damages team buy-in.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/memorystore/docs/cluster/memorystore-for-redis-cluster-overview"
+    ]
+  }
+]

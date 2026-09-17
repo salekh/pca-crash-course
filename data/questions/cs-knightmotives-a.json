@@ -1,0 +1,426 @@
+[
+  {
+    "id": "cs-km-001",
+    "domain": 2,
+    "topic": "Hybrid and multicloud networking",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' IT is largely on-premises, with several dealer-facing applications already running on another major cloud provider. As part of its hybrid cloud strategy, KnightMotives will build its new data platform on Google Cloud and needs private, high-bandwidth, low-latency connectivity from both the headquarters data center and the other cloud to Google Cloud, without routing traffic over the public internet or through the headquarters as a hub. Which approach should you recommend?",
+    "options": [
+      "Use HA VPN from the data center and a site-to-site VPN from the other cloud provider, both terminating on one Cloud Router.",
+      "Provision Dedicated Interconnect (or Partner Interconnect) from the headquarters data center and Cross-Cloud Interconnect to the other cloud provider, and attach both to a Network Connectivity Center hub for transitive routing.",
+      "Provision Dedicated Interconnect from headquarters and route traffic from the other cloud to Google Cloud through the headquarters data center.",
+      "Expose the applications in the other cloud through public load balancers and call them from Google Cloud over TLS."
+    ],
+    "answer": [1],
+    "explanation": "Cross-Cloud Interconnect provides dedicated physical connectivity between Google Cloud and other major cloud providers, and Dedicated or Partner Interconnect serves the data center; connecting both as spokes to a Network Connectivity Center hub gives private, transitive site-to-site connectivity without hair-pinning through headquarters. Option A uses the public internet with limited per-tunnel bandwidth and higher latency. Option C makes headquarters a bottleneck and single point of failure, which the constraint excludes. Option D exposes internal systems publicly, unacceptable given the case study's security concerns after past breaches. This is a reliability and performance decision for a multicloud topology.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview",
+      "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview"
+    ]
+  },
+  {
+    "id": "cs-km-002",
+    "domain": 1,
+    "topic": "Mainframe modernization",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' supply chain runs on an outdated mainframe whose COBOL batch programs calculate parts allocation for every plant. The business cannot tolerate any discrepancy in allocation results during modernization, and the few remaining mainframe engineers are near retirement. KnightMotives wants to modernize the workload to Google Cloud gradually while proving functional equivalence before cutover. What should you do?",
+    "options": [
+      "Rewrite the batch programs in Java on GKE during a single release and cut over on a weekend after unit tests pass.",
+      "Move the mainframe workloads to Google Cloud VMware Engine to retire the mainframe hardware first.",
+      "Freeze the mainframe and keep it running indefinitely while building new applications around it.",
+      "Use the Mainframe Assessment Tool to analyze the code base, modernize or refactor the programs with Google Cloud mainframe modernization tooling, and run Dual Run to execute the mainframe and the Google Cloud version in parallel, comparing outputs until parity is proven before cutover."
+    ],
+    "answer": [3],
+    "explanation": "Google Cloud's mainframe modernization approach begins with assessment (Mainframe Assessment Tool, which uses Gemini to document COBOL) and uses Dual Run to execute the legacy and modernized systems side by side on real production inputs, comparing results to establish confidence before switching, which addresses both the zero-discrepancy requirement and the skills gap. Option A is a big-bang rewrite with no production-parity evidence and high risk. Option B is wrong because mainframe workloads do not run on VMware Engine. Option C is the status quo that the case study says makes promotions and dealer discounts difficult to implement. This is a phased, risk-managed migration aligned with the reliability pillar.",
+    "refs": [
+      "https://cloud.google.com/mainframe-modernization/docs/overview",
+      "https://cloud.google.com/mainframe-modernization/docs/dual-run"
+    ]
+  },
+  {
+    "id": "cs-km-003",
+    "domain": 1,
+    "topic": "Workload disposition",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' outdated Enterprise Resource Planning system makes new promotions and dealer discounts slow to implement. The CIO asks you to recommend a disposition for the ERP as part of the five-year modernization roadmap. The ERP implements standard finance, procurement, and pricing processes that are not a competitive differentiator, and the in-house team that customized it has largely left the company. What should you recommend?",
+    "options": [
+      "Buy: replace the custom ERP with a modern packaged ERP such as SAP running on Google Cloud (or a SaaS ERP), integrating it with the data platform and dealer systems through APIs.",
+      "Build: rewrite the ERP from scratch as microservices on GKE so that promotions can be released daily.",
+      "Modify: lift-and-shift the existing ERP to Compute Engine and gradually patch the pricing module.",
+      "Deprecate: retire the ERP and manage pricing and procurement in spreadsheets stored in Google Drive."
+    ],
+    "answer": [0],
+    "explanation": "Workload disposition strategy (build, buy, modify, or deprecate) is an explicit exam objective. Non-differentiating, standardized business processes with a depleted internal team are the classic case for buying a packaged or SaaS ERP; SAP on Google Cloud is a common target and integrates with BigQuery for the data monetization goals. Option B spends years of scarce engineering effort recreating commodity functionality. Option C moves the problem to the cloud without solving the agility issue or the skills gap. Option D is not viable for a global manufacturer's finance and procurement processes. This reflects sound decision-making trade-offs in the business-process domain.",
+    "refs": [
+      "https://cloud.google.com/solutions/sap",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "cs-km-004",
+    "domain": 1,
+    "topic": "Highly available transactional systems",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' online build-to-order system runs on a single on-premises application server backed by a single relational database, and its unreliability is straining dealer relationships. The rearchitected system must serve customers in North America, Europe, and Asia from one global endpoint, remain available through a regional outage, and guarantee strongly consistent order and configuration records so that a dealer and a customer never see conflicting order states. What should you do?",
+    "options": [
+      "Deploy the application on Compute Engine in one region behind a regional external Application Load Balancer, with Cloud SQL for MySQL and a read replica in a second region.",
+      "Deploy the application on Cloud Run in each continent behind separate regional load balancers, each with its own Cloud SQL instance, and reconcile orders nightly.",
+      "Deploy the application on Cloud Run (or GKE) in multiple regions behind a global external Application Load Balancer, and store orders and configurations in a multi-region Spanner instance.",
+      "Deploy the application on GKE in one region and store orders in Firestore in Datastore mode with eventual consistency."
+    ],
+    "answer": [2],
+    "explanation": "The requirements—single global endpoint, survive a regional outage, strong consistency across continents—map directly to a global external Application Load Balancer fronting multi-region serverless or GKE compute with a multi-region Spanner instance, which offers a 99.999% availability SLA and external consistency. Option A remains single-region for writes and a Cloud SQL read replica cannot take strongly consistent writes during failover without manual promotion. Option B creates three independent sources of truth and nightly reconciliation, which is exactly the conflicting-state problem dealers complain about. Option D is single-region and explicitly eventually consistent. This applies the reliability pillar to a business-critical transactional workload.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/instance-configurations",
+      "https://cloud.google.com/load-balancing/docs/application-load-balancer"
+    ]
+  },
+  {
+    "id": "cs-km-005",
+    "domain": 5,
+    "topic": "API management with Apigee",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. Dealers complain that the build-to-order system does not give them the order data they need. KnightMotives wants to expose order status, configuration, and delivery-estimate data to hundreds of independent dealers and their third-party dealer-management-system vendors as secure, versioned APIs, with per-dealer quotas, usage analytics, and a self-service developer portal. What should you do?",
+    "options": [
+      "Give each dealer a service account key with read access to the orders database.",
+      "Publish the APIs through Apigee with API keys or OAuth per dealer application, rate-limiting and quota policies, analytics, and a developer portal for onboarding.",
+      "Expose the backend service directly through an external passthrough Network Load Balancer with an allowlist of dealer IP addresses.",
+      "Email dealers a nightly CSV export of orders generated by a Cloud Run job."
+    ],
+    "answer": [1],
+    "explanation": "Apigee is Google Cloud's full-lifecycle API management platform and directly provides the required capabilities: partner onboarding through a developer portal, credential issuance per application, quota and spike-arrest policies, versioning, and analytics. Option A gives external parties direct database access with long-lived keys, a severe security anti-pattern given past breaches. Option C provides no authentication, quotas, or analytics, and IP allowlists are brittle for hundreds of partners. Option D is not real time and cannot deliver the transparency the case study asks for. API management best practices with Apigee are an explicit exam objective.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/get-started/what-apigee",
+      "https://cloud.google.com/apigee/docs/api-platform/publish/portal/build-integrated-portal"
+    ]
+  },
+  {
+    "id": "cs-km-006",
+    "domain": 1,
+    "topic": "Dealer tooling",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives wants to give service technicians and sales staff modern tools for inventory checks, service scheduling, and guided upsell during customer visits. The case study notes that dealers have no budget for new equipment; technicians already carry personal or dealership smartphones and the showroom has ordinary web browsers. Which approach should you recommend?",
+    "options": [
+      "Ship ruggedized tablets with a native application to every dealership and bill the cost to the dealers.",
+      "Build responsive web and mobile applications (for example with AppSheet for simple workflows and Cloud Run backends for richer ones) that run in the browsers and phones dealers already have, secured with Identity Platform or federated dealer identities.",
+      "Deploy a virtual desktop infrastructure farm so dealers can remote into a Windows application.",
+      "Install a small on-premises server in each dealership to host the tools locally."
+    ],
+    "answer": [1],
+    "explanation": "The binding constraint is that dealers have no budget for new equipment, so the tools must run on the browsers and phones already in use. Browser-based and mobile applications, including no-code AppSheet apps for simple workflows, satisfy this with no hardware spend and are centrally updated. Option A imposes exactly the equipment cost dealers cannot afford. Option C still requires client devices and adds licensing and operational cost, while providing a poor mobile experience for technicians on the shop floor. Option D adds hardware and on-site maintenance to hundreds of locations. This is a cost-aware design decision that supports the business requirement of better dealer tooling.",
+    "refs": [
+      "https://cloud.google.com/appsheet/docs",
+      "https://cloud.google.com/run/docs/overview/what-is-cloud-run"
+    ]
+  },
+  {
+    "id": "cs-km-007",
+    "domain": 1,
+    "topic": "CRM integration",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives is implementing a comprehensive CRM to track customer interactions and personalize experiences. The sales organization has selected a SaaS CRM. Customer interactions must flow bidirectionally between the CRM, the new build-to-order system, and the BigQuery data platform (for personalization models), with minimal custom integration code and reliable event handling. What should you do?",
+    "options": [
+      "Use Application Integration with the CRM's Integration Connector for event-driven, bidirectional flows to the order system, and the BigQuery Data Transfer Service (or connector) to land CRM data in BigQuery for analytics.",
+      "Write custom Python scripts on a Compute Engine VM that poll the CRM API every five minutes and upsert records into Cloud SQL.",
+      "Replace the SaaS CRM with a custom CRM built on Firestore so that all data is already in Google Cloud.",
+      "Export CRM data manually to CSV each week and load it into BigQuery with the bq command-line tool."
+    ],
+    "answer": [0],
+    "explanation": "Application Integration and Integration Connectors provide managed, low-code connectivity to popular SaaS systems, including event triggers and bidirectional data flows, and BigQuery data transfer connectors land CRM data in the warehouse for personalization models without custom pipelines. Option B introduces polling latency, a single VM to maintain, and bespoke code, contradicting the minimal-code constraint. Option C throws away the sales organization's selected product and rebuilds commodity software. Option D is manual, weekly, and one-directional, which cannot support real-time personalization or the build-to-order integration.",
+    "refs": [
+      "https://cloud.google.com/application-integration/docs/overview",
+      "https://cloud.google.com/integration-connectors/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-km-008",
+    "domain": 1,
+    "topic": "Data platform and governance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives wants to monetize corporate data, but that data is siloed across plant systems, vehicle telemetry stores, dealer applications, and the mainframe. Business units want to discover and share trusted datasets with each other and with external partners without copying data, and the security team requires centralized data classification, lineage, and access policies. Which architecture should you recommend?",
+    "options": [
+      "Give every business unit its own Cloud SQL instance and replicate data between them with Datastream.",
+      "Consolidate all data into a single BigQuery dataset in one project and grant BigQuery Data Viewer to all employees.",
+      "Build a BigQuery-based data platform organized by domain, govern it with Dataplex Universal Catalog (discovery, classification, lineage, policy tags), and share curated datasets internally and with partners through Analytics Hub listings.",
+      "Export datasets to Cloud Storage buckets and share signed URLs with partners on request."
+    ],
+    "answer": [2],
+    "explanation": "This is the recommended data-mesh style pattern on Google Cloud: BigQuery provides the scalable warehouse, Dataplex Universal Catalog provides centralized governance with metadata, classification, lineage, and policy tags, and Analytics Hub enables zero-copy sharing of curated datasets with internal consumers and external subscribers, which is the foundation for monetization. Option A perpetuates silos in OLTP databases unsuited to analytics. Option B removes silos but destroys governance by granting broad access, unacceptable after past breaches. Option D copies data, loses lineage and access control, and cannot be revoked cleanly. This aligns with the security and operational-excellence pillars.",
+    "refs": [
+      "https://cloud.google.com/dataplex/docs/introduction",
+      "https://cloud.google.com/analytics-hub/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-km-009",
+    "domain": 3,
+    "topic": "Data clean rooms",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. An insurance company wants to buy insights from KnightMotives' driving-behavior data to price usage-based policies, and KnightMotives sees this as a first data-monetization deal. Both companies' legal teams require that neither party can see the other's row-level customer data, that only aggregated results above a minimum group size can be extracted, and that EU data protection rules are respected. What should you do?",
+    "options": [
+      "Share a de-identified copy of the telemetry table with the insurer through a Cloud Storage bucket after removing names and vehicle identification numbers.",
+      "Create a BigQuery data clean room in Analytics Hub, publish the telemetry data with analysis rules (aggregation thresholds and join restrictions), and let the insurer subscribe and run only privacy-constrained queries within an EU region.",
+      "Grant the insurer's service account the BigQuery Data Viewer role on the telemetry dataset with a row-level security policy.",
+      "Run the insurer's queries manually on their behalf and email them the results as spreadsheets."
+    ],
+    "answer": [1],
+    "explanation": "BigQuery data clean rooms (built on Analytics Hub) are designed for exactly this: data contributors share data without copying it, analysis rules enforce aggregation thresholds and restrict joins so subscribers can only obtain privacy-safe aggregates, and locating the clean room in an EU region supports data residency. Option A relies on naive de-identification; location and behavioral traces are highly re-identifiable, and once copied the data cannot be controlled. Option C still exposes row-level data to the insurer. Option D does not scale, introduces human error, and provides no technical enforcement of the privacy rules. This is a security and compliance pillar decision enabling the monetization goal.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/data-clean-rooms",
+      "https://cloud.google.com/bigquery/docs/analysis-rules"
+    ]
+  },
+  {
+    "id": "cs-km-010",
+    "domain": 2,
+    "topic": "AI Hypercomputer and model training",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' AI infrastructure is obsolete. The autonomous-driving team needs to train large perception models on multiple petabytes of sensor recordings stored in Cloud Storage. Training runs last days, require hundreds of accelerators with high-bandwidth interconnect, and are currently delayed for weeks because on-premises GPUs are unavailable. The team wants to start training within days, minimize idle accelerator cost, and avoid building a cluster from scratch. What should you do?",
+    "options": [
+      "Order additional on-premises GPU servers and expand the data-center cooling capacity.",
+      "Launch individual Compute Engine VMs with a single consumer-grade GPU each and split the dataset across them manually.",
+      "Train the models on Vertex AI Workbench notebooks with an attached GPU, uploading data through the notebook.",
+      "Use AI Hypercomputer capabilities: run distributed training on Vertex AI training (or GKE) with TPU or GPU slices obtained through Dynamic Workload Scheduler, read data directly from Cloud Storage via Cloud Storage FUSE or Parallelstore, and release capacity when each run completes."
+    ],
+    "answer": [3],
+    "explanation": "AI Hypercomputer combines purpose-built accelerators (TPU and GPU slices with high-speed interconnect), optimized storage such as Cloud Storage FUSE or Parallelstore, and consumption models such as Dynamic Workload Scheduler that provision large accelerator blocks when available and bill only for the run, which meets the fast-start, low-idle-cost, and no-cluster-building constraints. Option A repeats the capital-intensive, slow cycle the case study calls obsolete and conflicts with the shift in financial priorities. Option B lacks the interconnect and orchestration needed for multi-day distributed training. Option C is for interactive experimentation, not petabyte-scale distributed training. This is a performance and cost-optimization decision.",
+    "refs": [
+      "https://cloud.google.com/ai-hypercomputer/docs/overview",
+      "https://cloud.google.com/ai-hypercomputer/docs/consumption-models"
+    ]
+  },
+  {
+    "id": "cs-km-011",
+    "domain": 2,
+    "topic": "Batch simulation workloads",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives must build a robust simulation environment to validate autonomous-driving software. Each software release triggers tens of thousands of independent, containerized simulation scenarios that run for 10–60 minutes each, can be safely restarted, and must complete overnight. Between releases the environment is idle. You want to minimize cost and operational overhead. What should you do?",
+    "options": [
+      "Submit the scenarios as jobs to Batch (or a GKE Autopilot cluster using Kueue) running on Spot VMs with automatic retries, and scale to zero when no release is being tested.",
+      "Provision a permanently running GKE Standard cluster sized for peak load with standard VMs.",
+      "Run the scenarios sequentially on a single large Compute Engine VM with a persistent disk of results.",
+      "Use Cloud Run functions to run each scenario, chaining invocations when the 60-minute limit is reached."
+    ],
+    "answer": [0],
+    "explanation": "Embarrassingly parallel, restartable, deadline-based work is the ideal candidate for Spot capacity, and Batch (or GKE with Kueue) handles queueing, retries, and scale-to-zero so nothing is paid between releases. Option B pays for peak capacity around the clock. Option C cannot finish tens of thousands of scenarios overnight and is a single point of failure. Option D forces awkward chaining around request time limits and is not designed for long-running compute jobs. This is a cost-optimization decision that also aligns with the sustainability pillar by avoiding idle resources.",
+    "refs": [
+      "https://cloud.google.com/batch/docs/get-started",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms"
+    ]
+  },
+  {
+    "id": "cs-km-012",
+    "domain": 3,
+    "topic": "Security Command Center",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. After past data breaches, KnightMotives' new CISO must implement a comprehensive security framework across the Google Cloud organization and the workloads that remain on the other cloud provider. The CISO wants continuous misconfiguration and vulnerability detection, threat detection, attack-path analysis that prioritizes the riskiest findings, and integrated case management for the security operations team. What should you do?",
+    "options": [
+      "Enable Cloud Audit Logs in every project and have analysts review them daily in the Logs Explorer.",
+      "Deploy a third-party vulnerability scanner on a Compute Engine VM and export results to a spreadsheet.",
+      "Activate Security Command Center Enterprise at the organization level, connect the other cloud provider's accounts, and use its posture, threat detection, attack-path simulation, and SecOps case-management capabilities.",
+      "Rely on Cloud NGFW intrusion prevention on all VPC networks as the primary security control."
+    ],
+    "answer": [2],
+    "explanation": "Security Command Center Enterprise is Google Cloud's multicloud cloud-native application protection platform: it provides misconfiguration and vulnerability findings, Event Threat Detection, attack-path simulation and attack-exposure scores for prioritization, and integrated case management through Google Security Operations, and it can ingest findings from other cloud providers, matching the case study's multicloud reality and paramount security requirement. Option A is reactive and manual. Option B covers a fraction of the scope and lacks integration. Option D is one valuable network control, not a comprehensive framework.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/security-command-center-overview",
+      "https://cloud.google.com/security-command-center/docs/attack-exposure-learn"
+    ]
+  },
+  {
+    "id": "cs-km-013",
+    "domain": 3,
+    "topic": "Zero trust access",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' internal engineering portals and dealer-tool administration consoles are currently reachable only through a corporate VPN, and a past breach began with stolen VPN credentials. The CISO wants employees and dealer administrators to access these web applications from managed devices anywhere, with access decisions based on user identity, device posture, and location, and without exposing the applications to the internet or maintaining the VPN. What should you do?",
+    "options": [
+      "Move the VPN concentrator to Compute Engine and enforce longer passwords.",
+      "Front the applications with Identity-Aware Proxy and enforce Chrome Enterprise Premium access levels (device trust, location, user identity) through Access Context Manager, removing the VPN path.",
+      "Place the applications behind an external passthrough Network Load Balancer restricted to the IP ranges of dealer locations.",
+      "Publish the applications on the public internet with basic authentication and Cloud Armor rate limiting."
+    ],
+    "answer": [1],
+    "explanation": "This is the zero-trust model: Identity-Aware Proxy authenticates every request and Chrome Enterprise Premium (formerly BeyondCorp Enterprise) adds context-aware access based on device posture and location, so a stolen credential alone is insufficient and no VPN or public exposure is needed. Option A keeps the perimeter model that failed and only marginally raises password strength. Option C relies on network location, which cannot verify identity or device health and breaks for mobile staff. Option D exposes the applications directly with weak authentication. Secure remote access via IAP and Chrome Enterprise Premium is an explicit security objective on the exam.",
+    "refs": [
+      "https://cloud.google.com/chrome-enterprise-premium/docs/overview",
+      "https://cloud.google.com/iap/docs/concepts-overview"
+    ]
+  },
+  {
+    "id": "cs-km-014",
+    "domain": 3,
+    "topic": "Data sovereignty and Assured Workloads",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives will process personal data from EU drivers of its emerging autonomous platform in Google Cloud. EU legal counsel requires that this data and its encryption keys remain in the EU, that Google support personnel outside the EU cannot access it, and that engineers cannot accidentally create resources holding this data in non-EU regions, while the rest of KnightMotives' global workloads remain unaffected. What should you do?",
+    "options": [
+      "Create the EU projects in the same folder as the global projects and ask engineers to select only EU regions when deploying.",
+      "Encrypt all data with a Cloud KMS key located in a US region and grant EU staff exclusive access to the key.",
+      "Create a dedicated folder and place all EU driver-data projects under it with an organization policy restricting resource locations to EU regions, but keep support and key management global for simplicity.",
+      "Create an Assured Workloads folder with the EU Sovereign Controls control package for the EU driver-data projects, which enforces EU resource-location and key-management organization policies and restricts support access to EU personnel, and keep other workloads in standard folders."
+    ],
+    "answer": [3],
+    "explanation": "Assured Workloads with EU Sovereign Controls is the Google Cloud mechanism for data sovereignty: it applies resource-location restrictions, requires EU-located customer-managed keys (with Key Access Justifications), and limits Google support and access to EU personnel, all scoped to a folder so global workloads are not constrained. Option A depends on human discipline and provides no enforcement or support-access controls. Option B places keys outside the EU, violating the requirement. Option C enforces location but leaves support access and key residency unaddressed, failing two of the three legal requirements. Designing for data sovereignty legislation is an explicit compliance objective.",
+    "refs": [
+      "https://cloud.google.com/assured-workloads/docs/overview",
+      "https://cloud.google.com/assured-workloads/docs/control-packages"
+    ]
+  },
+  {
+    "id": "cs-km-015",
+    "domain": 1,
+    "topic": "Edge and connected-vehicle architecture",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives must deliver real-time AI features such as driver-assistance alerts and voice interaction in vehicles that frequently drive through rural areas with intermittent or no cellular coverage, while still collecting driving and road-condition telemetry for the central data platform. Which two design decisions should you make? (Choose two.)",
+    "options": [
+      "Run latency-critical inference on-device using optimized models (for example LiteRT or on-device Gemini Nano-class models) deployed to the vehicle, and use the cloud for model training and periodic over-the-air updates.",
+      "Route every inference request to a Vertex AI endpoint and display an error when the vehicle has no connectivity.",
+      "Increase the bandwidth of the Interconnect between headquarters and Google Cloud to reduce vehicle latency.",
+      "Buffer telemetry locally in the vehicle and use a store-and-forward pattern that publishes batches over MQTT to a broker or directly to Pub/Sub when connectivity returns, with idempotent ingestion downstream.",
+      "Serve vehicle telemetry through Cloud CDN to improve rural performance.",
+      "Require vehicles to maintain a persistent VPN tunnel to the VPC for all data transmission."
+    ],
+    "answer": [0, 3],
+    "explanation": "Reliable real-time features under intermittent connectivity require inference at the edge, with the cloud responsible for training, evaluation, and over-the-air model distribution; telemetry must tolerate disconnection through local buffering and store-and-forward publication into Pub/Sub, with idempotent consumers to handle retransmission. Option B makes safety-relevant features depend on coverage that the case study says is unreliable. Option C addresses the wrong link; headquarters bandwidth does not change cellular coverage in rural areas. Option E is for content delivery to consumers, not for ingesting telemetry. Option F is fragile over intermittent links and scales poorly to a vehicle fleet. This is a reliability and performance decision for an IoT-style architecture.",
+    "refs": [
+      "https://cloud.google.com/architecture/connected-devices",
+      "https://cloud.google.com/pubsub/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-km-016",
+    "domain": 2,
+    "topic": "Plant connectivity",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. Network connectivity between KnightMotives' manufacturing plants and headquarters is a known weakness, and data traffic from plant systems to the new Google Cloud data platform will grow substantially. The company has 14 plants worldwide, most of which are not near a Google colocation facility, and it already uses an SD-WAN vendor for branch connectivity. KnightMotives wants private connectivity from every plant to Google Cloud and plant-to-plant transit without building a full mesh. What should you do?",
+    "options": [
+      "Order Dedicated Interconnect circuits from every plant to the nearest colocation facility and manage routing statically.",
+      "Configure HA VPN from each plant to a separate VPC per plant and peer all VPCs with each other.",
+      "Use Network Connectivity Center as the hub: attach headquarters over Dedicated Interconnect, connect plants over Partner Interconnect or HA VPN spokes as appropriate, and deploy the SD-WAN vendor's router appliances in Google Cloud as router appliance spokes so plant traffic transits the hub.",
+      "Connect every plant to the public internet and access Google Cloud APIs directly over TLS."
+    ],
+    "answer": [2],
+    "explanation": "Network Connectivity Center provides a hub-and-spoke model that unifies Interconnect, HA VPN, and third-party SD-WAN router appliances, enabling site-to-site data transfer through Google's backbone without a full mesh, which is the right fit for many geographically dispersed plants with an existing SD-WAN. Option A is impractical because Dedicated Interconnect requires presence at a colocation facility and static routing does not scale. Option B creates 14 VPCs and a peering mesh that is hard to manage and VPC Network Peering is not transitive. Option D lacks privacy and performance guarantees and conflicts with the security emphasis. This addresses the case study's explicit plant-connectivity upgrade requirement.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview",
+      "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/ra-overview"
+    ]
+  },
+  {
+    "id": "cs-km-017",
+    "domain": 4,
+    "topic": "Skills readiness and change management",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives lists employee upskilling and better communication between business and technical teams as critical objectives of its five-year modernization. Early cloud projects have stalled because each team chooses different tools, business stakeholders do not understand the technical roadmap, and there is no shared set of standards. What should you recommend?",
+    "options": [
+      "Outsource all cloud work to a system integrator so that internal staff do not need to learn new skills.",
+      "Establish a Cloud Center of Excellence with representatives from business and technology that defines standards, reusable patterns, and a role-based learning program (for example Google Cloud Skills Boost and certifications), and sponsors cross-functional pilot teams.",
+      "Require every engineer to complete a certification before any further cloud projects are approved.",
+      "Let each business unit continue to select its own tools and reconcile differences at the end of the program."
+    ],
+    "answer": [1],
+    "explanation": "A Cloud Center of Excellence is the recommended organizational construct for cloud adoption: it aligns business and technical stakeholders, establishes shared guardrails and patterns, and runs structured upskilling, which directly addresses the case study's talent and communication objectives. Option A contradicts the stated goal of upskilling and attracting talent and creates dependency. Option C blocks delivery and treats certification as a gate rather than part of a learning culture. Option D perpetuates fragmentation, which the case study identifies as an existing problem with code bases and tools. This falls under the exam's team assessment and change-management objectives.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence",
+      "https://cloud.google.com/adoption-framework"
+    ]
+  },
+  {
+    "id": "cs-km-018",
+    "domain": 4,
+    "topic": "Cloud financial management",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' CFO must fund AI investments by shifting financial priorities globally and wants the multi-year cloud migration to convert unpredictable capital spending into transparent, controllable operating expense. Early cloud bills have surprised several business units. Which two actions should you take first to establish cost control? (Choose two.)",
+    "options": [
+      "Purchase three-year committed use discounts for the full projected end-state capacity before the first workloads migrate.",
+      "Establish FinOps practices: export billing data to BigQuery, enforce a labeling and project-hierarchy standard so costs map to business units, and configure budgets with alerts per business unit.",
+      "Keep buying on-premises hardware in parallel so that cloud spending can be paused at any time.",
+      "After right-sizing migrated workloads, buy committed use discounts sized to the measured steady-state baseline, using Spot and autoscaling for variable demand.",
+      "Disable autoscaling on all workloads so monthly costs are constant.",
+      "Grant every business unit the Billing Account Administrator role so they can manage their own spend."
+    ],
+    "answer": [1, 3],
+    "explanation": "The cost-optimization pillar recommends visibility and accountability first (billing export, labels, budgets, showback to business units) and then commitments sized to observed baselines after right-sizing. Option A locks in capacity before usage is known, risking large over-commitment for a five-year phased migration. Option C doubles spending and defeats the CapEx-to-OpEx goal. Option E sacrifices elasticity and often increases cost while reducing reliability. Option F violates least privilege and separation of duties on a sensitive role; cost visibility should come from budgets and reports, not billing administration rights.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/cost-optimization",
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery"
+    ]
+  },
+  {
+    "id": "cs-km-019",
+    "domain": 1,
+    "topic": "Platform consolidation and API-first design",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives has multiple fragmented code bases across its BEV, hybrid, and ICE vehicle lines and significant technical debt from backward compatibility. It wants a consistent in-vehicle and companion-app experience across all models within five years while continuing to support vehicles already on the road. Which approach should you recommend?",
+    "options": [
+      "Rewrite every vehicle line's software simultaneously on a new code base and stop supporting older vehicles.",
+      "Keep the separate code bases and hire more engineers for each line to add matching features in parallel.",
+      "Freeze new feature development for two years while a single monolithic in-vehicle system is built.",
+      "Define a shared, versioned API contract for vehicle services and build common backend capabilities once (for example on Cloud Run and GKE, managed through Apigee), then migrate each vehicle line to the shared platform incrementally behind adapters, with feature flags and a deprecation policy for legacy interfaces."
+    ],
+    "answer": [3],
+    "explanation": "Consolidating onto a shared, API-first platform with versioned contracts lets KnightMotives deliver one consistent experience while adapters and a published deprecation policy handle legacy vehicles, and incremental migration limits risk, which is the strangler-fig pattern for reducing technical debt. Option A is a high-risk big bang that abandons customers, damaging the already declining satisfaction. Option B triples effort and preserves the fragmentation that caused the problem. Option C halts delivery for two years in a market where the company is already losing ground, and a monolith recreates coupling. This is an operational-excellence and business-agility decision.",
+    "refs": [
+      "https://cloud.google.com/architecture/application-development/api-design-patterns",
+      "https://cloud.google.com/apigee/docs/api-platform/fundamentals/api-lifecycle"
+    ]
+  },
+  {
+    "id": "cs-km-020",
+    "domain": 3,
+    "topic": "Incident response and security operations",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "knightmotives",
+    "question": "For this question, refer to the KnightMotives Automotive case study. KnightMotives' security requirements include developing an incident response plan. The security team needs to correlate security telemetry from Google Cloud, the other cloud provider, on-premises systems, and endpoints, retain it for investigations, and automate response playbooks so that a small team can respond quickly around the clock. Which solution should you recommend?",
+    "options": [
+      "Adopt Google Security Operations (SIEM and SOAR) to ingest and correlate telemetry from all environments, apply detection rules, and automate response playbooks with case management.",
+      "Store all logs in Cloud Storage buckets and search them with gsutil when an incident is suspected.",
+      "Create Cloud Monitoring uptime checks on all public endpoints and treat failures as security incidents.",
+      "Enable Sensitive Data Protection on BigQuery to detect intrusions."
+    ],
+    "answer": [0],
+    "explanation": "Google Security Operations is the SIEM/SOAR platform that ingests security telemetry from any environment, correlates it with threat intelligence, retains it for long-term investigation, and automates response playbooks with case management, which is what an effective incident response capability for a small team requires. Option B provides retention but no detection, correlation, or automated response. Option C monitors availability, not security events. Option D discovers and classifies sensitive data; it is not an intrusion-detection or incident-response tool. This supports the incident-response element of the security pillar.",
+    "refs": [
+      "https://cloud.google.com/chronicle/docs/overview",
+      "https://cloud.google.com/chronicle/docs/soar/overview-and-introduction/soar-overview"
+    ]
+  }
+]

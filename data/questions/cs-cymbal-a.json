@@ -1,0 +1,432 @@
+[
+  {
+    "id": "cs-cym-001",
+    "domain": 1,
+    "topic": "Gemini attribute generation",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal needs to derive product attributes (such as material, fit, color family, and care instructions) from supplier-provided titles, descriptions, and images, and the attributes must match the attribute set defined for each category in Cymbal's existing catalog structure. Which approach should you recommend?",
+    "options": [
+      "Use the Cloud Vision API label detection on the product images and map the returned labels to attributes with a manually maintained lookup table.",
+      "Train a separate AutoML classification model for every attribute in every category using historical catalog data.",
+      "Use a Gemini multimodal model on Vertex AI, passing the supplier text and images together with the category's attribute schema, and use controlled generation with a response schema so the output conforms to Cymbal's catalog structure.",
+      "Use Document AI to parse supplier PDF spec sheets and store every extracted key-value pair as a product attribute."
+    ],
+    "answer": [2],
+    "explanation": "The requirement combines text and image inputs and demands output that aligns with a per-category schema; Gemini's multimodal understanding handles both inputs in one call, and controlled generation (response schema / JSON mode) guarantees structurally valid output with the exact attribute names and allowed values, which minimizes post-processing errors. Option A gives generic labels, not category-specific attributes, and the lookup table becomes a maintenance burden. Option B would mean hundreds of models to train and maintain across sub-verticals. Option D extracts whatever the supplier document contains rather than deriving attributes aligned to Cymbal's taxonomy, and it ignores images.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/overview"
+    ]
+  },
+  {
+    "id": "cs-cym-002",
+    "domain": 2,
+    "topic": "Imagen image generation and editing",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Merchandisers want to produce multiple product image variations from a single supplier base image: the same jacket in each available color, on different backgrounds, and with promotional text overlays. The solution must scale to thousands of SKUs per week with the least engineering effort. What should you do?",
+    "options": [
+      "Use Imagen on Vertex AI image editing capabilities (mask-based inpainting, background replacement, and product recontextualization) to generate the color and background variants from the base image, apply text overlays deterministically in the pipeline, and route outputs to the human-in-the-loop review queue.",
+      "Use a Gemini text model to write detailed creative briefs for each variation and send them to an external design agency.",
+      "Use the Cloud Vision API to recolor the product and swap backgrounds programmatically.",
+      "Train a custom generative adversarial network on Vertex AI Training with TPUs using Cymbal's historical product photos."
+    ],
+    "answer": [0],
+    "explanation": "Imagen on Vertex AI offers managed image editing: mask-based editing to change the product's color, background editing and product recontextualization to place the item in new scenes, and upscaling, all through an API that scales without model training; rendering text overlays deterministically (or with Imagen text rendering plus review) keeps promotional copy exact, and HITL review satisfies the case study's quality gate. Option B is manual and slow, contradicting the automation goal. Option C is wrong because the Vision API analyzes images; it does not generate or edit them. Option D requires ML expertise, training data, GPUs/TPUs and months of effort for something a managed model already does.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/image/overview",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/image/edit-images"
+    ]
+  },
+  {
+    "id": "cs-cym-003",
+    "domain": 1,
+    "topic": "Vertex AI Search for commerce",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's custom web application lets customers browse the catalog by querying the relational databases on product name and category, so a query like 'warm waterproof boots for hiking under $150' returns nothing. Cymbal wants to improve product discoverability and search relevance for its very large, growing catalog with minimal custom code. What should you do?",
+    "options": [
+      "Add full-text indexes to the MySQL product tables and rewrite the queries to use LIKE with wildcards on more columns.",
+      "Deploy an Elasticsearch cluster on GKE and hand-author synonym and ranking rules for each sub-vertical.",
+      "Index the website's HTML pages with generic Vertex AI Search website search and embed the results widget.",
+      "Import the product catalog and user events into Vertex AI Search for commerce and replace the database queries with its search API, which handles natural-language queries, synonyms, facets, and personalized ranking at scale."
+    ],
+    "answer": [3],
+    "explanation": "Vertex AI Search for commerce (the Discovery AI retail solution named in the case study) is purpose-built for product catalogs: it understands natural-language intent, applies query expansion and spelling correction, returns facets and filters such as price, and continuously improves ranking from user events, all as a managed service that scales with the catalog. Option A still performs lexical matching and cannot interpret intent or attributes like price. Option B is a large self-managed system requiring ongoing relevance tuning by Cymbal's team. Option C indexes pages rather than structured products and lacks retail-specific features such as user-event-driven ranking and revenue optimization.",
+    "refs": [
+      "https://cloud.google.com/retail/docs/overview",
+      "https://cloud.google.com/retail/docs/import-catalog"
+    ]
+  },
+  {
+    "id": "cs-cym-004",
+    "domain": 2,
+    "topic": "Conversational Agents for commerce",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal wants to embed AI-powered virtual agents in its website and mobile app so customers can describe what they need in natural language, receive relevant products, and add them to the cart. The agents must use live catalog data and must be manageable by a small team. Which approach should you recommend?",
+    "options": [
+      "Call the Gemini API directly from the mobile app with an embedded API key and let the model recommend products from its training data.",
+      "Build a Conversational Agents (Dialogflow CX) agent with generative playbooks whose tools call Vertex AI Search for commerce for product retrieval and backend webhooks for cart and order actions, and embed it in the web and mobile channels through the messenger integration and SDK.",
+      "Use Speech-to-Text and Cloud Translation to normalize messages, then match them against a keyword list mapped to product categories.",
+      "Train a BigQuery ML intent classifier and return the results of a parameterized SQL query for each intent."
+    ],
+    "answer": [1],
+    "explanation": "Conversational Agents (Dialogflow CX) provides the managed conversational layer: generative playbooks handle open-ended dialogue, tools ground responses in real product data by calling Vertex AI Search for commerce and Cymbal's own APIs, built-in analytics and versioning keep operations manageable, and integrations exist for web and mobile. Option A exposes a credential in a client app, has no grounding in the live catalog (so it hallucinates products and prices), and lacks conversation management. Option C is a brittle keyword bot that cannot satisfy the natural-language requirement. Option D delivers rigid, non-conversational lookups and puts a warehouse on the request path.",
+    "refs": [
+      "https://cloud.google.com/dialogflow/cx/docs/concept/playbook",
+      "https://cloud.google.com/dialogflow/cx/docs/concept/playbook/tool",
+      "https://cloud.google.com/retail/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-cym-005",
+    "domain": 1,
+    "topic": "Human-in-the-loop review application",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal must provide a user interface where catalog associates approve, reject, or edit gen AI-generated attributes, descriptions, and images before they reach the product catalog. Review volume varies from a few hundred to tens of thousands of items per day, and Cymbal wants the least operational overhead. What should you do?",
+    "options": [
+      "Email the generated content to associates as attachments and have them reply with approval decisions that a script parses.",
+      "Build the review UI on a GKE Standard cluster with a self-managed PostgreSQL database for review state.",
+      "Build the review UI as a Cloud Run service secured with Identity-Aware Proxy, store generated candidates and their review state in Firestore, and publish approved items to Pub/Sub for downstream catalog updates.",
+      "Share generated content in a Google Sheet per associate and poll the sheet with a scheduled script to detect approvals."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Run scales to zero and to bursts automatically, Identity-Aware Proxy restricts the tool to authenticated associates without VPNs, Firestore is a serverless document store that fits the variable-shape candidate records and review state, and Pub/Sub decouples approval from the many downstream channel updates; the whole stack has no servers or databases to patch. Option A is unauditable and error-prone. Option B works but requires Cymbal to operate a cluster and a database for an internal tool, which contradicts the least-overhead constraint. Option D does not scale to tens of thousands of items and offers no proper workflow, access control, or audit trail.",
+    "refs": [
+      "https://cloud.google.com/run/docs/overview/what-is-cloud-run",
+      "https://cloud.google.com/firestore/docs",
+      "https://cloud.google.com/iap/docs/concepts-overview"
+    ]
+  },
+  {
+    "id": "cs-cym-006",
+    "domain": 2,
+    "topic": "Vertex AI batch prediction",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal needs to back-fill gen AI-generated descriptions and attributes for its entire existing catalog of roughly five million SKUs before launch, and afterwards process nightly supplier feeds of tens of thousands of new products. There is no latency requirement for this work, and cost must be minimized. What should you do?",
+    "options": [
+      "Load the supplier data into BigQuery and run Vertex AI batch prediction jobs with a Gemini model that read prompts from a BigQuery table and write results back to BigQuery.",
+      "Loop through the SKUs from a single Cloud Run function that makes synchronous online Gemini API calls one product at a time.",
+      "Purchase Provisioned Throughput for Gemini and run the back-fill through the online API to guarantee capacity.",
+      "Fine-tune a Gemini model on all five million SKUs first and then generate descriptions with the tuned model online."
+    ],
+    "answer": [0],
+    "explanation": "Vertex AI batch prediction for Gemini is designed for large, latency-tolerant workloads: it accepts input from BigQuery or Cloud Storage, runs asynchronously at scale, and is offered at a discount compared to online requests, so it is the most cost-effective way to process millions of items and nightly feeds. Option B is slow, subject to online quota limits, and pays full online pricing. Option C reserves capacity that is priced for steady, latency-sensitive online traffic, an unnecessary expense for a back-fill. Option D confuses tuning with generation; tuning does not produce catalog content and would add cost and time before any value is delivered.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/batch-prediction-gemini",
+      "https://cloud.google.com/vertex-ai/generative-ai/pricing"
+    ]
+  },
+  {
+    "id": "cs-cym-007",
+    "domain": 3,
+    "topic": "PCI and PII handling in virtual agents",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. The conversational commerce agent will help customers complete purchases, and customers sometimes type or speak payment card numbers and personal details. Cymbal must handle these interactions securely and remain compliant with PCI DSS and privacy regulations. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Configure Conversational Agents security settings to redact sensitive data with Sensitive Data Protection and apply retention limits to conversation history and audio.",
+      "Log the complete raw conversation transcripts to BigQuery so analysts can improve the agent.",
+      "Hand off payment to a PCI DSS-compliant payment processor or hosted payment page that returns a token, so the agent and Cymbal's systems never store primary account numbers.",
+      "Embed a Google Cloud API key in the mobile app so the agent can call the payment API directly.",
+      "Disable Cloud Audit Logs for the agent project to avoid recording customer identifiers."
+    ],
+    "answer": [0, 2],
+    "explanation": "Two controls address the requirement: Conversational Agents security settings integrate with Sensitive Data Protection to redact PII and card numbers from stored transcripts and logs and let you set retention limits, and keeping card data out of Cymbal's environment by delegating payment capture to a PCI-compliant processor with tokenization dramatically reduces PCI scope. Option B stores unredacted PII and potentially PANs, expanding compliance scope. Option D exposes a credential in a public client. Option E removes the audit trail regulators expect; audit logs record administrative and access activity, not conversation content.",
+    "refs": [
+      "https://cloud.google.com/dialogflow/cx/docs/concept/security-settings",
+      "https://cloud.google.com/architecture/limiting-compliance-scope-pci-environments-google-cloud"
+    ]
+  },
+  {
+    "id": "cs-cym-008",
+    "domain": 1,
+    "topic": "Contact center modernization",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's IVR routes calls by keypad menu, and call center agents manually key in orders for customers who could not complete a purchase online. A business requirement is to reduce call center staffing costs without degrading customer satisfaction. Which approach should you recommend?",
+    "options": [
+      "Add more IVR menu levels and hold-time announcements to deflect a larger share of calls before they reach an agent.",
+      "Outsource the call center to a lower-cost region and keep the existing IVR and manual order entry.",
+      "Use Speech-to-Text to transcribe every call and email the transcript to an agent who enters the order later.",
+      "Replace the IVR with a Conversational Agents voice agent delivered through the telephony or Contact Center AI integration that authenticates customers and completes orders via backend webhooks, and escalate to human agents assisted by Agent Assist only when needed."
+    ],
+    "answer": [3],
+    "explanation": "The cost driver is human handling of routine orders; a generative voice agent built on Conversational Agents can understand natural speech, use tools to look up products and place orders in the order system, and contain most calls, while Agent Assist shortens handle time for the calls that still reach humans by transcribing, suggesting knowledge, and summarizing. Option A frustrates customers and lowers satisfaction rather than removing work. Option B moves cost around without automating the manual process. Option C adds latency and still requires manual order entry, so staffing cost does not fall.",
+    "refs": [
+      "https://cloud.google.com/dialogflow/cx/docs/concept/integration/one-click-telephony",
+      "https://cloud.google.com/agent-assist/docs/basics",
+      "https://cloud.google.com/solutions/contact-center-ai-platform"
+    ]
+  },
+  {
+    "id": "cs-cym-009",
+    "domain": 6,
+    "topic": "Cloud Observability consolidation",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal runs Grafana, Nagios, and Elastic for monitoring, each maintained by different people, and no one gets alerted before customers notice checkout failures. Cymbal wants proactive monitoring of its Google Cloud workloads with less tooling to maintain, and the SRE team would like to keep some familiar Grafana dashboards. What should you do?",
+    "options": [
+      "Migrate Nagios and Elastic to run on GKE so that all three tools are at least hosted in the cloud.",
+      "Consolidate on Cloud Observability: use Managed Service for Prometheus and Cloud Logging for telemetry, define alerting policies with notification channels in Cloud Monitoring, and connect existing Grafana dashboards to the Managed Service for Prometheus data source during the transition.",
+      "Purchase a third-party SaaS APM product for the new services and keep Nagios for the legacy systems.",
+      "Export all metrics and logs to Cloud Storage buckets and review them when an incident is reported."
+    ],
+    "answer": [1],
+    "explanation": "Cloud Observability provides managed metrics, logs, traces, dashboards, uptime checks, and alerting with paging integrations, so Cymbal stops operating three monitoring stacks while gaining proactive alerts; because Managed Service for Prometheus is PromQL-compatible, existing Grafana dashboards can point at it, easing the transition for the SRE team. Option A only relocates the maintenance burden. Option C adds yet another tool and keeps the fragmentation. Option D is storage, not monitoring; it provides no alerting and no proactive capability.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/managed-prometheus",
+      "https://cloud.google.com/monitoring/alerts"
+    ]
+  },
+  {
+    "id": "cs-cym-010",
+    "domain": 2,
+    "topic": "Storage Transfer Service for on-premises files",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's on-premises warehouse and ERP systems drop inventory and price files onto a file share several times a day, and an operator currently pushes them by SFTP to a server that feeds the ETL batch jobs. Cymbal wants to move these files into Google Cloud reliably, without operating an SFTP server, and trigger processing as soon as each file arrives. What should you do?",
+    "options": [
+      "Run an SFTP server on a Compute Engine VM and schedule a cron job that copies received files to Cloud Storage with gcloud storage rsync.",
+      "Have the operator upload the files manually with gcloud storage cp after each batch is produced.",
+      "Install Storage Transfer Service agents on-premises to move files from the file share to a Cloud Storage bucket on a schedule (or event-driven), and use Eventarc to trigger a Cloud Run or Dataflow job when each object is finalized.",
+      "Ship the files to Google on a Transfer Appliance every week."
+    ],
+    "answer": [2],
+    "explanation": "Storage Transfer Service with on-premises agents is the managed way to move data from POSIX file systems to Cloud Storage: it handles scheduling, retries, integrity checks, and bandwidth limits with no servers for Cymbal to run, and Cloud Storage object-finalized events through Eventarc start processing immediately, replacing the manual SFTP step and the polling batch job. Option A keeps a VM and SFTP server to patch and monitor. Option B is a manual process that the case study explicitly wants to eliminate. Option D is for one-time bulk transfers of very large datasets, not for files produced several times per day.",
+    "refs": [
+      "https://cloud.google.com/storage-transfer/docs/on-prem-overview",
+      "https://cloud.google.com/eventarc/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-cym-011",
+    "domain": 1,
+    "topic": "Breaking data silos with BigQuery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Customer, order, and catalog data are spread across MySQL, SQL Server, and MongoDB, while web clickstream and virtual-agent interactions are captured separately, so Cymbal cannot see a unified customer journey. Cymbal wants a single analytical foundation for reporting and personalization with minimal impact on the operational systems. What should you do?",
+    "options": [
+      "Use Datastream to replicate the operational databases into BigQuery and stream clickstream and agent interaction events through Pub/Sub and Dataflow into BigQuery, building a unified customer dataset for analytics and personalization.",
+      "Have the web application run federated queries across all databases in real time whenever a unified view is needed.",
+      "Consolidate every data source into one large Cloud SQL instance that both applications and analysts share.",
+      "Export nightly CSV files from each system to Cloud Storage and run Dataproc Spark jobs to join them."
+    ],
+    "answer": [0],
+    "explanation": "BigQuery is the natural hub: Datastream performs low-impact change data capture from MySQL and SQL Server (MongoDB can be loaded via Dataflow or Atlas connectors), Pub/Sub and Dataflow ingest streaming events, and the resulting datasets feed dashboards, BigQuery ML, and Vertex AI Search for commerce user events. Option B couples the customer-facing app to every database, harms latency, and does not create a persistent unified view. Option C mixes OLTP and analytics in one instance, creating a scaling and availability bottleneck. Option D is batch-only with a day of lag and requires cluster management.",
+    "refs": [
+      "https://cloud.google.com/datastream/docs/overview",
+      "https://cloud.google.com/bigquery/docs/introduction",
+      "https://cloud.google.com/dataflow/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-cym-012",
+    "domain": 3,
+    "topic": "Responsible AI for generated images",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's legal team requires that AI-generated product images never contain inappropriate content, that Cymbal can later prove which published images were AI-generated, and that a person remains accountable for what is published. What should you do?",
+    "options": [
+      "Disable the Imagen safety filters to reduce false rejections and rely entirely on the human-in-the-loop review to catch problems.",
+      "Keep Imagen safety filters enabled at an appropriate level, rely on the SynthID digital watermark that Imagen embeds in generated images and use the verification API to prove provenance, and keep human-in-the-loop approval as the final publishing gate.",
+      "Stamp a visible 'AI' label onto every generated image with the Cloud Vision API to mark it as synthetic.",
+      "Store every prompt in Cloud SQL so that the origin of any image can be traced if a question arises."
+    ],
+    "answer": [1],
+    "explanation": "Imagen on Vertex AI applies configurable safety filters to prompts and outputs, embeds an imperceptible SynthID watermark in generated images that survives common edits, and offers a verification API that reports whether an image carries the watermark, giving Cymbal technical evidence of AI origin; HITL approval keeps a human accountable for publication. Option A removes an automated control and pushes all risk onto reviewers. Option C alters the creative asset and a visible label can be cropped away, so it is not proof. Option D records intent, not the image itself, and cannot prove a given published image was generated.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/image/verify-image-watermark"
+    ]
+  },
+  {
+    "id": "cs-cym-013",
+    "domain": 1,
+    "topic": "Cloud SQL for MySQL with read replicas",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. The on-premises MySQL database that stores the product catalog is read by the web application hundreds of times more often than it is written, and it is a major contributor to data-center hosting cost. Cymbal wants to move it to Google Cloud with minimal downtime, keep the application code unchanged, and handle traffic spikes during promotions. What should you do?",
+    "options": [
+      "Rewrite the catalog service to use Spanner and perform a bulk load of the catalog during a weekend outage.",
+      "Move MySQL to Compute Engine VMs with the same version and configuration and add more vCPUs before promotions.",
+      "Migrate the catalog to BigQuery and point the web application at it for product lookups.",
+      "Use Database Migration Service to migrate to Cloud SQL for MySQL with high availability, add read replicas to serve the catalog browse traffic, and place Memorystore for Redis in front of the hottest queries."
+    ],
+    "answer": [3],
+    "explanation": "Database Migration Service provides minimal-downtime homogeneous migration, Cloud SQL HA keeps the primary resilient, read replicas scale the read-heavy browse traffic horizontally, and a Memorystore cache absorbs promotional spikes, all without changing SQL or drivers. Option A imposes a re-platform and an outage that the constraints forbid. Option B keeps the team managing database servers and scales only vertically. Option C is wrong because BigQuery is an analytical warehouse with per-query latency unsuitable for transactional product page lookups.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/mysql",
+      "https://cloud.google.com/sql/docs/mysql/replication",
+      "https://cloud.google.com/memorystore/docs/redis"
+    ]
+  },
+  {
+    "id": "cs-cym-014",
+    "domain": 5,
+    "topic": "Agent versions and environments",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. The conversational commerce team iterates on the shopping agent daily. Last week an untested change to a playbook broke the checkout flow in production for two hours. You need a release process that allows testing before customer exposure and instant rollback. What should you do?",
+    "options": [
+      "Create agent versions for the flows and playbooks, promote versions through separate environments (test, staging, production), run the built-in test cases in a CI pipeline before promotion, and roll back by pointing the production environment at the previous version.",
+      "Continue editing the draft agent directly, but only during low-traffic hours so fewer customers are affected.",
+      "Create a separate Google Cloud project for every release and switch the DNS name of the website to the new project.",
+      "Export the agent as a JSON file to a shared drive after each change so that it can be re-imported if something breaks."
+    ],
+    "answer": [0],
+    "explanation": "Conversational Agents (Dialogflow CX) natively supports immutable versions and environments; the draft is used for development, a version is promoted into test and staging environments where test cases run, and production traffic is served by the production environment, so rollback is simply re-pointing that environment to an earlier version. Option B still ships untested changes to customers. Option C is heavyweight, breaks conversation analytics continuity, and is not how agent releases are managed. Option D is a manual backup, not a release process, and re-import is slow and error-prone.",
+    "refs": [
+      "https://cloud.google.com/dialogflow/cx/docs/concept/version",
+      "https://cloud.google.com/dialogflow/cx/docs/concept/test-case"
+    ]
+  },
+  {
+    "id": "cs-cym-015",
+    "domain": 1,
+    "topic": "Grounding to prevent hallucination",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. During a pilot, the shopping agent recommended products that Cymbal does not sell and quoted prices that were out of date, which increased returns and complaints. You must ensure the agent presents only real, in-stock products with current prices. What should you do?",
+    "options": [
+      "Increase the model temperature so that the agent produces more varied recommendations.",
+      "Fine-tune a Gemini model on the full catalog every night so the model memorizes current products and prices.",
+      "Ground the agent on live data: give the playbook tools that call Vertex AI Search for commerce for product retrieval and a pricing/inventory webhook, instruct it to present only products returned by those tools, and lower the temperature.",
+      "Add a disclaimer to every response stating that prices and availability are subject to change."
+    ],
+    "answer": [2],
+    "explanation": "Hallucination is prevented by retrieval, not memorization: tool calls to Vertex AI Search for commerce and to inventory and pricing services return authoritative data at request time, playbook instructions constrain the agent to those results, and a lower temperature reduces creative deviation, which improves engagement and reduces returns as the business requires. Option A increases randomness and worsens the problem. Option B is expensive, always stale by design, and tuning does not reliably inject factual data. Option D shifts blame to the customer instead of fixing accuracy.",
+    "refs": [
+      "https://cloud.google.com/dialogflow/cx/docs/concept/playbook/tool",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/grounding/overview"
+    ]
+  },
+  {
+    "id": "cs-cym-016",
+    "domain": 3,
+    "topic": "Securing the gen AI pipeline",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Supplier-provided descriptions are fed directly into Gemini prompts, and the security team worries about prompt injection producing offensive or misleading catalog text. Separately, catalog associates want to use the human-in-the-loop review UI from home and from stores. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Protect the review UI with a single shared password that is rotated monthly.",
+      "Screen prompts and model responses with Model Armor to detect prompt injection, jailbreak attempts, and harmful content before the output enters the review queue.",
+      "Bake a service account key into the review UI's frontend so that it can call the catalog API from any location.",
+      "Publish the review UI behind Identity-Aware Proxy with Cloud Identity groups and context-aware access levels so associates authenticate individually from any network.",
+      "Turn off Cloud Logging for the enrichment pipeline so that supplier text is never retained."
+    ],
+    "answer": [1, 3],
+    "explanation": "Model Armor is the Google Cloud service for screening LLM prompts and responses against prompt injection, jailbreaks, and harmful or sensitive content, which addresses untrusted supplier input; Identity-Aware Proxy provides zero-trust, per-user access with device and location context, which is the recommended way to expose internal tools to a distributed workforce. Option A is shared-credential access with no per-user audit trail. Option C exposes a long-lived credential in client code. Option E removes observability and audit evidence instead of addressing the threat.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/model-armor-overview",
+      "https://cloud.google.com/iap/docs/concepts-overview"
+    ]
+  },
+  {
+    "id": "cs-cym-017",
+    "domain": 4,
+    "topic": "Measuring business impact with A/B testing",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. The CFO wants proof that the new AI-powered product discovery improves sales conversion before funding the full rollout across all sub-verticals. What should you do?",
+    "options": [
+      "Switch all traffic to the new search and compare this month's revenue with last month's revenue.",
+      "Run a controlled A/B experiment that splits live traffic between the legacy search and Vertex AI Search for commerce serving configurations, and measure conversion rate, revenue per visitor, and return rate per variant in BigQuery.",
+      "Survey a sample of customers about whether they liked the new search experience.",
+      "Compare the number of search queries executed per day before and after the launch."
+    ],
+    "answer": [1],
+    "explanation": "A randomized A/B test isolates the effect of the new search from seasonality, promotions, and marketing spend, and Vertex AI Search for commerce supports multiple serving configurations so traffic can be split and events attributed; analyzing conversion, revenue per visitor, and returns in BigQuery ties the result directly to the business requirements of driving conversion and reducing returns. Option A is confounded by everything else that changed between months. Option C measures sentiment, not conversion. Option D measures activity, and more queries could even indicate customers failing to find products.",
+    "refs": [
+      "https://cloud.google.com/retail/docs/ab-testing",
+      "https://cloud.google.com/retail/docs/serving-configs"
+    ]
+  },
+  {
+    "id": "cs-cym-018",
+    "domain": 2,
+    "topic": "Serving product images with Cloud CDN",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Once the image generation pipeline is live, Cymbal will publish millions of product image variants that must load quickly for shoppers worldwide during high-traffic promotions, at the lowest cost. Where should the approved images be stored and how should they be served?",
+    "options": [
+      "Store the images on persistent disks attached to the GKE web pods and serve them from the application containers.",
+      "Store the images as BLOBs in Cloud SQL and stream them through the web application.",
+      "Store the images in a Cloud Storage bucket and serve them through a global external Application Load Balancer with Cloud CDN enabled, using cache-friendly object names and long TTLs.",
+      "Store the images on a Filestore share mounted by Compute Engine web servers in one region."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Storage offers durable, low-cost object storage that scales to millions of objects, and Cloud CDN in front of a global external Application Load Balancer caches images at Google edge locations so shoppers receive them with low latency and origin egress costs drop during promotions (performance and cost-optimization pillars). Option A ties storage to pods, wastes container resources on static serving, and complicates scaling. Option B misuses a relational database and adds CPU and latency for every image. Option D is single-region, limited in throughput, and more expensive per gigabyte than Cloud Storage.",
+    "refs": [
+      "https://cloud.google.com/cdn/docs/overview",
+      "https://cloud.google.com/storage/docs/hosting-static-website"
+    ]
+  },
+  {
+    "id": "cs-cym-019",
+    "domain": 4,
+    "topic": "ETL error handling and remediation",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. Cymbal's nightly ETL batch jobs fail silently when a supplier file contains malformed rows; the failure is noticed the next afternoon and an engineer fixes and reruns the job by hand. The solution concept calls for reducing costs around error handling and remediation. Which approach should you recommend?",
+    "options": [
+      "Extend the nightly batch window so that engineers have more time to rerun failed jobs before business hours.",
+      "Wrap the parsing code in exception handlers that skip malformed rows without recording them.",
+      "Keep the current jobs but assign an operator to check the job status manually every morning.",
+      "Orchestrate the pipelines with Cloud Composer, implement them in Dataflow with dead-letter outputs for bad records, automated retries, and Cloud Monitoring alerts on failure, and add Dataplex data quality checks so bad supplier data is detected before it reaches the catalog."
+    ],
+    "answer": [3],
+    "explanation": "Reliable data pipelines isolate bad records into a dead-letter location so the rest of the batch completes, retry transient failures automatically, alert humans only when intervention is truly needed, and validate data quality before downstream systems are affected; Cloud Composer gives dependency-aware orchestration and Dataflow provides scalable processing with built-in dead-letter patterns. Option A treats the symptom and still relies on manual reruns. Option B hides data loss, which contradicts the accuracy requirement. Option C institutionalizes the manual process the company wants to remove.",
+    "refs": [
+      "https://cloud.google.com/composer/docs/concepts/overview",
+      "https://cloud.google.com/pubsub/docs/handling-failures",
+      "https://cloud.google.com/dataplex/docs/auto-data-quality-overview"
+    ]
+  },
+  {
+    "id": "cs-cym-020",
+    "domain": 4,
+    "topic": "Gen AI cost optimization",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "cymbal",
+    "question": "For this question, refer to the Cymbal Retail case study. After the pilot, the monthly Vertex AI bill for catalog enrichment is far above forecast. Analysis shows that every SKU, including simple ones, is processed with the largest Gemini model through synchronous calls. Which two changes should you make to reduce cost while maintaining acceptable quality? (Choose two.)",
+    "options": [
+      "Use the largest Pro-class model with maximum thinking budget for every SKU to avoid any quality regression.",
+      "Route routine attribute extraction to a Gemini Flash-class model and reserve the Pro-class model for complex or high-value products, validating quality with the Gen AI evaluation service.",
+      "Self-host an open model on GPU node pools in GKE so that there is no per-token charge.",
+      "Move the non-urgent enrichment volume to Vertex AI batch prediction jobs instead of synchronous online requests.",
+      "Switch to the retired PaLM 2 text model because older models are cheaper."
+    ],
+    "answer": [1, 3],
+    "explanation": "Two levers cut gen AI spend without hurting outcomes: right-size the model to the task (Flash-class models are much cheaper per token and adequate for structured attribute extraction, with the evaluation service confirming quality) and use batch prediction for latency-tolerant volume, which is discounted relative to online calls. Option A maximizes cost by design. Option C replaces token charges with always-on GPU cost plus MLOps burden, which is rarely cheaper at Cymbal's scale and contradicts the reduced-operations goal. Option E is not viable because PaLM 2 is retired, and it would reduce quality.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/batch-prediction-gemini",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview"
+    ]
+  }
+]

@@ -1,0 +1,424 @@
+[
+  {
+    "id": "d4-bus-041",
+    "domain": 4,
+    "topic": "CapEx vs OpEx",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The CFO of a manufacturing company supports moving to Google Cloud but is uncomfortable that a variable monthly bill replaces the predictable, depreciated capital spend she is used to. She asks how the company can get cloud benefits while keeping a large share of spending predictable. What should you recommend?",
+    "options": [
+      "Provision all resources at peak capacity from day one so that the bill never changes.",
+      "Purchase committed use discounts for the stable baseline of compute and database usage, keep elastic usage on demand, and set budgets with alerts so that variance is visible and controlled.",
+      "Prepay the estimated annual cloud spend to Google in January so that it can be capitalized like hardware.",
+      "Use only Spot VMs, whose lower price makes the monthly bill less significant."
+    ],
+    "answer": [1],
+    "explanation": "The cloud model shifts spending from CapEx to OpEx, and predictability is achieved by committing to the baseline (committed use discounts provide a fixed, discounted charge for known steady-state usage) while paying on demand only for the elastic portion, with budgets and alerts giving finance visibility. Option A removes elasticity and overspends, defeating the purpose of the migration. Option C is not how Google Cloud billing works and prepayment does not by itself make the spending predictable or optimized. Option D uses preemptible capacity for workloads that may not tolerate it and does not make spending predictable.",
+    "refs": [
+      "https://cloud.google.com/docs/cuds",
+      "https://cloud.google.com/billing/docs/how-to/budgets"
+    ]
+  },
+  {
+    "id": "d4-bus-042",
+    "domain": 4,
+    "topic": "Committed use discounts",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS company runs a steady 24/7 Compute Engine footprint of roughly 2,000 vCPUs. Over the next year the platform team plans to move workloads from N2 to newer machine families and to shift some capacity from us-east1 to europe-west4 as its customer base changes. The CFO wants the largest discount that will not be stranded by these changes. Which discount should you recommend?",
+    "options": [
+      "Three-year resource-based committed use discounts for N2 vCPUs and memory in us-east1.",
+      "Rely on sustained use discounts, which apply automatically regardless of machine family and region.",
+      "Spend-based flexible committed use discounts for Compute Engine, which apply to an hourly spend commitment across machine families and regions.",
+      "One-year resource-based committed use discounts split evenly between us-east1 and europe-west4."
+    ],
+    "answer": [2],
+    "explanation": "Spend-based (flexible) committed use discounts commit to an hourly spend amount rather than a specific machine family in a specific region, so the commitment continues to apply as workloads move between machine families and regions; that flexibility is worth accepting a slightly lower discount rate than resource-based commitments. Option A and option D are resource-based commitments tied to a machine family and region, so capacity that moves would leave the commitment unused and still billed. Option B is automatic but gives a smaller discount than either commitment type and does not apply to all machine families.",
+    "refs": [
+      "https://cloud.google.com/docs/cuds",
+      "https://cloud.google.com/compute/docs/instances/committed-use-discounts-overview"
+    ]
+  },
+  {
+    "id": "d4-bus-043",
+    "domain": 4,
+    "topic": "Committed use discounts",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank has completed its migration and now runs a stable core of 600 N2 VMs in europe-west3 that has not changed size or machine type in nine months; a hardware refresh is not planned for at least three years. Finance wants the maximum possible discount on this fleet. Which option should you recommend?",
+    "options": [
+      "Purchase three-year resource-based committed use discounts for the N2 vCPU and memory in europe-west3, sized to the fleet's baseline.",
+      "Purchase one-year spend-based flexible committed use discounts and renew annually.",
+      "Convert the fleet to Spot VMs, which offer a larger discount than any commitment.",
+      "Do nothing, because sustained use discounts already give the maximum discount for VMs that run all month."
+    ],
+    "answer": [0],
+    "explanation": "For a fleet that is stable in size, machine family and region over a multi-year horizon, three-year resource-based committed use discounts provide the deepest discount, and the stability removes the stranding risk that would otherwise argue for flexibility. Option B trades discount depth for flexibility that this fleet does not need. Option C is inappropriate for core banking VMs because Spot VMs can be preempted at any time with no availability guarantee. Option D is wrong because sustained use discounts are much smaller than a three-year commitment.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/committed-use-discounts-overview",
+      "https://cloud.google.com/compute/docs/instances/signing-up-committed-use-discounts"
+    ]
+  },
+  {
+    "id": "d4-bus-044",
+    "domain": 4,
+    "topic": "Spot VMs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A visual effects studio renders frames overnight on Compute Engine. Each frame job takes about 10 minutes, is idempotent and can be restarted safely, and there is no hard deadline as long as the batch finishes by morning. Compute is 70% of the studio's cloud bill. How can the studio reduce compute cost the most without redesigning the workload?",
+    "options": [
+      "Purchase three-year committed use discounts for the render fleet.",
+      "Move the render jobs to GKE Autopilot to benefit from per-pod billing.",
+      "Reduce the machine size of each render VM so jobs take longer but cost less per hour.",
+      "Run the render workers as Spot VMs in a managed instance group with a job queue that requeues work when an instance is preempted."
+    ],
+    "answer": [3],
+    "explanation": "Fault-tolerant, restartable batch work with flexible timing is the ideal profile for Spot VMs, which offer the largest Compute Engine discount in exchange for the possibility of preemption; a managed instance group and a queue handle recreation and requeueing so preemptions do not lose work. Option A locks in spend for a nightly workload that is idle most of the day and delivers a smaller discount than Spot pricing. Option B changes the platform without a clear cost advantage for GPU-heavy or CPU-heavy render jobs. Option C reduces hourly cost but not total cost, because the same amount of compute work still has to be done.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/spot",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d4-bus-045",
+    "domain": 4,
+    "topic": "Rightsizing",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer lifted and shifted 250 VMs to Compute Engine using the same sizes they had on-premises. Cloud Monitoring shows most VMs average under 10% CPU and 30% memory utilization. The FinOps lead wants a low-effort, data-driven way to reduce this waste. What should you do?",
+    "options": [
+      "Halve the machine type of every VM and increase it again if users complain.",
+      "Review the Active Assist machine type (rightsizing) recommendations for the VMs, which are based on observed utilization, and apply them in a controlled change window.",
+      "Migrate all VMs to Spot VMs so that oversizing is less expensive.",
+      "Set up a quarterly manual review of Cloud Monitoring dashboards for each VM."
+    ],
+    "answer": [1],
+    "explanation": "Active Assist's VM machine type recommender analyzes recent utilization and proposes specific smaller (or larger) machine types with estimated savings, which is the lowest-effort, evidence-based way to rightsize a lift-and-shift estate. Option A is a blunt change that risks performance incidents and is not based on data. Option C changes availability characteristics of production VMs and does not remove the underlying waste. Option D is manual, slow and repeats work the recommender already does continuously. Rightsizing is a core practice in the cost optimization pillar.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/apply-machine-type-recommendations-for-instances",
+      "https://cloud.google.com/recommender/docs/overview"
+    ]
+  },
+  {
+    "id": "d4-bus-046",
+    "domain": 4,
+    "topic": "Idle resources",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company has 300 Google Cloud projects created by engineers over five years. Billing has grown steadily even though headcount is flat. You suspect a large amount of spend comes from forgotten resources: stopped VMs with attached disks, unattached persistent disks, reserved external IP addresses, and entire projects no one has touched in months. Which approach identifies this waste with the least manual effort?",
+    "options": [
+      "Write a script that lists all resources in every project and email the output to team leads for review.",
+      "Delete every project that has no owner listed in its labels.",
+      "Use Active Assist recommenders, including the idle VM, idle persistent disk, idle IP address and unattended project recommenders, and review the recommendations centrally in the Recommendation Hub.",
+      "Enable Cloud Asset Inventory and manually inspect the asset export in BigQuery each month."
+    ],
+    "answer": [2],
+    "explanation": "Active Assist provides purpose-built recommenders that detect idle and unattended resources from usage signals and estimate savings; the unattended project recommender in particular surfaces projects with no activity, and the Recommendation Hub aggregates everything for central review. Option A produces raw inventories with no usage analysis and relies on busy team leads to interpret them. Option B risks deleting active projects based on a labeling gap rather than usage. Option D gives an inventory but not an idleness analysis and requires recurring manual work.",
+    "refs": [
+      "https://cloud.google.com/recommender/docs/unattended-project-recommender",
+      "https://cloud.google.com/compute/docs/instances/viewing-and-applying-idle-vm-recommendations"
+    ]
+  },
+  {
+    "id": "d4-bus-047",
+    "domain": 4,
+    "topic": "Billing export and dashboards",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media conglomerate wants each of its twelve product teams to see their own Google Cloud spend broken down by service, environment and application, with historical trends and the ability to add custom views, without giving teams access to the billing account. What should you do?",
+    "options": [
+      "Enable Cloud Billing export of detailed usage cost data to a BigQuery dataset, and build Looker Studio dashboards on that dataset filtered by project and label, sharing each team's dashboard with the team.",
+      "Grant every team member the Billing Account Viewer role so they can use the built-in Billing reports.",
+      "Download the monthly invoice PDF and email a spreadsheet summary to each team.",
+      "Create a separate billing account for each product team so that each team sees only its own invoice."
+    ],
+    "answer": [0],
+    "explanation": "Exporting detailed billing data to BigQuery is the Google-recommended foundation for cost analytics: it preserves history at line-item granularity including labels, supports arbitrary custom analysis, and Looker Studio dashboards can be shared per team without billing account permissions. Option B exposes the whole billing account to everyone and offers limited customization. Option C is manual, monthly and lacks detail. Option D fragments billing, complicates committed use discount sharing and invoicing, and is an organizational change made to solve a reporting problem.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery",
+      "https://cloud.google.com/billing/docs/how-to/visualize-data"
+    ]
+  },
+  {
+    "id": "d4-bus-048",
+    "domain": 4,
+    "topic": "Budgets and programmatic actions",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university provides Google Cloud sandbox projects to students for coursework. Each project has a monthly budget of $50 with email alerts, yet several students have accidentally left GPU VMs running and generated bills of hundreds of dollars before anyone read the email. The IT director wants spending in these sandbox projects to stop automatically at the budget limit, accepting that running workloads will be interrupted. What should you do?",
+    "options": [
+      "Lower the budget alert thresholds to 25%, 50% and 75% so that students receive more warnings.",
+      "Configure the budget to automatically block resource creation once the limit is reached.",
+      "Ask students to run gcloud billing projects unlink manually when they finish their work.",
+      "Connect the budget to a Pub/Sub topic and deploy a Cloud Run function that, when the notification shows cost exceeding the budget, removes the billing account from the project, and pair it with reduced GPU quotas on sandbox projects."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Billing budgets only notify; they never stop spending by themselves, so enforcing a hard cap requires a programmatic budget action: budget notifications published to Pub/Sub trigger a Cloud Run function that disables billing on the project, which stops all billable services. Lowering quotas on GPUs adds a preventive control. Option A produces more emails that students have already shown they do not act on. Option B describes a capability that budgets do not have. Option C relies on manual human action, which is exactly what failed.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/notify",
+      "https://cloud.google.com/billing/docs/how-to/budgets"
+    ]
+  },
+  {
+    "id": "d4-bus-049",
+    "domain": 4,
+    "topic": "Quotas for cost control",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A market research firm uses BigQuery on-demand pricing. Last month a single analyst ran an unfiltered query across a multi-petabyte table repeatedly from a dashboard, generating a five-figure charge in one day. The data platform lead wants to prevent any single user or project from generating such charges again while keeping on-demand pricing for now. What should you do?",
+    "options": [
+      "Set a Cloud Billing budget on the BigQuery service with an alert at 80% of the expected monthly cost.",
+      "Configure BigQuery custom quotas that cap the query bytes billed per user per day and per project per day, and enable partitioning and require partition filters on the largest tables.",
+      "Switch immediately to BigQuery Enterprise Plus edition with a three-year slot commitment.",
+      "Revoke the BigQuery Job User role from all analysts and route every query through a data engineer."
+    ],
+    "answer": [1],
+    "explanation": "BigQuery custom quotas (QueryUsagePerDay and QueryUsagePerUserPerDay) are hard limits that stop queries once the daily bytes-billed threshold is reached, which is the direct preventive control for runaway on-demand costs; requiring partition filters reduces bytes scanned in the first place. Option A only alerts after cost has been incurred and does not stop queries. Option C changes the pricing model to a large long-term commitment as a reaction to one incident, without evidence that slot pricing is cheaper for the firm's workload. Option D destroys analyst productivity and creates a bottleneck instead of a guardrail.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/custom-quotas",
+      "https://cloud.google.com/bigquery/docs/best-practices-costs"
+    ]
+  },
+  {
+    "id": "d4-bus-050",
+    "domain": 4,
+    "topic": "Labels for cost allocation",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A conglomerate needs to allocate Google Cloud costs to business units, applications and environments for monthly chargeback. Projects are shared by several applications, and labels are currently applied inconsistently by hand. Which two actions should you take to make cost allocation accurate and sustainable? (Choose two.)",
+    "options": [
+      "Define a mandatory labeling standard (for example cost-center, application, environment) and enforce it through Terraform modules and CI policy checks that reject unlabeled resources.",
+      "Rename every resource to include the business unit name so that costs can be grouped by resource name.",
+      "Export detailed billing data to BigQuery and build chargeback reports that group cost by the label keys defined in the standard.",
+      "Create one billing account per application so that labels are unnecessary.",
+      "Store the mapping from resource IDs to business units in a spreadsheet maintained by the finance team."
+    ],
+    "answer": [0, 2],
+    "explanation": "Accurate allocation depends on consistent metadata at creation time and on reporting that uses it: a labeling standard enforced by Infrastructure as Code and policy checks ensures completeness, and billing export to BigQuery makes label-level cost data queryable for chargeback. Option B is fragile because names are not structured metadata and cannot be changed for many resources. Option D is unmanageable at scale and breaks discount sharing and consolidated invoicing. Option E is manual, quickly stale and disconnected from billing data.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/creating-managing-labels",
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery"
+    ]
+  },
+  {
+    "id": "d4-bus-051",
+    "domain": 4,
+    "topic": "BigQuery pricing models",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial data provider runs BigQuery workloads with a heavy, predictable baseline of scheduled transformations 24 hours a day, plus unpredictable end-of-quarter spikes when analysts run large ad hoc queries. On-demand costs have become both high and volatile, and the CFO wants lower, more predictable spend without throttling the quarter-end analysts. Which pricing approach should you recommend?",
+    "options": [
+      "Use BigQuery Enterprise edition with a one- or three-year slot commitment sized for the baseline and autoscaling slots configured to absorb the quarter-end spikes.",
+      "Stay on on-demand pricing and set custom quotas that block analyst queries at quarter end.",
+      "Use BigQuery Standard edition with a three-year commitment for all slots needed at peak.",
+      "Move the scheduled transformations to Dataproc and keep only ad hoc queries in BigQuery on demand."
+    ],
+    "answer": [0],
+    "explanation": "Slot-based editions pricing suits sustained heavy usage: a commitment covers the predictable baseline at a discounted, fixed price, and slot autoscaling handles peaks with pay-as-you-go slots, giving both predictability and elasticity. Option B keeps volatile on-demand pricing and explicitly throttles the analysts, violating the constraint. Option C is wrong because the Standard edition does not support commitments, and committing for peak capacity would overpay for capacity idle most of the year. Option D adds a second platform and operational overhead without addressing the pricing model for the analytical work.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/editions-intro",
+      "https://cloud.google.com/bigquery/pricing"
+    ]
+  },
+  {
+    "id": "d4-bus-052",
+    "domain": 4,
+    "topic": "BigQuery pricing models",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A small marketing agency has three analysts who run a handful of exploratory BigQuery queries per week against a 2 TB dataset. Usage is sporadic and unpredictable, and the agency wants the simplest, lowest-cost pricing arrangement. What should you recommend?",
+    "options": [
+      "Purchase a one-year commitment of 100 slots in BigQuery Enterprise edition.",
+      "Create a reservation with a baseline of 50 slots and autoscaling up to 200 slots.",
+      "Purchase a three-year commitment in BigQuery Enterprise Plus edition for the best per-slot rate.",
+      "Use on-demand pricing, in which the agency pays only for the bytes each query processes."
+    ],
+    "answer": [3],
+    "explanation": "On-demand pricing charges per TiB of data processed with no fixed cost, so low and sporadic query volume is cheapest and simplest on demand; slot-based commitments and reservations only pay off when utilization is high and sustained. Option A and option C commit to capacity that would sit idle most of the time. Option B sets a baseline of always-paid slots for a workload that is idle most days. Choosing the pricing model that matches the usage pattern is a core cost optimization practice.",
+    "refs": [
+      "https://cloud.google.com/bigquery/pricing"
+    ]
+  },
+  {
+    "id": "d4-bus-053",
+    "domain": 4,
+    "topic": "Cloud Storage classes",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A genomics company stores petabytes of sequencing output in Cloud Storage. Some datasets are read intensively for weeks after creation and then never touched; others are revisited unpredictably months later when a new study starts. The storage team cannot predict which datasets fall into which category and wants to minimize storage cost without incurring surprise retrieval charges or manual class management. What should you do?",
+    "options": [
+      "Store all data in Archive storage, because it has the lowest per-GB price.",
+      "Enable Autoclass on the buckets so that objects transition automatically between storage classes based on access patterns, with no retrieval fees or minimum storage durations.",
+      "Store all data in Standard storage and ask researchers to manually move datasets to Coldline when they finish a study.",
+      "Create a lifecycle rule that moves all objects to Coldline 30 days after creation."
+    ],
+    "answer": [1],
+    "explanation": "Autoclass is designed precisely for unknown or changing access patterns: it moves objects to colder classes when they are not accessed and back to Standard when they are read, and it eliminates early deletion and retrieval fees, so unpredictable re-reads do not cause surprise charges. Option A would trigger high retrieval costs and minimum-duration charges for datasets that are read heavily after creation. Option C relies on manual action that will not happen consistently at petabyte scale. Option D applies a fixed rule to heterogeneous data, so datasets revisited after 30 days incur Coldline retrieval fees.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/autoclass",
+      "https://cloud.google.com/storage/docs/storage-classes"
+    ]
+  },
+  {
+    "id": "d4-bus-054",
+    "domain": 4,
+    "topic": "Storage lifecycle management",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments company must retain transaction audit logs for seven years. Logs are queried frequently during the first 30 days for support cases, rarely between one and twelve months for disputes, and essentially never after the first year except for regulatory requests. The company wants to minimize storage cost while keeping the logs retrievable. Which configuration should you recommend?",
+    "options": [
+      "Store the logs in Archive storage from the start and accept the retrieval cost for support cases.",
+      "Store the logs in Standard storage for seven years so that retrieval is always immediate and free.",
+      "Store the logs in Standard storage, and configure an Object Lifecycle Management policy that transitions objects to Nearline after 30 days, to Archive after 365 days, and deletes them after 7 years, with a retention policy or Bucket Lock to prevent early deletion.",
+      "Store the logs in Coldline storage and manually delete objects older than seven years each quarter."
+    ],
+    "answer": [2],
+    "explanation": "The access pattern is known and age-based, which is exactly what lifecycle rules handle: Standard while data is hot, Nearline for occasional access within the first year (its 30-day minimum matches the transition), Archive for the long tail, and automatic deletion at seven years; a retention policy ensures compliance with the retention obligation. Option A pays retrieval and minimum-duration charges for the heavy first-month access. Option B pays the highest per-GB price for seven years of mostly idle data. Option D uses a single class that is too expensive for the long tail and relies on manual deletion, which is both error-prone and a compliance risk.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/lifecycle",
+      "https://cloud.google.com/storage/docs/storage-classes"
+    ]
+  },
+  {
+    "id": "d4-bus-055",
+    "domain": 4,
+    "topic": "Egress cost minimization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A geospatial analytics firm processes imagery in Google Cloud and transfers roughly 400 TB of results per month back to its on-premises data center over the public internet through a Cloud VPN tunnel. Network egress has become one of the largest line items on the bill. Which change would most reduce this cost while keeping the transfer secure and reliable?",
+    "options": [
+      "Provision Dedicated Interconnect (or Partner Interconnect) to the data center so that traffic to on-premises is billed at the lower Interconnect egress rates.",
+      "Compress the results before transfer and continue to use the Cloud VPN tunnel.",
+      "Switch the VPN to HA VPN to obtain a discounted egress rate.",
+      "Transfer the results through a Cloud Storage bucket with Requester Pays enabled."
+    ],
+    "answer": [0],
+    "explanation": "Egress over Cloud Interconnect is billed at significantly lower per-GB rates than internet egress, so for hundreds of terabytes per month the Interconnect port cost is quickly outweighed by the egress savings, and the connection also improves throughput and reliability. Option B may reduce volume somewhat but does not change the expensive internet egress rate. Option C improves availability but HA VPN traffic is still internet egress at standard rates. Option D shifts who pays for bucket egress rather than reducing it, and the firm would be paying itself.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/pricing",
+      "https://cloud.google.com/vpc/network-pricing"
+    ]
+  },
+  {
+    "id": "d4-bus-056",
+    "domain": 4,
+    "topic": "Cloud CDN",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A news publisher serves images and video clips to a global audience from a Cloud Storage bucket behind a global external Application Load Balancer. Internet egress from the bucket has become the dominant cost, and readers in distant regions report slow load times. What should you do to reduce cost and improve performance with minimal changes?",
+    "options": [
+      "Replicate the bucket to every region and use DNS geolocation routing to send readers to the nearest copy.",
+      "Move the bucket to a multi-region location so that it is served from the closest region.",
+      "Reduce image quality across the site to shrink the bytes transferred.",
+      "Enable Cloud CDN on the load balancer backend bucket so that content is cached at Google's edge locations, reducing origin egress and latency."
+    ],
+    "answer": [3],
+    "explanation": "Cloud CDN caches cacheable static content at edge locations, so repeated requests are served from cache rather than the origin; cache egress is priced lower than origin egress and users get lower latency, and enabling it on an existing backend bucket is a configuration change. Option A multiplies storage cost and management effort and still pays egress from each region. Option B changes where the data is stored for durability and availability, not where it is served from to the user, and does not reduce egress charges. Option C degrades the product to save money and does not address latency for distant readers.",
+    "refs": [
+      "https://cloud.google.com/cdn/docs/overview",
+      "https://cloud.google.com/cdn/pricing"
+    ]
+  },
+  {
+    "id": "d4-bus-057",
+    "domain": 4,
+    "topic": "Sustained use and committed use discounts",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A ticketing company runs a fleet of N2 VMs in a managed instance group. About 40 instances run continuously, and the group scales to as many as 200 instances for a few days each month around major on-sale events. The FinOps team wants to maximize discounts on this fleet with minimal ongoing effort. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Purchase resource-based committed use discounts covering the 40 always-on instances' vCPUs and memory.",
+      "Purchase resource-based committed use discounts covering the full 200-instance peak.",
+      "Take no action for the burst instances: sustained use discounts are applied automatically to eligible N2 VMs based on how long they run within the month.",
+      "Switch the burst instances to E2 machine types so that they qualify for sustained use discounts.",
+      "Enable sustained use discounts in the Cloud Billing console for the project."
+    ],
+    "answer": [0, 2],
+    "explanation": "The correct pattern is to commit only to the baseline and let automatic discounts handle the variable portion: committed use discounts on the 40 steady instances give the deepest discount without stranding, and sustained use discounts apply automatically to eligible machine families such as N2 in proportion to monthly runtime, with nothing to configure. Option B would leave most of the commitment unused and billed during the majority of the month. Option D is wrong because E2 machine types are not eligible for sustained use discounts. Option E is wrong because sustained use discounts cannot be enabled or disabled; they are applied automatically.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/sustained-use-discounts",
+      "https://cloud.google.com/compute/docs/instances/committed-use-discounts-overview"
+    ]
+  },
+  {
+    "id": "d4-bus-058",
+    "domain": 4,
+    "topic": "Data locality and network cost",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An ad-tech company stores clickstream data in a Cloud Storage bucket in us-central1 and runs its nightly Dataflow and Dataproc processing jobs in europe-west1 because that is where the team originally set up its projects. The jobs read tens of terabytes each night. Billing analysis shows large network charges attributed to these jobs. Which change most directly reduces this cost?",
+    "options": [
+      "Compress the clickstream files so that less data is transferred between regions.",
+      "Run the processing jobs in us-central1, the same region as the bucket, so that reads are within-region and do not incur inter-region data transfer charges.",
+      "Enable Cloud CDN in front of the Cloud Storage bucket to cache the files for the jobs.",
+      "Move the bucket to a multi-region location so that reads from Europe are free."
+    ],
+    "answer": [1],
+    "explanation": "Reading Cloud Storage data from compute in a different region incurs inter-region data transfer charges on every read, so colocating processing with data eliminates the charge entirely and also improves throughput. Option A reduces the volume but still pays cross-region rates on every byte and adds CPU cost. Option C is designed for cacheable public content delivered to users, not for bulk analytical reads. Option D is wrong because reading a multi-region bucket from a region incurs data transfer charges too and increases storage cost.",
+    "refs": [
+      "https://cloud.google.com/storage/pricing",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d4-bus-059",
+    "domain": 4,
+    "topic": "Spot VM suitability",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A machine learning startup wants to cut its Compute Engine bill by moving as much as possible to Spot VMs. The architect must decide which workloads are appropriate. Which two workloads are good candidates for Spot VMs? (Choose two.)",
+    "options": [
+      "The self-managed PostgreSQL primary instance that backs the customer-facing API.",
+      "Stateless CI build agents that pick up jobs from a queue and can be retried on failure.",
+      "The stateful game-session servers that hold in-memory player state for the duration of a match.",
+      "Model training jobs that checkpoint to Cloud Storage every few minutes and can resume from the last checkpoint.",
+      "The single VM that hosts the company's on-call paging integration."
+    ],
+    "answer": [1, 3],
+    "explanation": "Spot VMs can be preempted at any time with short notice and have no availability guarantee, so they suit workloads that are fault tolerant and can resume or be retried: queue-driven CI agents and checkpointed training jobs lose little work on preemption and benefit from the deep discount. Option A is a stateful primary database whose preemption would cause an outage and possible data loss. Option C holds unreplicated in-memory state that would be lost mid-match. Option E is a critical single point of failure for incident response and must not run on preemptible capacity.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/spot",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d4-bus-060",
+    "domain": 4,
+    "topic": "Non-production cost control",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software vendor runs 120 development and test VMs on Compute Engine that are used only during business hours on weekdays, yet they run 24/7. The engineering manager wants to cut the cost of these environments with minimal effort and without changing how developers work during the day. What should you do?",
+    "options": [
+      "Purchase one-year committed use discounts for the development VMs.",
+      "Ask developers to stop their VMs at the end of each day.",
+      "Attach an instance schedule (resource policy) to the development VMs that stops them every evening and on weekends and starts them each weekday morning.",
+      "Convert the development VMs to Spot VMs."
+    ],
+    "answer": [2],
+    "explanation": "Compute Engine instance schedules automatically start and stop VMs on a defined calendar, eliminating roughly two thirds of the running hours for weekday-only environments with no manual effort and no change to the daytime developer experience. Option A commits to paying for 24/7 usage that is not needed. Option B depends on developers remembering, which is the reason the VMs run 24/7 today. Option D exposes developers to preemption during working hours and does not stop billing at night.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/schedule-instance-start-stop",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  }
+]

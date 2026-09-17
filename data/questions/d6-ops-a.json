@@ -1,0 +1,594 @@
+[
+  {
+    "id": "d6-ops-001",
+    "domain": 6,
+    "topic": "SLIs and SLOs",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fast-growing e-commerce startup runs its checkout API on Cloud Run behind a global external Application Load Balancer. The SRE lead wants to define a single service level indicator (SLI) for the checkout API that directly reflects what customers experience, so that the team can later attach a service level objective (SLO) to it. Which SLI should you recommend?",
+    "options": [
+      "The average CPU utilization of the Cloud Run service, measured every minute",
+      "The number of Cloud Run container instances that are running during peak hours",
+      "The proportion of checkout requests that return a 2xx response within 300 ms, measured at the load balancer",
+      "The number of deployments of the checkout service that complete without errors each week"
+    ],
+    "answer": [2],
+    "explanation": "A good SLI is a ratio of good events to total events that captures user-facing behavior; the fraction of requests that succeed within a latency threshold, measured as close to the user as possible (the load balancer), combines availability and latency into one customer-centric indicator. CPU utilization (option A) is a saturation signal useful for capacity, but customers do not experience CPU directly. Instance count (option B) is a resource metric, not a measure of service quality. Deployment success (option D) is a delivery metric and says nothing about how the service behaves for users. Under the Well-Architected Framework operational excellence and reliability pillars, SLIs should be derived from user-experience goals.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/architecture/framework/reliability/define-reliability-based-on-user-experience-goals"
+    ]
+  },
+  {
+    "id": "d6-ops-002",
+    "domain": 6,
+    "topic": "Error budgets",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A B2B SaaS company has agreed on a 99.9% 30-day availability SLO for its core API and has a written error budget policy. Two weeks into the month, a series of buggy releases has consumed the entire error budget. The product manager insists on shipping three new features this week because a major customer demo is scheduled. You are asked to advise the engineering director. What should you recommend?",
+    "options": [
+      "Pause feature releases and dedicate the team to reliability work until the error budget is back within policy, as agreed in the error budget policy, escalating any exception to the executive sponsor",
+      "Lower the SLO to 99.5% for the remainder of the month so that the releases can proceed without breaching the objective",
+      "Ship the features but disable alerting on the SLO until the next 30-day window starts to avoid distracting the team",
+      "Deploy the features only to the region where the demo customer is located so that the rest of the fleet stays within budget"
+    ],
+    "answer": [0],
+    "explanation": "The whole point of an error budget policy is to remove the negotiation from the moment of crisis: when the budget is exhausted, the agreed consequence (typically a feature freeze in favor of reliability work) applies, and any exception must go through the documented escalation path rather than an ad-hoc decision. Lowering the SLO mid-window (option B) defeats the purpose of the objective and erodes trust in the process. Disabling alerts (option C) hides risk instead of managing it. Deploying to a subset of regions (option D) still spends budget the service does not have and adds inconsistency across the fleet. This is a core SRE practice highlighted in the operational excellence pillar under managing change.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate"
+    ]
+  },
+  {
+    "id": "d6-ops-003",
+    "domain": 6,
+    "topic": "Golden signals",
+    "difficulty": "easy",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A media company has just deployed a new video-transcoding microservice on GKE Autopilot. The platform team wants an initial dashboard that covers the four golden signals of monitoring recommended by Google SRE. They already have panels for request latency and error rate. Which two additional metrics should they add to complete the golden signals? (Choose two.)",
+    "options": [
+      "Number of Git commits merged to the main branch per day",
+      "Pod CPU and memory utilization relative to the configured requests and limits",
+      "Number of nodes in the cluster over time",
+      "Total number of container image pulls per hour",
+      "Requests per second received by the service",
+      "Number of open pull requests in the service repository"
+    ],
+    "answer": [1, 4],
+    "explanation": "The four golden signals are latency, traffic, errors, and saturation. Requests per second is the traffic signal (how much demand the service is receiving), and CPU/memory utilization relative to limits is the saturation signal (how full the service is). Commit and pull-request counts (options A and F) are delivery metrics, not runtime health signals. Node count (option C) and image pulls (option D) are infrastructure details that do not directly express demand or fullness of the service. Building dashboards around the golden signals is a recommended practice of the operational excellence pillar for detecting problems before they affect users.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/ensure-operational-readiness-and-performance-using-cloudops",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/observability"
+    ]
+  },
+  {
+    "id": "d6-ops-004",
+    "domain": 6,
+    "topic": "Postmortems",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank experienced a four-hour outage of its mobile banking backend after an engineer applied a firewall change that blocked traffic to Cloud SQL. The VP of Engineering has asked you to run the incident review and wants the report to name the engineer so that 'accountability is clear'. You want to follow Google SRE practices. What should you do?",
+    "options": [
+      "Write the report naming the engineer, and recommend additional training and a formal warning to prevent recurrence",
+      "Skip the written report and instead hold a private conversation with the engineer and the VP to agree on corrective measures",
+      "Restrict the report to the technical timeline only, omitting any root-cause analysis so that no individual can be implicated",
+      "Conduct a blameless postmortem that focuses on the systemic conditions that allowed a single change to cause the outage, and track concrete action items such as peer-reviewed infrastructure-as-code changes and staged rollout of firewall rules"
+    ],
+    "answer": [3],
+    "explanation": "Blameless postmortems are a foundational SRE practice: they assume people acted with the best intent given the information they had, and they focus on why the system allowed a single action to cause an outage (no peer review, no staged rollout, no automated validation). Action items must be concrete, owned, and tracked to completion. Naming and punishing the engineer (option A) discourages people from reporting problems and hides the real systemic weaknesses. Avoiding a written report (option B) means the organization does not learn, and omitting root-cause analysis (option C) removes the most valuable part of the review. The Well-Architected Framework reliability pillar explicitly recommends conducting thorough, blameless postmortems.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/conduct-thorough-postmortems",
+      "https://cloud.google.com/architecture/framework/operational-excellence/manage-incidents-and-problems"
+    ]
+  },
+  {
+    "id": "d6-ops-005",
+    "domain": 6,
+    "topic": "Toil reduction",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The operations team of a logistics company spends roughly 60% of its time on repetitive manual tasks: resizing persistent disks when a disk-full alert fires, renewing TLS certificates on Compute Engine web servers, and restarting VMs whose application process hangs. Engineers are burnt out, and project work keeps slipping. As the architect, you want to apply Google SRE guidance on toil. What should you recommend first?",
+    "options": [
+      "Hire two additional operations engineers so that each engineer's share of manual work drops below 50%",
+    "Measure and categorize the toil, then eliminate the largest sources by engineering them away: move certificates to Google-managed certificates on a load balancer, enable managed instance group autohealing with application health checks, and automate disk expansion with an alerting policy that triggers a Cloud Run function",
+      "Create a detailed runbook for each of the three tasks so that junior engineers can perform them, freeing senior engineers for project work",
+      "Move all workloads to GKE Autopilot so that the operations team no longer manages any virtual machines"
+    ],
+    "answer": [1],
+    "explanation": "SRE defines toil as manual, repetitive, automatable work that scales with the service and has no enduring value, and Google recommends capping it at 50% of an engineer's time by measuring it and then engineering it away. The correct approach quantifies the toil and removes the top sources with automation and managed services: Google-managed certificates remove renewal work, MIG autohealing replaces manual restarts, and an alert-triggered Cloud Run function automates disk growth. Hiring more people (option A) scales the toil linearly rather than removing it. Runbooks (option C) make toil more consistent but do not reduce it, and they are a stepping stone to automation rather than the end goal. Replatforming everything to GKE Autopilot (option D) is a large, risky migration that is not justified by these specific tasks and would introduce new operational work.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change",
+      "https://cloud.google.com/compute/docs/instance-groups/autohealing-instances-in-migs"
+    ]
+  },
+  {
+    "id": "d6-ops-006",
+    "domain": 6,
+    "topic": "Runbooks and playbooks",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare analytics company recently expanded its on-call rotation to include developers with limited operations experience. When a Cloud Monitoring alert fires at night, the new on-call engineers often do not know where to start, and mean time to resolve has doubled. You want to improve this with the least amount of operational overhead. What should you do?",
+    "options": [
+      "Configure every alerting policy to notify the entire engineering team so that an experienced engineer is always available",
+      "Reduce the number of alerting policies to the three most critical ones so that new engineers only face familiar alerts",
+      "Add a playbook link and troubleshooting steps to the documentation field of each alerting policy so that the notification itself tells the on-call engineer what to check and how to mitigate",
+      "Require every new on-call engineer to complete a six-month shadowing period before taking a shift"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Monitoring alerting policies include a documentation field that is rendered in the notification; using it to link a playbook (runbook) and list first-response steps gives on-call engineers immediate, actionable guidance at the moment they need it, which is a Google-recommended practice for incident management. Notifying everyone (option A) creates alert fatigue and blurs ownership. Deleting alerting policies (option B) reduces coverage rather than improving response. A six-month shadowing period (option D) is costly and does not scale, and it still leaves engineers without documentation when they are finally on their own.",
+    "refs": [
+      "https://cloud.google.com/monitoring/alerts/doc-variables",
+      "https://cloud.google.com/architecture/framework/operational-excellence/manage-incidents-and-problems"
+    ]
+  },
+  {
+    "id": "d6-ops-007",
+    "domain": 6,
+    "topic": "On-call management",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global payments company has engineering teams in Singapore, Dublin, and São Paulo, but a single on-call rotation staffed only from Dublin covers all production services 24/7. Engineers report chronic night-time paging, and attrition is rising. Several recent incidents were prolonged because the on-call engineer was exhausted. You want to redesign the on-call model in line with Google SRE practices. What should you recommend?",
+    "options": [
+      "Establish a follow-the-sun rotation across the three sites so that each team is paged only during its local working hours, set a maximum number of pages per shift, and review every alert to ensure it is symptom-based and actionable",
+      "Keep the single Dublin rotation but double the on-call compensation so that engineers are willing to accept the night-time pages",
+      "Outsource overnight monitoring to a third-party network operations center that escalates every alert to the Dublin engineer on duty",
+      "Suppress all non-critical alerting policies between 22:00 and 06:00 Dublin time so that the on-call engineer is not disturbed at night"
+    ],
+    "answer": [0],
+    "explanation": "Google SRE recommends distributing on-call across time zones (follow-the-sun) so that no one is routinely paged at night, capping the paging load per shift so responders have time to fix root causes, and periodically pruning alerts so only actionable, user-impacting symptoms page a human. Higher pay (option B) does not address fatigue or the resulting slower incident response. A NOC that escalates every alert (option C) simply adds a hop before the same tired engineer is woken up. Blanket alert suppression at night (option D) leaves real user-impacting incidents undetected and is not a substitute for alert hygiene.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/manage-incidents-and-problems",
+      "https://cloud.google.com/monitoring/alerts/concepts-indepth"
+    ]
+  },
+  {
+    "id": "d6-ops-008",
+    "domain": 6,
+    "topic": "SLIs for data pipelines",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail chain runs a nightly Dataflow pipeline that loads point-of-sale data into BigQuery. Store managers rely on a Looker dashboard that must show the previous day's sales by 06:00 local time. The data engineering team wants to define an SLO for this pipeline that reflects the business expectation. Which SLI should the SLO be based on?",
+    "options": [
+      "The average number of Dataflow worker VMs used by the pipeline each night",
+      "The percentage of Dataflow job launches that complete without a worker error in Cloud Logging",
+      "The 95th percentile of the pipeline's wall-clock duration in minutes",
+      "The percentage of days on which the complete previous-day dataset is queryable in BigQuery by 06:00"
+    ],
+    "answer": [3],
+    "explanation": "For batch and data pipelines, freshness and correctness are the user-facing SLI types; here the business only cares whether complete data is available by the deadline, so a freshness SLI measured as the fraction of days the deadline is met directly encodes the expectation. Worker count (option A) is a cost or capacity metric. Job launch success (option B) misses cases where the job succeeds but late or with incomplete data. Pipeline duration (option C) is a useful internal signal but a job that runs quickly yet starts late still misses the 06:00 deadline, so duration alone does not equal the user experience.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/define-reliability-based-on-user-experience-goals",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/sli-metrics/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-009",
+    "domain": 6,
+    "topic": "Change management for reliability",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online travel company analyzed a year of postmortems and found that 70% of user-facing incidents were triggered by a production change, most often a deployment that was rolled out to all users at once. Leadership is considering a weekly change advisory board (CAB) that must approve every deployment. The company deploys roughly 40 times per day across 30 services and wants to keep that velocity. Which recommendation best reduces change-related incidents while preserving deployment frequency?",
+    "options": [
+      "Introduce the weekly CAB but allow emergency changes to bypass it when an incident is already in progress",
+      "Adopt progressive delivery with Cloud Deploy: roll out each release as a canary to a small percentage of traffic, gate promotion on automated verification of SLIs, and automatically roll back on regression, so each change is small, observable, and reversible",
+      "Batch all changes into a single release every two weeks so that there are fewer risky change events per year",
+      "Require every change to be deployed simultaneously to all regions so that inconsistencies between regions cannot cause incidents"
+    ],
+    "answer": [1],
+    "explanation": "Google SRE and DORA research consistently show that reliability improves with smaller, more frequent, automatically verified changes that are easy to roll back, not with heavyweight approval gates. Progressive delivery (canary rollout with automated SLI verification and automated rollback) shrinks the blast radius of each change and detects regressions before they reach all users, which addresses the actual failure mode found in the postmortems. A CAB (option A) adds latency and manual toil without improving the technical safety of each change, and research links external approval boards with worse stability. Batching changes (option C) makes each release larger and harder to debug and roll back, increasing risk per release. Simultaneous global rollout (option D) maximizes blast radius, which is the opposite of what is needed.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+      "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change"
+    ]
+  },
+  {
+    "id": "d6-ops-010",
+    "domain": 6,
+    "topic": "Production readiness review",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A fintech startup is about to launch a new loan-origination service on GKE and Spanner and has asked the platform team to take over operational ownership after launch. The platform team wants to run a production readiness review (PRR) modeled on Google SRE practice before accepting the pager. Which three items should be mandatory outcomes of the PRR? (Choose three.)",
+    "options": [
+      "The service has been load-tested to at least the forecast peak traffic with documented headroom, and autoscaling and quotas have been validated for that load",
+      "The service has been rewritten in the same programming language as the platform team's other services",
+      "SLIs and SLOs are defined, measured in Cloud Monitoring, and burn-rate alerting is configured to page the on-call rotation",
+      "The service runs in a single zone to keep the initial launch cost low until adoption is proven",
+      "Runbooks exist for every paging alert, and an on-call rotation with escalation paths has been agreed",
+      "All Spanner tables have been denormalized into a single table to simplify troubleshooting"
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "A PRR verifies that a service can be operated reliably: it must have measurable objectives (SLIs/SLOs with alerting tied to the error budget), demonstrated capacity for expected load with headroom, and operational documentation plus staffed on-call and escalation. These map directly to the operational excellence pillar's readiness recommendations. Rewriting in another language (option B) is not a readiness criterion and would delay launch for no reliability gain. A single-zone deployment (option D) introduces an avoidable single point of failure and would normally be a PRR blocker rather than an outcome. Denormalizing Spanner into one table (option F) is a schema anti-pattern that harms performance and has nothing to do with operational readiness.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/ensure-operational-readiness-and-performance-using-cloudops",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+    ]
+  },
+  {
+    "id": "d6-ops-011",
+    "domain": 6,
+    "topic": "SLOs and dependencies",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company's quote API has a 99.95% availability SLO. Every quote request synchronously calls an internal pricing service owned by another team, which only commits to a 99.9% SLO and has historically met it exactly. The quote API team keeps missing its own SLO even though its own code has had no defects. As the architect reviewing the design, what should you recommend?",
+    "options": [
+      "Ask the pricing team to raise its SLO to 99.99% so that the quote API can meet its 99.95% target without design changes",
+      "Configure the quote API to retry failed pricing calls up to ten times without delay so that transient failures are masked",
+      "Recognize that a service cannot be more available than a hard synchronous dependency, and either decouple the dependency (for example, cache recent prices or serve a degraded default quote when pricing is unavailable) or renegotiate the quote API SLO to a realistic value",
+      "Move the pricing service into the same GKE cluster as the quote API to remove network hops and improve availability"
+    ],
+    "answer": [2],
+    "explanation": "Availability composes multiplicatively: a service with a hard synchronous dependency at 99.9% cannot honestly promise 99.95%, so the design must either remove the hard dependency (caching, graceful degradation, asynchronous patterns) or the SLO must be set realistically. This is the reliability pillar's guidance to set realistic targets and design for graceful degradation. Demanding a higher dependency SLO (option A) is not a design solution and may be impossible or very expensive for the other team. Aggressive retries without backoff (option B) amplify load during a pricing outage and can turn a partial failure into a cascading one. Co-locating services (option D) does not change the dependency's own failure rate and may reduce fault isolation.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/set-realistic-targets",
+      "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation"
+    ]
+  },
+  {
+    "id": "d6-ops-012",
+    "domain": 6,
+    "topic": "Capacity planning",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A sporting-goods retailer runs its storefront on regional managed instance groups behind a global external Application Load Balancer. Last Black Friday, the site became unavailable because the MIG could not scale beyond the project's regional vCPU quota, and the team only discovered this during the event. This year the retailer expects five times normal traffic. What should you do to prepare?",
+    "options": [
+      "Forecast peak demand, run load tests that reach the forecast with headroom, request quota increases well ahead of the event, and configure autoscaling with predictive or scheduled scaling to pre-provision capacity",
+      "Set the MIG maximum size to an unlimited value so that the autoscaler can add as many instances as needed on the day",
+      "Switch the storefront to preemptible Spot VMs so that the same budget buys more capacity during the event",
+      "Change the load balancer to a regional external Application Load Balancer so that traffic stays within one region and consumes less quota"
+    ],
+    "answer": [0],
+    "explanation": "Capacity planning is a core operational excellence practice: forecast demand, validate it with load testing, secure quota in advance (quota increases can take time and are not guaranteed instantly), and use predictive or scheduled autoscaling so capacity is ready before the surge. Raising the MIG size limit (option B) does nothing if the underlying quota is the constraint. Spot VMs (option C) can be reclaimed at any time and are unsuitable as the sole capacity for a revenue-critical event. Changing the load balancer scope (option D) does not reduce compute demand and would remove global failover.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/manage-and-optimize-cloud-resources",
+      "https://cloud.google.com/compute/docs/autoscaler/predictive-autoscaling"
+    ]
+  },
+  {
+    "id": "d6-ops-013",
+    "domain": 6,
+    "topic": "Quota monitoring",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A gaming company launches new titles unpredictably, and several launches have failed because a project silently hit an API rate quota or a regional resource quota. The platform team wants to be warned before quotas are exhausted across all 80 projects without manually checking the console. What should you do?",
+    "options": [
+      "Ask Google Cloud support to remove all quotas from the organization so that they can never be exceeded",
+      "Schedule a weekly script that exports the quota page of each project to a spreadsheet for review by the platform team",
+      "Enable Cloud Audit Logs data access logging on every API so that quota errors are recorded for later analysis",
+      "Create alerting policies in a multi-project metrics scope on the serviceruntime quota allocation usage and rate quota metrics, alerting when usage exceeds 80% of the limit, and use the Cloud Quotas API to request increases in advance"
+    ],
+    "answer": [3],
+    "explanation": "Cloud Monitoring exposes quota usage and limit metrics (serviceruntime.googleapis.com/quota/...) that can drive alerting policies, and a metrics scope lets one project monitor many; alerting at a percentage of the limit gives time to request an increase programmatically through the Cloud Quotas API. Quotas cannot simply be removed (option A); they protect both the customer and the platform. A weekly spreadsheet (option B) is toil and too slow for launch-day spikes. Data access audit logs (option C) do not report quota consumption, and they only record the error after the launch has already failed.",
+    "refs": [
+      "https://cloud.google.com/monitoring/alerts/using-quota-metrics",
+      "https://cloud.google.com/docs/quotas/view-manage"
+    ]
+  },
+  {
+    "id": "d6-ops-014",
+    "domain": 6,
+    "topic": "Setting SLO targets",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The head of product at a telehealth company states that the video-visit scheduling service must have 100% availability because 'patients depend on it'. The engineering team is asked to design to that target. You are the architect facilitating the discussion between product and engineering. What should you recommend?",
+    "options": [
+      "Accept the 100% target and design a multi-region active-active architecture on Spanner with no planned maintenance windows",
+      "Explain that 100% is not an achievable or useful target because dependencies such as the user's network are outside your control, measure the current availability, and agree on an SLO slightly above what users need and notice, leaving an error budget for change",
+      "Set an internal target of 99.999% and publish 100% externally so that patients are reassured while engineering retains some margin",
+      "Set the SLO to whatever availability the current architecture already achieves so that no additional investment is required"
+    ],
+    "answer": [1],
+    "explanation": "SRE guidance is that 100% is the wrong reliability target for almost everything: users cannot distinguish 100% from a sufficiently high value because their own devices and networks fail, and each additional nine costs exponentially more while leaving no error budget for releases. The right process is to measure current performance, understand user expectations, and set a target that balances reliability with velocity and cost. Blindly building to 100% (option A) spends heavily without a defined benefit. Publishing a number you cannot meet (option C) is misleading and would generate a stream of SLA breaches. Simply adopting today's number (option D) ignores whether it actually satisfies users.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/set-realistic-targets",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+    ]
+  },
+  {
+    "id": "d6-ops-015",
+    "domain": 6,
+    "topic": "Incident management",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "During a recent outage at a food-delivery company, fifteen engineers joined a video bridge, several people simultaneously made conflicting configuration changes, nobody updated the support team, and the outage lasted three hours. The CTO asks you to prevent a repeat. Which change to the incident process should you recommend?",
+    "options": [
+      "Limit incident bridges to a maximum of three engineers so that conflicting changes are less likely",
+      "Require the CTO to personally approve every mitigation step during an incident to ensure coordination",
+      "Adopt a structured incident command system with clearly assigned roles (incident commander, operations lead, communications lead), a single source of truth for the incident state, and a documented, rehearsed response process",
+      "Automate all incident mitigations so that no humans are needed on the bridge during an outage"
+    ],
+    "answer": [2],
+    "explanation": "Google SRE incident management uses a formal incident command structure: the incident commander owns decisions and delegates, the operations lead directs the hands-on work so changes are coordinated, and the communications lead keeps stakeholders such as support informed; the process is documented and practiced ahead of time. Capping the number of participants (option A) does not create coordination and may exclude needed expertise. Executive approval of every step (option B) creates a bottleneck and slows mitigation. Full automation (option D) is unrealistic for novel incidents and does not solve the coordination and communication problems described.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/manage-incidents-and-problems"
+    ]
+  },
+  {
+    "id": "d6-ops-016",
+    "domain": 6,
+    "topic": "Measuring SLIs at the user",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile ride-hailing app reports 99.99% availability on its server-side dashboards, computed from application logs on GKE. Nevertheless, app-store reviews and support tickets show frequent complaints that 'the app cannot connect'. The SRE team suspects the SLI is not capturing the real user experience. What should you do to improve the SLI?",
+    "options": [
+      "Increase the SLO target to 99.999% so that the team is forced to investigate the remaining failures",
+      "Replace the availability SLI with a CPU saturation SLI, because connection failures are usually caused by overloaded servers",
+      "Add more log-based metrics on the GKE pods so that intermittent application errors are counted more precisely",
+      "Measure the SLI closer to the user by combining load balancer request logs, synthetic monitors from multiple geographies, and client-side telemetry, because requests that never reach the application are invisible to server-side logs"
+    ],
+    "answer": [3],
+    "explanation": "Server-side application logs only see requests that reached the application; failures in DNS, TLS, the load balancer, or the CDN, and client-side timeouts, are invisible to them, which is exactly the gap between a perfect-looking dashboard and unhappy users. Moving measurement outward, using load balancer logs, synthetic monitors, and client telemetry, gives an SLI that reflects what users experience, as the reliability pillar recommends. Raising the SLO (option A) does not change what is measured. A saturation SLI (option B) is a cause-based metric, not a user-facing indicator. More pod-level log metrics (option C) still only observe requests that made it to the pod.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/define-reliability-based-on-user-experience-goals",
+      "https://cloud.google.com/monitoring/synthetic-monitors"
+    ]
+  },
+  {
+    "id": "d6-ops-017",
+    "domain": 6,
+    "topic": "Automate everything",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company creates a new Google Cloud project for each application team by clicking through the console. Projects end up with inconsistent IAM bindings, missing logging sinks, and different VPC configurations, and audits keep finding gaps. You want to align with the operational excellence pillar's guidance to automate everything. What should you do?",
+    "options": [
+      "Define projects, IAM, sinks, and networking as Terraform modules, apply them through a Cloud Build pipeline with peer review and policy validation, and expose a self-service request process for new projects",
+      "Write a detailed checklist for the console steps and require a second engineer to verify each new project manually",
+      "Grant application teams the Project Creator role so that they can create and configure their own projects as needed",
+      "Create one shared project for all application teams so that only a single project needs to be configured correctly"
+    ],
+    "answer": [0],
+    "explanation": "Codifying the project baseline as infrastructure as code and applying it through a reviewed, policy-validated pipeline eliminates manual variance, produces an audit trail, and makes provisioning repeatable and self-service, which is precisely what the operational excellence pillar means by automating everything. A manual checklist (option B) still relies on people and remains error-prone toil. Delegating console creation to teams (option C) increases inconsistency rather than reducing it. A single shared project (option D) breaks isolation, quota, and billing boundaries and is an anti-pattern for resource hierarchy design.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change",
+      "https://cloud.google.com/docs/terraform/best-practices-for-terraform"
+    ]
+  },
+  {
+    "id": "d6-ops-018",
+    "domain": 6,
+    "topic": "Alert fatigue",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "The on-call engineer at an ad-tech company receives about 200 pages per week. A review shows that more than 90% of pages required no action: they were threshold alerts on CPU, memory, and queue depth that resolved on their own. Real user-impacting incidents are sometimes noticed late because they are buried in noise. Which two changes should you make? (Choose two.)",
+    "options": [
+      "Raise every CPU and memory threshold to 100% so that the alerts fire less often",
+      "Replace the cause-based resource alerts with symptom-based SLO burn-rate alerts that page only when the error budget is being consumed fast enough to threaten the objective",
+      "Add a second on-call engineer to each shift so that the paging load per person is halved",
+      "Route non-urgent, cause-based signals to a ticket queue or dashboard for review during working hours instead of paging",
+      "Disable all alerting between midnight and 06:00 so that the on-call engineer can sleep"
+    ],
+    "answer": [1, 3],
+    "explanation": "SRE alerting philosophy is that pages should be reserved for urgent, actionable, user-impacting symptoms; SLO burn-rate alerts satisfy this because they fire only when the budget is being spent fast enough to matter. Cause-based signals such as CPU or queue depth are still useful, but they belong in tickets or dashboards rather than the pager. Setting thresholds to 100% (option A) keeps a poor alert design and just changes when it misfires. Adding another engineer (option C) doubles the number of people suffering from noise instead of removing the noise. Disabling alerts at night (option E) leaves users unprotected during real incidents.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate",
+      "https://cloud.google.com/monitoring/alerts/concepts-indepth"
+    ]
+  },
+  {
+    "id": "d6-ops-019",
+    "domain": 6,
+    "topic": "Postmortem criteria",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A public-sector agency wants to formalize when its cloud operations team must write a postmortem. Currently postmortems are written only when a director asks for one, so most incidents produce no learning. You want to define objective criteria consistent with Google SRE practice. Which criteria should you recommend?",
+    "options": [
+      "Write a postmortem only for incidents that lasted longer than eight hours, because shorter incidents are not worth the effort",
+      "Write a postmortem for any incident that caused user-visible impact beyond the SLO threshold, involved data loss, or required on-call intervention or a manual rollback, and also for near misses that the team judges instructive",
+      "Write a postmortem only when the root cause is a software bug, because infrastructure failures are outside the team's control",
+      "Write a postmortem only when a customer files a formal complaint, to avoid producing reports nobody reads"
+    ],
+    "answer": [1],
+    "explanation": "Google SRE recommends predefined, objective triggers for postmortems so that the decision is not political: user-visible impact, data loss, on-call involvement, manual intervention, and prolonged resolution are typical triggers, and near misses are valuable because they reveal latent risk before it causes an outage. Restricting postmortems to very long incidents (option A) discards learning from most events. Excluding infrastructure failures (option C) ignores that the team is responsible for designing around them. Waiting for a complaint (option D) means many impactful incidents are never analyzed. Thorough postmortems are a named practice in the reliability pillar.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/conduct-thorough-postmortems"
+    ]
+  },
+  {
+    "id": "d6-ops-020",
+    "domain": 6,
+    "topic": "Continuous improvement and DORA metrics",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A large retailer releases its inventory management system once per quarter through a manual process. Each release takes a weekend, fails about a third of the time, and takes days to recover. The CIO wants an objective way to track improvement as the team adopts CI/CD on Cloud Build and Cloud Deploy. What should you recommend?",
+    "options": [
+      "Track the number of lines of code shipped per release as the primary measure of team productivity",
+      "Track the number of Jira tickets closed per sprint and set a target of 20% more tickets per quarter",
+      "Instrument the pipeline to measure the four DORA key metrics (deployment frequency, lead time for changes, change failure rate, and time to restore service), review them regularly, and use them to prioritize improvements such as smaller batch sizes and automated rollback",
+      "Measure the total cost of the CI/CD tooling and set a goal to reduce it by 10% each quarter"
+    ],
+    "answer": [2],
+    "explanation": "The DORA four key metrics are the industry-standard, research-backed way to measure software delivery performance, and they map directly onto the retailer's problems: quarterly cadence (deployment frequency), weekend-long releases (lead time), one-in-three failures (change failure rate), and multi-day recovery (time to restore). Reviewing them continuously supports the operational excellence principle of continuous improvement. Lines of code (option A) and ticket counts (option B) are output metrics that do not measure delivery speed or stability and are easily gamed. Tooling cost (option D) is a cost metric that says nothing about release quality or reliability.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/continuously-improve-and-innovate",
+      "https://cloud.google.com/architecture/devops/devops-measurement"
+    ]
+  },
+  {
+    "id": "d6-ops-021",
+    "domain": 6,
+    "topic": "Latency SLIs and percentiles",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A multiplayer gaming company monitors its matchmaking API with an alert on average request latency, which has stayed around 50 ms for months. Players nevertheless complain that matchmaking sometimes takes several seconds, and support confirms that a small but steady share of requests are very slow. The team asks how to make the latency SLI reflect these complaints. What should you do?",
+    "options": [
+      "Define the latency SLI on a distribution metric and set the SLO on a high percentile, for example 99% of requests complete within 500 ms over a rolling 28 days, so that the slow tail is counted against the objective",
+      "Keep the average-latency SLI but lower the alert threshold from 50 ms to 40 ms so that the alert fires sooner",
+      "Replace the latency SLI with an availability SLI, because slow requests still eventually succeed",
+      "Compute the median latency instead of the mean, because the median is more robust to outliers"
+    ],
+    "answer": [0],
+    "explanation": "Averages hide tail latency: a few multi-second requests barely move a mean of 50 ms, yet they are exactly what players notice. Latency SLIs should be defined as the proportion of requests faster than a threshold, evaluated at a high percentile using a distribution metric, so the slow tail consumes error budget. Lowering the average threshold (option B) still measures the wrong thing. Dropping latency in favor of availability (option C) discards the signal the users care about; from a user's perspective, too slow is the same as unavailable. The median (option D) is even less sensitive to the tail than the mean and would hide the problem completely.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/sli-metrics/overview",
+      "https://cloud.google.com/monitoring/api/v3/latency-slo"
+    ]
+  },
+  {
+    "id": "d6-ops-022",
+    "domain": 6,
+    "topic": "Resource optimization with Active Assist",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media conglomerate operates about 300 Google Cloud projects. The FinOps team suspects that many VMs are oversized or idle and that unused IP addresses and persistent disks are accumulating, but reviewing each project by hand is impractical. They want continuous, organization-wide visibility with the least amount of custom tooling. What should you do?",
+    "options": [
+      "Install the Ops Agent on every VM and build a custom BigQuery model that predicts which VMs are idle from CPU metrics",
+      "Require every team to submit a monthly spreadsheet listing the resources they believe are unused",
+      "Write a Cloud Run function that lists all VMs daily and deletes any VM whose CPU utilization was below 5% the previous day",
+      "Export Active Assist recommendations (VM rightsizing, idle VM, idle persistent disk, and idle IP address recommenders) for the whole organization to BigQuery, and review them in Recommendation Hub and Looker Studio, applying recommendations through the Recommender API"
+    ],
+    "answer": [3],
+    "explanation": "Active Assist recommenders already analyze utilization and produce actionable rightsizing and idle-resource recommendations; the organization-level BigQuery export gives fleet-wide visibility, and the Recommender API allows recommendations to be applied or tracked programmatically, matching the operational excellence guidance to manage and optimize cloud resources with minimal custom tooling. Building a custom prediction model (option A) duplicates what recommenders provide. Manual spreadsheets (option B) are toil and unreliable. Automatically deleting VMs on a naive CPU rule (option C) is dangerous, ignores memory and network usage, and could delete legitimately quiet but essential systems.",
+    "refs": [
+      "https://cloud.google.com/recommender/docs/overview",
+      "https://cloud.google.com/recommender/docs/bq-export/export-recommendations-to-bq",
+      "https://cloud.google.com/architecture/framework/operational-excellence/manage-and-optimize-cloud-resources"
+    ]
+  },
+  {
+    "id": "d6-ops-023",
+    "domain": 6,
+    "topic": "Launch readiness",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription meal-kit company is planning a national television campaign that marketing estimates will drive a 20x surge in sign-ups for one hour. The sign-up service runs on Cloud Run and writes to a single Cloud SQL for PostgreSQL instance. The engineering team believes Cloud Run will 'just scale'. As the architect performing the launch review, what should you do?",
+    "options": [
+      "Approve the launch as-is, because Cloud Run autoscaling will absorb the surge automatically",
+      "Run a load test that reproduces the 20x surge end to end, identify Cloud SQL as the component that does not autoscale, and mitigate with connection pooling, appropriate Cloud Run max-instances and concurrency settings, a larger instance tier or read replicas, and pre-warmed minimum instances",
+      "Migrate the sign-up database to Spanner the week before the campaign so that the database scales horizontally",
+      "Ask marketing to spread the campaign over several days so that peak traffic stays within current capacity"
+    ],
+    "answer": [1],
+    "explanation": "Launch readiness requires testing the whole path at the expected load; the compute tier may scale elastically, but a single Cloud SQL instance has fixed connection and throughput limits and can be overwhelmed by thousands of Cloud Run instances opening connections. Load testing exposes this, and the mitigations (connection pooling, tuning Cloud Run concurrency and max instances to bound database connections, scaling the instance or adding replicas, and minimum instances to avoid cold starts) address it without a risky replatform. Approving without testing (option A) is exactly the assumption that causes launch failures. A last-minute Spanner migration (option C) introduces enormous risk right before a critical event. Asking marketing to change the campaign (option D) sacrifices the business goal rather than engineering for it.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/ensure-operational-readiness-and-performance-using-cloudops",
+      "https://cloud.google.com/sql/docs/postgres/manage-connections"
+    ]
+  },
+  {
+    "id": "d6-ops-024",
+    "domain": 6,
+    "topic": "Error budget math",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university's student portal has a 99.9% availability SLO measured over a rolling 30-day window. The platform team needs to perform a database engine upgrade that will make the portal unavailable for an estimated 25 minutes, and so far this window has consumed 10 minutes of downtime. The team asks whether the upgrade fits within the error budget. What should you tell them?",
+    "options": [
+      "No; a 99.9% SLO over 30 days allows only about 4.3 minutes of downtime, so the upgrade must be postponed",
+      "No; a 99.9% SLO over 30 days allows about 14.4 minutes of downtime, so the upgrade would exceed the budget",
+      "Yes; a 99.9% SLO over 30 days allows about 43.2 minutes of downtime, so 35 minutes total would still be within budget, although with little margin left for unplanned incidents",
+      "Yes; a 99.9% SLO over 30 days allows about 7.2 hours of downtime, so the upgrade is comfortably within budget"
+    ],
+    "answer": [2],
+    "explanation": "Thirty days is 43,200 minutes; 0.1% of that is 43.2 minutes of allowed unavailability. With 10 minutes already used, a 25-minute planned outage brings the total to 35 minutes, which fits but leaves only about 8 minutes for unplanned incidents, so the team should weigh that risk and ideally use a zero-downtime upgrade approach. Option A (4.3 minutes) corresponds to a 99.99% SLO, option B (14.4 minutes) is 0.1% of 10 days, and option D (7.2 hours) corresponds to a 99% SLO. Being able to reason about error budgets in concrete time is fundamental to SRE-style change management.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/architecture/framework/reliability/set-realistic-targets"
+    ]
+  },
+  {
+    "id": "d6-ops-025",
+    "domain": 6,
+    "topic": "Change management for security-sensitive configuration",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A fintech company has had two outages this quarter caused by manual edits to VPC firewall rules and IAM policies made directly in the Google Cloud console. The security team wants these changes to remain fast but far less risky. Which two practices should you recommend? (Choose two.)",
+    "options": [
+      "Manage firewall rules and IAM bindings as code in a version-controlled repository, requiring peer review and automated policy validation in Cloud Build before anything is applied",
+      "Grant all engineers the Owner role so that changes no longer need to wait for a specific administrator",
+      "Apply changes through a pipeline that promotes them from a non-production environment first and can revert to the previous known-good state automatically",
+      "Make network and IAM changes only after midnight so that fewer users are affected if something goes wrong",
+      "Turn off Admin Activity audit logs for firewall and IAM changes to reduce logging noise"
+    ],
+    "answer": [0, 2],
+    "explanation": "Treating security-sensitive configuration as code with peer review and automated validation (for example, policy checks in the pipeline) catches mistakes before they reach production, while staged promotion and automated reversion limit and quickly undo any impact; together these embody the operational excellence pillar's automate-and-manage-change principle. Granting Owner broadly (option B) increases risk and violates least privilege. Making changes at night (option D) does not prevent errors and reintroduces the burnout problem of off-hours work. Admin Activity audit logs (option E) cannot be disabled and are essential for tracing exactly what changed during an incident.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change",
+      "https://cloud.google.com/docs/terraform/policy-validation"
+    ]
+  },
+  {
+    "id": "d6-ops-026",
+    "domain": 6,
+    "topic": "Incident communication",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An API platform company sells to enterprise developers. During its last three incidents, customers learned about the outage from social media before hearing from the company, support agents gave inconsistent estimates, and the engineering team was repeatedly interrupted by executives asking for status. Customer trust surveys have dropped sharply. You want to fix incident communication without slowing technical mitigation. What should you recommend?",
+    "options": [
+      "Instruct engineers to reply to every customer ticket personally during incidents so that customers receive accurate technical detail",
+      "Publish incident details only after the postmortem is complete so that all communicated information is verified and final",
+      "Route all executive and customer questions to the incident commander so that a single person controls the message",
+      "Assign a dedicated communications lead in the incident response structure who publishes initial acknowledgment within a defined time, posts regular cadence updates to a public status page and internal channel using prepared templates, and shields the technical responders from status requests"
+    ],
+    "answer": [3],
+    "explanation": "SRE incident management separates the communications role from the technical response: a communications lead owns proactive external and internal updates on a fixed cadence using templates, which gives customers and executives a predictable, consistent source of truth and lets the operations lead and responders focus on mitigation. Having engineers answer tickets (option A) pulls responders away from fixing the problem and produces inconsistent messages. Waiting for the postmortem (option B) leaves customers uninformed for days, which is the exact trust problem described. Funneling everything to the incident commander (option C) overloads the person who must make mitigation decisions.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/manage-incidents-and-problems"
+    ]
+  },
+  {
+    "id": "d6-ops-027",
+    "domain": 6,
+    "topic": "Operational readiness",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup is about to move its first production workload, a customer-facing API on GKE, from a proof of concept to general availability. The team has no monitoring beyond the default GKE dashboards, no defined alerts, and no documentation. The CTO asks what must be in place before launch to satisfy the operational readiness recommendations of the Well-Architected Framework operational excellence pillar. What should you tell the team?",
+    "options": [
+      "Define SLIs and SLOs for the API, enable Cloud Observability with dashboards on the golden signals, configure actionable alerting policies with notification channels and playbooks, and document runbooks and an on-call escalation path before launch",
+      "Enable Cloud Armor and VPC Service Controls before launch; observability can be added after the first customers report problems",
+      "Purchase an Enhanced Support plan so that Google engineers can monitor the workload on the team's behalf",
+      "Increase the GKE node pool size by 50% so that capacity issues are unlikely during the launch period"
+    ],
+    "answer": [0],
+    "explanation": "The operational excellence pillar's readiness principle requires that a service be observable and operable before it takes production traffic: measurable objectives, dashboards and alerts on meaningful signals, notification routing, and documented runbooks and escalation paths. Security controls (option B) are important but belong to the security pillar and do not replace observability; waiting for customers to report problems is the opposite of readiness. A support plan (option C) provides Google assistance for Google Cloud issues; it does not monitor or operate the customer's application. Over-provisioning nodes (option D) addresses only one possible failure mode and does nothing for detection or response.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence/ensure-operational-readiness-and-performance-using-cloudops",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/observability"
+    ]
+  },
+  {
+    "id": "d6-ops-028",
+    "domain": 6,
+    "topic": "SLA versus SLO",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A cloud-based HR software vendor is about to sign its first enterprise contract, which includes a service level agreement (SLA) of 99.9% monthly availability with financial penalties for breaches. The engineering team proposes setting the internal SLO to exactly 99.9% so that 'the target matches the contract'. What should you advise?",
+    "options": [
+      "Agree with the team; the SLO and the SLA should always be identical so that engineering and legal share one number",
+      "Set the internal SLO tighter than the SLA, for example 99.95%, so that the error budget alerts fire and reliability work starts before the contractual threshold is at risk, keeping a buffer between the internal objective and the external commitment",
+      "Set the internal SLO looser than the SLA, for example 99.5%, so that the engineering team is not constantly in a feature freeze",
+      "Do not define an SLO at all, because the SLA already defines the reliability target and a second number would be confusing"
+    ],
+    "answer": [1],
+    "explanation": "An SLA is an external promise with consequences; the internal SLO should be stricter so that the organization detects and reacts to reliability erosion while there is still margin before penalties apply. This buffer is standard SRE practice. Making the SLO equal to the SLA (option A) means that by the time the SLO is breached, the contract is already breached. A looser SLO (option C) would let the service routinely drop below the contractual threshold without triggering any response. Having no SLO (option D) leaves the team without an error budget to drive day-to-day decisions and without early-warning alerts.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/architecture/framework/reliability/set-realistic-targets"
+    ]
+  }
+]

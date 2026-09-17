@@ -1,0 +1,535 @@
+[
+  {
+    "id": "d3-sec-076",
+    "domain": 3,
+    "topic": "Artifact Analysis",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail company builds container images with Cloud Build and stores them in Artifact Registry before deploying to GKE. The security team wants every image to be automatically scanned for known OS and language-package vulnerabilities as soon as it is pushed, with results visible in the console and queryable via API, and without operating any scanning infrastructure. What should you do?",
+    "options": [
+      "Install an open-source scanner on a Compute Engine VM and schedule it to pull and scan every image nightly.",
+      "Enable the Container Scanning API so that Artifact Analysis automatically scans images on push to Artifact Registry and continuously updates vulnerability occurrences.",
+      "Run Web Security Scanner against the container registry endpoint to identify vulnerable images.",
+      "Enable Security Command Center Standard, which scans all container images stored in the project."
+    ],
+    "answer": [1],
+    "explanation": "Artifact Analysis provides automatic vulnerability scanning for images pushed to Artifact Registry when the Container Scanning API is enabled, storing findings as occurrences that can be viewed in the console and queried through the API, with no infrastructure to operate. Option A adds operational overhead and delays results by up to a day. Option C is a web-application scanner, not an image scanner. Option D is incorrect because image scanning is a function of Artifact Analysis, not of Security Command Center Standard.",
+    "refs": [
+      "https://cloud.google.com/artifact-analysis/docs/artifact-analysis",
+      "https://cloud.google.com/artifact-analysis/docs/container-scanning-overview"
+    ]
+  },
+  {
+    "id": "d3-sec-077",
+    "domain": 3,
+    "topic": "Binary Authorization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank runs its payment services on GKE. Auditors require technical proof that only container images that were built by the bank's Cloud Build pipeline and that passed vulnerability scanning can run in the production cluster; a developer with kubectl access must not be able to deploy an image pulled from Docker Hub. What should you do?",
+    "options": [
+      "Configure a GKE admission webhook that checks image names against an allowlist of Artifact Registry repositories.",
+      "Grant developers only the Kubernetes Engine Viewer role in production and let the release manager deploy manually after checking scan results.",
+      "Enable Artifact Analysis scanning on the repository and configure a Cloud Build step that fails if critical vulnerabilities are found.",
+      "Enable Binary Authorization on the production cluster with a policy that requires attestations from a 'built-by-cloud-build' attestor and a 'vulnerability-scan-passed' attestor, and have the pipeline create attestations only when both conditions are met."
+    ],
+    "answer": [3],
+    "explanation": "Binary Authorization is the deploy-time admission control that enforces signed attestations, so the cluster itself refuses images that were not attested by the trusted pipeline and scanner regardless of who runs kubectl; this provides the auditable proof required. Option A only checks the image location, not how it was built or scanned, and can be bypassed by pushing an untrusted image to the allowed repository. Option B is a manual process dependent on people. Option C gates the build but does not stop someone from deploying a different image directly to the cluster.",
+    "refs": [
+      "https://cloud.google.com/binary-authorization/docs/overview",
+      "https://cloud.google.com/binary-authorization/docs/attestations"
+    ]
+  },
+  {
+    "id": "d3-sec-078",
+    "domain": 3,
+    "topic": "SLSA and build provenance",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A defense contractor must demonstrate that its container images meet SLSA Build Level 3: builds must run on an isolated, ephemeral, hosted build platform, and each artifact must carry non-falsifiable, signed provenance that consumers verify before deployment. The contractor already uses Cloud Build, Artifact Registry and GKE and wants to avoid building custom signing tooling. What should you do?",
+    "options": [
+      "Build images with Cloud Build, which generates signed SLSA provenance for images pushed to Artifact Registry, and enforce a Binary Authorization policy on GKE that requires the built-by-cloud-build attestation before admission.",
+      "Run Jenkins on a dedicated Compute Engine VM with a long-lived service account key, sign images with a script, and store the signatures in a Cloud Storage bucket for auditors.",
+      "Enable Artifact Analysis vulnerability scanning on the repository, which satisfies SLSA Level 3 by verifying that images have no critical CVEs.",
+      "Configure Cloud Deploy to record the Git commit hash in release annotations and have auditors compare the hash with the source repository."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Build runs each build in an isolated, ephemeral environment and produces signed SLSA provenance for container images, and Binary Authorization can require the automatically generated built-by-cloud-build attestation, giving end-to-end provenance generation and verification without custom tooling. Option B uses a persistent, self-managed builder with long-lived credentials and home-grown signing, which does not meet Level 3 isolation or non-falsifiability guarantees. Option C confuses vulnerability scanning with provenance; SLSA is about build integrity, not CVEs. Option D records metadata but neither signs it nor enforces verification at deploy time.",
+    "refs": [
+      "https://cloud.google.com/build/docs/securing-builds/view-build-provenance",
+      "https://cloud.google.com/software-supply-chain-security/docs/slsa"
+    ]
+  },
+  {
+    "id": "d3-sec-079",
+    "domain": 3,
+    "topic": "Assured Open Source Software",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare software vendor's Java and Python services depend on hundreds of open-source packages downloaded from public repositories at build time. After a recent upstream package compromise, the vendor wants to consume open-source packages that Google itself builds, scans, signs and patches, while keeping its existing Maven and pip tooling. What should you recommend?",
+    "options": [
+      "Vendor every dependency into the Git repository and manually review each package update before merging.",
+      "Fork each open-source project into a private repository and rebuild all packages with Cloud Build.",
+      "Use Assured Open Source Software packages served through Artifact Registry as the upstream for Maven and pip, so that builds consume Google-curated, signed and scanned packages.",
+      "Block all outbound internet access from Cloud Build workers so that dependencies cannot be downloaded."
+    ],
+    "answer": [2],
+    "explanation": "Assured OSS provides Java and Python packages that Google builds with its own secured pipelines, regularly scans, signs and provides with SLSA provenance and SBOMs; it is consumed through Artifact Registry with standard Maven and pip configuration. Option A is labor-intensive and does not provide independent build assurance. Option B requires the vendor to become the maintainer of hundreds of projects. Option D breaks builds entirely rather than providing a trusted source.",
+    "refs": [
+      "https://cloud.google.com/assured-open-source-software/docs/overview",
+      "https://cloud.google.com/artifact-registry/docs/repositories/remote-repo"
+    ]
+  },
+  {
+    "id": "d3-sec-080",
+    "domain": 3,
+    "topic": "GKE security posture",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company operates several GKE Autopilot and Standard clusters. The platform team wants continuous visibility into workload misconfigurations (such as containers running as root or without resource limits) and vulnerabilities in the OS and language packages of running containers, surfaced in a single Google Cloud dashboard with remediation guidance, without deploying third-party agents. What should you do?",
+    "options": [
+      "Install a third-party Kubernetes security operator in each cluster and forward alerts to Cloud Monitoring.",
+      "Enable the GKE security posture dashboard with workload configuration auditing and advanced vulnerability insights on each cluster.",
+      "Enable Cloud IDS packet mirroring on the GKE node subnets to detect vulnerable workloads.",
+      "Schedule kube-bench runs from a Cloud Build trigger and publish the reports to a Cloud Storage bucket."
+    ],
+    "answer": [1],
+    "explanation": "The GKE security posture dashboard provides built-in workload configuration auditing against Pod Security Standards and, with advanced vulnerability insights, scans running workloads for OS and language-package vulnerabilities, showing findings with remediation steps in the Google Cloud console. Option A adds third-party agents the team wants to avoid. Option C inspects network traffic and does not evaluate workload configuration or package vulnerabilities. Option D covers only CIS node benchmarks and is not continuous or integrated into a dashboard.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/about-security-posture-dashboard",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/about-workload-vulnerability-scanning"
+    ]
+  },
+  {
+    "id": "d3-sec-081",
+    "domain": 3,
+    "topic": "Container-Optimized OS",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media startup is choosing the node operating system for its new GKE Standard clusters. The team wants the smallest attack surface, a read-only root filesystem, automatic security updates managed by Google, and no need to patch or harden the OS themselves. Which node image should you recommend?",
+    "options": [
+      "Container-Optimized OS with containerd, the default GKE node image maintained by Google.",
+      "A custom Ubuntu image with a hardened configuration built and patched by the team.",
+      "Windows Server nodes so that the team can use familiar Group Policy hardening.",
+      "A general-purpose Debian image with Docker installed via a startup script."
+    ],
+    "answer": [0],
+    "explanation": "Container-Optimized OS is a minimal, Google-maintained Linux image with a read-only root filesystem, verified boot and automatic updates, designed specifically for running containers securely on Google Cloud; it is the GKE default and recommended choice. Option B shifts patching and hardening onto the team. Option C is only for Windows workloads and has a larger footprint. Option D is not a supported GKE node image and would require the team to manage the runtime and OS.",
+    "refs": [
+      "https://cloud.google.com/container-optimized-os/docs/concepts/security",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/node-images"
+    ]
+  },
+  {
+    "id": "d3-sec-082",
+    "domain": 3,
+    "topic": "Software supply chain",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An insurance company is designing a secure software supply chain for services deployed to Cloud Run. Requirements: developers must not be able to push images to the production repository, tags such as 'v1.2.0' must never be silently overwritten, and only images produced by the CI pipeline may be deployed. Which actions should you take? (Choose two.)",
+    "options": [
+      "Grant the Artifact Registry Writer role only to the CI pipeline's service account on the production repository, give developers Artifact Registry Reader, and enable immutable tags on the repository.",
+      "Grant all developers Artifact Registry Administrator so that they can fix broken tags quickly during incidents.",
+      "Store production images in a public Docker Hub repository so that Cloud Run can pull them without authentication.",
+      "Enable Binary Authorization for Cloud Run in the production project with a policy that requires an attestation created by the CI pipeline, and enforce it with the run.allowedBinaryAuthorizationPolicies organization policy constraint.",
+      "Disable Cloud Audit Logs for Artifact Registry to reduce noise from image pulls."
+    ],
+    "answer": [0, 3],
+    "explanation": "Least-privilege IAM on the repository plus immutable tags ensures that only the pipeline can publish and that published versions cannot be replaced, and Binary Authorization for Cloud Run enforces at deploy time that only attested images run, with an organization policy preventing teams from disabling it. Option B grants developers the very access the requirement prohibits. Option C exposes internal images publicly and loses control over provenance. Option E removes the audit trail needed for supply chain investigations.",
+    "refs": [
+      "https://cloud.google.com/artifact-registry/docs/access-control",
+      "https://cloud.google.com/binary-authorization/docs/run/requiring-binauthz-cloud-run"
+    ]
+  },
+  {
+    "id": "d3-sec-083",
+    "domain": 3,
+    "topic": "Binary Authorization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A streaming-video company wants to introduce Binary Authorization on a busy production GKE cluster that runs hundreds of workloads deployed by many teams. Leadership is worried that enabling enforcement will block legitimate deployments whose images were not yet attested. The security team needs to identify non-compliant images before enforcement without causing any deployment failures. What should you do?",
+    "options": [
+      "Enable Binary Authorization with an 'always deny' default rule during a maintenance window and roll back if too many deployments fail.",
+      "Enable enforcement only on new node pools and migrate workloads gradually.",
+      "Enable Binary Authorization in dry-run (audit) mode so that policy violations are logged to Cloud Audit Logs without blocking pods, review the violations, remediate the pipelines, and then switch to enforcement.",
+      "Add every currently running image digest to the policy's exempt images list and enable enforcement immediately."
+    ],
+    "answer": [2],
+    "explanation": "Binary Authorization dry-run mode evaluates the policy and records would-be violations in audit logs while still admitting all pods, which lets the team discover unattested images and fix pipelines before turning on enforcement, the same rollout approach recommended for other preventive controls. Option A knowingly risks outages. Option B is not how Binary Authorization works; policies apply cluster-wide, not per node pool. Option D permanently exempts every current image, including any that are non-compliant, which defeats the purpose of the control.",
+    "refs": [
+      "https://cloud.google.com/binary-authorization/docs/enabling-dry-run",
+      "https://cloud.google.com/binary-authorization/docs/key-concepts"
+    ]
+  },
+  {
+    "id": "d3-sec-084",
+    "domain": 3,
+    "topic": "Artifact Registry",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecom operator's GKE clusters pull base images and Helm charts directly from Docker Hub and public OCI registries at deploy time. The security team wants all public artifacts to be pulled through a single controlled point that caches them, scans them for vulnerabilities, and keeps working when the upstream is unavailable, and wants to ensure that clusters cannot pull from public registries directly. What should you do?",
+    "options": [
+      "Mirror needed images once into a Cloud Storage bucket and configure containerd to load images from the bucket.",
+      "Ask every team to copy the images they use into their own project's Artifact Registry repository and to rescan them monthly.",
+      "Create a network firewall rule that blocks egress to Docker Hub and have teams request exceptions when they need an image.",
+      "Create Artifact Registry remote repositories that proxy Docker Hub and the public OCI registries, enable Artifact Analysis scanning on them, point the clusters at the remote repositories, and use Binary Authorization or an admission policy to allow only images from the organization's Artifact Registry."
+    ],
+    "answer": [3],
+    "explanation": "Artifact Registry remote repositories act as a caching proxy for upstream public registries so artifacts are pulled and cached through one controlled point, can be scanned with Artifact Analysis, and remain available if the upstream is down; combining this with an admission policy that only allows the organization's registry closes the direct-pull path. Option A is not a supported image distribution mechanism and lacks scanning. Option B duplicates effort across teams and relies on discipline. Option C blocks traffic but provides no cache or scan, and the exception process becomes a bottleneck.",
+    "refs": [
+      "https://cloud.google.com/artifact-registry/docs/repositories/remote-repo",
+      "https://cloud.google.com/binary-authorization/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-085",
+    "domain": 3,
+    "topic": "Model Armor",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank has built a customer-support chatbot on Vertex AI using a Gemini model. During testing, red-teamers used prompt injection to make the bot reveal its system instructions and coaxed it into outputting another customer's account number that appeared in retrieved context. The bank wants a managed control that screens both prompts and responses for prompt injection, jailbreak attempts, and sensitive data, independent of the model version. What should you do?",
+    "options": [
+      "Add instructions to the system prompt telling the model to refuse any request that looks like prompt injection and never to output account numbers.",
+      "Create a Model Armor template with prompt injection and jailbreak detection, Sensitive Data Protection filters and responsible AI filters, and sanitize user prompts and model responses through Model Armor before and after each Gemini call.",
+      "Enable Cloud Armor on the chatbot's load balancer with preconfigured WAF rules to block malicious inputs.",
+      "Fine-tune the Gemini model on examples of refused prompts so that it learns not to respond to attacks."
+    ],
+    "answer": [1],
+    "explanation": "Model Armor is Google Cloud's managed service for screening LLM prompts and responses against prompt injection and jailbreak, sensitive data (via Sensitive Data Protection), malicious URLs and harmful content, and it works independently of the underlying model. Option A relies on the model obeying instructions, which is exactly what prompt injection defeats. Option C protects against web-layer attacks such as SQL injection and DDoS, not natural-language attacks on an LLM. Option D is costly, must be repeated for each model version, and provides no guarantee.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/model-armor-overview",
+      "https://cloud.google.com/security-command-center/docs/manage-model-armor-templates"
+    ]
+  },
+  {
+    "id": "d3-sec-086",
+    "domain": 3,
+    "topic": "Sensitive Data Protection",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An airline plans to fine-tune a model on five years of customer-support transcripts stored in Cloud Storage. The transcripts contain names, email addresses, passport numbers and credit-card numbers. Privacy requires that no direct identifiers reach the training pipeline, but the data science team wants to preserve the ability to link records belonging to the same customer during analysis. What should you do?",
+    "options": [
+      "Run a Sensitive Data Protection de-identification job on the transcripts that replaces identifiers using deterministic pseudonymization (for example, format-preserving encryption or crypto-based tokenization with a Cloud KMS-wrapped key) and train on the de-identified output.",
+      "Ask the data science team to sign a data-handling agreement and train on the raw transcripts inside a VPC Service Controls perimeter.",
+      "Use Sensitive Data Protection to redact all detected identifiers with asterisks before training.",
+      "Encrypt the Cloud Storage bucket with CMEK so that identifiers are protected during training."
+    ],
+    "answer": [0],
+    "explanation": "Sensitive Data Protection can inspect and transform data at scale; deterministic cryptographic tokenization or format-preserving encryption replaces identifiers consistently, so the same customer maps to the same token and records remain linkable while raw PII never enters training. Option B does not remove identifiers from the training data; a perimeter is an exfiltration control, not a privacy transformation. Option C removes identifiers but destroys linkability across records. Option D protects data at rest but the training job still reads plaintext PII.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data",
+      "https://cloud.google.com/sensitive-data-protection/docs/pseudonymization"
+    ]
+  },
+  {
+    "id": "d3-sec-087",
+    "domain": 3,
+    "topic": "Secure model deployment",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital has deployed a diagnostic-support model to a Vertex AI online prediction endpoint. Clinical applications running in the hospital's VPC must call the endpoint, but the endpoint must not be reachable over the public internet, and traffic must stay on Google's private network. What should you do?",
+    "options": [
+      "Deploy the endpoint as a public endpoint and restrict callers with a Cloud Armor policy allowing only the hospital's NAT IP addresses.",
+      "Deploy the model to a Compute Engine VM with an internal IP address instead of using Vertex AI.",
+      "Deploy the model to a Vertex AI endpoint configured for private access through Private Service Connect (or VPC peering), and call it from the VPC over its private IP address.",
+      "Keep the public endpoint but require an API key in every request from the clinical applications."
+    ],
+    "answer": [2],
+    "explanation": "Vertex AI supports private endpoints for online prediction through Private Service Connect or VPC Network Peering, so predictions are served over private IP addresses within Google's network and the endpoint has no public exposure. Option A leaves a public endpoint that is only IP-filtered. Option B abandons the managed platform and its scaling, monitoring and model registry features. Option D is an authentication mechanism (and a weak one) rather than network isolation; the endpoint would still be internet-reachable.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/predictions/private-endpoints",
+      "https://cloud.google.com/vertex-ai/docs/predictions/use-private-service-connect-endpoint"
+    ]
+  },
+  {
+    "id": "d3-sec-088",
+    "domain": 3,
+    "topic": "VPC Service Controls for Vertex AI",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hedge fund's quantitative researchers use Vertex AI Workbench instances, custom training jobs and BigQuery in a dedicated project. Compliance requires that proprietary datasets and trained models cannot be copied to any project outside the fund, that researchers cannot call the Vertex AI API from unmanaged devices, and that Workbench instances have no public internet access. Which combination of controls should you recommend?",
+    "options": [
+      "Encrypt all datasets with CMEK, restrict the key to the researchers' group, and enable Data Access audit logs on Vertex AI.",
+      "Grant researchers only the Vertex AI User role and rely on IAM to prevent copying data to external projects.",
+      "Deploy Workbench instances with external IPs behind Cloud Armor and require researchers to use hardware security keys.",
+      "Place the project in a VPC Service Controls perimeter with Vertex AI, BigQuery and Cloud Storage as restricted services, use access levels based on managed-device and identity attributes, deploy Workbench instances without external IPs using Private Google Access, and route Google API traffic to restricted.googleapis.com."
+    ],
+    "answer": [3],
+    "explanation": "VPC Service Controls is the control that prevents data from being moved to projects outside the perimeter through Google APIs, access levels enforce device and identity context for API calls, and private-IP Workbench instances with Private Google Access to the restricted VIP remove internet exposure while still reaching protected services. Option A protects data at rest and logs access but does not stop authorized users from exporting data to another project. Option B is insufficient because a researcher with legitimate read access can still copy data to any project they control. Option C exposes the notebooks publicly and addresses only authentication strength.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/general/vpc-service-controls",
+      "https://cloud.google.com/vpc-service-controls/docs/private-connectivity"
+    ]
+  },
+  {
+    "id": "d3-sec-089",
+    "domain": 3,
+    "topic": "CMEK for Vertex AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government agency will train and serve models on Vertex AI using citizen data. Its policy requires that all data at rest associated with the ML lifecycle, including managed datasets, training job outputs, model artifacts and endpoint resources, be encrypted with keys the agency controls and can revoke. The agency wants to meet this requirement without changing its training code. What should you do?",
+    "options": [
+      "Enable Confidential Computing for the training jobs, which encrypts all artifacts with agency-controlled keys.",
+      "Create a Cloud KMS key in the same region as the Vertex AI resources, grant the Vertex AI service agent the CryptoKey Encrypter/Decrypter role, and specify the key as the CMEK when creating datasets, training jobs, models and endpoints.",
+      "Store training data in a CMEK-protected Cloud Storage bucket, because Vertex AI automatically inherits the bucket's key for all downstream resources.",
+      "Encrypt the training data client-side with Tink before uploading and decrypt it inside the training container at runtime."
+    ],
+    "answer": [1],
+    "explanation": "Vertex AI supports CMEK on most resources; you provide a regional Cloud KMS key at resource creation time and grant the Vertex AI service agent permission to use it, after which datasets, training outputs, models and endpoints are encrypted with that key and revoking it renders them unusable, with no training code changes. Option A addresses in-use memory encryption, not customer-controlled keys for stored artifacts. Option C is incorrect because Vertex AI does not inherit the source bucket's key; each resource must specify its CMEK. Option D requires code changes and does not cover model artifacts and endpoint resources that Vertex AI writes itself.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/general/cmek",
+      "https://cloud.google.com/kms/docs/cmek"
+    ]
+  },
+  {
+    "id": "d3-sec-090",
+    "domain": 3,
+    "topic": "Model Garden governance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial-services company allows developers to build generative AI features on Vertex AI, but its risk committee has approved only specific Gemini models and prohibits the use of third-party and open-weight models from Model Garden until they are reviewed. The control must apply to every project in the organization and must not depend on developers' good behavior. What should you do?",
+    "options": [
+      "Enforce the Vertex AI organization policy constraint that restricts allowed models (constraints/vertexai.allowedModels) at the organization level with only the approved model identifiers in the allowlist.",
+      "Send developers a list of approved models and monitor usage through Cloud Billing reports.",
+      "Remove the Vertex AI User role from all developers and require them to submit prediction requests through a central team.",
+      "Create a VPC Service Controls perimeter and add Vertex AI as a restricted service so that unapproved models cannot be accessed."
+    ],
+    "answer": [0],
+    "explanation": "Vertex AI provides an organization policy constraint that restricts which models can be accessed or deployed, and applying it at the organization level makes it inherited by all projects and enforced by the API regardless of developer behavior. Option B is not an enforceable control and billing data is not a real-time gate. Option C blocks all self-service development, which conflicts with the goal of letting developers build features. Option D controls where API calls can come from, not which models can be used.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/control-model-access",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-091",
+    "domain": 3,
+    "topic": "AI data governance",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A European law firm wants to use Gemini models to summarize confidential client documents. The firm's data protection officer requires assurance that prompts and documents are not used to train Google's foundation models, that data is processed in the EU, and that prompt and response contents are not retained by Google beyond the request. Which actions should you take? (Choose two.)",
+    "options": [
+      "Use the Gemini API through Vertex AI, which is covered by Google Cloud's data governance commitments that customer data is not used to train foundation models, and configure zero data retention options where caching or abuse-monitoring retention would otherwise apply.",
+      "Have lawyers paste documents into the consumer Gemini web application using their personal Google accounts, because it is free and uses the same model.",
+      "Call the Vertex AI endpoint in an EU region such as europe-west4 and, if required, use the regional endpoint so that ML processing stays in the EU.",
+      "Use a third-party wrapper service that forwards prompts to Gemini through its own US-based infrastructure to simplify integration.",
+      "Fine-tune a model on all client documents so that the documents no longer need to be included in prompts."
+    ],
+    "answer": [0, 2],
+    "explanation": "Vertex AI is the enterprise entry point to Gemini and is covered by Google Cloud's data governance commitments: customer prompts and data are not used to train Google's foundation models and zero-data-retention settings are available, and choosing an EU regional endpoint keeps ML processing in the required geography. Option B uses a consumer product outside the firm's enterprise controls and agreements. Option D routes confidential data through a third party in the US, violating residency and confidentiality. Option E does not address the governance requirements and embeds confidential data into model weights.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/data-governance",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations"
+    ]
+  },
+  {
+    "id": "d3-sec-092",
+    "domain": 3,
+    "topic": "Securing generative AI applications",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A telecom company is launching a generative AI assistant on Vertex AI that answers customer questions using retrieval from internal billing documents. A security review must address prompt injection through retrieved content, leakage of customer PII in responses, and exfiltration of the vector store and training data to outside projects. Which controls should you include in the design? (Choose three.)",
+    "options": [
+      "Screen prompts, retrieved context and model responses with Model Armor templates configured for prompt injection, jailbreak and sensitive data detection.",
+      "Grant the assistant's Cloud Run service account the Editor role on the project so that it can access all required Vertex AI and storage resources.",
+      "Use Sensitive Data Protection to inspect and de-identify PII in the document corpus before it is indexed, and to inspect responses for residual PII.",
+      "Store the Gemini API key in the frontend JavaScript so the browser can call the model directly and reduce backend latency.",
+      "Place the project in a VPC Service Controls perimeter with Vertex AI, Cloud Storage and BigQuery as restricted services to prevent data movement to outside projects.",
+      "Disable Cloud Audit Logs for Vertex AI to avoid recording customer prompts in logs."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "Model Armor addresses prompt injection and jailbreak (including attacks embedded in retrieved documents) and can flag sensitive data in prompts and responses; Sensitive Data Protection reduces the PII that can leak by de-identifying the corpus and screening outputs; and VPC Service Controls prevents exfiltration of the vector store and data to projects outside the perimeter. Option B violates least privilege; the service account should have narrowly scoped Vertex AI and storage roles. Option D exposes credentials to end users. Option F removes the audit trail needed for security investigations; sensitive prompt content should be handled with log field redaction or exclusion rather than disabling audit logs.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/model-armor-overview",
+      "https://cloud.google.com/vertex-ai/docs/general/vpc-service-controls",
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data"
+    ]
+  },
+  {
+    "id": "d3-sec-093",
+    "domain": 3,
+    "topic": "Secure AI retrieval",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An engineering firm is building an internal knowledge assistant with Vertex AI Agent Builder that answers questions from documents stored in Google Drive and Cloud Storage. Documents carry existing per-user and per-group access restrictions. The firm requires that the assistant never surfaces content in an answer that the requesting employee is not already permitted to read, and that this be enforced by the platform rather than by prompt instructions. What should you do?",
+    "options": [
+      "Index all documents into a single data store and instruct the model in the system prompt to check the user's department before answering.",
+      "Configure the Vertex AI Search data store with access control enabled, connecting the identity provider so that document ACLs are ingested, and pass the end user's identity with each search or answer request so that results are filtered to documents the user can access.",
+      "Create one data store per department and route each user's questions to their department's data store based on their email domain.",
+      "Apply Sensitive Data Protection to redact confidential sections from all documents before indexing so that no restricted content can be retrieved."
+    ],
+    "answer": [1],
+    "explanation": "Vertex AI Search supports access-control-aware data stores that ingest document ACLs from sources like Google Drive and Cloud Storage; when the end user's identity is passed with the request, retrieval is filtered to documents that user is authorized to view, providing platform-level enforcement. Option A relies on prompt instructions, which the requirement excludes and which can be bypassed. Option C is coarse-grained, ignores per-user and per-document restrictions, and does not handle cross-department access. Option D destroys legitimate content for authorized users and does not model per-user permissions.",
+    "refs": [
+      "https://cloud.google.com/generative-ai-app-builder/docs/data-source-access-control",
+      "https://cloud.google.com/generative-ai-app-builder/docs/introduction"
+    ]
+  },
+  {
+    "id": "d3-sec-094",
+    "domain": 3,
+    "topic": "API credential security",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup shipped a mobile app that calls a Gemini model directly using a Google Cloud API key embedded in the app binary. The key was extracted and abused, generating a large unexpected bill. The startup needs to stop the abuse and redesign the integration so that credentials are never exposed to client devices, while keeping the app's functionality. What should you do?",
+    "options": [
+      "Rotate the API key, obfuscate it in the next app release, and set a billing budget alert.",
+      "Rotate the API key and restrict it to the app's bundle identifier and to the Vertex AI API only, leaving the key in the app.",
+      "Move Gemini calls to a backend service such as Cloud Run that authenticates with its own service account, and have the app call the backend with end-user authentication (for example Firebase Authentication and App Check); then delete the leaked key.",
+      "Switch the app to a service account JSON key stored in the app's encrypted preferences instead of an API key."
+    ],
+    "answer": [2],
+    "explanation": "Credentials embedded in client applications can always be extracted, so the recommended design is to keep model credentials on a trusted backend that uses its attached service account, and to authenticate end users to that backend with an identity solution plus App Check to limit abuse. Option A is security through obscurity and a budget alert only detects abuse after the fact. Option B reduces but does not remove the risk, because application restrictions can be spoofed and the key remains extractable. Option D replaces one extractable secret with a more powerful one.",
+    "refs": [
+      "https://cloud.google.com/docs/authentication/api-keys-best-practices",
+      "https://cloud.google.com/run/docs/securing/service-identity"
+    ]
+  },
+  {
+    "id": "d3-sec-095",
+    "domain": 3,
+    "topic": "Cloud Build security",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company uses Cloud Build to build and deploy to production. Audit findings note that the default Cloud Build service account has broad project permissions, that build logs are viewable by all developers, and that any developer who can edit the repository can change the build configuration to deploy anywhere. The company wants to reduce the blast radius of a compromised repository or pipeline. What should you do?",
+    "options": [
+      "Configure each production trigger to run with a dedicated user-managed service account holding only the roles needed for that deployment, store build configurations in a protected branch with required reviews, and use private worker pools with restricted logging where required.",
+      "Grant the default Cloud Build service account the Owner role so that builds never fail on permissions, and rely on repository access control for security.",
+      "Move all builds to developers' laptops so that the Cloud Build service account is no longer needed.",
+      "Disable Cloud Build audit logging to hide deployment details from developers."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Build triggers can run as user-managed service accounts, allowing least-privilege, per-pipeline identities so a compromised trigger cannot deploy outside its scope; protecting the branch that holds build configuration prevents unilateral changes, and private pools and log access controls address exposure of sensitive build output. Option B expands the blast radius. Option C removes the auditable, isolated build environment and typically worsens supply chain security. Option D reduces visibility for security teams rather than reducing risk.",
+    "refs": [
+      "https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts",
+      "https://cloud.google.com/build/docs/securing-builds/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-096",
+    "domain": 3,
+    "topic": "Vulnerability gating in CI",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company wants its Cloud Build pipeline to fail automatically when a newly built container image contains a vulnerability of severity CRITICAL, before the image is tagged as release-ready and pushed to the production repository. The team prefers Google-managed tooling. What should you do?",
+    "options": [
+      "Push the image to production first and rely on Artifact Registry's automatic scanning to email the team when critical CVEs are found.",
+      "Add a manual approval step in Cloud Build where a security engineer checks the vulnerability report in the console.",
+      "Add a Cloud Build step that uses the Artifact Analysis On-Demand Scanning API (gcloud artifacts docker images scan) on the locally built image and fails the build if any CRITICAL vulnerability is returned.",
+      "Enable Web Security Scanner in Security Command Center and configure it to scan the image before the push step."
+    ],
+    "answer": [2],
+    "explanation": "On-Demand Scanning lets a pipeline scan a local or registry image synchronously with Artifact Analysis and inspect the results, so a build step can enforce a severity threshold before the image is promoted. Option A allows vulnerable images into production and only notifies afterward. Option B introduces manual toil and delays into every build. Option D is wrong because Web Security Scanner tests running web applications, not container images.",
+    "refs": [
+      "https://cloud.google.com/artifact-analysis/docs/ods-cloudbuild",
+      "https://cloud.google.com/artifact-analysis/docs/on-demand-scanning-overview"
+    ]
+  },
+  {
+    "id": "d3-sec-097",
+    "domain": 3,
+    "topic": "GKE hardening",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A healthcare company is preparing a new GKE Standard cluster for production workloads that handle patient data. The security team wants to block privileged containers and hostPath mounts across all application namespaces, ensure nodes boot only verified software with rootkit protection, and remove all reliance on node service account credentials by pods. Which actions should you take? (Choose three.)",
+    "options": [
+      "Enable Shielded GKE Nodes with Secure Boot and integrity monitoring on the node pools.",
+      "Enforce Pod Security Standards at the restricted or baseline level with Pod Security Admission, or use Policy Controller constraints, on application namespaces.",
+      "Grant the node service account the Editor role so that pods have any permission they may need.",
+      "Enable Workload Identity Federation for GKE and configure GKE Metadata Server so that pods cannot reach the node's metadata credentials.",
+      "Run all application pods in the kube-system namespace so that they inherit the cluster's system security policies.",
+      "Disable Cloud Logging on the cluster to avoid storing patient data in logs."
+    ],
+    "answer": [0, 1, 3],
+    "explanation": "Shielded GKE Nodes provide verified boot and integrity monitoring; Pod Security Admission or Policy Controller enforces the Pod Security Standards that forbid privileged containers and hostPath; and Workload Identity Federation for GKE, through the GKE metadata server, gives pods their own identities while blocking access to the node service account credentials. Option C is the opposite of least privilege. Option E is an anti-pattern that mixes application workloads with system components and does not add policy enforcement. Option F removes observability and audit capability; sensitive data should be handled with log redaction and access control rather than disabling logging.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/podsecurityadmission"
+    ]
+  },
+  {
+    "id": "d3-sec-098",
+    "domain": 3,
+    "topic": "Model Armor",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A conglomerate has dozens of teams building generative AI applications on Vertex AI across many projects. Some teams have adopted Model Armor templates while others have not, and templates vary in strictness. The central security team wants to guarantee a minimum level of prompt injection, jailbreak and sensitive-data filtering for every application in the organization, without having to review each team's template. What should you do?",
+    "options": [
+      "Publish a recommended Model Armor template in an internal wiki and ask teams to copy it.",
+      "Configure Model Armor floor settings at the organization (or folder) level that define the minimum required filters and confidence levels, so that any template used within that scope must meet or exceed the floor.",
+      "Create a single shared Model Armor template in a central project and grant every team's service account read access to it.",
+      "Use an IAM deny policy to prevent teams from creating their own Model Armor templates."
+    ],
+    "answer": [1],
+    "explanation": "Model Armor floor settings let organization- or folder-level administrators define a minimum sanitization baseline that all templates in scope must satisfy, providing central governance while teams keep autonomy to be stricter. Option A is guidance, not enforcement. Option C provides a template but does not stop teams from using weaker ones or none at all. Option D blocks template creation entirely, which prevents teams from applying stricter, application-specific controls and does not by itself require any filtering.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/set_up_model_armor_floor_settings",
+      "https://cloud.google.com/security-command-center/docs/model-armor-overview"
+    ]
+  },
+  {
+    "id": "d3-sec-099",
+    "domain": 3,
+    "topic": "Sensitive data discovery",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A retail bank plans to build several AI features on top of its BigQuery data warehouse and Cloud Storage data lake, which together contain thousands of tables and buckets accumulated over a decade. Before granting the data science teams access, the CISO wants to know where sensitive data such as card numbers and national IDs actually resides, wants this inventory to stay current as new tables appear, and wants to prevent sensitive columns from being used in training without protection. Which actions should you take? (Choose two.)",
+    "options": [
+      "Ask each data owner to fill in a spreadsheet describing which of their tables contain sensitive data.",
+      "Configure Sensitive Data Protection discovery at the organization or folder level to continuously profile BigQuery tables and Cloud Storage buckets and generate data profiles with sensitivity and risk scores.",
+      "Export all tables to CSV and run a one-time regex search for card-number patterns on a Compute Engine VM.",
+      "Use the discovery results to apply BigQuery policy tags (column-level security) or de-identification to sensitive columns before exposing datasets to the data science teams.",
+      "Grant the data science teams BigQuery Data Viewer at the organization level so they can locate sensitive data themselves."
+    ],
+    "answer": [1, 3],
+    "explanation": "Sensitive Data Protection's discovery service continuously profiles data across an organization, folder or project and reports which tables and buckets contain sensitive infoTypes, keeping the inventory current automatically; the profiles can then drive column-level security with policy tags or de-identification so training uses protected data. Option A is manual and quickly stale. Option C is a one-time, error-prone effort that creates additional copies of sensitive data. Option E grants broad access before protections exist, which is the reverse of the desired order.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/data-profiles",
+      "https://cloud.google.com/bigquery/docs/column-level-security-intro"
+    ]
+  },
+  {
+    "id": "d3-sec-100",
+    "domain": 3,
+    "topic": "Vertex AI access control",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketing company uses Vertex AI in a single project. Data scientists must be able to run experiments, train models and upload them to the Model Registry, but only the MLOps team may deploy models to production endpoints or delete them. Both teams are represented by Google Groups. Which IAM design should you recommend?",
+    "options": [
+      "Grant both groups the Vertex AI Administrator role and document the deployment process so data scientists know not to deploy.",
+      "Grant the data scientists the project Editor role and the MLOps team the project Owner role.",
+      "Grant the data scientists the Vertex AI User role with a custom role for model upload, and grant the MLOps team the Vertex AI Administrator role, so that endpoint deployment and deletion permissions are held only by MLOps.",
+      "Grant both groups the Vertex AI Viewer role and have the platform team execute all training and deployment requests on their behalf."
+    ],
+    "answer": [2],
+    "explanation": "Separation of duties in Vertex AI is achieved by granting data scientists a role that allows experimentation, training and model registration while reserving endpoint deployment and deletion permissions (aiplatform.endpoints.deploy, aiplatform.endpoints.delete and related) for the MLOps group through the administrator role or a custom role. Option A relies on documentation rather than enforcement. Option B uses basic roles that grant broad, unrelated permissions across the whole project. Option D blocks both teams from doing their jobs and creates a bottleneck.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/general/access-control",
+      "https://cloud.google.com/iam/docs/understanding-roles"
+    ]
+  }
+]

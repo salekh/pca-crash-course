@@ -1,0 +1,531 @@
+[
+  {
+    "id": "d3-sec-001",
+    "domain": 3,
+    "topic": "IAM",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fast-growing SaaS startup granted the basic Editor role to every developer on its production project during the early days. An external SOC 2 auditor has flagged this as a least-privilege violation. The platform team has three engineers and wants to remediate with the least ongoing administrative effort while following Google-recommended practices. What should you do?",
+    "options": [
+      "Replace the Editor role with the basic Viewer role for all developers and grant Owner to the two team leads so they can act on behalf of others.",
+      "Create one custom role per developer that contains exactly the permissions each person used in the last quarter and bind it to their individual accounts.",
+      "Create Google Groups per job function in Cloud Identity, grant predefined roles scoped to what each function needs, and remove the individual Editor bindings.",
+      "Keep the Editor role but attach an IAM Condition that restricts its use to business hours in the company's time zone."
+    ],
+    "answer": [2],
+    "explanation": "Google recommends granting predefined roles (or narrowly scoped custom roles) to groups rather than basic roles to individuals; predefined roles are maintained by Google and groups keep administration manageable as people join and leave. Option A still uses basic roles and makes the problem worse by adding Owners. Option B creates per-person custom roles that the three-person team would have to maintain forever, which conflicts with the low-overhead requirement and is not a recommended pattern. Option D does not reduce the breadth of the Editor role; a time condition does not address least privilege. This aligns with the security pillar of the Well-Architected Framework.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/understanding-roles",
+      "https://cloud.google.com/iam/docs/using-iam-securely"
+    ]
+  },
+  {
+    "id": "d3-sec-002",
+    "domain": 3,
+    "topic": "IAM Conditions",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company hires a consultancy for a 90-day migration engagement. The consultants need the Compute Instance Admin role on a single project, and the CISO requires that the access expire automatically on the contract end date without anyone having to remember to revoke it. You want to implement this with a single change. What should you do?",
+    "options": [
+      "Grant the role to a Google Group containing the consultants and attach an IAM Condition that uses request.time to make the binding valid only until the contract end date.",
+      "Grant the role to each consultant and create a Cloud Scheduler job that runs a Cloud Run function on the end date to remove the bindings.",
+      "Create a separate project for the consultants, grant them Owner, and schedule the project for deletion on the end date.",
+      "Issue each consultant a service account key with the required role and configure the key to expire on the end date."
+    ],
+    "answer": [0],
+    "explanation": "IAM Conditions support date/time attributes (request.time), so a single role binding can be made to expire automatically; combining it with a group keeps administration simple. Option B works but requires custom automation and additional moving parts to maintain. Option C does not meet the need (the work must happen in the existing project) and grants excessive privilege. Option D uses service account keys for human users, which is an anti-pattern; the consultants should use their own identities so that Cloud Audit Logs attribute actions to them.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/conditions-overview",
+      "https://cloud.google.com/iam/docs/configuring-temporary-access"
+    ]
+  },
+  {
+    "id": "d3-sec-003",
+    "domain": 3,
+    "topic": "IAM deny policies",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pharmaceutical company grants the BigQuery Data Viewer role to an analytics group at the organization level so analysts can explore data in all projects. One project now hosts clinical-trial data that this group must never be able to read, but the project must remain in its current folder for billing reasons. Removing the organization-level grant would break hundreds of existing workflows. What should you do?",
+    "options": [
+      "Remove the group from the project's IAM policy; because project-level policies take precedence, the inherited grant will no longer apply.",
+      "Enable uniform bucket-level access and VPC Service Controls on the project so that inherited BigQuery permissions are blocked.",
+      "Ask each analyst to leave the group and instead grant them the role individually on every project except the clinical-trial project.",
+      "Create an IAM deny policy on the clinical-trial project that denies the bigquery.tables.getData permission to the analytics group."
+    ],
+    "answer": [3],
+    "explanation": "IAM allow policies are additive and inherited down the hierarchy, so you cannot 'remove' an inherited grant at a lower level (option A is a common misconception). IAM deny policies are evaluated before allow policies and override them, so a deny policy on the project is the precise tool to carve out an exception. Option B misuses other controls: VPC Service Controls protects against data exfiltration across perimeters, not against authorized principals inside the perimeter, and bucket-level access is irrelevant to BigQuery. Option C is operationally unmanageable and contradicts the group-based access model.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/deny-overview",
+      "https://cloud.google.com/iam/docs/resource-hierarchy-access-control"
+    ]
+  },
+  {
+    "id": "d3-sec-004",
+    "domain": 3,
+    "topic": "Principal access boundary",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial services firm discovered that a partner organization granted one of its employees' corporate Google accounts the Editor role on a project in the partner's Google Cloud organization. The firm's security policy prohibits employees from accessing resources outside the firm's own organization using corporate identities, regardless of who grants the access. You need to enforce this centrally. What should you do?",
+    "options": [
+      "Enable the Domain Restricted Sharing organization policy in the firm's organization so that only principals from the firm's domain can be granted roles.",
+      "Create a principal access boundary policy on the firm's organization that limits which resources its principals are eligible to access, and bind it to the firm's principal set.",
+      "Configure a VPC Service Controls perimeter around the firm's projects and add an egress rule that blocks access to external organizations.",
+      "Attach an IAM deny policy to the partner organization that denies the firm's employees all permissions."
+    ],
+    "answer": [1],
+    "explanation": "Principal access boundary (PAB) policies control which resources a set of principals is eligible to access, and they follow the principal rather than the resource, so they are the correct tool to stop your own identities from using access granted elsewhere. Option A controls who can be granted access to your resources, not what your principals can access elsewhere. Option C governs API traffic for resources inside your perimeter and cannot restrict what your users do in another organization. Option D is not possible because you do not administer the partner organization.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/principal-access-boundary-policies",
+      "https://cloud.google.com/iam/docs/principal-access-boundary-policies-create"
+    ]
+  },
+  {
+    "id": "d3-sec-005",
+    "domain": 3,
+    "topic": "IAM Recommender",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company with more than 400 projects wants to reduce excess IAM permissions across its organization. The security team has limited time and wants a data-driven approach that identifies over-granted roles based on actual usage, with the ability to apply changes safely. Which approach should you recommend?",
+    "options": [
+      "Review IAM role recommendations from Recommender, which are based on observed permission usage, and apply the suggested role replacements after review, prioritizing high-risk projects.",
+      "Export Data Access audit logs for all projects to BigQuery, write SQL to compare used permissions against granted roles, and manually rewrite each IAM policy.",
+      "Replace all predefined roles with custom roles containing only the permissions listed in each team's design documents.",
+      "Enable Security Command Center Standard and act on its IAM findings, which list every principal with unused permissions."
+    ],
+    "answer": [0],
+    "explanation": "IAM Recommender (part of Policy Intelligence) analyzes permission usage over the last 90 days and recommends replacing over-privileged bindings with narrower roles, including insights about unused permissions; this is exactly the data-driven, low-effort approach requested. Option B recreates what Recommender already does and is labor intensive. Option C relies on design documents rather than observed usage and creates a large custom-role maintenance burden. Option D is incorrect because unused-permission analysis is delivered through Recommender/Policy Intelligence rather than SCC Standard findings.",
+    "refs": [
+      "https://cloud.google.com/policy-intelligence/docs/role-recommendations-overview",
+      "https://cloud.google.com/policy-intelligence/docs/review-apply-role-recommendations"
+    ]
+  },
+  {
+    "id": "d3-sec-006",
+    "domain": 3,
+    "topic": "Policy Troubleshooter",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A data engineer reports 'permission denied' when listing objects in a Cloud Storage bucket, even though her manager insists she was granted the Storage Object Viewer role at the folder level last week. The organization uses IAM Conditions, deny policies, and group nesting extensively. You need to determine the cause as quickly as possible. What should you do?",
+    "options": [
+      "Grant the engineer the Storage Admin role at the project level and observe whether the error disappears.",
+      "Query Cloud Asset Inventory for all IAM policies in the organization and manually trace group memberships.",
+      "Use Policy Troubleshooter with the engineer's email, the bucket resource name, and the storage.objects.list permission to see which policies grant or deny access.",
+      "Ask the engineer to download a service account key for the bucket's project and retry the request."
+    ],
+    "answer": [2],
+    "explanation": "Policy Troubleshooter evaluates a specific principal, resource and permission against all applicable allow policies, deny policies, conditions and group memberships and explains exactly why access is granted or denied, which is the fastest diagnostic path. Option A is trial-and-error that grants excess privilege and violates least privilege. Option B is possible but slow and error-prone compared with the purpose-built tool. Option D is an anti-pattern (service account keys) and does not diagnose the root cause.",
+    "refs": [
+      "https://cloud.google.com/policy-intelligence/docs/troubleshoot-access",
+      "https://cloud.google.com/policy-intelligence/docs/troubleshoot-deny"
+    ]
+  },
+  {
+    "id": "d3-sec-007",
+    "domain": 3,
+    "topic": "Policy Analyzer",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "During a regulatory audit, an insurance company is asked to produce a list of every principal, including members of nested groups and service accounts, that can read a particular BigQuery dataset containing customer PII, along with how that access is derived. The answer must be produced from an authoritative source rather than a manual inventory. What should you do?",
+    "options": [
+      "Export Admin Activity audit logs for the last year to BigQuery and list all principals that appeared in SetIamPolicy events for the dataset.",
+      "Run a Policy Analyzer query in Cloud Asset Inventory scoped to the dataset, with group expansion and role expansion enabled, and export the results.",
+      "Open the IAM page of the project and take screenshots of the role bindings that include BigQuery roles.",
+      "Use IAM Recommender to list all principals with BigQuery permissions on the project."
+    ],
+    "answer": [1],
+    "explanation": "Policy Analyzer (analyze-iam-policy in Cloud Asset Inventory) answers 'who has what access to which resource' across the resource hierarchy, expanding groups, roles into permissions, and inherited policies, which is exactly what an auditor needs. Option A shows who changed policies, not the effective set of principals with access, and misses inherited grants. Option C ignores folder and organization inheritance and nested group membership. Option D is a right-sizing tool, not an access inventory tool.",
+    "refs": [
+      "https://cloud.google.com/policy-intelligence/docs/analyze-iam-policies",
+      "https://cloud.google.com/asset-inventory/docs/analyzing-iam-policy"
+    ]
+  },
+  {
+    "id": "d3-sec-008",
+    "domain": 3,
+    "topic": "Groups and Cloud Identity",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A gaming studio has 300 engineers who frequently move between squads. Each squad owns several Google Cloud projects. Today, roles are bound to individual user accounts, and access reviews take weeks because permissions are frequently stale. You want to simplify access management while following Google-recommended practices. What should you do?",
+    "options": [
+      "Grant every engineer the Viewer role at the organization level and elevate individuals to Editor on request.",
+      "Create a shared service account per squad and distribute its key to squad members.",
+      "Create a custom role per squad with all needed permissions and bind it to every engineer in the organization.",
+      "Create a Google Group per squad in Cloud Identity, grant the required roles to the groups, and manage squad changes by updating group membership."
+    ],
+    "answer": [3],
+    "explanation": "Google recommends granting roles to groups instead of individuals; when an engineer changes squads, only the group membership changes, and access reviews become a review of group members. Option A over-grants and still depends on manual per-person elevation. Option B shares a service account key among humans, removing individual accountability and creating a credential-leak risk. Option C binds every engineer to every squad's role, which is the opposite of least privilege.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/groups-in-cloud-console",
+      "https://cloud.google.com/iam/docs/using-iam-securely"
+    ]
+  },
+  {
+    "id": "d3-sec-009",
+    "domain": 3,
+    "topic": "Identity federation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank is adopting Google Cloud. Its 8,000 employees authenticate against on-premises Active Directory, and the security team requires that Google Cloud sign-in use the existing corporate credentials and MFA, that accounts are automatically disabled when an employee leaves, and that no passwords are stored in Google. What should you recommend?",
+    "options": [
+      "Use Google Cloud Directory Sync to provision users and groups from Active Directory into Cloud Identity, and configure SAML single sign-on with AD FS as the identity provider.",
+      "Create Cloud Identity accounts manually for each employee, ask them to set a Google password, and enforce 2-Step Verification.",
+      "Create a Google Workspace tenant and migrate all mailboxes so that employees can sign in with Google credentials.",
+      "Deploy a Managed Microsoft AD domain in Google Cloud, migrate all user objects into it, and use it as the identity source for the Google Cloud console."
+    ],
+    "answer": [0],
+    "explanation": "The recommended pattern for Active Directory customers is to provision identities with Google Cloud Directory Sync (GCDS) so lifecycle changes such as offboarding flow automatically, and to federate authentication with SAML so passwords and MFA stay with the corporate IdP. Option B duplicates credentials in Google and has no automatic deprovisioning. Option C is a mail migration that is unrelated to the identity requirement and still results in Google-stored passwords. Option D provides Kerberos/LDAP for workloads inside Google Cloud, but it is not an identity provider for Google Cloud console sign-in.",
+    "refs": [
+      "https://cloud.google.com/architecture/identity/federating-gcp-with-active-directory-introduction",
+      "https://cloud.google.com/architecture/identity/best-practices-for-federating"
+    ]
+  },
+  {
+    "id": "d3-sec-010",
+    "domain": 3,
+    "topic": "Service accounts",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A logistics company is standardizing how applications running on Compute Engine and GKE authenticate to Google Cloud APIs. A recent review found that most workloads use the Compute Engine default service account, which had automatically received the Editor role, and several teams have downloaded service account keys into container images. You want to adopt Google-recommended practices for service account security across the organization. What should you do? (Choose two.)",
+    "options": [
+      "Rotate the default service account keys every 30 days and store them in Secret Manager for the workloads to download at startup.",
+      "Create a dedicated user-managed service account for each workload and grant it only the predefined roles it needs on the specific resources it uses.",
+      "Grant the Compute Engine default service account the Viewer role instead of Editor so that all workloads inherit read-only access.",
+      "Enforce the iam.automaticIamGrantsForDefaultServiceAccounts organization policy constraint so that new default service accounts are not automatically granted Editor.",
+      "Configure each workload to use a single shared organization-wide service account with Owner to simplify permission management."
+    ],
+    "answer": [1, 3],
+    "explanation": "Google's guidance is to use a dedicated, least-privileged user-managed service account per workload and to stop relying on default service accounts; the iam.automaticIamGrantsForDefaultServiceAccounts constraint prevents the automatic Editor grant in new projects. Option A keeps using long-lived keys, which is the core problem; attached service accounts obtain short-lived tokens from the metadata server without keys. Option C still shares one identity across all workloads and grants project-wide read access that most workloads do not need. Option E is the opposite of least privilege and eliminates workload isolation.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/best-practices-service-accounts",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts"
+    ]
+  },
+  {
+    "id": "d3-sec-011",
+    "domain": 3,
+    "topic": "Service accounts",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A developer is building an image-processing service on a Compute Engine managed instance group. The service must upload results to a specific Cloud Storage bucket. The developer plans to generate a service account JSON key and copy it into the VM image so the application can authenticate. You need to recommend a more secure approach with minimal code changes. What should you do?",
+    "options": [
+      "Store the JSON key in Secret Manager and have the application fetch it at startup using the default credentials.",
+      "Encrypt the JSON key with Cloud KMS and bake the encrypted key into the image along with the decryption logic.",
+      "Create a user-managed service account with the Storage Object Creator role on the bucket, attach it to the instance template, and let the application use Application Default Credentials from the metadata server.",
+      "Grant the developer's user account the Storage Object Creator role and run the application under the developer's credentials on the VM."
+    ],
+    "answer": [2],
+    "explanation": "Attaching a dedicated service account to the VM lets client libraries obtain short-lived access tokens automatically through the metadata server, so no key file exists to leak and no code change is needed beyond removing the key path. Options A and B still create and depend on a long-lived key, only moving where it is stored. Option D ties the workload to a human identity, which breaks when the person leaves and violates the principle of using service accounts for workloads.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances",
+      "https://cloud.google.com/docs/authentication/application-default-credentials"
+    ]
+  },
+  {
+    "id": "d3-sec-012",
+    "domain": 3,
+    "topic": "Service account impersonation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A platform engineer at a retail company occasionally needs to run Terraform to change production networking, which requires broad permissions. The security team refuses to grant those permissions to the engineer's user account permanently and does not allow service account keys. Every privileged action must be attributable to the engineer in audit logs. What should you do?",
+    "options": [
+      "Create a privileged service account, download its key, and store the key in the engineer's password manager for use when needed.",
+      "Create a privileged service account with the required roles, grant the engineer the Service Account Token Creator role on it, and have Terraform run with service account impersonation.",
+      "Grant the engineer the Owner role with an IAM Condition limiting access to weekends when changes are typically made.",
+      "Add the engineer to the organization's Super Admin group so that access can be obtained whenever required."
+    ],
+    "answer": [1],
+    "explanation": "Service account impersonation lets a user obtain short-lived credentials for a privileged service account without holding the permissions directly or handling keys; Cloud Audit Logs record both the impersonated service account and the original caller, satisfying attribution. Option A relies on a long-lived key, which is explicitly forbidden and hard to attribute. Option C still grants excessive standing privilege (Owner) and a time window does not equal least privilege. Option D grants the highest possible privilege and is unrelated to Google Cloud resource permissions.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/service-account-impersonation",
+      "https://cloud.google.com/iam/docs/create-short-lived-credentials-direct"
+    ]
+  },
+  {
+    "id": "d3-sec-013",
+    "domain": 3,
+    "topic": "Workload Identity Federation",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare provider receives nightly claims files from an on-premises batch system operated by a third-party billing vendor. The files must be uploaded to a Cloud Storage bucket. The provider's security policy prohibits creating service account keys anywhere in the organization, and the vendor runs its own OpenID Connect–compliant identity provider for its servers. What should you do?",
+    "options": [
+      "Create a service account with the Storage Object Creator role, generate a key, and send it to the vendor over an encrypted channel with a 90-day rotation schedule.",
+      "Set up a Cloud VPN tunnel to the vendor's data center and allow uploads only from the vendor's IP range through a bastion host that has an attached service account.",
+      "Give the vendor's operators Cloud Identity accounts and have the batch job run gcloud with a user's OAuth credentials cached on the server.",
+      "Create a workload identity pool with an OIDC provider that trusts the vendor's identity provider, add an attribute condition restricting it to the batch system's subject, and grant the federated identity the Storage Object Creator role on the bucket."
+    ],
+    "answer": [3],
+    "explanation": "Workload Identity Federation allows external workloads to exchange tokens from an OIDC or SAML identity provider for short-lived Google Cloud credentials, eliminating service account keys; attribute conditions ensure only the intended workload can federate. Option A violates the no-keys policy and the organization policy that would enforce it. Option B adds network complexity and the batch job would still need credentials on the bastion; it does not solve authentication. Option C misuses human credentials for an automated workload, which breaks attribution and can be abused.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/workload-identity-federation",
+      "https://cloud.google.com/iam/docs/workload-identity-federation-with-other-providers"
+    ]
+  },
+  {
+    "id": "d3-sec-014",
+    "domain": 3,
+    "topic": "Workload Identity for GKE",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An e-commerce company runs dozens of microservices on a GKE Standard cluster. Only the order service should be able to publish to a Pub/Sub topic, but today all pods inherit the node service account, which has Pub/Sub Publisher on the project. A security review requires per-workload identity with no key material stored in the cluster. What should you do?",
+    "options": [
+      "Enable Workload Identity Federation for GKE on the cluster and node pools, create a Kubernetes service account for the order service, and grant the Pub/Sub Publisher role on the topic to that Kubernetes service account principal.",
+      "Create a service account key for a Pub/Sub publisher service account and mount it into the order service pod as a Kubernetes Secret.",
+      "Create a separate node pool for the order service with a node service account that has Pub/Sub Publisher, and use node taints to schedule only the order service there.",
+      "Remove Pub/Sub Publisher from the node service account and instead have the order service call Pub/Sub through a Cloud Run proxy that holds the permission."
+    ],
+    "answer": [0],
+    "explanation": "Workload Identity Federation for GKE lets individual Kubernetes service accounts authenticate as IAM principals, so you can grant roles directly to a specific workload with short-lived tokens and no keys. Option B introduces long-lived key material into the cluster, which the review forbids. Option C provides coarse isolation at the node-pool level, wastes capacity, and still lets any pod scheduled on that pool use the identity. Option D adds an unnecessary hop and moves rather than solves the identity problem.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity"
+    ]
+  },
+  {
+    "id": "d3-sec-015",
+    "domain": 3,
+    "topic": "Workload Identity Federation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech startup deploys its API to Cloud Run using GitHub Actions. The pipeline currently authenticates with a service account JSON key stored as a GitHub repository secret. After a leaked-credential incident at another company, the CTO wants to eliminate long-lived credentials from CI while keeping GitHub Actions. What should you do?",
+    "options": [
+      "Move the JSON key from GitHub secrets to Secret Manager and have the workflow retrieve it at the start of each run.",
+      "Shorten the key rotation interval to seven days using a scheduled Cloud Run function that creates a new key and updates the GitHub secret.",
+      "Configure Workload Identity Federation with GitHub's OIDC provider, restrict the pool with an attribute condition on the repository and branch, and let the workflow exchange its OIDC token for short-lived credentials.",
+      "Self-host a GitHub Actions runner on a Compute Engine VM with an attached service account and migrate all workflows to it."
+    ],
+    "answer": [2],
+    "explanation": "GitHub Actions can issue OIDC tokens, and Workload Identity Federation exchanges them for short-lived Google Cloud credentials with no stored secret; attribute conditions ensure only the intended repository and branch can authenticate. Option A still uses a long-lived key and the workflow would need another credential to read Secret Manager. Option B reduces but does not eliminate the exposure window and adds custom automation. Option D removes the key but adds infrastructure to patch and operate, contradicting the requirement to keep the existing GitHub-hosted setup with minimal change.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines",
+      "https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions"
+    ]
+  },
+  {
+    "id": "d3-sec-016",
+    "domain": 3,
+    "topic": "Workload Identity Federation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A travel company runs its booking engine on Amazon EC2 and uses BigQuery on Google Cloud for analytics. An EC2-hosted job must query BigQuery several times per hour. The security team requires that no Google Cloud credentials be stored on the EC2 instances and that access be traceable to the specific AWS IAM role used by the job. What should you do?",
+    "options": [
+      "Create a Google Cloud service account, store its key in AWS Secrets Manager, and have the job read the key before querying BigQuery.",
+      "Create a workload identity pool with an AWS provider, map the EC2 instance's IAM role to the pool, and grant the mapped identity the BigQuery Job User and Data Viewer roles.",
+      "Set up Cross-Cloud Interconnect between AWS and Google Cloud so that the job can reach BigQuery privately without authenticating.",
+      "Replicate the BigQuery dataset to Amazon Redshift every hour so that the job never has to authenticate to Google Cloud."
+    ],
+    "answer": [1],
+    "explanation": "Workload Identity Federation with an AWS provider lets EC2 workloads use their AWS IAM role credentials to obtain short-lived Google Cloud tokens; attribute mapping preserves the AWS role identity in Cloud Audit Logs. Option A stores a long-lived Google credential in AWS, which violates the requirement. Option C addresses network connectivity but BigQuery still requires authenticated, authorized calls. Option D introduces data duplication, latency and cost and does not address the identity requirement for other Google Cloud interactions.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/workload-identity-federation-with-other-clouds",
+      "https://cloud.google.com/iam/docs/workload-identity-federation"
+    ]
+  },
+  {
+    "id": "d3-sec-017",
+    "domain": 3,
+    "topic": "Custom roles",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A public-sector agency's security team must give an operations group the ability to start and stop Compute Engine instances and view their serial console output, but not to create, delete or modify instances. No predefined role matches this set of permissions. The role will be needed in 60 projects spread across several folders, and new projects are created weekly. What should you do?",
+    "options": [
+      "Create the custom role in each of the 60 projects using a script, and update the script to run whenever a new project is created.",
+      "Grant the Compute Instance Admin (v1) role and rely on an IAM Condition that restricts the allowed API methods to start, stop and getSerialPortOutput.",
+      "Grant the Compute Viewer role and instruct the operations group to open support tickets whenever an instance needs to be started or stopped.",
+      "Create a single custom role at the organization level containing only the required compute.instances permissions, and grant it to the operations group on the relevant folders."
+    ],
+    "answer": [3],
+    "explanation": "Custom roles can be defined at the organization or project level; an organization-level custom role can be granted on any folder or project in the organization, so one definition covers current and future projects, and folder-level grants are inherited automatically. Option A creates 60 copies that drift over time and requires ongoing automation. Option B does not work because IAM Conditions cannot restrict by API method; they evaluate resource and request attributes such as name, type, tags and time. Option C fails the functional requirement and adds manual toil.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/creating-custom-roles",
+      "https://cloud.google.com/iam/docs/roles-overview#custom"
+    ]
+  },
+  {
+    "id": "d3-sec-018",
+    "domain": 3,
+    "topic": "IAM deny policies",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments company encrypts cardholder data with Cloud KMS keys across many projects. A compliance requirement states that nobody, including project Owners and Cloud KMS Admins, may destroy key versions except a designated break-glass group. Teams must retain the ability to create and rotate keys in their own projects. What should you do?",
+    "options": [
+      "Create an IAM deny policy at the organization level that denies the cloudkms.cryptoKeyVersions.destroy permission to all principals, with an exception for the break-glass group.",
+      "Remove the Cloud KMS Admin role from all users and require that every key-management operation be requested through the break-glass group.",
+      "Enable the constraints/cloudkms.minimumDestroyScheduledDuration organization policy so that destroyed key versions can always be restored.",
+      "Set an IAM Condition on every Cloud KMS Admin binding that limits it to business hours, when the break-glass group can monitor activity."
+    ],
+    "answer": [0],
+    "explanation": "IAM deny policies let you block specific permissions for principals regardless of the allow roles they hold, and they support exception principals; applied at the organization level they cover all current and future projects while leaving other KMS operations untouched. Option B removes legitimate self-service and creates a bottleneck. Option C lengthens the scheduled destruction window, which is a useful complementary control, but it does not prevent destruction. Option D neither prevents destruction nor limits it to the break-glass group.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/deny-overview",
+      "https://cloud.google.com/kms/docs/separation-of-duties"
+    ]
+  },
+  {
+    "id": "d3-sec-019",
+    "domain": 3,
+    "topic": "Service account keys",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company wants to prevent the creation of new service account keys across its Google Cloud organization. One legacy folder contains a vendor-supplied application that still requires keys and cannot be changed for another year. The company also wants to identify existing keys that have not been used recently so they can be disabled. What should you do?",
+    "options": [
+      "Enforce the iam.disableServiceAccountKeyCreation constraint on each project individually, skipping the legacy projects, and audit keys by reading each project's IAM page.",
+      "Enforce the iam.disableServiceAccountKeyCreation organization policy constraint at the organization level, override it to not enforced on the legacy folder, and use service account key insights and Recommender to find unused keys.",
+      "Create an IAM deny policy that denies iam.serviceAccountKeys.create to all principals in the organization and rely on Cloud Logging to detect unused keys.",
+      "Delete all existing service account keys immediately and rotate the vendor application to use Workload Identity Federation."
+    ],
+    "answer": [1],
+    "explanation": "Organization policy constraints are inherited and can be overridden at a folder or project, so enforcing iam.disableServiceAccountKeyCreation at the organization and relaxing it only on the legacy folder is the least-effort, most consistent approach; Policy Intelligence key insights identify keys unused in the last 90 days. Option A is manual, does not cover new projects, and offers no usage insight. Option C is a workable block but deny policies lack the folder-level exception convenience for this use case and Cloud Logging alone does not surface unused keys without custom analysis. Option D breaks the vendor application that cannot be changed yet.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts",
+      "https://cloud.google.com/policy-intelligence/docs/service-account-insights"
+    ]
+  },
+  {
+    "id": "d3-sec-020",
+    "domain": 3,
+    "topic": "Privileged access",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A multinational retailer is setting up its Google Cloud organization. The CISO asks you to define how the Cloud Identity super admin accounts and the Organization Administrator role should be handled so that a compromised or departed administrator cannot cause an outage or a breach. Which practices should you recommend? (Choose three.)",
+    "options": [
+      "Use dedicated super admin accounts that are not used for daily work, and enforce 2-Step Verification with hardware security keys on them.",
+      "Have the platform lead use their super admin account for everyday Google Cloud console work to avoid maintaining multiple accounts.",
+      "Grant the Organization Administrator role to a small Google Group rather than to individuals, and review its membership regularly.",
+      "Grant every project owner the Organization Administrator role so that urgent changes never wait on a small team.",
+      "Configure account recovery options for super admins and export Admin console and Cloud Audit Logs to monitor super admin sign-ins and organization-level policy changes.",
+      "Share one super admin account among the security team using a password vault so that access is never lost when someone leaves."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "Google's super admin best practices call for dedicated, rarely used super admin accounts protected by hardware-key 2SV, delegation of day-to-day Google Cloud administration to a small group holding Organization Administrator, and configured recovery plus monitoring of privileged activity. Option B mixes high-privilege credentials with routine browsing and phishing exposure. Option D turns a highly sensitive role into a default grant, destroying separation of duties. Option F eliminates individual accountability and makes offboarding a credential-rotation event for everyone.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/super-admin-best-practices",
+      "https://cloud.google.com/iam/docs/using-iam-securely"
+    ]
+  },
+  {
+    "id": "d3-sec-021",
+    "domain": 3,
+    "topic": "Service accounts",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospitality company is deploying a new Cloud Run service that reads a database password from Secret Manager and connects to a Cloud SQL instance. The developer asks which identity the service should run as and what permissions it should have. What should you recommend?",
+    "options": [
+      "Run the service as the Compute Engine default service account and grant it the Editor role so that both APIs work without further configuration.",
+      "Run the service under a developer's user credentials so that all actions are attributed to a named person.",
+      "Create a dedicated user-managed service account for the service, grant it Secret Manager Secret Accessor on the specific secret and Cloud SQL Client on the instance's project, and assign it as the service's runtime identity.",
+      "Create a dedicated service account, download its key, and store the key as an environment variable in the Cloud Run service configuration."
+    ],
+    "answer": [2],
+    "explanation": "Each Cloud Run service should have its own least-privileged runtime service account; Secret Accessor scoped to the individual secret and Cloud SQL Client are the minimal predefined roles needed. Option A relies on the default service account with broad Editor permissions, which is a well-known anti-pattern. Option B ties the service to a human account, which is not possible for Cloud Run runtime identity and would break when the person leaves. Option D creates an unnecessary long-lived key even though the runtime identity already provides short-lived credentials automatically.",
+    "refs": [
+      "https://cloud.google.com/run/docs/securing/service-identity",
+      "https://cloud.google.com/secret-manager/docs/access-control"
+    ]
+  },
+  {
+    "id": "d3-sec-022",
+    "domain": 3,
+    "topic": "Service Account User role",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A developer with the Compute Instance Admin (v1) role can create VMs in a project, but receives a permission error whenever they try to create a VM with a specific application service account attached. The service account exists and has the roles the application needs. What should you do to resolve the issue while granting the minimum additional privilege?",
+    "options": [
+      "Grant the developer the Service Account Admin role at the project level.",
+      "Grant the developer the Owner role on the project so that all service account operations succeed.",
+      "Grant the developer the Service Account Token Creator role on the project.",
+      "Grant the developer the Service Account User role on the specific application service account."
+    ],
+    "answer": [3],
+    "explanation": "Attaching a service account to a resource requires the iam.serviceAccounts.actAs permission on that service account, which the Service Account User role provides; granting it on the individual service account is the least-privilege fix. Option A allows managing (creating, deleting, changing policies of) service accounts, which is much broader and does not by itself include actAs in all contexts. Option B is a massive over-grant. Option C allows creating tokens to impersonate service accounts, which is a different capability and a security-sensitive one.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/service-accounts-actas",
+      "https://cloud.google.com/iam/docs/service-account-permissions"
+    ]
+  },
+  {
+    "id": "d3-sec-023",
+    "domain": 3,
+    "topic": "Cross-project access",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media analytics company runs a Dataflow pipeline in project data-pipelines that must read a BigQuery dataset owned by a different team in project content-warehouse. Both projects are in the same organization. The content team wants to grant the minimum access necessary and does not want to manage any credentials for the pipeline. What should you do?",
+    "options": [
+      "Grant the pipeline's Dataflow worker service account from project data-pipelines the BigQuery Data Viewer role on the specific dataset in project content-warehouse.",
+      "Create a service account in project content-warehouse with BigQuery Data Viewer, export its key, and store the key in project data-pipelines' Secret Manager for the pipeline to use.",
+      "Copy the dataset into project data-pipelines every night using a scheduled query so that the pipeline never needs cross-project access.",
+      "Grant the Dataflow worker service account the BigQuery Data Viewer role at the organization level so that it can read datasets in any project."
+    ],
+    "answer": [0],
+    "explanation": "IAM principals, including service accounts, can be granted roles on resources in any project within the organization, so the pipeline's existing worker service account can be granted dataset-level access in the other project with no credentials to manage. Option B unnecessarily introduces a long-lived key. Option C duplicates data, increases cost and adds freshness lag. Option D grants far more access than needed across the entire organization, violating least privilege.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/control-access-to-resources-iam",
+      "https://cloud.google.com/iam/docs/best-practices-service-accounts"
+    ]
+  },
+  {
+    "id": "d3-sec-024",
+    "domain": 3,
+    "topic": "IAM Conditions",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecommunications company runs development and production Compute Engine instances in the same project because of a legacy Shared VPC design that cannot change this quarter. A first-line operations team must be able to stop, start and reset development instances but must have no control over production instances. Instances are created continuously by automation. What should you do?",
+    "options": [
+      "Grant the Compute Instance Admin (v1) role at the project level and rely on naming conventions and team training to avoid touching production instances.",
+      "Apply a tag such as env=dev to development instances through the automation, and grant the operations team a role with instance start/stop permissions using an IAM Condition on resource.matchTag for that tag value.",
+      "Create a separate project for the operations team and grant them Owner on it so that they cannot see production resources.",
+      "Grant the operations team the Compute Viewer role at the project level and let them request stops and starts from the production SRE team."
+    ],
+    "answer": [1],
+    "explanation": "IAM Conditions can reference resource tags (resource.matchTag), allowing one binding to apply only to resources carrying a given tag; because the automation applies the tag at creation time, new development instances are covered without policy changes and production instances remain out of scope. Option A relies on human discipline and grants full control over production. Option C does not give the team access to the development instances, which live in the shared project. Option D fails the functional requirement and creates toil for the SRE team.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/tags-access-control",
+      "https://cloud.google.com/iam/docs/conditions-resource-attributes"
+    ]
+  },
+  {
+    "id": "d3-sec-025",
+    "domain": 3,
+    "topic": "Workload Identity Federation",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An energy company runs a data-ingestion application on Azure virtual machines that must write telemetry to Cloud Storage and BigQuery. Corporate policy forbids service account keys and requires that Google Cloud access be tied to the Azure workload's own identity. Which steps should be part of your design? (Choose two.)",
+    "options": [
+      "Create a workload identity pool with an Azure (OIDC) provider that trusts the Azure tenant, and configure the VMs to use their Azure managed identity to obtain tokens for exchange.",
+      "Create a Google Cloud service account, generate a key, and store it in Azure Key Vault where the VMs retrieve it at startup.",
+      "Deploy HA VPN between Azure and Google Cloud so that the VMs can reach Cloud Storage without any authentication.",
+      "Grant the federated principal, or a service account it is allowed to impersonate, the Storage Object Creator and BigQuery Data Editor roles on the target bucket and dataset.",
+      "Create Cloud Identity user accounts for the application and configure gcloud auth login on each VM with a saved refresh token."
+    ],
+    "answer": [0, 3],
+    "explanation": "Workload Identity Federation with an Azure provider lets managed identities on Azure VMs exchange their tokens for short-lived Google Cloud credentials; you then grant least-privilege roles either directly to the federated principal or to a service account it impersonates. Option B still relies on a long-lived key, which the policy forbids. Option C provides connectivity but not authentication or authorization; Google APIs always require credentials. Option E misuses human user credentials for a workload and stores refresh tokens on servers, which is an anti-pattern.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/workload-identity-federation-with-other-clouds",
+      "https://cloud.google.com/iam/docs/best-practices-service-accounts"
+    ]
+  }
+]

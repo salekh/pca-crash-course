@@ -1,0 +1,524 @@
+[
+  {
+    "id": "d1-ai-026",
+    "domain": 1,
+    "topic": "Vertex AI Search",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A home-improvement retailer's website search returns poor results for natural-language queries such as which drill works with my existing 18V batteries, and the team wants Google-quality semantic search with generative answer summaries over its product pages and help articles. The team has no search engineers and wants to launch within a month. What should you do?",
+    "options": [
+      "Deploy Elasticsearch on GKE and write custom relevance tuning for synonyms and typos.",
+      "Create a Vertex AI Search app with a website and structured data store, and enable generative answers and search summaries.",
+      "Write a Cloud Run service that sends every query to Gemini with the entire product catalog in the prompt.",
+      "Use BigQuery full-text search with the SEARCH function and expose it through an API."
+    ],
+    "answer": [1],
+    "explanation": "Vertex AI Search provides an out-of-the-box, Google-quality semantic search engine with built-in query understanding, synonym handling and generative summaries grounded in the indexed content, deployable over website and structured data without search engineering. Option A requires significant tuning and operations expertise. Option C cannot fit a full catalog in prompts economically and gives no indexed retrieval. Option D offers keyword matching for analytics rather than semantic e-commerce search with summaries.",
+    "refs": [
+      "https://cloud.google.com/generative-ai-app-builder/docs/enterprise-search-introduction",
+      "https://cloud.google.com/generative-ai-app-builder/docs/answer"
+    ]
+  },
+  {
+    "id": "d1-ai-027",
+    "domain": 1,
+    "topic": "Imagen",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A furniture e-commerce company wants to automatically generate lifestyle background scenes around product photos and produce localized marketing image variants at scale, while ensuring generated images are watermarked so they can be identified as AI-generated. Which Google Cloud capability should you use?",
+    "options": [
+      "Cloud Vision API product search to find similar backgrounds in the existing catalog.",
+      "Video Intelligence API to extract still frames from marketing videos.",
+      "Vertex AI AutoML image classification to label backgrounds for a designer.",
+      "Imagen on Vertex AI for image generation and editing, which embeds a SynthID digital watermark in generated images."
+    ],
+    "answer": [3],
+    "explanation": "Imagen on Vertex AI generates and edits images, including background replacement and product-scene composition at scale, and generated images carry an invisible SynthID watermark that can later be verified, which satisfies both the creative and provenance requirements. Option A searches existing images rather than creating new ones. Option B extracts frames from video and cannot compose new scenes. Option C classifies images and does not generate anything.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/image/overview",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen#watermark"
+    ]
+  },
+  {
+    "id": "d1-ai-028",
+    "domain": 1,
+    "topic": "Multimodal Gemini",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A sports broadcaster wants to ask natural-language questions about two-hour match recordings, such as summarize every counterattack in the second half and list timestamps, and generate narrative recaps. Pre-trained label and shot detection do not capture this level of understanding. The broadcaster wants a managed model without training. What should you recommend?",
+    "options": [
+      "Use a Gemini model with long context on Vertex AI, passing the video from Cloud Storage as multimodal input and prompting for timestamped analysis.",
+      "Use the Video Intelligence API's object tracking feature and post-process the results with SQL queries.",
+      "Train a custom action-recognition model with Vertex AI custom training on labeled clips.",
+      "Transcribe the commentary with Speech-to-Text and analyze the text with the Natural Language API."
+    ],
+    "answer": [0],
+    "explanation": "Gemini models are natively multimodal and support very long context, so a full match video can be provided directly as input and queried with natural language for semantic events and timestamps, without any training. Option B returns low-level object tracks that do not express tactical concepts like counterattacks. Option C requires labeled data, training and ongoing maintenance. Option D captures only what commentators said, missing visual events and precise timing.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/video-understanding",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models"
+    ]
+  },
+  {
+    "id": "d1-ai-029",
+    "domain": 1,
+    "topic": "Embeddings in BigQuery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A customer-support organization stores 80 million historical tickets in BigQuery. Analysts, who work only in SQL, want to cluster tickets by semantic similarity, find near-duplicate issues, and run semantic search over the tickets for reporting, without exporting data to another system. Which approach should you recommend?",
+    "options": [
+      "Export the tickets to Cloud Storage and build a Vertex AI Vector Search index queried from a custom application.",
+      "Use the Natural Language API to extract entities from each ticket and group by entity.",
+      "Use BigQuery ML with a remote Vertex AI embedding model to generate embeddings with ML.GENERATE_EMBEDDING, then use VECTOR_SEARCH and clustering functions in SQL.",
+      "Load the tickets into a Cloud SQL database with pgvector and connect Looker Studio to it."
+    ],
+    "answer": [2],
+    "explanation": "BigQuery ML can call Vertex AI embedding models through remote models to generate text embeddings in place, and BigQuery's VECTOR_SEARCH and vector indexes plus K-means clustering let SQL analysts perform semantic similarity, deduplication and search entirely within BigQuery, satisfying the SQL-only and no-export constraints. Option A moves data out and requires application development. Option B produces keyword-level entities rather than semantic similarity. Option D exports data to a system that does not scale well to 80 million vectors for analytics.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/generate-text-embedding",
+      "https://cloud.google.com/bigquery/docs/vector-search-intro"
+    ]
+  },
+  {
+    "id": "d1-ai-030",
+    "domain": 1,
+    "topic": "Generative AI evaluation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketing agency is choosing between two Gemini model variants and three prompt templates for generating product descriptions. Stakeholders disagree based on anecdotal examples, and the team needs objective, repeatable quality measurements for criteria such as fluency, groundedness and adherence to brand guidelines before going live. What should you do?",
+    "options": [
+      "Pick the largest model and the longest prompt, because they will produce the highest quality.",
+      "Use the Vertex AI Gen AI evaluation service with a representative evaluation dataset, defining pointwise and pairwise metrics including custom rubric-based criteria, and compare the candidates systematically.",
+      "Deploy all combinations to production and let customers vote on the descriptions.",
+      "Compute BLEU scores against a handful of human-written descriptions in a spreadsheet."
+    ],
+    "answer": [1],
+    "explanation": "The Gen AI evaluation service in Vertex AI runs model-based and computation-based metrics over an evaluation dataset, supports pairwise comparison of models or prompts and custom rubric criteria such as brand adherence, and stores results as experiments, giving the objective and repeatable evidence the team needs. Option A is an assumption, not a measurement, and ignores cost. Option C exposes customers to unvalidated output and is slow. Option D uses a lexical metric that correlates poorly with quality for open-ended generation and lacks groundedness or style assessment.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview"
+    ]
+  },
+  {
+    "id": "d1-ai-031",
+    "domain": 1,
+    "topic": "Secure AI design",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank is launching a public-facing Gemini chatbot grounded on its product documentation. A red team demonstrated prompt-injection attacks that made the bot reveal system instructions and produce off-topic financial advice. The architect must add a control layer that screens both user prompts and model responses for prompt injection, jailbreak attempts, sensitive data and harmful content, with centralized policies across several applications. What should you do?",
+    "options": [
+      "Add a line to the system prompt instructing the model to ignore any malicious instructions.",
+      "Lower the model temperature to zero so the model behaves deterministically.",
+      "Block all user input containing the word ignore using a Cloud Armor rule.",
+      "Integrate Model Armor to inspect prompts and responses against centrally managed templates, in addition to the built-in Gemini safety settings."
+    ],
+    "answer": [3],
+    "explanation": "Model Armor is Google Cloud's managed service that screens LLM prompts and responses for prompt injection and jailbreak, sensitive data, malicious URLs and harmful content using centrally defined templates that can be applied across many applications, and it complements the configurable safety filters of Gemini. Option A is easily bypassed and is not a security control. Option B affects randomness, not adversarial behavior. Option C is a crude keyword block that both misses most attacks and blocks legitimate queries.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/model-armor-overview",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-attributes"
+    ]
+  },
+  {
+    "id": "d1-ai-032",
+    "domain": 1,
+    "topic": "Function calling",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An electronics retailer's Gemini-based shopping assistant must answer questions such as is this TV in stock at the downtown store and what is today's price, using live data from an inventory API and a pricing service. Responses must reflect real-time values, not cached documents. How should you design the integration?",
+    "options": [
+      "Use Gemini function calling: declare the inventory and pricing operations as function declarations so the model requests a call with structured arguments, execute the call in your application, and return the result to the model for the final answer.",
+      "Index the inventory database into a Vertex AI Search data store every night and ground the model on it.",
+      "Fine-tune Gemini on a nightly export of stock levels and prices.",
+      "Include the full inventory table in the system prompt at the start of each session."
+    ],
+    "answer": [0],
+    "explanation": "Function calling lets the model decide when a live lookup is needed and emit a structured call that the application executes against the real inventory and pricing services, after which the model composes an answer from fresh data, which is the correct pattern for real-time transactional information. Option B is grounding on snapshot data that can be a day stale. Option C bakes volatile data into model weights, which is both expensive and immediately outdated. Option D is too large, stale within minutes, and costly in tokens.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling"
+    ]
+  },
+  {
+    "id": "d1-ai-033",
+    "domain": 1,
+    "topic": "GPU selection for inference",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company serves a 7-billion-parameter open text model and a Stable Diffusion image model for internal tools. Traffic is moderate, latency targets are relaxed (about one second), and the finance team has asked for the lowest cost per inference. The models fit in 24 GB of accelerator memory. Which accelerator should you choose for the serving fleet?",
+    "options": [
+      "A3 VMs with NVIDIA H100 80 GB GPUs for maximum throughput.",
+      "A2 VMs with NVIDIA A100 40 GB GPUs.",
+      "G2 VMs with NVIDIA L4 GPUs, which are optimized for cost-efficient inference.",
+      "N2 VMs with many vCPUs and no accelerators."
+    ],
+    "answer": [2],
+    "explanation": "The L4 GPU on G2 machine types is positioned for cost-efficient inference and generative AI serving, offers 24 GB of memory that fits these models, and costs a fraction of A100 or H100 per hour, giving the lowest cost per inference for moderate traffic with relaxed latency. Options A and B provide far more compute than needed and would be underutilized and expensive. Option D would deliver very high latency for a 7B model and image generation, and total cost per inference would be worse despite the cheaper hourly rate.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/gpus",
+      "https://cloud.google.com/compute/docs/accelerator-optimized-machines#g2-vms"
+    ]
+  },
+  {
+    "id": "d1-ai-034",
+    "domain": 1,
+    "topic": "LLM serving on GKE",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A platform team at a SaaS company has standardized on GKE and wants to self-host several open LLMs with a specific serving engine (vLLM) and custom LoRA adapters, routing requests to the right adapter and scaling on GPU-specific metrics such as KV-cache utilization rather than CPU. They want to use Google-managed capabilities where possible. Which approach should you recommend?",
+    "options": [
+      "Deploy the models to Vertex AI endpoints, because GKE cannot run GPU workloads with custom serving engines.",
+      "Run vLLM on GKE Autopilot or Standard with GPU node pools, use the GKE Inference Gateway for model-aware and LoRA-aware routing, and autoscale on inference metrics such as KV-cache utilization.",
+      "Run vLLM on a Compute Engine MIG behind a passthrough Network Load Balancer with CPU-based autoscaling.",
+      "Run the models on Cloud Run services with GPUs and route by URL path."
+    ],
+    "answer": [1],
+    "explanation": "GKE supports GPU node pools and open serving engines, and the GKE Inference Gateway adds model- and LoRA-adapter-aware routing plus inference-optimized load balancing and autoscaling on metrics such as KV-cache utilization and queue depth, matching the team's requirements while staying on their standard platform. Option A is factually wrong; GKE runs custom GPU serving stacks, and Vertex AI would not give the team the desired control over the engine. Option C uses CPU-based autoscaling, which is the wrong signal for GPU inference, and offers no adapter-aware routing. Option D lacks the required GPU-metric autoscaling and fine-grained routing across adapters.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/about-gke-inference-gateway",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/serve-llm-vllm"
+    ]
+  },
+  {
+    "id": "d1-ai-035",
+    "domain": 1,
+    "topic": "Tabular ML",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription-box startup has a 2-million-row customer table in BigQuery and wants to predict which customers will churn next month. The single data analyst on staff has basic Python skills, no experience with model architectures or hyperparameter tuning, and needs a deployable model with feature importance explanations within a week. What should you do?",
+    "options": [
+      "Use Vertex AI AutoML for tabular data (Tabular Workflows) to train a classification model on the BigQuery table and deploy it to an endpoint with built-in feature attributions.",
+      "Write a custom PyTorch training job with a neural network and run it on Vertex AI Training with hyperparameter tuning.",
+      "Prompt Gemini with each customer's row and ask whether the customer will churn.",
+      "Fine-tune a Gemini model on the customer table formatted as text."
+    ],
+    "answer": [0],
+    "explanation": "AutoML tabular training handles feature engineering, architecture search and hyperparameter tuning automatically, reads directly from BigQuery, produces feature attributions through Vertex Explainable AI, and deploys to a managed endpoint, which fits a novice analyst and the one-week deadline. Option B demands ML expertise the analyst does not have. Options C and D misuse a language model for structured tabular prediction, which is less accurate, far more expensive at two million rows, and does not provide calibrated probabilities or feature importance.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/tabular-data/tabular-workflows/overview",
+      "https://cloud.google.com/vertex-ai/docs/explainable-ai/overview"
+    ]
+  },
+  {
+    "id": "d1-ai-036",
+    "domain": 1,
+    "topic": "BigQuery ML",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional supermarket chain stores daily sales per store and product in BigQuery. The analytics team, which works exclusively in SQL, wants weekly demand forecasts for 5,000 store-product combinations, including holiday effects, without moving data or learning a new tool. Which approach should you recommend?",
+    "options": [
+      "Export the data to Cloud Storage and train a Vertex AI custom forecasting model with a Python script.",
+      "Use Dataproc with Spark MLlib to build ARIMA models for each series.",
+      "Load the data into Vertex AI Workbench and use Prophet in a notebook.",
+      "Create an ARIMA_PLUS or ARIMA_PLUS_XREG model in BigQuery ML with the time series ID column set, holiday effects enabled, and forecast using ML.FORECAST."
+    ],
+    "answer": [3],
+    "explanation": "BigQuery ML's ARIMA_PLUS model trains thousands of time series in one CREATE MODEL statement using the time series ID column, automatically handles seasonality and holiday effects, and produces forecasts through SQL, so the team never leaves BigQuery or SQL. Options A and C require Python and moving data, which the team wants to avoid. Option B introduces cluster management and Spark coding, adding operational overhead and skills the team lacks.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/arima-plus-time-series-forecasting-tutorial",
+      "https://cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-create-time-series"
+    ]
+  },
+  {
+    "id": "d1-ai-037",
+    "domain": 1,
+    "topic": "Vertex AI Feature Store",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company's fraud model was trained on features computed in BigQuery, but the online scoring service recomputes the same features in application code, and subtle differences have caused training-serving skew and degraded precision. The company needs a single source of feature definitions, low-latency online lookups (under 10 ms) at scoring time, and point-in-time correct training datasets. What should you do?",
+    "options": [
+      "Copy the BigQuery feature tables into Memorystore every hour and read them from the scoring service.",
+      "Retrain the model more frequently so it adapts to the serving-time feature distribution.",
+      "Use Vertex AI Feature Store with BigQuery as the offline source of truth, sync features to an online store for low-latency serving, and use point-in-time lookups to build training sets.",
+      "Move feature computation into the model by adding preprocessing layers to the network."
+    ],
+    "answer": [2],
+    "explanation": "Vertex AI Feature Store keeps feature definitions in BigQuery as the single source of truth, synchronizes them to a managed online store for millisecond serving, and supports point-in-time correct retrieval for training, which eliminates duplicated feature logic and the resulting skew. Option A is a home-grown cache with no point-in-time semantics and duplicate logic remains. Option B treats the symptom; skew is a consistency problem, not a freshness problem. Option D can help for simple transformations but cannot embed aggregations over historical data such as 30-day transaction counts.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/featurestore/latest/overview"
+    ]
+  },
+  {
+    "id": "d1-ai-038",
+    "domain": 1,
+    "topic": "Model distillation",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A customer-review platform uses a large Gemini Pro model to extract structured attributes from reviews with 96% accuracy, but at 50 million reviews per month the cost is unsustainable. Experiments with a small Flash-Lite model using the same prompt achieve only 85% accuracy. The team is willing to invest engineering effort once to bring cost down while keeping accuracy above 94%. What should you do?",
+    "options": [
+      "Reduce the number of attributes extracted per review so the large model uses fewer output tokens.",
+      "Use the large model to label a representative sample of reviews, then perform supervised fine-tuning of the small model on those labels (distillation) and validate it meets the 94% target before switching traffic.",
+      "Send only every third review to the large model and mark the rest as unprocessed.",
+      "Run the large model through batch prediction and accept the resulting cost."
+    ],
+    "answer": [1],
+    "explanation": "Distilling knowledge from a large teacher model into a small student model by generating high-quality labels and supervised-tuning the smaller model typically recovers most of the accuracy gap at a fraction of the inference cost, and validation against a held-out set confirms the 94% requirement before cutover. Option A changes the product output rather than the cost structure and does not solve the volume problem. Option C drops functionality for two thirds of reviews. Option D lowers cost only modestly and does not address the fundamental per-token expense of the large model.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-use-supervised-tuning",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-models"
+    ]
+  },
+  {
+    "id": "d1-ai-039",
+    "domain": 1,
+    "topic": "RAG quality",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An engineering firm built a RAG assistant on Vertex AI Search over 50,000 technical PDFs containing tables and diagrams. Users report that answers often cite the wrong section, tables are misread, and exact part numbers are sometimes missed by semantic retrieval. Which two changes should you make to improve answer quality? (Choose two.)",
+    "options": [
+      "Enable the layout parser with document chunking in the data store so tables, headings and sections are parsed into structured, well-bounded chunks.",
+      "Switch retrieval to a hybrid mode that combines semantic search with keyword matching, and apply the ranking API to rerank retrieved chunks before generation.",
+      "Increase the model temperature so the model can guess missing part numbers more creatively.",
+      "Replace the PDFs with screenshots of each page so the model sees the diagrams as images.",
+      "Remove citations from the response so users are not confused by wrong references."
+    ],
+    "answer": [0, 1],
+    "explanation": "Retrieval quality is the root cause: the layout parser with chunking preserves document structure such as tables and section boundaries so the right passages are retrieved and cited, while hybrid search restores exact keyword matching for identifiers like part numbers and reranking improves the ordering of context passed to the model. Option C increases hallucination rather than accuracy. Option D discards extractable text, making retrieval worse. Option E hides the symptom and reduces trust and verifiability.",
+    "refs": [
+      "https://cloud.google.com/generative-ai-app-builder/docs/parse-chunk-documents",
+      "https://cloud.google.com/generative-ai-app-builder/docs/ranking"
+    ]
+  },
+  {
+    "id": "d1-ai-040",
+    "domain": 1,
+    "topic": "Vertex AI Studio",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A product manager with no coding experience wants to experiment with Gemini prompts for a new support-email drafting feature, compare outputs across model versions and safety settings, save the best prompts with version history, and hand a working prompt to developers as ready-to-use code. Which tool should you recommend?",
+    "options": [
+      "Vertex AI Studio in the Google Cloud console, which supports interactive prompt design, model comparison, prompt saving and versioning, and code export.",
+      "Cloud Shell with the gcloud CLI to call the Gemini API.",
+      "A Vertex AI Workbench JupyterLab instance with the Python SDK installed.",
+      "A Dataflow pipeline that runs prompts against a sample dataset."
+    ],
+    "answer": [0],
+    "explanation": "Vertex AI Studio is the console-based playground for generative AI where non-developers can craft and test prompts, adjust parameters and safety settings, compare models, save and version prompts, and export the configuration as code for developers, matching every part of the request. Option B requires command-line skills and offers no prompt management. Option C requires Python. Option D is a data-processing pipeline, not an interactive prototyping tool.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/prompt-gallery"
+    ]
+  },
+  {
+    "id": "d1-ai-041",
+    "domain": 1,
+    "topic": "Speech-to-Text",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pan-African fintech records support calls in Swahili, Amharic, Yoruba and heavily accented English, and the legacy speech model's transcription accuracy is poor for these languages. The company wants a managed API with broad language coverage and strong accuracy on accented speech, and it also needs automatic language identification because many calls switch languages. What should you recommend?",
+    "options": [
+      "Use Cloud Translation to translate the audio directly into English text.",
+      "Train a custom acoustic model per language on Vertex AI using thousands of hours of labeled audio.",
+      "Use the Natural Language API, which supports over 100 languages.",
+      "Use Speech-to-Text v2 with the Chirp universal speech model family, enabling multi-language recognition and language identification."
+    ],
+    "answer": [3],
+    "explanation": "Chirp is Google's universal speech model available through Speech-to-Text v2, trained on millions of hours across more than 100 languages, which provides significantly better accuracy for low-resource languages and accents, and v2 supports automatic language detection across multiple candidate languages. Option A is wrong because Cloud Translation processes text, not audio. Option B is extremely costly in data and expertise for a problem a managed model already covers. Option C analyzes text and does not perform speech recognition.",
+    "refs": [
+      "https://cloud.google.com/speech-to-text/v2/docs/chirp-model",
+      "https://cloud.google.com/speech-to-text/v2/docs/multiple-languages"
+    ]
+  },
+  {
+    "id": "d1-ai-042",
+    "domain": 1,
+    "topic": "Text-to-Speech",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A national railway operator wants to generate spoken platform announcements and app notifications in 15 languages from text, with natural-sounding voices and the ability to control pronunciation of station names and pauses. Announcements change frequently, so pre-recording is impractical. Which service should you use?",
+    "options": [
+      "Speech-to-Text with the output played back through the station speakers.",
+      "Gemini with a prompt asking it to describe how the announcement should sound.",
+      "Cloud Text-to-Speech with high-definition neural voices, using SSML for pronunciation, pauses and emphasis.",
+      "Dialogflow CX with a telephony gateway connected to the station audio system."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Text-to-Speech converts text into natural speech in dozens of languages and voices, and SSML markup gives precise control over pronunciation (including phonemes for station names), pauses and emphasis, which is exactly the requirement for frequently changing announcements. Option A converts speech into text, the opposite direction. Option B produces text, not audio. Option D is a conversational agent platform for dialogs, not a bulk announcement synthesis tool.",
+    "refs": [
+      "https://cloud.google.com/text-to-speech/docs/ssml",
+      "https://cloud.google.com/text-to-speech/docs/voice-types"
+    ]
+  },
+  {
+    "id": "d1-ai-043",
+    "domain": 1,
+    "topic": "Agent tooling for databases",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company is building an internal analytics agent with the Agent Development Kit that must answer questions by querying data in AlloyDB and BigQuery. Security requires that the agent can only run pre-approved, parameterized queries, that database credentials never appear in prompts, and that the same tools be reusable by other agents without duplicating connection code. Which design should you recommend?",
+    "options": [
+      "Have the agent generate arbitrary SQL from natural language and execute it with a service account that has read access to all tables.",
+      "Expose the approved queries as tools through the MCP Toolbox for Databases (a Model Context Protocol server) that holds the connections and parameters, and connect the ADK agent to it as an MCP tool source.",
+      "Embed the database connection string and password in the system instruction so the model can connect directly.",
+      "Export both databases to CSV files nightly and place them in the model context for each request."
+    ],
+    "answer": [1],
+    "explanation": "MCP Toolbox for Databases is Google's open-source MCP server that centralizes database connections, authentication and a curated set of parameterized tools; agents built with the Agent Development Kit consume those tools over the Model Context Protocol, so credentials stay out of prompts, only approved queries can run, and multiple agents reuse the same tools. Option A allows unbounded SQL and broad access, a serious security and correctness risk. Option C leaks secrets into prompts and models cannot open database connections. Option D provides stale data and does not scale to database-sized content.",
+    "refs": [
+      "https://cloud.google.com/blog/products/ai-machine-learning/mcp-toolbox-for-databases-now-supports-model-context-protocol",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-development-kit/overview"
+    ]
+  },
+  {
+    "id": "d1-ai-044",
+    "domain": 1,
+    "topic": "Gemini Live API",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A language-learning startup wants to build a tutoring app where users hold natural, low-latency spoken conversations with an AI tutor that can be interrupted mid-sentence, hears the user's pronunciation, and can optionally see the user's camera to discuss objects. The startup wants a managed Google model rather than stitching together separate speech services. Which capability should you use?",
+    "options": [
+      "The Gemini Live API on Vertex AI, which supports real-time bidirectional streaming of audio and video with low latency and interruption handling.",
+      "Speech-to-Text streaming, a Gemini text request, and Text-to-Speech chained together per utterance.",
+      "Conversational Agents (Dialogflow CX) with a webchat integration.",
+      "Vertex AI batch prediction on recorded audio files uploaded after each lesson."
+    ],
+    "answer": [0],
+    "explanation": "The Gemini Live API is designed for real-time, multimodal voice and video conversations, streaming audio and video in and speech out over a persistent session with native support for interruptions, which delivers the tutoring experience as a single managed capability. Option B is a viable but higher-latency and more complex pipeline that loses paralinguistic cues such as pronunciation nuance and does not handle interruptions naturally. Option C is intent-driven and text-first, not built for continuous free-form multimodal conversation. Option D is offline and not conversational.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/live-api"
+    ]
+  },
+  {
+    "id": "d1-ai-045",
+    "domain": 1,
+    "topic": "Model monitoring",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurer deployed a custom claims-severity regression model on a Vertex AI endpoint six months ago. Business users report that predictions have become less accurate, but the ML team has no visibility into whether the input data distribution has changed since training. They want automated detection and alerting for such changes using managed features. What should you do?",
+    "options": [
+      "Retrain the model every week regardless of performance to keep it fresh.",
+      "Export prediction logs to BigQuery and ask analysts to review histograms monthly.",
+      "Replace the regression model with a Gemini prompt that estimates severity.",
+      "Enable Vertex AI Model Monitoring on the endpoint to detect training-serving skew and prediction drift for input features, with alert thresholds and notifications."
+    ],
+    "answer": [3],
+    "explanation": "Vertex AI Model Monitoring compares the distribution of serving inputs with the training baseline (skew) and with earlier serving windows (drift) for each feature, raising alerts when thresholds are exceeded, which gives the automated visibility the team needs to trigger investigation or retraining. Option A wastes resources and can still miss silent data issues between retrains. Option B is manual and slow. Option C swaps the model without addressing the monitoring gap and is inappropriate for a calibrated numeric regression task.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/model-monitoring/overview"
+    ]
+  },
+  {
+    "id": "d1-ai-046",
+    "domain": 1,
+    "topic": "Gemini API platform choice",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare startup prototyped a Gemini feature using an API key from Google AI Studio. Before processing patient data in production, the compliance team requires IAM-based authentication with service identities, VPC Service Controls, customer-managed encryption keys, regional data processing, and contractual assurance that prompts are not used to train models. Which change should you make?",
+    "options": [
+      "Continue using the AI Studio API key but store it in Secret Manager and rotate it monthly.",
+      "Proxy the AI Studio API through Apigee to add authentication and logging.",
+      "Move the integration to the Gemini API on Vertex AI, which supports IAM, VPC Service Controls, CMEK, regional endpoints and enterprise data governance terms.",
+      "Deploy an open model from Model Garden because Gemini cannot be used for healthcare data."
+    ],
+    "answer": [2],
+    "explanation": "Vertex AI is the enterprise platform for Gemini: it authenticates with IAM and service accounts instead of API keys, integrates with VPC Service Controls and CMEK, offers regional endpoints for data residency, and is covered by Google Cloud's enterprise data governance commitments, meeting every compliance requirement. Option A still relies on a long-lived API key and the consumer developer platform, which lacks the required controls. Option B adds a gateway but cannot provide VPC-SC, CMEK or residency for the upstream service. Option D is based on a false premise; Gemini on Vertex AI supports regulated workloads, including HIPAA-covered use under a BAA.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/migrate/migrate-google-ai",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/data-governance"
+    ]
+  },
+  {
+    "id": "d1-ai-047",
+    "domain": 1,
+    "topic": "Privacy in AI pipelines",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A telecom operator wants to use Gemini on Vertex AI to summarize customer chat transcripts for agent hand-off. Privacy rules state that names, phone numbers and account identifiers must not be sent to the model or stored in its logs, while summaries must remain useful for agents. Which two design decisions should you include? (Choose two.)",
+    "options": [
+      "Run each transcript through Sensitive Data Protection de-identification (for example, tokenization or replacement of detected PII infoTypes) before sending it to the model, and re-identify only where necessary in the agent UI.",
+      "Send the transcript unmodified but instruct the model in the system prompt to omit personal data from the summary.",
+      "Disable request-response logging for the Gemini calls and confirm the Vertex AI data governance terms so prompts are not retained for training.",
+      "Store the raw transcripts in a public Cloud Storage bucket so the model can retrieve them by URL.",
+      "Use the consumer Gemini app to paste transcripts because it is free of charge."
+    ],
+    "answer": [0, 2],
+    "explanation": "Sensitive Data Protection detects and de-identifies PII deterministically before data leaves the operator's control, ensuring the model never receives the identifiers while pseudonymous tokens keep the summary coherent, and controlling logging plus relying on Vertex AI's data governance commitments prevents PII from persisting in model-side logs or training data. Option B still transmits PII to the model, violating the rule, and prompt instructions are not a privacy control. Option D exposes personal data publicly. Option E uses a consumer tool without enterprise data protections.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/data-governance"
+    ]
+  },
+  {
+    "id": "d1-ai-048",
+    "domain": 1,
+    "topic": "Distributed training",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A computer-vision team trains a PyTorch model that currently takes five days on a single 8-GPU VM. They need to cut training time to under one day by scaling across multiple nodes, prefer not to manage a cluster, and want the framework to handle worker orchestration, gradient all-reduce efficiency and automatic retries. Which approach should you recommend?",
+    "options": [
+      "Submit a Vertex AI custom training job with multiple worker pools of GPU machines using a custom container, enabling Reduction Server to accelerate all-reduce across nodes.",
+      "Manually create eight GPU VMs, configure SSH between them, and run torchrun on each host.",
+      "Move the training to a single VM with a faster CPU and more memory.",
+      "Split the dataset into eight shards and train eight independent models, then average their weights."
+    ],
+    "answer": [0],
+    "explanation": "Vertex AI custom training provisions and orchestrates multi-node GPU worker pools for distributed data-parallel training, supports custom containers for PyTorch, and Reduction Server is a Google-optimized all-reduce that increases throughput for multi-node GPU jobs, all without managing a cluster and with built-in job retries. Option B works but is exactly the manual cluster management the team wants to avoid. Option C does not address GPU-bound training time. Option D is not equivalent to distributed training and generally produces a worse model than synchronous data parallelism.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/training/distributed-training",
+      "https://cloud.google.com/vertex-ai/docs/training/distributed-training#reduce_training_time_with_reduction_server"
+    ]
+  },
+  {
+    "id": "d1-ai-049",
+    "domain": 1,
+    "topic": "Low-code conversational agents",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university wants a chatbot on its public website to answer prospective students' questions about admissions, tuition and campus life, using the content of the university's website and a set of PDF handbooks. The IT department has no developers available and wants to launch within two weeks with hand-off to non-technical staff who will maintain the knowledge sources. What should you recommend?",
+    "options": [
+      "Build a custom RAG service with the Agent Development Kit, Vertex AI Vector Search and Cloud Run.",
+      "Create a generative data store agent in Conversational Agents (Dialogflow CX) or Vertex AI Search, pointing it at the website and uploaded PDFs, and embed the provided web widget on the site.",
+      "Fine-tune a Gemini model on the handbooks and expose it via a custom web application.",
+      "Use the Natural Language API to classify visitor questions and display a static FAQ page for each category."
+    ],
+    "answer": [1],
+    "explanation": "A generative data store agent lets non-developers index website content and documents, provides grounded answers with citations, and comes with an embeddable chat widget, so the university can launch quickly and staff can maintain sources through the console. Option A is a developer-intensive build that the department cannot staff or maintain. Option C requires ML work, does not stay current as handbooks change, and needs custom UI development. Option D provides classification only and cannot answer specific questions conversationally.",
+    "refs": [
+      "https://cloud.google.com/dialogflow/cx/docs/concept/data-store-agent",
+      "https://cloud.google.com/generative-ai-app-builder/docs/introduction"
+    ]
+  },
+  {
+    "id": "d1-ai-050",
+    "domain": 1,
+    "topic": "AI training storage",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An autonomous-driving company trains perception models on a GKE cluster with hundreds of GPUs. The training dataset consists of billions of small image files and label files stored in Cloud Storage. GPU utilization is below 40% because data loading is the bottleneck, and the team also needs to write multi-terabyte checkpoints quickly. They want a POSIX-compliant, high-throughput, low-latency file system designed for AI workloads. Which storage option should you recommend?",
+    "options": [
+      "Filestore Basic HDD mounted on every node.",
+      "A multi-region Cloud Storage bucket to increase available bandwidth.",
+      "A Standard Persistent Disk attached to each node containing a copy of the dataset.",
+      "Google Cloud Managed Lustre (or Parallelstore) as a parallel file system, hydrating the dataset from Cloud Storage and using it for checkpoints."
+    ],
+    "answer": [3],
+    "explanation": "Managed Lustre and Parallelstore are parallel file systems built for AI and HPC that deliver very high aggregate throughput and sub-millisecond latency for small-file random reads across many clients with POSIX semantics, and they integrate with Cloud Storage for bulk import and export, which eliminates the data-loading bottleneck and supports fast checkpoint writes. Option A is a low-throughput, zonal HDD tier that cannot feed hundreds of GPUs. Option B changes durability geography, not per-object latency for small files, and multi-region does not solve small-file metadata overhead. Option C is impractical to replicate a billion-file dataset onto every node and standard PD has low IOPS.",
+    "refs": [
+      "https://cloud.google.com/managed-lustre/docs/overview",
+      "https://cloud.google.com/architecture/ai-ml/storage-for-ai-ml"
+    ]
+  }
+]

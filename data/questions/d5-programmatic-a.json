@@ -1,0 +1,534 @@
+[
+  {
+    "id": "d5-prg-001",
+    "domain": 5,
+    "topic": "gcloud configurations",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A consultant works with three clients, each with its own Google account, default project, and default region. She repeatedly runs commands against the wrong client's project because she forgets to pass --project and --region. She wants to switch all of these settings at once with a single command and avoid mistakes. What should you recommend?",
+    "options": [
+      "Create a shell alias per client that prepends --project, --account, and --region flags to every gcloud command.",
+      "Create a named gcloud configuration per client with gcloud config configurations create, set account, project, and compute/region in each, and switch with gcloud config configurations activate.",
+      "Install a separate copy of the Google Cloud SDK in a different directory for each client.",
+      "Use Cloud Shell for one client and the local SDK for the other two so the environments never overlap."
+    ],
+    "answer": [1],
+    "explanation": "Named configurations are the built-in mechanism for exactly this: each configuration holds its own account, project, region/zone, and other properties, and gcloud config configurations activate switches all of them atomically; you can also target one for a single command with --configuration. Option A is fragile — an alias can be forgotten and does not cover tools such as bq or kubectl credentials that read the active configuration. Option C is heavy-handed and makes SDK updates painful. Option D does not scale to three clients and still leaves two sharing a single local SDK configuration.",
+    "refs": [
+      "https://cloud.google.com/sdk/docs/configurations",
+      "https://cloud.google.com/sdk/gcloud/reference/config/configurations"
+    ]
+  },
+  {
+    "id": "d5-prg-002",
+    "domain": 5,
+    "topic": "Application Default Credentials",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A developer ran gcloud auth login and can list Cloud Storage buckets with gcloud from her laptop. However, the Python application she is writing, which uses the Google Cloud client library for Storage, fails locally with an error that default credentials could not be found. She should not download a service account key. What should she do?",
+    "options": [
+      "Run gcloud auth activate-service-account with a key file so the library can find credentials.",
+      "Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path of the gcloud credentials database file.",
+      "Run gcloud auth login again with the --update-adc flag omitted and restart the terminal.",
+      "Run gcloud auth application-default login, which stores user credentials in the well-known ADC location that client libraries read automatically."
+    ],
+    "answer": [3],
+    "explanation": "gcloud auth login authorizes the gcloud CLI itself, but client libraries use Application Default Credentials (ADC), which look first at GOOGLE_APPLICATION_CREDENTIALS, then at the well-known file created by gcloud auth application-default login, then at the metadata server. Running application-default login populates that file with the developer's user credentials — no key file needed. Option A introduces a service account key, which the constraint forbids and which Google recommends avoiding. Option B points ADC at an internal gcloud database that is not a valid credential file. Option C changes nothing; plain gcloud auth login does not write ADC.",
+    "refs": [
+      "https://cloud.google.com/docs/authentication/provide-credentials-adc",
+      "https://cloud.google.com/docs/authentication/application-default-credentials"
+    ]
+  },
+  {
+    "id": "d5-prg-003",
+    "domain": 5,
+    "topic": "Service account impersonation",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A DevOps team's deployment scripts run gcloud auth activate-service-account --key-file=deployer.json on engineers' laptops before deploying to Cloud Run. A security audit flagged the distributed key file. The team still needs engineers to deploy with the deployer service account's permissions rather than their own broader permissions, and each action must be attributable to the individual engineer. What should you recommend?",
+    "options": [
+      "Remove the key file, grant engineers roles/iam.serviceAccountTokenCreator on the deployer service account, and have them run gcloud with --impersonate-service-account (or set auth/impersonate_service_account in their configuration) using their own logged-in identity.",
+      "Rotate the key every 30 days with a Cloud Scheduler job and store it in Secret Manager for engineers to download.",
+      "Replace the key file with an API key restricted to the Cloud Run Admin API.",
+      "Grant engineers the deployer service account's roles directly on their user accounts and delete the service account."
+    ],
+    "answer": [0],
+    "explanation": "Impersonation lets an authenticated user obtain short-lived tokens for a service account without any key: the user needs the Service Account Token Creator role on that service account, and gcloud's --impersonate-service-account flag (or the auth/impersonate_service_account property) transparently uses it. Cloud Audit Logs record both the caller and the impersonated principal, preserving attribution. Option B keeps a long-lived key in circulation; rotation reduces but does not remove the risk. Option C is invalid — API keys do not carry identity and cannot authorize IAM-protected admin operations. Option D widens the engineers' standing privileges and loses the separation the deployer identity provides.",
+    "refs": [
+      "https://cloud.google.com/docs/authentication/use-service-account-impersonation",
+      "https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys"
+    ]
+  },
+  {
+    "id": "d5-prg-004",
+    "domain": 5,
+    "topic": "gcloud storage vs gsutil",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A genomics lab needs a nightly script to upload about 200,000 small files and a few multi-gigabyte files from an on-premises server to a Cloud Storage bucket. The current gsutil cp script is slow and the team has heard gsutil is in maintenance mode. You want the fastest supported command-line approach with minimal tuning. What should you recommend?",
+    "options": [
+      "Keep gsutil but add the -m flag and increase parallel_thread_count in the .boto file.",
+      "Write a custom Python uploader using the Storage client library with a thread pool.",
+      "Use gcloud storage cp (or gcloud storage rsync) which parallelizes uploads and uses parallel composite uploads for large objects automatically.",
+      "Zip the files into one archive first and upload it with gsutil cp so only one object is transferred."
+    ],
+    "answer": [2],
+    "explanation": "The gcloud storage commands are the current, recommended CLI for Cloud Storage; they are significantly faster than gsutil because they use parallelism and parallel composite uploads by default without .boto tuning, and gsutil is now in maintenance mode. Option A can help but requires manual tuning and remains on the legacy tool. Option B is custom code to maintain for a problem the CLI already solves. Option D changes the data layout (individual objects become inaccessible without downloading and extracting the archive) and does not use parallelism.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/gsutil",
+      "https://cloud.google.com/sdk/gcloud/reference/storage/cp"
+    ]
+  },
+  {
+    "id": "d5-prg-005",
+    "domain": 5,
+    "topic": "bq command-line tool",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company lands hundreds of gzipped CSV files each night under gs://shipments/2025-06-14/ and wants a cron-driven shell script that loads them into a date-partitioned BigQuery table partitioned on the ship_date column, appending to existing data. The script must not require writing application code. Which command should you recommend?",
+    "options": [
+      "bq query --use_legacy_sql=false \"LOAD DATA FROM FILES ...\" for each file in a for loop.",
+      "bq load --source_format=CSV --skip_leading_rows=1 --time_partitioning_field=ship_date shipments.daily 'gs://shipments/2025-06-14/*.csv.gz' ./schema.json",
+      "gcloud storage cp gs://shipments/2025-06-14/* . followed by bq insert shipments.daily for each file.",
+      "bq mk --transfer_config --data_source=google_cloud_storage with a schedule of once per file."
+    ],
+    "answer": [1],
+    "explanation": "bq load is the CLI for batch loading: it accepts a Cloud Storage URI with a wildcard so all files load in a single job, reads gzipped CSV natively, and --time_partitioning_field creates or targets a column-partitioned table; the default write disposition appends. Option A works with the LOAD DATA SQL statement but looping per file creates hundreds of jobs unnecessarily. Option C downloads data locally and uses bq insert (streaming inserts from newline-delimited JSON), which is the wrong tool for bulk CSV loading and incurs streaming costs. Option D — the BigQuery Data Transfer Service for Cloud Storage — is a valid scheduled alternative, but a schedule per file is not how it works and the question specifically asks for the cron-driven script.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-csv",
+      "https://cloud.google.com/bigquery/docs/reference/bq-cli-reference#bq_load"
+    ]
+  },
+  {
+    "id": "d5-prg-006",
+    "domain": 5,
+    "topic": "kubectl access to GKE",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A new SRE has been granted roles/container.developer on a project and has the latest Google Cloud SDK installed. Running kubectl get pods against the team's GKE cluster returns an error about the server not being reachable. The SRE has already run gcloud auth login. What should the SRE do?",
+    "options": [
+      "Download the cluster's admin kubeconfig from the console and copy its client certificate into ~/.kube/config.",
+      "Create a service account key with cluster-admin permissions and set it in the kubeconfig user section.",
+      "Ask an administrator to add the SRE's public IP to the cluster's master authorized networks.",
+      "Run gcloud container clusters get-credentials CLUSTER --location LOCATION --project PROJECT, ensuring the gke-gcloud-auth-plugin component is installed, so kubectl gets a context and credentials from the SRE's gcloud identity."
+    ],
+    "answer": [3],
+    "explanation": "kubectl needs a kubeconfig entry for the cluster; gcloud container clusters get-credentials writes the endpoint, CA, and a user entry that obtains tokens through the gke-gcloud-auth-plugin from the current gcloud identity, so IAM roles like container.developer apply. Option A relies on client certificates, which are disabled by default on modern GKE and bypass IAM. Option B creates a key and grants excessive privileges. Option C may be needed additionally for private clusters with authorized networks, but the immediate error is the missing kubeconfig context; without get-credentials, kubectl still has no cluster configured.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/kubectl-plugin"
+    ]
+  },
+  {
+    "id": "d5-prg-007",
+    "domain": 5,
+    "topic": "gcloud output formatting and filtering",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An operations engineer needs a Bash script that stops every running Compute Engine VM in a project that carries the label env=sandbox, regardless of zone. The script must be robust against future changes to human-readable table output. Which approach should you recommend?",
+    "options": [
+      "Use gcloud compute instances list --filter=\"labels.env=sandbox AND status=RUNNING\" --format=\"value(name,zone)\" and loop over the results to call gcloud compute instances stop with the matching --zone.",
+      "Pipe gcloud compute instances list to grep sandbox and awk to extract the first column, then call stop for each name.",
+      "Run gcloud compute instances stop --filter=\"labels.env=sandbox\" --all-zones without listing first.",
+      "Export the instance inventory to a CSV from the console each morning and read it in the script."
+    ],
+    "answer": [0],
+    "explanation": "The --filter flag performs server-side/structured filtering on resource fields (labels, status), and --format=value(...) produces stable, machine-readable output that is not affected by changes to default table layout; the zone is needed because instances stop is a zonal command. Option B parses human-readable tables, which can change and is fragile. Option C is not valid — instances stop does not accept --filter or --all-zones. Option D is manual and immediately stale.",
+    "refs": [
+      "https://cloud.google.com/sdk/gcloud/reference/topic/filters",
+      "https://cloud.google.com/sdk/gcloud/reference/topic/formats"
+    ]
+  },
+  {
+    "id": "d5-prg-008",
+    "domain": 5,
+    "topic": "Service enablement",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A team's Terraform run in a brand-new project fails with an error stating that the Cloud Run Admin API has not been used in the project before or it is disabled. The team's onboarding process creates dozens of new projects per month and they want to prevent this class of failure in a repeatable way. What should you do?",
+    "options": [
+      "Instruct engineers to click the Enable API button in the console when they see the error.",
+      "Grant the Terraform service account the Owner role so it can call any API.",
+      "Enable required APIs as part of project provisioning, for example with google_project_service resources in the project factory module (or gcloud services enable in a bootstrap script) and make dependent resources depend on them.",
+      "Wait a few minutes and retry, because APIs are enabled automatically on first use after propagation."
+    ],
+    "answer": [2],
+    "explanation": "APIs are disabled by default in new projects and must be explicitly enabled; the repeatable fix is to declare them as part of infrastructure as code (google_project_service resources, as the Cloud Foundation Toolkit project factory does) or in a bootstrap script using gcloud services enable, with explicit dependencies so resources are created only after the API is ready. Option A is a manual step that will recur on every project. Option B misdiagnoses the problem — it is service enablement, not IAM, and Owner violates least privilege. Option D is wrong; APIs do not enable themselves on first use.",
+    "refs": [
+      "https://cloud.google.com/service-usage/docs/enable-disable",
+      "https://cloud.google.com/docs/terraform/best-practices/general-style-structure"
+    ]
+  },
+  {
+    "id": "d5-prg-009",
+    "domain": 5,
+    "topic": "Cloud Workstations",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A defense contractor onboards 50 external developers who must work on a sensitive codebase. Source code may not reside on personal laptops, developers need a consistent toolchain (specific JDK, CLI tools, IDE extensions), development environments must reach private resources in the company's VPC only, and idle environments should not incur cost. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Give each developer a Compute Engine VM with an external IP and ask them to install the required tools from a wiki page.",
+      "Create a Cloud Workstations cluster attached to the company's VPC (private gateway, no public IPs) and a workstation configuration built from a custom container image that preinstalls the required toolchain; set idle and running timeouts.",
+      "Ask developers to use Cloud Shell, since it already includes many developer tools.",
+      "Restrict access to the workstations with IAM and, if needed, Chrome Enterprise Premium context-aware access, so code is only accessible through the managed browser or IDE session.",
+      "Distribute a Docker image of the dev environment for developers to run on their own laptops."
+    ],
+    "answer": [1, 3],
+    "explanation": "Cloud Workstations provides managed, preconfigured developer environments inside your VPC: a workstation cluster can use a private gateway with no public IPs, a workstation configuration references a custom container image so every developer gets the same toolchain, and idle/running timeouts stop machines to save cost. Access is governed by IAM and can be layered with Chrome Enterprise Premium context-aware policies, keeping code off personal devices. Option A puts unmanaged VMs on the internet and relies on manual setup. Option C — Cloud Shell — is a personal, ephemeral environment not attached to a customer VPC and not designed for enterprise dev-environment governance. Option E places source code on personal laptops, violating the constraint.",
+    "refs": [
+      "https://cloud.google.com/workstations/docs/overview",
+      "https://cloud.google.com/workstations/docs/customize-container-images",
+      "https://cloud.google.com/workstations/docs/private-clusters"
+    ]
+  },
+  {
+    "id": "d5-prg-010",
+    "domain": 5,
+    "topic": "Cloud Code",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A development team building microservices for GKE spends significant time on the loop of editing code, building an image, pushing it, updating manifests, and checking logs. They use VS Code and want to iterate with automatic rebuild/redeploy on save, set breakpoints in containers running on a local cluster or a dev GKE cluster, and browse Kubernetes resources without leaving the IDE. What should you recommend?",
+    "options": [
+      "Use Cloud Build triggers on every git push and tail logs with gcloud logging tail in a second terminal.",
+      "Use Cloud Deploy with a fast dev pipeline that redeploys on each commit.",
+      "Write a Makefile that runs docker build, docker push, and kubectl apply, and use kubectl port-forward for debugging.",
+      "Install the Cloud Code extension for VS Code, which uses Skaffold for continuous develop-and-debug loops against minikube or GKE, supports attaching debuggers to containers, and includes a Kubernetes/Cloud Run explorer."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Code is Google's IDE extension for VS Code, JetBrains, and Cloud Shell Editor; it wraps Skaffold to watch files and rebuild/redeploy automatically, supports debugging containers running on minikube or a remote GKE cluster, and provides explorers for Kubernetes and Cloud Run resources, logs, and Secret Manager. Options A and B use CI/CD services designed for pipelines rather than sub-minute inner-loop iteration and do not offer breakpoint debugging. Option C is a hand-built inner loop that lacks hot reload and IDE-integrated debugging and must be maintained by the team.",
+    "refs": [
+      "https://cloud.google.com/code/docs/vscode/features",
+      "https://cloud.google.com/code/docs/vscode/debug"
+    ]
+  },
+  {
+    "id": "d5-prg-011",
+    "domain": 5,
+    "topic": "Cloud Shell",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An administrator at a nonprofit occasionally needs to run gcloud, kubectl, and terraform commands from shared library computers where installing software is prohibited. She wants an authenticated environment with these tools preinstalled and a small amount of persistent storage for scripts, at no additional cost. What should you use?",
+    "options": [
+      "Cloud Shell, a browser-based ephemeral VM with the Google Cloud SDK and common tools preinstalled and a 5 GB persistent home directory.",
+      "A Cloud Workstations configuration with the default image, started on demand.",
+      "A small e2-micro Compute Engine VM accessed through SSH-in-browser with the tools installed manually.",
+      "The Cloud Shell Editor only, since it provides a file browser and terminal in the same window."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Shell is free, requires only a browser, is authenticated as the signed-in user, ships with gcloud, kubectl, terraform, and many other tools, and persists $HOME (5 GB) across sessions while the VM itself is ephemeral. Option B is a strong enterprise option but incurs compute and cluster cost, which the scenario wants to avoid. Option C needs manual tool installation and management and is billed. Option D is part of Cloud Shell; the editor alone is not a separate offering and the correct answer is the Cloud Shell environment as a whole.",
+    "refs": [
+      "https://cloud.google.com/shell/docs/how-cloud-shell-works",
+      "https://cloud.google.com/shell/docs/quotas-limits"
+    ]
+  },
+  {
+    "id": "d5-prg-012",
+    "domain": 5,
+    "topic": "Cloud Shell limitations",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A data engineer started a 14-hour Python job in Cloud Shell that processes files from Cloud Storage. The session disconnected after about an hour of inactivity and the job was lost; the engineer also received a warning about weekly usage limits. He wants the job to complete reliably without babysitting a session. What should you recommend?",
+    "options": [
+      "Re-run the job in Cloud Shell inside tmux and keep the browser tab open on a second monitor.",
+      "Enable Cloud Shell boost mode so the session runs on a larger machine that does not time out.",
+      "Run the job outside Cloud Shell, for example as a Cloud Run job or Batch job (or on a Compute Engine VM) using an attached service account, and use Cloud Shell only for interactive administration.",
+      "Split the job into 60-minute chunks and manually start each chunk in a new Cloud Shell session."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Shell is intended for interactive use: sessions terminate after inactivity, the VM is ephemeral, and there is a weekly usage quota, so it is the wrong platform for long-running batch work. Cloud Run jobs or Batch (or a VM) run headless with an attached service account, have no interactive timeout, and can be scheduled and monitored. Option A fights the platform's design and still hits the weekly quota and background-process termination. Option B (boost mode) provides more CPU/RAM but does not change session timeouts. Option D is manual toil that contradicts the goal of reliability without babysitting.",
+    "refs": [
+      "https://cloud.google.com/shell/docs/limitations",
+      "https://cloud.google.com/run/docs/create-jobs"
+    ]
+  },
+  {
+    "id": "d5-prg-013",
+    "domain": 5,
+    "topic": "Pub/Sub emulator",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Developers at a logistics startup write services that publish and subscribe to Pub/Sub. They want to run and test these services on their laptops during a train commute with no internet connection and without creating real topics in a shared project. What should you recommend?",
+    "options": [
+      "Create a dedicated dev project with a topic per developer and rely on local message caching in the client library while offline.",
+      "Run the Pub/Sub emulator locally with gcloud beta emulators pubsub start, set PUBSUB_EMULATOR_HOST (via gcloud beta emulators pubsub env-init) so the client libraries connect to it, and create the needed topics and subscriptions in the emulator at startup.",
+      "Replace Pub/Sub with a local RabbitMQ container for development and swap the client at deploy time.",
+      "Mock the Pub/Sub API in unit tests and skip integration testing until the code is pushed to Cloud Build."
+    ],
+    "answer": [1],
+    "explanation": "The Pub/Sub emulator provides a local implementation of the API; official client libraries automatically use it when PUBSUB_EMULATOR_HOST is set, so no code changes are required. Since the emulator has no persistence or IAM and starts empty, topics and subscriptions must be created each run (typically in a setup script). Option A does not work offline — client libraries do not cache messages for a disconnected network. Option C introduces a different messaging system with different semantics and a client swap that hides bugs. Option D loses local integration coverage entirely and delays feedback.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/emulator",
+      "https://cloud.google.com/sdk/gcloud/reference/beta/emulators/pubsub"
+    ]
+  },
+  {
+    "id": "d5-prg-014",
+    "domain": 5,
+    "topic": "Spanner emulator",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech team uses the Spanner emulator in Docker for local development and CI. Before launch they plan to run their 5,000 QPS load test against the emulator to size the production instance and to validate IAM policies on databases. A senior architect objects. Why, and what should the team do instead?",
+    "options": [
+      "The emulator does not support the DML statements used by the application; they should use a real Spanner instance in the free trial tier.",
+      "The emulator requires a paid license for load testing; they should purchase the enterprise emulator edition.",
+      "The emulator only supports the PostgreSQL dialect; they should convert the schema to GoogleSQL first.",
+      "The emulator runs in-memory on one machine, does not model Spanner's distributed performance characteristics, and has no IAM; they should run load and IAM tests against a real (possibly small, e.g., 100 processing units) Spanner instance in a test project."
+    ],
+    "answer": [3],
+    "explanation": "The Spanner emulator is intended for functional development and testing: it runs in memory on a single host, stores no data across restarts, and explicitly does not emulate performance, capacity, or IAM/permission behavior. Therefore neither instance sizing nor IAM validation is meaningful against it; a small real instance (processing units can be as low as 100) gives representative behavior at modest cost. Option A is false — the emulator supports DML, DDL, and most query features. Option B is fictional; the emulator is free. Option C is wrong; the emulator supports both GoogleSQL and PostgreSQL dialects.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/emulator",
+      "https://cloud.google.com/spanner/docs/compute-capacity"
+    ]
+  },
+  {
+    "id": "d5-prg-015",
+    "domain": 5,
+    "topic": "Bigtable emulator",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telemetry platform stores device time series in Bigtable. Its Cloud Build pipeline runs integration tests that currently create and delete a real Bigtable instance for every build, which takes over ten minutes and occasionally leaves orphaned instances that cost money. You want the tests to remain realistic against the Bigtable API, run fast, and never leave billable resources behind. What should you do?",
+    "options": [
+      "Start the Bigtable emulator (gcloud beta emulators bigtable start) in a background build step, set BIGTABLE_EMULATOR_HOST for the test step, and create the tables and column families with the cbt tool or client at the start of each run.",
+      "Keep a permanent shared Bigtable instance for CI and have each build use a uniquely named table that it truncates afterwards.",
+      "Replace the integration tests with unit tests that mock the Bigtable client interface.",
+      "Switch the CI tests to use Firestore, which has a mature emulator, and keep Bigtable only in production."
+    ],
+    "answer": [0],
+    "explanation": "The Bigtable emulator implements the data API locally and in memory, so tests exercise the real client library and request semantics with startup in seconds and no cloud resources. Because it holds no state and has no persistence, schema (tables, column families) is created programmatically at the start of every run, which also keeps tests hermetic. Option B leaves a permanently billed instance and creates cross-build interference and cleanup risk. Option C removes real API coverage that integration tests are meant to provide. Option D tests the wrong database — behavior against Firestore says nothing about the Bigtable code paths.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/emulator",
+      "https://cloud.google.com/bigtable/docs/cbt-overview"
+    ]
+  },
+  {
+    "id": "d5-prg-016",
+    "domain": 5,
+    "topic": "Cloud Emulators best practices",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A mobile-backend team is adopting Cloud Emulators (Firestore, Pub/Sub) so developers can work offline and CI runs are hermetic. You are advising them on how to use emulators correctly. Which two recommendations are correct? (Choose two.)",
+    "options": [
+      "Configure emulator endpoints through the documented environment variables (for example FIRESTORE_EMULATOR_HOST) rather than hard-coding endpoints in application code, so the same binary runs unchanged in production.",
+      "Use the emulators to run production-scale load tests, because they implement the same APIs as the managed services.",
+      "Rely on the emulators to validate IAM policies and security rules exactly as they will behave in production.",
+      "Treat emulator state as disposable: seed test data at startup and do not depend on data surviving restarts, since most emulators are in-memory unless explicitly configured to persist.",
+      "Point the production deployment at the emulator during initial rollout to reduce cost until traffic grows."
+    ],
+    "answer": [0, 3],
+    "explanation": "Emulators are discovered by the client libraries through environment variables, so setting them in the developer's shell or CI step keeps the application code identical across environments; and because emulators are in-memory (with limited optional persistence in some cases), each run should seed its own data and treat it as ephemeral. Option B is wrong: emulators do not model performance or scale. Option C is wrong for IAM — emulators bypass IAM entirely (Firestore security rules can be tested with the Firebase emulator, but IAM policies cannot). Option E is an anti-pattern; emulators are development tools with no durability, availability, or security guarantees.",
+    "refs": [
+      "https://cloud.google.com/firestore/docs/emulator",
+      "https://cloud.google.com/pubsub/docs/emulator"
+    ]
+  },
+  {
+    "id": "d5-prg-017",
+    "domain": 5,
+    "topic": "Quota management",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A batch-analytics platform occasionally fails when a new project hits the default Compute Engine CPU quota in a region, and separately a service receives HTTP 429 RESOURCE_EXHAUSTED from the BigQuery API during bursts. The platform team wants to manage quotas programmatically and handle rate limits gracefully. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Use the Cloud Quotas API (gcloud quotas / QuotaPreference resources or the Terraform google_cloud_quota_quota_preference resource) to request and track quota increases as part of project provisioning, and monitor quota usage with Cloud Monitoring alerts.",
+      "Create a new project each time a quota is exhausted so that fresh default quotas apply.",
+      "Implement truncated exponential backoff with jitter in the client for 429 and 5xx responses, and reduce burstiness with client-side batching where the API supports it.",
+      "Retry 429 responses immediately in a tight loop until they succeed, since the quota resets every second.",
+      "Disable the BigQuery API's quota by contacting support so that the service is never rate limited."
+    ],
+    "answer": [0, 2],
+    "explanation": "The Cloud Quotas API lets you view, request, and preference quota values programmatically, so increases can be codified in provisioning workflows and tracked, and Monitoring quota metrics allow alerting before exhaustion. For rate limits, Google's client guidance is truncated exponential backoff with jitter — retry storms (option D) worsen the situation and violate API best practices. Option B is quota abuse and scatters resources across projects. Option E is not possible; quotas protect the service, and the correct path is to request specific increases, not remove limits.",
+    "refs": [
+      "https://cloud.google.com/docs/quotas/overview",
+      "https://cloud.google.com/storage/docs/retry-strategy",
+      "https://cloud.google.com/docs/quotas/quota-adjuster"
+    ]
+  },
+  {
+    "id": "d5-prg-018",
+    "domain": 5,
+    "topic": "Break-glass access via impersonation",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regulated fintech restricts standing production access. Administrators normally have read-only roles; for approved changes they must temporarily act with elevated permissions, every command must be attributable to the human operator in Cloud Audit Logs, and no long-lived credentials may exist. Which mechanism should you implement for command-line operations?",
+    "options": [
+      "Give administrators the Owner role but require them to use two-factor authentication.",
+      "Create a privileged service account for each environment, grant administrators roles/iam.serviceAccountTokenCreator on it (ideally via Privileged Access Manager time-bound grants), and require gcloud --impersonate-service-account for elevated operations.",
+      "Store a privileged service account key in Secret Manager and let administrators fetch it for the duration of a change window, then rotate it.",
+      "Create a shared privileged Google account whose password is held by the security team and handed out for approved changes."
+    ],
+    "answer": [1],
+    "explanation": "Impersonation issues short-lived tokens (default one hour) for a privileged service account and logs both the principal that requested the token and the service account that performed the action, meeting attribution and no-long-lived-credential requirements; combining it with Privileged Access Manager makes even the Token Creator grant temporary and approval-gated. Option A creates standing high privilege. Option C still relies on a long-lived key, even if rotated. Option D uses a shared identity that destroys individual attribution and violates basic identity hygiene.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/service-account-impersonation",
+      "https://cloud.google.com/iam/docs/pam-overview"
+    ]
+  },
+  {
+    "id": "d5-prg-019",
+    "domain": 5,
+    "topic": "Access scopes vs IAM",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup runs a nightly script on a Compute Engine VM that copies data to Cloud Storage and writes rows to BigQuery. The VM's attached service account has roles/storage.objectAdmin and roles/bigquery.dataEditor. Cloud Storage operations succeed, but the BigQuery client library fails with a 403 insufficient authentication scopes error. What is the most likely cause and the recommended fix?",
+    "options": [
+      "The service account lacks roles/bigquery.jobUser; add it and rerun the script.",
+      "The BigQuery API is not enabled in the project; run gcloud services enable bigquery.googleapis.com.",
+      "The script must use a service account key instead of the metadata server; download a key and set GOOGLE_APPLICATION_CREDENTIALS.",
+      "The VM was created with the default limited access scopes (which include storage but not BigQuery); stop the VM and set the cloud-platform scope (gcloud compute instances set-service-account --scopes=cloud-platform), controlling permissions with IAM roles instead."
+    ],
+    "answer": [3],
+    "explanation": "On Compute Engine, OAuth access scopes on the instance limit what the attached service account's token can do, independent of IAM. The legacy default scopes include read/write to Storage but exclude BigQuery, which produces exactly the insufficient authentication scopes error even though IAM roles are correct. Google recommends granting the broad cloud-platform scope and enforcing least privilege with IAM roles. Option A would produce a permission denied error, not a scope error (and jobUser might also be needed later, but is not the cause here). Option B yields a different error about the API being disabled. Option C introduces a key, an anti-pattern, when the metadata server credentials work fine once scopes are fixed.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/access/service-accounts#scopes_best_practice",
+      "https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances#changeserviceaccountandscopes"
+    ]
+  },
+  {
+    "id": "d5-prg-020",
+    "domain": 5,
+    "topic": "bq query cost controls",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Analysts at a media company run ad-hoc SQL from a shared shell script that wraps the bq tool. Last month one query scanned 40 TB of an unpartitioned table and caused a large bill. The team wants each scripted query to fail before running if it would scan more than 1 TB and wants analysts to see estimated bytes before committing. Which changes should you make to the wrapper?",
+    "options": [
+      "Add a bq query --dry_run invocation to show estimated bytes processed, then execute the real query with --maximum_bytes_billed=1099511627776 so BigQuery rejects queries above the limit.",
+      "Add --use_legacy_sql=true to every query because legacy SQL scans fewer bytes.",
+      "Add a sleep of 10 seconds before each query so analysts have time to cancel with Ctrl+C.",
+      "Add --batch to every query so it runs at lower priority and therefore costs less."
+    ],
+    "answer": [0],
+    "explanation": "A dry run returns the estimated bytes that a query would process without executing it or incurring cost, and --maximum_bytes_billed makes BigQuery fail the query up front if it would exceed the byte cap — together they give visibility and a hard guardrail (this also can be set as a project-level custom quota). Option B is false; legacy SQL is not cheaper and is deprecated for new work. Option C provides no enforcement. Option D changes scheduling priority, not on-demand pricing, which is per byte scanned regardless of priority.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/best-practices-costs",
+      "https://cloud.google.com/bigquery/docs/running-queries#dry-run"
+    ]
+  },
+  {
+    "id": "d5-prg-021",
+    "domain": 5,
+    "topic": "gcloud compute ssh with IAP",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A security team has removed all external IP addresses from Compute Engine VMs in a project and blocked SSH from the internet. Administrators still need occasional interactive SSH access from their laptops using gcloud, without a bastion host to maintain. What should you configure?",
+    "options": [
+      "Re-add external IPs but restrict the SSH firewall rule to the administrators' home IP addresses.",
+      "Deploy a bastion VM with an external IP in each VPC and use SSH agent forwarding through it.",
+      "Grant administrators roles/iap.tunnelResourceAccessor, allow ingress on TCP 22 from the IAP range 35.235.240.0/20, and connect with gcloud compute ssh VM --tunnel-through-iap.",
+      "Use Cloud VPN from each administrator's home router to the VPC and connect to the VMs' internal IPs."
+    ],
+    "answer": [2],
+    "explanation": "IAP TCP forwarding provides identity-aware SSH/RDP tunnels to instances with only internal IPs: administrators authenticate with their Google identity, authorization is enforced by the IAP Tunnel Resource Accessor role (and optionally context-aware access), and a firewall rule permits traffic from IAP's proxy range. gcloud compute ssh --tunnel-through-iap wraps it transparently. Option A reintroduces public exposure. Option B adds a bastion to patch and secure, which the scenario excludes. Option D is heavy infrastructure for occasional laptop access and does not scale per administrator.",
+    "refs": [
+      "https://cloud.google.com/iap/docs/using-tcp-forwarding",
+      "https://cloud.google.com/sdk/gcloud/reference/compute/ssh"
+    ]
+  },
+  {
+    "id": "d5-prg-022",
+    "domain": 5,
+    "topic": "Local development credentials",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A platform team is writing a standard for how developers authenticate local applications to Google Cloud APIs. Developers must be able to test code that will run in production under a specific service account, without ever downloading service account keys, and API usage must be billed and quota-counted to the developer project rather than failing with a quota-project error. Which two practices should the standard mandate? (Choose two.)",
+    "options": [
+      "Developers create a JSON key for the production service account and store it in an encrypted directory on their laptop.",
+      "Developers run gcloud auth application-default login with --impersonate-service-account=SA_EMAIL so ADC yields short-lived tokens for that service account backed by the developer's own login.",
+      "Developers paste an OAuth access token from gcloud auth print-access-token into a config file that the application reads at startup.",
+      "Developers share one team Google account so that ADC is identical on every laptop.",
+      "Developers set a quota project with gcloud auth application-default set-quota-project DEV_PROJECT (or via the flag at login) so client-library calls are attributed to a project they have serviceusage.services.use on."
+    ],
+    "answer": [1, 4],
+    "explanation": "ADC with impersonation (gcloud auth application-default login --impersonate-service-account) is Google's recommended way to run code locally as a production identity: the developer authenticates with their own account, needs only Token Creator on the service account, and receives short-lived tokens with no key material. Because user credentials in ADC do not inherently carry a billing project, setting the quota project ensures API calls are attributed and do not fail for APIs that require one. Option A downloads a key, explicitly forbidden. Option C is a manual, short-lived token in a file — fragile and insecure. Option D destroys individual attribution and is a basic identity anti-pattern.",
+    "refs": [
+      "https://cloud.google.com/docs/authentication/set-up-adc-local-dev-environment",
+      "https://cloud.google.com/docs/authentication/use-service-account-impersonation",
+      "https://cloud.google.com/docs/authentication/troubleshoot-adc"
+    ]
+  },
+  {
+    "id": "d5-prg-023",
+    "domain": 5,
+    "topic": "Authentication in Cloud Build",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "You review a cloudbuild.yaml in which the first step downloads a service account key from Secret Manager and runs gcloud auth activate-service-account --key-file before subsequent steps run gcloud run deploy. You want to remove the key while keeping the deployment working with least privilege. What should you recommend?",
+    "options": [
+      "Move the key file into the build's source repository so it does not need to be fetched from Secret Manager.",
+      "Delete the authentication step entirely; configure the trigger to run as a dedicated user-specified build service account that holds the Cloud Run Admin and Service Account User roles, since Cloud Build steps automatically authenticate as the build service account.",
+      "Replace the key with an API key stored as a substitution variable and pass it to gcloud with --api-key.",
+      "Keep the step but shorten the key's validity by rotating it on every build with a preceding step."
+    ],
+    "answer": [1],
+    "explanation": "Cloud Build steps run with credentials of the build's service account exposed through the metadata server, so gcloud, kubectl, and client libraries in the build authenticate automatically without any activate-service-account step. Configuring a user-specified service account with only the roles the deployment needs (Cloud Run Admin plus Service Account User to act as the Cloud Run runtime identity) satisfies least privilege. Option A is a serious secret-in-source-control anti-pattern. Option C misunderstands API keys, which cannot authorize IAM-protected operations. Option D still uses long-lived keys and adds complexity.",
+    "refs": [
+      "https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts",
+      "https://cloud.google.com/build/docs/deploying-builds/deploy-cloud-run"
+    ]
+  },
+  {
+    "id": "d5-prg-024",
+    "domain": 5,
+    "topic": "Cloud Shell Editor",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A product manager with basic coding skills wants to make a small change to a Python Cloud Run function, test it, and redeploy it while traveling with a managed Chromebook on which nothing can be installed. Which tool should you recommend?",
+    "options": [
+      "Ask an engineer to install the Google Cloud SDK and VS Code on the Chromebook in developer mode.",
+      "Use the Cloud Console's Cloud Run source editor only, since it deploys automatically but does not allow testing.",
+      "Use the Cloud Shell Editor (a browser-based IDE built into Cloud Shell with Cloud Code integration) to clone the repository, edit and run the function locally in Cloud Shell, and deploy with gcloud run deploy from the integrated terminal.",
+      "Use Cloud Workstations, which requires setting up a cluster and configuration first."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Shell Editor is a full browser-based IDE (based on Code-OSS) included with Cloud Shell; it bundles Cloud Code so you can edit, run functions locally with the Functions Framework, and deploy from the integrated terminal — no installation and no infrastructure setup. Option A violates the device restriction. Option B is limited — inline source editing in the console has no terminal for local testing. Option D is a valid enterprise tool but requires an administrator to provision a cluster and configuration, which is unnecessary overhead for a one-off change.",
+    "refs": [
+      "https://cloud.google.com/shell/docs/editor-overview",
+      "https://cloud.google.com/code/docs/shell/deploy-cloud-run-service"
+    ]
+  },
+  {
+    "id": "d5-prg-025",
+    "domain": 5,
+    "topic": "Testing REST APIs with gcloud tokens",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An engineer wants to quickly test a new Cloud Healthcare API endpoint with curl from her workstation before writing client code. The API requires authenticated, IAM-authorized calls. She is already logged in with gcloud. What is the correct, secure way to make the call?",
+    "options": [
+      "Use curl with an Authorization: Bearer header whose value comes from $(gcloud auth print-access-token), which returns a short-lived OAuth 2.0 access token for the active gcloud account.",
+      "Create an API key in the console, restrict it to the Healthcare API, and append ?key=API_KEY to the URL.",
+      "Download a service account JSON key and pass it to curl with --cert.",
+      "Use curl with basic authentication using her Google account email and password."
+    ],
+    "answer": [0],
+    "explanation": "gcloud auth print-access-token emits a short-lived OAuth 2.0 access token for the currently authenticated principal (or an impersonated service account), which is the standard way to call Google REST APIs ad hoc with curl; the call is authorized by the caller's IAM roles. Option B fails because API keys identify a project, not a principal, and are only accepted by APIs that expose public or unauthenticated data — IAM-protected APIs reject them. Option C misuses a key file (and --cert is for TLS client certificates); it also creates a long-lived credential. Option D is not supported by Google APIs and would expose the account password.",
+    "refs": [
+      "https://cloud.google.com/docs/authentication/rest",
+      "https://cloud.google.com/docs/authentication/api-keys-use"
+    ]
+  }
+]

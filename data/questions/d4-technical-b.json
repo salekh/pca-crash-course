@@ -1,0 +1,488 @@
+[
+  {
+    "id": "d4-tec-024",
+    "domain": 4,
+    "topic": "Blameless postmortems",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank suffered a four-hour outage of its mobile banking API after an engineer applied a firewall rule change directly in production. The COO wants to discipline the engineer and add a mandatory sign-off from a director for all future changes. As the architect advising the operations organization, you want to follow Google SRE practices to prevent recurrence. What should you recommend?",
+    "options": [
+      "Support the disciplinary action so that engineers understand the seriousness of production changes, and add the director sign-off",
+      "Run a blameless postmortem that documents the timeline, contributing factors, and detection gaps, and produces tracked action items such as moving firewall changes into a reviewed infrastructure-as-code pipeline",
+      "Restrict production IAM permissions to a single senior administrator who executes all changes requested by the team",
+      "Close the incident once service is restored and schedule a general training session on firewall configuration for all engineers"
+    ],
+    "answer": [1],
+    "explanation": "Google SRE practice holds that incidents are caused by systems that allow a mistake to become an outage, not by individuals; a blameless postmortem surfaces the real contributing factors (no peer review, no automated validation, no canary, slow detection) and converts them into owned, tracked action items such as putting network changes through Terraform with plan review and policy checks. Option A creates a culture in which people hide mistakes, so future incidents are learned from less, and a director sign-off is a low-value manual gate that DORA research associates with slower delivery and no stability gain. Option C creates a single point of failure and a bottleneck without removing the possibility of error. Option D skips the analysis entirely, so the systemic causes remain. Blameless postmortems are a cornerstone of the operational excellence pillar.",
+    "refs": [
+      "https://sre.google/sre-book/postmortem-culture/",
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "d4-tec-025",
+    "domain": 4,
+    "topic": "Correlating logs and traces",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketplace runs 30 microservices on GKE. Users report that about 2% of checkout requests take more than five seconds, but no single service shows elevated latency in its dashboard. Engineers spend hours copying request IDs between service logs to reconstruct a slow request. You want the team to see, for any slow request, which service and which operation consumed the time, and to jump from a trace directly to the related log lines. What should you do?",
+    "options": [
+      "Increase the log level of every service to DEBUG and create a log-based metric for entries containing the word 'slow'",
+      "Install Cloud Profiler agents in every service and compare CPU flame graphs during the slow periods",
+      "Create an uptime check for the checkout endpoint with a five-second timeout and alert when it fails",
+      "Instrument the services with OpenTelemetry to export spans to Cloud Trace, propagate the trace context between services, and write structured logs that include the trace and span IDs so Cloud Logging links each entry to its trace"
+    ],
+    "answer": [3],
+    "explanation": "Tail latency spread across many hops is a distributed tracing problem. OpenTelemetry instrumentation with context propagation produces a single trace in Cloud Trace showing every service's span and duration for one request, and when structured log entries carry the logging.googleapis.com/trace and spanId fields, Cloud Logging and Cloud Trace cross-link so an engineer can open the exact log lines for the slow span. Option A increases log volume and cost, and a keyword metric does not attribute latency to a specific hop. Option B measures CPU usage within a process; it cannot show waiting on downstream calls, which is the usual source of distributed latency. Option C only detects that the endpoint is slow from the outside, which the team already knows. Correlated logs, metrics, and traces are the observability foundation recommended by the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/trace/docs/setup",
+      "https://cloud.google.com/logging/docs/view/correlate-logs"
+    ]
+  },
+  {
+    "id": "d4-tec-026",
+    "domain": 4,
+    "topic": "Error Reporting",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup runs several event-driven Cloud Run functions that process uploaded documents. Unhandled exceptions are written to Cloud Logging, but the team only notices new failure types when customers complain. They want to be notified when a previously unseen exception type appears, see how many times each distinct error occurs, and do this with the least configuration effort. What should you do?",
+    "options": [
+      "Use Error Reporting, which automatically groups stack traces from Cloud Run functions logs, and enable its notifications for newly detected error groups",
+      "Create a log-based counter metric on severity=ERROR and alert when the count exceeds zero in a five-minute window",
+      "Export all logs to BigQuery and schedule a query that clusters error messages by similarity every hour",
+      "Wrap every function handler in a try/except block that publishes exceptions to a Pub/Sub topic consumed by a notification service"
+    ],
+    "answer": [0],
+    "explanation": "Error Reporting ingests exception stack traces from Cloud Logging for Cloud Run, Cloud Run functions, GKE, App Engine, and Compute Engine automatically, deduplicates them into error groups with occurrence counts and first/last seen timestamps, and can send a notification when a new error group is detected, which is exactly the requested behavior with no code changes. Option B fires on any error volume, cannot distinguish new error types from known ones, and provides no grouping. Option C is a custom analytics pipeline with hourly latency and maintenance burden. Option D requires modifying every function and rebuilds functionality that Error Reporting provides out of the box. Using managed observability tooling reduces toil, an operational excellence recommendation.",
+    "refs": [
+      "https://cloud.google.com/error-reporting/docs/setup/cloud-run-functions",
+      "https://cloud.google.com/error-reporting/docs/notifications"
+    ]
+  },
+  {
+    "id": "d4-tec-027",
+    "domain": 4,
+    "topic": "Cloud Profiler",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company's image-processing service on Cloud Run has seen its per-request CPU cost triple over the last two releases with no change in traffic volume or image sizes. Latency is still within SLO, so there are no errors or alerts, and load tests in staging do not reproduce the increase. You need to identify which code paths consume the extra CPU in production with negligible impact on users. What should you do?",
+    "options": [
+      "Enable DEBUG logging with timing statements around each major function and analyze the log durations in Log Analytics",
+      "Take a heap and CPU dump from a production instance using a debugger attached through an SSH tunnel",
+      "Add the Cloud Profiler agent to the service, deploy, and compare CPU-time flame graphs for the current version against the version from two releases ago using Profiler's version comparison",
+      "Enable Cloud Trace sampling at 100% and inspect the spans for the slowest requests"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Profiler is a continuous, low-overhead (typically under 1% CPU) statistical profiler designed for production; it aggregates CPU-time and other profiles per service version and lets you compare two versions side by side, which directly reveals the functions whose CPU share grew. Because the regression only appears with real production data, profiling in production is required, and Profiler's sampling design makes that safe. Option A perturbs the code, adds log cost, and only measures the functions you guessed to instrument. Option B is impractical on Cloud Run (no SSH to instances) and a paused debugger would disrupt live requests. Option D measures request latency across service boundaries; it does not attribute CPU time to code paths, and 100% sampling adds cost for no benefit here. Profiling and benchmarking are explicit topics in the exam guide and part of performance optimization.",
+    "refs": [
+      "https://cloud.google.com/profiler/docs/about-profiler",
+      "https://cloud.google.com/profiler/docs/comparing-profiles"
+    ]
+  },
+  {
+    "id": "d4-tec-028",
+    "domain": 4,
+    "topic": "Gemini Cloud Assist investigations",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A small platform team supports a mix of GKE, Cloud SQL, and Cloud Run workloads. During overnight incidents the on-call engineer is often unfamiliar with the failing system and spends the first hour manually collecting logs, recent configuration changes, and metrics before forming a hypothesis. The team wants to shorten time to restore service without hiring more SREs. Which approach should you recommend?",
+    "options": [
+      "Write a runbook for each service that lists the exact Logs Explorer queries and Cloud Monitoring charts to open, and require on-call engineers to read it before responding",
+      "Use Gemini Cloud Assist investigations, started from the alert or the affected resource, so it automatically correlates logs, metrics, recent changes, and configuration and proposes ranked root-cause hypotheses and remediation steps for the engineer to validate",
+      "Configure every alerting policy to page the entire engineering organization so that whoever knows the system best can respond",
+      "Export all logs and metrics to BigQuery and train a custom Vertex AI model to predict root causes from historical incidents"
+    ],
+    "answer": [1],
+    "explanation": "Gemini Cloud Assist investigations are purpose-built for this situation: launched from an alert, a log entry, or a resource, an investigation gathers relevant Cloud Logging entries, Cloud Monitoring signals, Cloud Audit Log changes, and configuration for the affected resources and its dependencies, then presents ranked observations and hypotheses with suggested next steps, which cuts the manual data-gathering phase that dominates time to restore. Option A helps but is static, decays as systems change, and still relies on the engineer to correlate the data. Option C causes alert fatigue and is not a sustainable incident-response model. Option D is a large custom ML project with uncertain outcome and significant maintenance. Reducing toil in troubleshooting with AI-assisted operations is an operational excellence recommendation and Gemini Cloud Assist is explicitly named in the exam guide.",
+    "refs": [
+      "https://cloud.google.com/gemini/docs/cloud-assist/investigations",
+      "https://cloud.google.com/gemini/docs/cloud-assist/overview"
+    ]
+  },
+  {
+    "id": "d4-tec-029",
+    "domain": 4,
+    "topic": "Incident response roles",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "During a recent multi-hour outage at an online education provider, twelve engineers joined the incident call, several made conflicting configuration changes, executives interrupted for status, and customer support gave inconsistent messages. The VP of Engineering asks you to define an incident management process based on Google SRE practices. Which elements should you include? (Choose two.)",
+    "options": [
+      "Designate an Incident Commander who owns coordination and decisions and explicitly delegates operational work, so that only the operations lead makes production changes",
+      "Require all responders to make changes as soon as they have a hypothesis to minimize time to mitigation",
+      "Rotate the Incident Commander role every 15 minutes so no single person becomes fatigued",
+      "Assign a Communications Lead who publishes periodic status updates to stakeholders and customers from a single shared incident document",
+      "Postpone all communication until the root cause is confirmed to avoid publishing incorrect information"
+    ],
+    "answer": [0, 3],
+    "explanation": "Google's incident management framework separates roles: the Incident Commander holds overall command and delegates, the Operations Lead is the only role making production changes (eliminating the conflicting changes seen here), and the Communications Lead handles stakeholder and customer updates on a cadence using a living incident document, which removes executive interruptions and inconsistent messaging. Option B recreates the chaos; changes must be coordinated through the Operations Lead. Option C is far too frequent; handoffs are planned at natural boundaries with an explicit handover, not on a timer that would lose context. Option E withholds information; SRE practice is to communicate early and often with what is known, updating as understanding improves. Clear roles and communication are part of the operational excellence pillar's incident management guidance.",
+    "refs": [
+      "https://sre.google/sre-book/managing-incidents/",
+      "https://sre.google/workbook/incident-response/"
+    ]
+  },
+  {
+    "id": "d4-tec-030",
+    "domain": 4,
+    "topic": "Load testing on GKE",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticket vendor expects 50,000 concurrent users when a popular concert goes on sale. Before the event, the engineering team must verify that the checkout API on Cloud Run and its backing AlloyDB cluster meet the latency SLO at that load. A single load-generating VM cannot produce enough traffic. You want a reusable, scalable approach using open-source tooling. What should you do?",
+    "options": [
+      "Run Apache Bench from Cloud Shell in a loop and extrapolate the results to 50,000 users",
+      "Purchase a commercial load-testing SaaS product and point it at the production endpoint during business hours",
+      "Deploy Locust in distributed mode on a GKE cluster with one master and autoscaled worker pods, run the test against a production-like pre-production environment, and monitor the target's SLIs in Cloud Monitoring during the run",
+      "Replay a sample of production access logs at real time speed with a Dataflow pipeline against the staging environment"
+    ],
+    "answer": [2],
+    "explanation": "Google's reference architecture for distributed load testing uses Locust on GKE: a master pod coordinates many worker pods that can be scaled horizontally to generate tens of thousands of simulated users, test scripts are versioned in Git, and the system is reusable for future events. Running against a production-like pre-production environment protects live customers, and observing the target's latency and error SLIs in Cloud Monitoring (not just the generator's numbers) gives the real answer. Option A cannot generate the load and extrapolation misses non-linear failure modes like connection pool exhaustion. Option B targets production, risking real customer impact, and adds cost for a one-off. Option D replays at real-time speed, so it reproduces historical peaks, not the 50,000-user forecast, and Dataflow is not designed as an HTTP load generator. Load testing before major events is an explicit reliability-pillar practice.",
+    "refs": [
+      "https://cloud.google.com/architecture/distributed-load-testing-using-gke",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d4-tec-031",
+    "domain": 4,
+    "topic": "Chaos engineering",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company has designed its trading platform on GKE and Spanner to survive a zonal failure, but the design has never been exercised. The head of SRE wants to introduce chaos engineering. Several engineers propose starting by deleting a production node pool during trading hours to 'see what happens.' Which approach should you recommend?",
+    "options": [
+      "Start in a pre-production environment with a documented steady-state hypothesis and a limited blast radius, run controlled experiments such as draining a single zone, observe SLIs, fix weaknesses, and only then run scheduled experiments in production with an abort plan",
+      "Proceed with the proposed production experiment because only production reflects real behavior, and announce it in advance so all teams are watching",
+      "Replace chaos experiments with a tabletop discussion of failure scenarios, since real experiments are too risky for a trading platform",
+      "Run chaos experiments only in production, but do so at 3 a.m. on weekends when trading volume is lowest"
+    ],
+    "answer": [0],
+    "explanation": "Chaos engineering is disciplined experimentation: define the steady state (SLIs), form a hypothesis (the platform stays within SLO when one zone is lost), minimize blast radius, run the experiment, and learn. Beginning in pre-production with a small scope lets the team find and fix defects safely, and once confidence is built, production experiments are run with a clear abort mechanism and during agreed windows. Option B is an unbounded production experiment with no hypothesis or abort plan, which is not chaos engineering; it is gambling with customer impact. Option C leaves the zonal-failover design unverified; tabletop exercises complement but do not replace actual experiments. Option D still skips the learning phase and ignores that a poorly scoped experiment can cause damage regardless of time. Verified resilience through controlled failure injection is a reliability-pillar recommendation.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
+      "https://cloud.google.com/blog/products/devops-sre/chaos-engineering-principles-and-practices"
+    ]
+  },
+  {
+    "id": "d4-tec-032",
+    "domain": 4,
+    "topic": "Policy as code for Terraform",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare company provisions all infrastructure with Terraform in Cloud Build. Compliance requires that no Cloud Storage bucket is publicly readable, that resources are created only in US regions, and that every project has a cost-center label. Violations must be caught before terraform apply runs, and the policies must be managed centrally by the security team rather than duplicated in every repository. What should you do?",
+    "options": [
+      "Enable the organization policy constraints for public access prevention and resource locations, and rely on the apply step failing when a violation occurs",
+      "Add a code-review checklist item asking reviewers to confirm bucket ACLs, regions, and labels in every pull request",
+      "Run terraform validate in the pipeline, which checks the configuration against the provider schema and fails on invalid attributes",
+      "Add a pipeline step after terraform plan that runs gcloud beta terraform vet against the plan JSON using constraints from a central policy library repository maintained by the security team, and fail the build on any violation"
+    ],
+    "answer": [3],
+    "explanation": "gcloud beta terraform vet (the successor to Terraform Validator) evaluates a Terraform plan against Constraint Framework policies from a shared policy library, so the security team maintains bucket-access, location, and label constraints in one repository and every pipeline enforces them before apply, providing a fast, actionable failure to the developer. Option A is a valuable defense in depth and should also be used, but it enforces at apply time (partial applies and confusing errors) and organization policy cannot express arbitrary label requirements. Option B is manual and unreliable at scale. Option C misunderstands terraform validate, which checks syntax and schema correctness, not organizational policy. Shift-left policy enforcement combines the security and operational excellence pillars.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/policy-validation",
+      "https://cloud.google.com/docs/terraform/policy-validation/create-policy-library"
+    ]
+  },
+  {
+    "id": "d4-tec-033",
+    "domain": 4,
+    "topic": "Policy Controller",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company runs dozens of GKE clusters enrolled in a fleet. The platform team wants to forbid privileged containers and require an owner label on every namespace across all clusters. They are worried that enabling enforcement immediately will break existing workloads that they have not inventoried. What should you do?",
+    "options": [
+      "Write a Cloud Build job that runs kubectl get across all clusters nightly and emails a report of violating resources to workload owners",
+      "Enable Policy Controller for the fleet, apply the relevant constraints from the template library in dryrun enforcement mode, review the audit violations, remediate, and then switch the constraints to deny",
+      "Enable Binary Authorization on all clusters with a policy that rejects images whose manifests request privileged mode",
+      "Apply Kubernetes PodSecurity admission at the privileged level on every namespace and add a label requirement to each namespace manually"
+    ],
+    "answer": [1],
+    "explanation": "Policy Controller (based on Open Policy Agent Gatekeeper) applies constraints fleet-wide, ships a template library that includes privileged-container and required-label constraints, and supports enforcementAction: dryrun so violations are only recorded in audit results; this lets the team see the impact, fix workloads, and then flip to deny without an outage. Option A is a home-grown detective control that neither prevents new violations nor integrates with the fleet. Option C is wrong because Binary Authorization validates image provenance and attestations, not pod security context. Option D is confused: the privileged PodSecurity level allows everything, and there is no PodSecurity mechanism for required labels; it is also manual per namespace. Auditing before enforcing is a recommended operational practice for introducing guardrails.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/overview",
+      "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/how-to/auditing-constraints"
+    ]
+  },
+  {
+    "id": "d4-tec-034",
+    "domain": 4,
+    "topic": "Cloud emulators",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A developer team building an order-processing service that uses Pub/Sub and Firestore wants to run unit and integration tests on laptops and in pull-request builds without creating cloud resources for each developer, without incurring cost, and with tests that still exercise the real client libraries. What should you recommend?",
+    "options": [
+      "Create one shared development project with a single Pub/Sub topic and Firestore database that all developers and CI jobs use concurrently",
+      "Mock the Pub/Sub and Firestore client libraries entirely with in-memory stubs written by the team",
+      "Run the Pub/Sub and Firestore emulators locally and in the CI build, and point the client libraries at them through the emulator host environment variables",
+      "Provision a dedicated project per developer with Terraform and destroy it at the end of each day"
+    ],
+    "answer": [2],
+    "explanation": "The Google Cloud CLI ships emulators for Pub/Sub, Firestore, Bigtable, Spanner, and Datastore; the official client libraries automatically target them when PUBSUB_EMULATOR_HOST or FIRESTORE_EMULATOR_HOST is set, so tests exercise real library code paths against a local, free, isolated service that can also run as a container in Cloud Build. Option A creates test interference between developers and CI runs and still costs money. Option B tests the mocks rather than the real client behavior and requires the team to maintain stubs that drift from the API. Option D gives isolation but is slow to provision, costs money, and is heavyweight for unit tests. Emulators are explicitly listed in the exam guide under interacting with Google Cloud programmatically.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/emulator",
+      "https://cloud.google.com/firestore/docs/emulator"
+    ]
+  },
+  {
+    "id": "d4-tec-035",
+    "domain": 4,
+    "topic": "Pre-production parity",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company's staging environment was built by hand two years ago: it uses a single-zone Cloud SQL instance without a read replica, a zonal GKE cluster, and different firewall rules from production, which is regional and highly available. Several recent incidents were caused by behavior (failover, connection handling, network policy) that appeared only in production. Leadership wants staging to catch these issues while keeping cost reasonable. What should you recommend?",
+    "options": [
+      "Rebuild staging from the same Terraform modules used for production, keeping topology (regional HA, replicas, network policies) identical and varying only sizes through variables",
+      "Make staging an exact full-size clone of production, including instance sizes and node counts, so that every behavior is reproduced",
+      "Keep staging as is and add a rule that all changes touching failover or networking are tested directly in production during a maintenance window",
+      "Replace staging with the developers' local minikube clusters and the Cloud SQL Proxy pointed at production databases in read-only mode"
+    ],
+    "answer": [0],
+    "explanation": "Environment parity is about matching configuration and topology, not raw capacity: provisioning staging from the same Terraform modules guarantees identical failover behavior, replica configuration, and network policy, while machine sizes and node counts can be reduced through variables to control cost. This is the Google-recommended way to make pre-production a faithful test of production behavior. Option B achieves parity but at unnecessary cost that leadership rejected. Option C uses production as the test environment, which is the failure mode they are trying to eliminate. Option D removes the shared integration environment entirely and points developers at production data, which is a security and reliability anti-pattern. Consistent, code-defined environments are an operational excellence recommendation.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/best-practices/general-style-structure",
+      "https://cloud.google.com/architecture/devops/devops-tech-test-data-management"
+    ]
+  },
+  {
+    "id": "d4-tec-036",
+    "domain": 4,
+    "topic": "Testing Terraform modules",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A platform team publishes internal Terraform modules (VPC, GKE, Cloud SQL) that 40 application teams consume. A recent module change passed terraform validate but broke every consumer because a renamed output was not detected. The team wants a testing strategy that catches syntax, style, policy, and real behavioral regressions before a module version is published, while keeping cost under control. Which approach should you recommend?",
+    "options": [
+      "Require consumers to pin module versions and test new versions in their own pipelines; publish modules without additional checks",
+      "Run terraform fmt -check and terraform validate in the module pipeline and consider the module tested if both pass",
+      "Deploy each module change to the production project of one volunteer application team as a canary before tagging the release",
+      "Build a module pipeline that runs terraform fmt, validate, and tflint, then gcloud beta terraform vet against a plan, and finally an automated integration test (for example Terratest or the Terraform test framework) that applies the module into an ephemeral test project, asserts outputs and resource behavior, and destroys everything afterward"
+    ],
+    "answer": [3],
+    "explanation": "Static checks (fmt, validate, tflint) catch syntax and style, policy validation catches compliance issues, but only an apply-based integration test in a disposable project detects behavioral regressions such as renamed outputs, wrong dependencies, or provider-version breakage; the ephemeral project is created and destroyed by the pipeline, so cost is bounded to the test duration. Option A pushes the testing burden to 40 teams and discovers regressions after publication. Option B is exactly the insufficient approach that missed the recent failure. Option C uses a production environment as a test bed and puts one team at risk. Automated testing of infrastructure code is part of the exam objective 'testing and validation of software and infrastructure' and the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/best-practices/testing",
+      "https://cloud.google.com/docs/terraform/best-practices/root-modules"
+    ]
+  },
+  {
+    "id": "d4-tec-037",
+    "domain": 4,
+    "topic": "Release correlation during troubleshooting",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online retailer runs its catalog API on Cloud Run with traffic split 20% to a new revision and 80% to the previous one. Ten minutes after the split, overall 5xx errors rise from 0.1% to 0.6%. The on-call engineer must decide within minutes whether the new revision is responsible before deciding to shift traffic back. What is the fastest reliable way to make that determination?",
+    "options": [
+      "Open Error Reporting and look at the total count of errors in the last hour",
+      "In Cloud Monitoring, chart the Cloud Run request count metric filtered by response_code_class 5xx and grouped by revision_name, and compare the error ratio of each revision",
+      "Run a load test against the new revision's tag URL from Cloud Shell and observe whether errors occur",
+      "Query Cloud Audit Logs to confirm the time the revision was deployed and correlate it with the start of the error increase"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Run's built-in request metrics carry the revision_name label, so grouping the 5xx request count (or ratio) by revision immediately shows whether the 20% revision is generating a disproportionate share of errors, which is the direct evidence needed to justify a traffic rollback. Option A shows aggregate error groups without attribution to a revision. Option C takes time, adds synthetic load during an incident, and may not reproduce the real traffic mix that triggers the errors. Option D establishes temporal correlation only; the errors could equally come from an upstream dependency that changed at the same time, so it does not prove causation. Rapid attribution using labeled metrics is a core troubleshooting practice within the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/run/docs/monitoring",
+      "https://cloud.google.com/monitoring/api/metrics_gcp#gcp-run"
+    ]
+  },
+  {
+    "id": "d4-tec-038",
+    "domain": 4,
+    "topic": "Load balancer troubleshooting",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Users of a travel booking site intermittently receive HTTP 502 responses from the global external Application Load Balancer, while the backend GKE service's own application logs show no corresponding errors. The team has been guessing at causes for two days. What should you do first to find the root cause?",
+    "options": [
+      "Increase the number of backend pods by 50% and wait to see if the 502 errors stop",
+      "Enable Cloud Trace on the backend service and look for traces longer than the backend timeout",
+      "Enable logging on the load balancer's backend service and inspect the statusDetails field of the 502 entries in Cloud Logging to see whether the cause is backend connection closed, backend timeout, failed health check, or a similar documented condition",
+      "Replace the Application Load Balancer with a passthrough Network Load Balancer so requests reach the backend without proxying"
+    ],
+    "answer": [2],
+    "explanation": "Application Load Balancer logs include a statusDetails field that names the precise reason the proxy generated a response, such as backend_connection_closed_before_data_sent_to_client, backend_timeout, or failed_to_pick_backend; because the 502 is generated by the proxy, the backend never sees the request as an error, which is why application logs are silent. Reading this field turns guesswork into a specific fix (for example, raising the backend keepalive timeout above the load balancer's 600-second idle timeout). Option A is a blind change that does not diagnose anything. Option B cannot capture requests that never reached the application or that the proxy aborted. Option D changes the architecture without understanding the problem and would lose TLS termination, Cloud Armor, and CDN capabilities. Data-driven root cause analysis before making changes is a fundamental troubleshooting best practice.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/https/https-logging-monitoring",
+      "https://cloud.google.com/load-balancing/docs/https/troubleshooting-ext-https-lbs"
+    ]
+  },
+  {
+    "id": "d4-tec-039",
+    "domain": 4,
+    "topic": "Test strategy",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail company's CI pipeline for a set of microservices takes 90 minutes because almost all automated testing consists of browser-based end-to-end tests against a fully deployed environment. About 10% of runs fail for reasons unrelated to the change and are simply re-run. Developers have started merging without waiting for results. How should you restructure the test strategy?",
+    "options": [
+      "Follow the test pyramid: shift most coverage to fast, isolated unit tests and service-level integration or contract tests that run on every pull request, keep a small set of critical end-to-end journeys, and quarantine and fix flaky tests rather than re-running them",
+      "Run the end-to-end suite on more powerful Cloud Build machine types so that it finishes in 45 minutes",
+      "Remove automated end-to-end tests and rely on a manual QA pass before each production release",
+      "Move the end-to-end suite to a nightly schedule and allow merges to main without any automated tests"
+    ],
+    "answer": [0],
+    "explanation": "The test pyramid places many fast unit tests at the base, fewer integration and contract tests in the middle, and very few end-to-end tests at the top; this gives developers feedback in minutes, reduces the flakiness inherent in full-stack tests, and preserves confidence with a handful of critical user journeys. Treating flaky tests as defects to quarantine and fix restores trust in the signal, which is what makes developers wait for results again. Option B halves the time but leaves the flakiness and slow feedback structure intact. Option C replaces automation with slow, expensive manual work and reduces deployment frequency. Option D removes the quality gate from the merge decision entirely, which increases change failure rate. Fast, reliable automated testing is a DORA capability tied to the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/architecture/devops/devops-tech-test-automation",
+      "https://cloud.google.com/architecture/devops/devops-tech-continuous-integration"
+    ]
+  },
+  {
+    "id": "d4-tec-040",
+    "domain": 4,
+    "topic": "Validating GKE upgrades",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A payments processor runs its production workloads on several GKE Standard clusters. Twice in the past year an automatic control-plane or node upgrade introduced a Kubernetes API deprecation or a node image change that broke a workload before the team noticed. The company wants to keep receiving timely security patches but validate upgrades before they reach production and control when they happen. Which actions should you take? (Choose two.)",
+    "options": [
+      "Disable auto-upgrade on all production clusters and upgrade manually once a year",
+      "Enroll pre-production clusters in a faster release channel (for example Rapid or Regular) than production (Regular or Stable) so the same versions are exercised by the test suite before production receives them",
+      "Move all production clusters to GKE Autopilot, which never applies upgrades automatically",
+      "Configure maintenance windows and exclusions on production clusters, use rollout sequencing across fleet clusters, and act on deprecation insights from Recommender before upgrading",
+      "Set the production node pools to a fixed node image and never change it"
+    ],
+    "answer": [1, 3],
+    "explanation": "Release channels provide a natural validation pipeline: because each channel receives the same versions in sequence, running pre-production on a faster channel means workloads and tests see a new Kubernetes minor version and node image weeks before production, so deprecations surface early. Maintenance windows and exclusions give control over when upgrades occur, rollout sequencing lets fleets upgrade clusters in a defined order (test before prod), and GKE deprecation insights identify workloads calling removed APIs before the upgrade. Option A falls out of support (GKE supports a limited number of minor versions) and leaves clusters unpatched, contradicting the security requirement. Option C is false; Autopilot clusters are also auto-upgraded within their channel. Option E is impossible long-term since node versions must remain compatible with the control plane and would leave nodes unpatched. Controlled, tested change is an operational excellence and reliability practice.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions"
+    ]
+  },
+  {
+    "id": "d4-tec-041",
+    "domain": 4,
+    "topic": "Log retention for root cause analysis",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "While investigating a data-corruption issue that began roughly six weeks ago, the SRE team at a SaaS company discovered that the relevant application logs in Cloud Logging had already been deleted because the default retention period had passed. They want to make sure application logs are kept for at least one year for future investigations, at the lowest cost and without building a custom pipeline. What should you do?",
+    "options": [
+      "Create a log sink that exports all application logs to BigQuery and rely on BigQuery's default table expiration",
+      "Ask developers to also write logs to local files on each instance and back the files up to Cloud Storage weekly",
+      "Increase the retention of the _Required log bucket to 365 days",
+      "Create a dedicated Cloud Logging log bucket with a 365-day retention period and route application logs to it with a log sink; optionally lock the bucket"
+    ],
+    "answer": [3],
+    "explanation": "Cloud Logging log buckets support configurable retention from 1 to 3650 days; creating a user-defined bucket with 365-day retention and routing the application logs to it with a sink keeps the logs searchable in Logs Explorer and Log Analytics with no extra pipeline, and locking the bucket prevents anyone from shortening retention. Option A works technically but BigQuery table expiration defaults to none for sink-created tables (so cost grows unbounded) and forces the team to use SQL rather than the logging tools; it also does not answer 'without building a custom pipeline' as neatly. Option B is a fragile manual process that misses ephemeral instances. Option C is not possible: the _Required bucket has a fixed 400-day retention and only holds Admin Activity audit logs and similar mandatory logs, not application logs. Retaining evidence for RCA is an operational excellence practice.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/buckets",
+      "https://cloud.google.com/logging/docs/routing/overview"
+    ]
+  },
+  {
+    "id": "d4-tec-042",
+    "domain": 4,
+    "topic": "Root cause analysis methodology",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company's inventory service on GKE has degraded once a week for the past month. Each time, different engineers restart pods, scale the node pool, and flush a Memorystore cache simultaneously; the problem goes away for a few days and nobody knows which action helped or what the cause was. The engineering director asks you to define how the team should troubleshoot the next occurrence. What should you recommend?",
+    "options": [
+      "Automate the three remediation actions in a Cloud Run job triggered by the alert so degradation is fixed without human intervention",
+      "Increase resource requests for all pods and the size of the Memorystore instance to remove any capacity-related cause",
+      "Adopt a hypothesis-driven method: first capture the state (logs, metrics, traces, recent changes) while the problem is active, form a specific hypothesis, change one variable at a time, and observe whether the SLI recovers, recording each step for the postmortem",
+      "Open a support case with Google Cloud at the next occurrence and take no action until support responds"
+    ],
+    "answer": [2],
+    "explanation": "Effective troubleshooting is scientific: preserve evidence first, then triage, examine, diagnose with a specific hypothesis, and test with a single change so that the outcome is attributable; recording the steps feeds a postmortem that leads to a permanent fix. Making three changes at once destroys causal information, which is exactly why the team is still in the dark after a month. Option A automates the guesswork and hides the underlying defect, which will eventually manifest in a way the script cannot fix. Option B is an expensive shotgun change without evidence that capacity is the issue. Option D abdicates responsibility; support can help, but the team must still collect data and mitigate customer impact. The operational excellence pillar and the SRE book both stress systematic, evidence-based troubleshooting.",
+    "refs": [
+      "https://sre.google/sre-book/effective-troubleshooting/",
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "d4-tec-043",
+    "domain": 4,
+    "topic": "Ephemeral test environments",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketing technology company runs a web frontend on Cloud Run. Product managers want to review every pull request in a live environment before it is merged, and QA wants to run end-to-end tests against the same environment. Maintaining a fixed set of shared review environments has caused conflicts and stale deployments. You want a cost-efficient solution with minimal management. What should you do?",
+    "options": [
+      "Create ten permanent Cloud Run services named review-1 through review-10 and have a spreadsheet track which pull request owns which service",
+      "Configure the pull-request Cloud Build trigger to deploy the built image as a new Cloud Run revision with --no-traffic and a revision tag derived from the PR number, post the tag URL to the pull request, and remove the tag when the PR closes",
+      "Deploy each pull request to a dedicated GKE Autopilot cluster created by Terraform and deleted after merge",
+      "Deploy each pull request to the staging service and ask reviewers to coordinate on a shared calendar"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Run revision tags create a stable, unique URL for a specific revision that receives no production traffic, so each pull request gets an isolated preview that scales to zero when idle (near-zero cost), is created and torn down entirely by the pipeline, and is exactly what QA and product managers can test. Option A is a manual pool with limited capacity and coordination overhead. Option C provides isolation but a cluster per PR is slow to create and far more expensive and complex than needed for a Cloud Run workload. Option D reintroduces the shared-environment conflicts the team is trying to remove. Ephemeral, on-demand environments are an operational excellence and cost-optimization practice.",
+    "refs": [
+      "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration#tags",
+      "https://cloud.google.com/run/docs/tutorials/configure-deployment-previews"
+    ]
+  },
+  {
+    "id": "d4-tec-044",
+    "domain": 4,
+    "topic": "Post-deployment validation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank's internet banking portal is deployed with Cloud Deploy to GKE. After each production rollout an SRE manually logs in, performs a transfer between test accounts, and checks that statements render, which takes 20 minutes and is often skipped at night. The bank wants this multi-step user journey verified continuously from outside Google Cloud's network path, with alerts if it fails, and also executed as a gate right after each deployment. What should you do?",
+    "options": [
+      "Add readiness and liveness probes to the portal pods that call the transfer and statement endpoints",
+      "Create an uptime check on the login page URL and alert when it returns a non-200 status",
+      "Schedule a Cloud Run job that runs the manual test script every hour and writes pass/fail to a spreadsheet",
+      "Implement the journey as a Cloud Monitoring synthetic monitor (Puppeteer script running in Cloud Run functions) with an alerting policy, and run the same script as a Cloud Deploy verification step so the rollout fails if the journey breaks"
+    ],
+    "answer": [3],
+    "explanation": "Cloud Monitoring synthetic monitors execute a scripted browser or API journey on a schedule from Google-managed infrastructure and integrate with alerting, which covers the continuous external validation; reusing the same script as a Cloud Deploy verify step makes the journey a deployment gate, so a broken transfer flow fails the rollout instead of being discovered later. Option A misuses health probes, which are meant to be cheap and local; multi-step business transactions in probes would cause pod restarts during transient issues. Option B validates only that the login page loads, not the transfer or statement functionality. Option C is bespoke, has no alerting integration, and is not connected to the deployment pipeline. Automated validation after deployment is a reliability and operational excellence recommendation.",
+    "refs": [
+      "https://cloud.google.com/monitoring/uptime-checks/introduction",
+      "https://cloud.google.com/deploy/docs/verify-deployment"
+    ]
+  },
+  {
+    "id": "d4-tec-045",
+    "domain": 4,
+    "topic": "Load test design",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government tax portal must handle a filing-deadline peak that is about 12 times normal traffic. Last year the site failed at peak even though a load test had 'passed'; the postmortem found that the test hit a single cached endpoint with a constant request rate from a single region, while real users perform multi-step authenticated sessions from many locations with ramping arrival rates. You are asked to redesign the load test so its result is trustworthy. What should you do?",
+    "options": [
+      "Model realistic user journeys (login, form steps, submission) with think times, ramp the number of simulated users to 12x over a realistic window, generate load from multiple regions against a production-like environment, and define pass/fail on the same SLIs used in production (p99 latency, error rate, saturation of downstream dependencies)",
+      "Run the previous test again but at 20x the request rate to add a safety margin",
+      "Use production traffic mirroring to send a copy of live requests to staging for a week before the deadline",
+      "Skip load testing and instead set very high autoscaling limits on all services so capacity is never the constraint"
+    ],
+    "answer": [0],
+    "explanation": "A load test is only as valid as its model of production: realistic journeys exercise authentication, session state, database writes, and downstream calls that a single cached GET never touches; ramping reproduces autoscaler and connection-pool behavior; multi-region generation reflects load balancer and CDN behavior; and pass/fail based on production SLIs plus dependency saturation catches the bottleneck (often a database or third-party API) before the deadline. Option B repeats an unrepresentative test at higher volume and would still miss the write path. Option C mirrors current traffic, which is 1x, not 12x, and mirroring authenticated multi-step sessions with side effects is impractical. Option D ignores non-scalable dependencies such as databases and quotas, which are usually what fails at peak. Realistic load testing is a reliability-pillar recommendation for capacity planning.",
+    "refs": [
+      "https://cloud.google.com/architecture/distributed-load-testing-using-gke",
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
+    ]
+  },
+  {
+    "id": "d4-tec-046",
+    "domain": 4,
+    "topic": "Distributed tracing instrumentation",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A ride-hailing startup runs its API gateway on Cloud Run, its pricing service on GKE, and a legacy driver-matching service on Compute Engine. Traces in Cloud Trace currently appear as disconnected fragments per service, which makes root cause analysis of latency incidents slow. You want end-to-end traces with the least vendor lock-in. Which actions should you take? (Choose two.)",
+    "options": [
+      "Enable 100% trace sampling on the Cloud Run gateway so every fragment is captured",
+      "Instrument all three services with the OpenTelemetry SDK and export spans to Cloud Trace through the Google Cloud exporter or an OpenTelemetry Collector",
+      "Ensure every service propagates the W3C traceparent (or X-Cloud-Trace-Context) header on outbound HTTP and gRPC calls, including the legacy service's HTTP client",
+      "Replace the legacy Compute Engine service with a Cloud Run service so that tracing is automatic",
+      "Create a log-based metric that counts requests per service and correlate the counts over time"
+    ],
+    "answer": [1, 2],
+    "explanation": "Fragmented traces are a context-propagation problem, not a sampling problem: spans from different services are stitched into one trace only when each service reads the incoming trace context header and forwards it on its outbound calls, so every service (including the legacy one) must propagate traceparent or X-Cloud-Trace-Context. OpenTelemetry is the vendor-neutral standard Google recommends; its SDKs handle propagation and span creation, and the Google Cloud exporter or a Collector sends data to Cloud Trace while leaving the option to send elsewhere later. Option A increases cost and volume but still produces fragments if headers are not propagated. Option D is a rewrite that is unnecessary for tracing; Cloud Run adds request-level spans but application code must still propagate context downstream. Option E is a coarse correlation technique that cannot reconstruct individual request paths. Standardized instrumentation supports the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/trace/docs/setup",
+      "https://cloud.google.com/stackdriver/docs/instrumentation/setup/nodejs"
+    ]
+  }
+]

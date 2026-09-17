@@ -1,0 +1,531 @@
+[
+  {
+    "id": "d3-sec-026",
+    "domain": 3,
+    "topic": "Resource hierarchy",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A consumer-goods company is creating its first Google Cloud organization. It has four business units, each of which will run development, test and production workloads. The security team wants to apply different organization policies and IAM grants to production than to non-production, and each business unit must be able to manage its own projects without affecting others. How should you structure the resource hierarchy?",
+    "options": [
+      "Create one project per business unit and use labels such as env=prod on individual resources to drive policy.",
+      "Create a folder per business unit under the organization, with child folders for production and non-production, and place projects in the appropriate environment folder.",
+      "Create a separate Google Cloud organization per business unit so that policies are fully isolated.",
+      "Place all projects directly under the organization and name them with a business-unit and environment prefix."
+    ],
+    "answer": [1],
+    "explanation": "Folders are the mechanism for grouping projects so that IAM policies and organization policies can be inherited by business unit and environment; a business-unit folder with environment sub-folders is the pattern recommended in Google's landing-zone guidance. Option A ignores that labels do not affect IAM or organization policy inheritance and mixes environments in one project. Option C multiplies administrative overhead and prevents centralized governance and billing. Option D provides no inheritance boundary, so every policy must be applied project by project.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy",
+      "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy"
+    ]
+  },
+  {
+    "id": "d3-sec-027",
+    "domain": 3,
+    "topic": "Organization policy administration",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A project Owner at a biotech company tries to allow external IP addresses on VMs in her project, but the setting is greyed out because an organization policy inherited from the organization forbids it. She asks the platform team to grant her whatever role is needed to change the policy for her project only. Following the principle of least privilege, what should the platform team do?",
+    "options": [
+      "Grant her the Organization Administrator role so that she can edit any inherited policy.",
+      "Grant her the Owner role at the organization level, because organization policies can only be edited by Owners of the parent resource.",
+      "Explain that the Owner role already permits editing organization policies and help her find the correct console page.",
+      "Have a member of the Organization Policy Administrator group evaluate the request and, if approved, set a project-level override or a tag-based exception for that project rather than granting her the role."
+    ],
+    "answer": [3],
+    "explanation": "Editing organization policies requires the Organization Policy Administrator role (roles/orgpolicy.policyAdmin), which is granted at the organization level and should be held by a small central team; a project Owner does not have this permission by design. The recommended approach is for that team to create a scoped override or tag-conditioned exception, preserving central governance. Options A and B grant far more privilege than needed and dilute separation of duties. Option C is factually incorrect.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/using-constraints"
+    ]
+  },
+  {
+    "id": "d3-sec-028",
+    "domain": 3,
+    "topic": "Billing access",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The finance department at a fashion retailer needs to see spending for every Google Cloud project, export billing data to BigQuery and set budgets and alerts. Finance staff must not be able to view or modify any project resources. What should you do?",
+    "options": [
+      "Grant the finance group the Billing Account Administrator role on the Cloud Billing account and no roles on projects or folders.",
+      "Grant the finance group the Viewer role at the organization level so they can see every project's billing page.",
+      "Grant the finance group the Project Billing Manager role on every project.",
+      "Grant the finance group the Owner role on a dedicated 'finance' project and configure billing export into it."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Billing permissions are granted on the billing account, independently of project IAM; Billing Account Administrator allows managing budgets, exports and viewing costs across all linked projects without granting any access to project resources, which achieves the required separation of duties. Option B grants read access to all project resources, which violates the requirement. Option C allows linking and unlinking projects from billing accounts but does not by itself allow viewing costs or setting budgets, and it must be maintained per project. Option D does not grant access to the billing account, so exports and budgets cannot be configured.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/billing-access",
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery"
+    ]
+  },
+  {
+    "id": "d3-sec-029",
+    "domain": 3,
+    "topic": "Organization policy constraints",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A law firm discovered that an associate had granted a personal Gmail account the Storage Object Viewer role on a bucket containing case files. The firm wants to make it impossible to grant IAM roles to identities outside its own Cloud Identity domain across the organization, while still allowing one folder used for joint ventures to share with a specific partner's domain. What should you do?",
+    "options": [
+      "Create an IAM deny policy at the organization level that denies all permissions to principals whose email ends in gmail.com.",
+      "Enable Security Command Center and create an alert on findings of type PUBLIC_BUCKET_ACL so that the security team is notified of external sharing.",
+      "Enforce the iam.allowedPolicyMemberDomains (Domain Restricted Sharing) constraint at the organization level with the firm's Cloud Identity customer ID, and set a policy on the joint-venture folder that also includes the partner's customer ID.",
+      "Set the storage.publicAccessPrevention constraint at the organization level so that buckets cannot be shared outside the domain."
+    ],
+    "answer": [2],
+    "explanation": "The Domain Restricted Sharing constraint prevents IAM policies from including principals outside the allowed Cloud Identity or Workspace customer IDs, and because organization policies can be customized on folders, the joint-venture folder can add the partner's domain. Option A only blocks one consumer domain and does not prevent the grant itself; deny policies also do not cover every service. Option B detects rather than prevents, and only for public ACLs. Option D stops allUsers/allAuthenticatedUsers access but does nothing about grants to specific external accounts.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/restricting-domains",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-030",
+    "domain": 3,
+    "topic": "Organization policy constraints",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A German automotive supplier must ensure that all new resources for its EU business are created only in European Union regions to satisfy data residency obligations. Its non-EU business units are not subject to this restriction. Engineers deploy with Terraform and the console, and the control must apply to new projects automatically. What should you do?",
+    "options": [
+      "Add a validation step to the Terraform pipeline that rejects any resource whose region is outside the EU.",
+      "Set the gcp.resourceLocations organization policy constraint on the EU business unit folder, allowing only the in:eu-locations value group.",
+      "Create a VPC Service Controls perimeter around the EU projects and configure an ingress rule that only allows requests from EU regions.",
+      "Create a Cloud Monitoring alert on Cloud Asset Inventory changes that notifies the compliance team whenever a resource is created outside the EU."
+    ],
+    "answer": [1],
+    "explanation": "The gcp.resourceLocations constraint restricts where location-based resources can be created, and value groups such as in:eu-locations let Google maintain the list of EU regions; applying it at the folder level makes it inherited by every current and future EU project while not affecting other business units. Option A only covers Terraform and not console or API usage. Option C controls API access boundaries, not the location where resources are created. Option D is detective rather than preventive and allows non-compliant resources to exist.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/org-policy-constraints"
+    ]
+  },
+  {
+    "id": "d3-sec-031",
+    "domain": 3,
+    "topic": "Organization policy constraints",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A payments processor operates dozens of Compute Engine VMs behind an internal load balancer. The security team requires that no VM in the production folder can have an external IP address, even if a project Owner tries to add one, while VMs must still be able to download OS patches from the internet. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Create a VPC firewall rule in each production VPC that denies all ingress from 0.0.0.0/0 and rely on it to make external IPs harmless.",
+      "Write a Cloud Run function triggered by Compute Engine audit logs that removes any external IP it detects on production VMs.",
+      "Remove the Compute Network Admin role from all project Owners so that they cannot assign external addresses.",
+      "Enforce the compute.vmExternalIpAccess organization policy constraint on the production folder with an empty allowlist.",
+      "Deploy Cloud NAT on the Cloud Router of each production VPC region so that VMs without external IPs can reach the internet for patch downloads."
+    ],
+    "answer": [3, 4],
+    "explanation": "The compute.vmExternalIpAccess constraint prevents VMs from being created with or assigned external IPs and is enforced by the API regardless of the caller's IAM role, and Cloud NAT provides outbound-only internet access so patching keeps working. Option A does not prevent external IPs and still leaves an attack surface plus data exfiltration paths. Option B is reactive; the IP exists until the function runs. Option C is ineffective because Owners retain the compute.instances.* permissions that allow assigning access configs.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-external-ip-address#disableexternalip",
+      "https://cloud.google.com/nat/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-032",
+    "domain": 3,
+    "topic": "Cloud Storage access control",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company has hundreds of Cloud Storage buckets. An audit found that some objects have legacy ACLs that grant access to individuals in ways that are not visible in IAM, making access reviews unreliable. The company wants all new buckets to be governed exclusively by IAM. What should you do?",
+    "options": [
+      "Enforce the storage.uniformBucketLevelAccess organization policy constraint so that all new buckets must have uniform bucket-level access enabled, and enable it on existing buckets after reviewing their ACLs.",
+      "Enable Object Versioning on every bucket so that ACL changes can be rolled back.",
+      "Enforce the storage.publicAccessPrevention constraint on the organization so that ACLs are ignored.",
+      "Use signed URLs for all object access and remove IAM bindings from the buckets."
+    ],
+    "answer": [0],
+    "explanation": "Uniform bucket-level access disables object ACLs so that IAM alone controls access, and the corresponding organization policy constraint ensures new buckets cannot be created without it. Option B addresses data recovery, not access control. Option C only prevents public access via allUsers and allAuthenticatedUsers; it does not disable ACLs granted to specific users. Option D replaces a manageable IAM model with credential distribution and does not eliminate ACLs.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/uniform-bucket-level-access",
+      "https://cloud.google.com/storage/docs/org-policy-constraints"
+    ]
+  },
+  {
+    "id": "d3-sec-033",
+    "domain": 3,
+    "topic": "Hierarchical firewall policies",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global bank has more than 200 VPC networks across many projects. The central security team must guarantee that SSH and RDP from the internet are blocked and that Google Cloud health-check ranges are always allowed in every network, and project teams must not be able to override these rules while retaining freedom to manage their own application firewall rules. What should you do?",
+    "options": [
+      "Use Terraform to create the required VPC firewall rules with priority 0 in every VPC and remove the Compute Security Admin role from project teams.",
+      "Create a network firewall policy in each project and ask project teams to associate it with their VPCs.",
+      "Create a hierarchical firewall policy at the organization (or top folder) level with rules that deny internet SSH/RDP and allow health-check ranges, followed by a goto_next rule that delegates all other traffic decisions to lower levels, and associate it with the organization.",
+      "Place all VPC networks in a single Shared VPC host project so that the security team owns all firewall rules centrally."
+    ],
+    "answer": [2],
+    "explanation": "Hierarchical firewall policies are evaluated before VPC-level rules and are enforced by the resource hierarchy, so an organization- or folder-level policy guarantees baseline rules that project teams cannot bypass, while a goto_next rule delegates everything else to their own VPC firewall rules. Option A relies on IAM and continuous reconciliation; project teams also lose the ability to manage their own rules. Option B is not enforced centrally and depends on each team's cooperation. Option D is a disruptive network redesign that centralizes all firewall management rather than just the baseline.",
+    "refs": [
+      "https://cloud.google.com/firewall/docs/firewall-policies",
+      "https://cloud.google.com/firewall/docs/firewall-policies-examples"
+    ]
+  },
+  {
+    "id": "d3-sec-034",
+    "domain": 3,
+    "topic": "Customer-managed encryption keys",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An insurance company must protect a BigQuery dataset and a Cloud Storage bucket in the europe-west3 region with customer-managed encryption keys (CMEK) managed by its own security team. Which steps are required for the design to work? (Choose two.)",
+    "options": [
+      "Create a Cloud KMS key ring and symmetric key in a location compatible with the resources, such as europe-west3 or the europe multi-region, in a project controlled by the security team.",
+      "Create a Cloud KMS key in the global location so that it can be used by any resource in any region.",
+      "Grant the Cloud KMS CryptoKey Encrypter/Decrypter role on the key to the BigQuery and Cloud Storage service agents of the project that owns the data.",
+      "Export the key material and configure it as a customer-supplied encryption key (CSEK) in each service so that Google never stores the key.",
+      "Grant the Cloud KMS Admin role on the key to the application service accounts so that they can encrypt and decrypt data."
+    ],
+    "answer": [0, 2],
+    "explanation": "CMEK requires a Cloud KMS key whose location matches or covers the location of the protected resource, and the services encrypt on your behalf using their per-project service agents, which therefore need the Encrypter/Decrypter role on the key. Option B is wrong because Cloud KMS keys for CMEK must be in a matching regional, dual-regional or multi-regional location; the global location is not compatible with regional resources. Option D describes CSEK, a different model that BigQuery does not support and that adds operational burden. Option E grants key-management privileges rather than the encrypt/decrypt permission, violating separation of duties.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/cmek",
+      "https://cloud.google.com/bigquery/docs/customer-managed-encryption"
+    ]
+  },
+  {
+    "id": "d3-sec-035",
+    "domain": 3,
+    "topic": "Encryption key options",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital group stores medical imaging in Cloud Storage and analyzes metadata in BigQuery. Regulators require that the hospital control the encryption key lifecycle, be able to revoke Google's ability to decrypt the data at any time, and produce audit logs of key usage. The operations team is small and wants to avoid supplying key material on every API call. Which encryption approach should you recommend?",
+    "options": [
+      "Continue using Google-managed encryption keys because they already meet all regulatory requirements for key control.",
+      "Use customer-managed encryption keys (CMEK) in Cloud KMS, configure the buckets and datasets to use the key, and enable Cloud KMS audit logging.",
+      "Use customer-supplied encryption keys (CSEK) generated on-premises and pass them in the header of every Cloud Storage and BigQuery request.",
+      "Encrypt all files with an in-house tool before upload and store the passphrase in a spreadsheet accessible to the compliance team."
+    ],
+    "answer": [1],
+    "explanation": "CMEK gives the customer control over key creation, rotation, disabling and destruction; disabling or destroying the key makes data unreadable, and Cloud KMS records every key use in Cloud Audit Logs, all without the customer handling key material per request. Option A does not give the customer control over the key lifecycle or revocation. Option C is not supported by BigQuery and forces the customer to manage and transmit raw keys on every call, which is high operational risk for a small team. Option D is insecure key handling and removes the ability to use BigQuery on the data.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/encryption",
+      "https://cloud.google.com/kms/docs/cmek"
+    ]
+  },
+  {
+    "id": "d3-sec-036",
+    "domain": 3,
+    "topic": "Cloud HSM",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A central bank's compliance framework mandates that cryptographic keys protecting settlement data be generated and stored in FIPS 140-2 Level 3 validated hardware. The engineering team wants to keep using the standard Cloud KMS API and CMEK integrations with Spanner and Cloud Storage. What should you do?",
+    "options": [
+      "Use Cloud KMS software-protected keys, because Cloud KMS as a whole is FIPS 140-2 Level 3 validated.",
+      "Deploy a third-party HSM appliance in a colocation facility and connect it to Google Cloud over Dedicated Interconnect for all encryption operations.",
+      "Use customer-supplied encryption keys generated on an on-premises HSM and provide them with every Spanner request.",
+      "Create the keys in Cloud KMS with the HSM protection level (Cloud HSM) and reference them in the CMEK configuration of Spanner and Cloud Storage."
+    ],
+    "answer": [3],
+    "explanation": "Cloud HSM is a Cloud KMS protection level that generates and stores keys in FIPS 140-2 Level 3 validated HSMs while exposing the same Cloud KMS API, so all CMEK integrations keep working unchanged. Option A is incorrect: software keys are validated at FIPS 140-2 Level 1, not Level 3. Option B adds hardware to operate and would only be usable through Cloud External Key Manager, which is unnecessary when only Level 3 hardware is required. Option C is not supported by Spanner and adds heavy operational burden.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/hsm",
+      "https://cloud.google.com/kms/docs/protection-levels"
+    ]
+  },
+  {
+    "id": "d3-sec-037",
+    "domain": 3,
+    "topic": "Cloud External Key Manager",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A European defense contractor is willing to use BigQuery and Compute Engine but its sovereignty policy requires that encryption keys never be stored inside Google's infrastructure, that the contractor can unilaterally cut off Google's ability to decrypt, and that every key access request from Google be accompanied by a stated reason that the contractor can approve or deny automatically. Which design meets these requirements?",
+    "options": [
+      "Use Cloud External Key Manager (Cloud EKM) with keys held in the contractor's external key management partner, and enable Key Access Justifications with a policy that allows or denies requests based on the justification code.",
+      "Use Cloud HSM keys with automatic rotation and enable Access Approval so that the contractor approves each decrypt operation.",
+      "Use customer-managed keys in Cloud KMS in a europe-west region and enable Data Access audit logs so every decryption is recorded.",
+      "Store data in Cloud Storage with customer-supplied encryption keys and share the keys with Google support only when access is needed."
+    ],
+    "answer": [0],
+    "explanation": "Cloud EKM keeps key material in an external key manager outside Google Cloud, so revoking access there makes the data unreadable, and Key Access Justifications attaches a reason code to each key access request that the external key manager can evaluate and deny, exactly matching the requirements. Option B keeps keys inside Google's HSMs and Access Approval governs Google personnel access to customer content, not individual decrypt calls. Option C keeps keys inside Google Cloud and logs rather than gates access. Option D applies only to Cloud Storage, cannot cover BigQuery, and involves sharing raw key material.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/ekm",
+      "https://cloud.google.com/assured-workloads/key-access-justifications/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-038",
+    "domain": 3,
+    "topic": "Key rotation",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription-video company protects customer records in Cloud SQL and Cloud Storage with a CMEK key in Cloud KMS. Its security standard requires that the encryption key be rotated at least every 90 days, and the team wants existing data to remain readable without any manual re-encryption process. What should you do?",
+    "options": [
+      "Create a new key every 90 days, update every resource to reference it, and delete the old key to complete the rotation.",
+      "Export the key material every 90 days, re-import it as a new key version, and re-encrypt all objects with a batch job.",
+      "Set a rotation period of 90 days on the Cloud KMS key so that new primary key versions are created automatically while older versions remain enabled for decryption.",
+      "Switch the resources to Google-managed encryption, which rotates keys daily, and document this as meeting the 90-day requirement."
+    ],
+    "answer": [2],
+    "explanation": "Cloud KMS supports automatic rotation for symmetric keys: a new primary version is created on schedule and used for new encryption, while previous versions stay available so existing data can still be decrypted with no re-encryption required. Option A is manual and deleting the old key would make previously encrypted data unreadable. Option B is unnecessary work and exporting key material weakens security. Option D abandons customer control of the key, which the company's use of CMEK implies is required.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/key-rotation",
+      "https://cloud.google.com/kms/docs/rotating-keys"
+    ]
+  },
+  {
+    "id": "d3-sec-039",
+    "domain": 3,
+    "topic": "Secret Manager",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing platform runs on Cloud Run and connects to an AlloyDB cluster with a password that is currently stored as a plaintext environment variable in a Git repository. The security team requires that the password be stored centrally with access logging, be rotated every 30 days, and that the application receive the new value without redeploying code. What should you do?",
+    "options": [
+      "Move the password into a Cloud KMS key and have the application call the KMS decrypt API at startup.",
+      "Store the password in Secret Manager, mount the secret into the Cloud Run service by reference to the latest version, and configure a rotation schedule that publishes to Pub/Sub so a Cloud Run function can generate a new password and add a new secret version.",
+      "Encrypt the password with a Cloud KMS key, commit the ciphertext to the repository, and rotate it by committing a new ciphertext every 30 days.",
+      "Store the password in a Cloud Storage bucket with uniform bucket-level access and have the service download it at startup."
+    ],
+    "answer": [1],
+    "explanation": "Secret Manager provides central storage, IAM-based access, Data Access audit logs, versioning and rotation schedules that notify a Pub/Sub topic; a Cloud Run function can then rotate the database credential and add a new version, and Cloud Run can reference the latest version so the application picks it up without code changes. Option A misuses KMS, which manages keys rather than arbitrary secrets and provides no versioned secret storage. Option C keeps secrets (albeit encrypted) in source control and requires manual rotation and redeploys. Option D lacks secret-specific features such as versioning, rotation notifications and fine-grained access logging.",
+    "refs": [
+      "https://cloud.google.com/secret-manager/docs/secret-rotation",
+      "https://cloud.google.com/run/docs/configuring/services/secrets"
+    ]
+  },
+  {
+    "id": "d3-sec-040",
+    "domain": 3,
+    "topic": "Confidential Computing",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A genomics research company processes patient DNA sequences on Compute Engine and GKE. A new partnership agreement requires that patient data be encrypted not only at rest and in transit but also while being processed in memory, so that even a compromised hypervisor or cloud operator cannot read it. The applications must run unchanged. What should you do?",
+    "options": [
+      "Enable customer-managed encryption keys for all persistent disks and enforce TLS 1.3 on all internal connections.",
+      "Use Shielded VMs with Secure Boot, vTPM and integrity monitoring so that memory contents are protected from tampering.",
+      "Rewrite the applications to decrypt data only inside a software enclave library and re-encrypt before writing to memory.",
+      "Run the workloads on Confidential VMs and Confidential GKE Nodes, which use hardware-based memory encryption without application changes."
+    ],
+    "answer": [3],
+    "explanation": "Confidential Computing on Google Cloud (Confidential VMs and Confidential GKE Nodes) uses CPU technologies such as AMD SEV to encrypt memory in use, protecting data from the hypervisor and host operator, and it is a launch-time option that requires no application modification. Option A covers at-rest and in-transit but not in-use data. Option B protects boot integrity and defends against rootkits but does not encrypt memory. Option C requires significant code changes, contradicting the requirement.",
+    "refs": [
+      "https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/confidential-gke-nodes"
+    ]
+  },
+  {
+    "id": "d3-sec-041",
+    "domain": 3,
+    "topic": "Client-side encryption",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A cryptocurrency custodian must archive signed transaction records in Cloud Storage. Its policy states that Google must never be able to access the plaintext under any circumstances, including during processing, and that the keys must remain in the custodian's on-premises HSM cluster. The records only need to be retrieved and decrypted on-premises for audits. What should you recommend?",
+    "options": [
+      "Encrypt each record on-premises with a client-side library such as Tink using keys wrapped by the on-premises HSM before uploading, and store the ciphertext in Cloud Storage; note that Google-side processing of the content will not be possible.",
+      "Use CMEK with Cloud HSM keys and enable Key Access Justifications so that the custodian can deny Google access to the key.",
+      "Use Cloud External Key Manager pointing at the on-premises HSM so that Cloud Storage decrypts objects only when the HSM authorizes it.",
+      "Use customer-supplied encryption keys generated in the HSM and pass them with each upload so that Google does not persist them."
+    ],
+    "answer": [0],
+    "explanation": "Only client-side encryption guarantees that plaintext and key material never exist inside Google Cloud; because the data is retrieved and decrypted on-premises, the trade-off of losing server-side processing is acceptable. Option B keeps keys in Google's HSMs, which the policy forbids. Option C keeps the keys outside Google but the data is still decrypted inside Google Cloud when accessed, and Cloud EKM requires a supported external key manager rather than an arbitrary HSM. Option D transmits the raw key to Google for each request, so Google temporarily holds it in memory, violating 'never under any circumstances'.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/client-side-encryption",
+      "https://cloud.google.com/storage/docs/encryption"
+    ]
+  },
+  {
+    "id": "d3-sec-042",
+    "domain": 3,
+    "topic": "Separation of duties",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A credit-card issuer uses Cloud KMS keys to protect tokenized card data. An internal audit requires that the people who administer the keys must never be able to decrypt the data, and that application teams that encrypt and decrypt must not be able to change key configuration. Which IAM design should you recommend?",
+    "options": [
+      "Grant the security team the Owner role on the KMS project and the application teams the Editor role so that responsibilities are clear.",
+      "Grant both teams the Cloud KMS Admin role but require them to log each key operation in a change-management ticket.",
+      "Place the keys in a dedicated KMS project; grant the security team the Cloud KMS Admin role and grant only the application service accounts the Cloud KMS CryptoKey Encrypter/Decrypter role on the specific keys.",
+      "Grant the application teams the Cloud KMS Admin role on their own keys so that they can rotate them without waiting for the security team."
+    ],
+    "answer": [2],
+    "explanation": "Cloud KMS roles are designed for separation of duties: Cloud KMS Admin manages key lifecycle but cannot encrypt or decrypt, while CryptoKey Encrypter/Decrypter can use keys but cannot change them; hosting keys in a dedicated project further separates key administration from data project Owners. Option A uses basic roles that include both management and usage permissions on both sides. Option B grants everyone the same role and relies on process instead of technical controls. Option D lets application teams alter or destroy keys, defeating the audit requirement.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/separation-of-duties",
+      "https://cloud.google.com/kms/docs/reference/permissions-and-roles"
+    ]
+  },
+  {
+    "id": "d3-sec-043",
+    "domain": 3,
+    "topic": "Environment separation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile-gaming company currently runs development, staging and production workloads in a single Google Cloud project. Developers hold the Editor role to iterate quickly, which means they can also change production resources. A new security policy requires that developers cannot modify production but can still debug production incidents when necessary. What should you recommend?",
+    "options": [
+      "Keep the single project, remove Editor from developers, and grant them a custom role that excludes production resource names.",
+      "Split workloads into separate development, staging and production projects under environment folders; grant developers Editor in development, and grant read-only roles in production with a break-glass process for temporary elevated access.",
+      "Keep the single project and use resource labels to distinguish environments, then train developers not to modify resources labeled prod.",
+      "Move production to a separate Google Cloud organization administered by the operations team."
+    ],
+    "answer": [1],
+    "explanation": "Projects are the primary isolation boundary for IAM, quotas and billing; separating environments into distinct projects under folders lets you apply different policies per environment while giving developers read-only production visibility plus a controlled break-glass path for incidents. Option A is fragile because IAM Conditions on resource names cannot cleanly cover every resource type and the environments still share quotas and blast radius. Option C relies on training and labels, which are not enforced by IAM. Option D is excessive overhead and complicates centralized governance and billing.",
+    "refs": [
+      "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy",
+      "https://cloud.google.com/iam/docs/using-iam-securely"
+    ]
+  },
+  {
+    "id": "d3-sec-044",
+    "domain": 3,
+    "topic": "Access Approval",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A national tax authority is moving citizen records to Google Cloud. Its oversight board requires that Google personnel be unable to access the authority's data during support cases without the authority's explicit, per-request approval, and that every such access be logged with a justification the authority can review. What should you do?",
+    "options": [
+      "Enable Data Access audit logs on all services so that any access by Google personnel is recorded, and review the logs weekly.",
+      "Use VPC Service Controls to place all projects in a perimeter, which blocks Google support engineers from reaching the resources.",
+      "Encrypt all data with CMEK and grant the Cloud KMS Encrypter/Decrypter role only to the authority's own service accounts.",
+      "Enable Access Transparency logs for the organization and enable Access Approval, so that Google support access requests must be approved by designated approvers before data is accessed."
+    ],
+    "answer": [3],
+    "explanation": "Access Transparency records actions by Google personnel with the justification, and Access Approval adds an explicit approval workflow before Google personnel can access customer content, directly meeting the per-request approval requirement. Option A only captures your own principals' access through Cloud Audit Logs; it does not cover Google staff actions or require approval. Option B controls your API traffic and does not govern Google support access. Option C is a good complementary control but it does not itself provide an approval workflow or justification logs for support access.",
+    "refs": [
+      "https://cloud.google.com/cloud-provider-access-management/access-approval/docs/overview",
+      "https://cloud.google.com/cloud-provider-access-management/access-transparency/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-sec-045",
+    "domain": 3,
+    "topic": "Four-eyes approval",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A brokerage firm manages production IAM policies and network configuration with Terraform. Regulators require a four-eyes principle: no single engineer may apply a change to production, and every change must be reviewed by a second person before it is executed. Engineers must not hold direct permission to change production. What should you do?",
+    "options": [
+      "Run Terraform from Cloud Build using a dedicated service account that holds the production permissions, require pull-request approval in the repository, and add a manual approval gate to the Cloud Build trigger before the apply step runs.",
+      "Grant two senior engineers the Owner role on production and require them to be on a call together when applying changes.",
+      "Let engineers apply Terraform locally with their own credentials, but require them to record the change in a ticket that a peer closes afterwards.",
+      "Give every engineer the Security Admin role with an IAM Condition that only allows changes during a weekly change window."
+    ],
+    "answer": [0],
+    "explanation": "Moving the production permissions to a pipeline service account removes standing privilege from humans, while repository review plus Cloud Build's manual approval gate enforces a second person before any apply, all of which is auditable. Option B keeps standing Owner permission and relies on a social control. Option C still lets a single engineer apply changes unilaterally and only reviews after the fact. Option D restricts when but not whether one person can change production.",
+    "refs": [
+      "https://cloud.google.com/build/docs/securing-builds/gate-builds-on-approval",
+      "https://cloud.google.com/docs/terraform/best-practices/general-style-structure"
+    ]
+  },
+  {
+    "id": "d3-sec-046",
+    "domain": 3,
+    "topic": "Project governance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "At a technology conglomerate, any employee can currently create Google Cloud projects, resulting in hundreds of unmanaged projects with inconsistent settings. The architecture team wants every new project to be created through an automated 'project factory' that applies standard labels, APIs, IAM and logging, and wants to prevent manual project creation. What should you do?",
+    "options": [
+      "Send an email policy prohibiting manual project creation and audit the organization monthly for violations.",
+      "Enforce an organization policy that restricts project creation to the project-factory service account.",
+      "Remove the Project Creator role that is granted by default to all users at the organization level, and grant it only to the project-factory service account used by the Terraform pipeline.",
+      "Create a Cloud Run function that deletes any project not created by the project factory within one hour."
+    ],
+    "answer": [2],
+    "explanation": "By default, every user in the domain is granted Project Creator and Billing Account Creator at the organization level; removing that binding and granting Project Creator only to the automation's service account technically prevents manual creation while enabling the project factory. Option A is not an enforceable control. Option B is incorrect because there is no organization policy constraint for restricting project creators; this is governed through IAM. Option D is a destructive, reactive control that could delete legitimate work and does not prevent creation.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/default-access-control",
+      "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy"
+    ]
+  },
+  {
+    "id": "d3-sec-047",
+    "domain": 3,
+    "topic": "Organization policy constraints",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "After a data leak from a publicly exposed storage bucket at a competitor, a healthcare analytics company wants to use organization policies to guarantee that its data services can never be exposed directly to the internet, regardless of what individual project teams configure. Which constraints should you enforce at the organization level? (Choose three.)",
+    "options": [
+      "iam.disableServiceAccountKeyUpload",
+      "storage.publicAccessPrevention",
+      "sql.restrictPublicIp",
+      "compute.requireOsLogin",
+      "compute.vmExternalIpAccess",
+      "gcp.resourceLocations"
+    ],
+    "answer": [1, 2, 4],
+    "explanation": "storage.publicAccessPrevention blocks granting allUsers/allAuthenticatedUsers on buckets, sql.restrictPublicIp prevents Cloud SQL instances from having public IP addresses, and compute.vmExternalIpAccess prevents VMs from being assigned external IPs; together these prevent direct internet exposure of the main data-hosting services. iam.disableServiceAccountKeyUpload and compute.requireOsLogin are good hardening controls but concern credentials and SSH login, not public exposure. gcp.resourceLocations enforces data residency rather than exposure.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/public-access-prevention",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/org-policy-constraints"
+    ]
+  },
+  {
+    "id": "d3-sec-048",
+    "domain": 3,
+    "topic": "Organization policy testing",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer's security team wants to enforce a new custom organization policy constraint that blocks the creation of Compute Engine instances without a specific tag. The organization has hundreds of production projects, and the CTO is concerned that enforcing the constraint immediately could break deployment pipelines. The team needs to understand the impact before enforcement and avoid outages. What should you do?",
+    "options": [
+      "Enforce the constraint on a single test project for one week, then apply it to the organization.",
+      "Create the custom constraint and apply the policy in dry-run mode at the organization level, review the audit log entries that record which requests would have been denied, and then switch it to enforced.",
+      "Enforce the constraint at the organization level immediately and roll it back if any pipelines fail.",
+      "Write a BigQuery query over Cloud Asset Inventory exports to find untagged instances and email the owners before enforcing."
+    ],
+    "answer": [1],
+    "explanation": "Organization policies support dry-run mode, in which violations are recorded in audit logs as would-be denials without blocking requests, and Policy Simulator can also preview the impact; this gives an organization-wide impact assessment before enforcement. Option A tests only one project, which is not representative of hundreds of production pipelines. Option C accepts an outage risk the CTO explicitly wants to avoid. Option D shows existing untagged instances but not which future create requests from pipelines would fail.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/dry-run-policy",
+      "https://cloud.google.com/policy-intelligence/docs/test-organization-policies"
+    ]
+  },
+  {
+    "id": "d3-sec-049",
+    "domain": 3,
+    "topic": "Cloud KMS key location",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company encrypts a dual-region Cloud Storage bucket (nam4) and regional Cloud SQL instances in us-central1 and us-east1 with CMEK. The security team wants the smallest number of Cloud KMS keys that satisfies location requirements, keeps keys in a dedicated security project, and lets each environment's data be independently made unreadable by disabling a key. What should you do?",
+    "options": [
+      "Create one key in the global location in the security project and use it for the bucket and both Cloud SQL instances.",
+      "Create one key in us-central1 and use it for the bucket and both Cloud SQL instances because they are all in North America.",
+      "Create one multi-region key in the us location and use it for all three resources.",
+      "Create a key in the nam4 dual-region (or a covering us multi-region) for the bucket, and separate regional keys in us-central1 and us-east1 for the respective Cloud SQL instances, all in the security project."
+    ],
+    "answer": [3],
+    "explanation": "Cloud KMS keys must be in a location that matches the protected resource: Cloud Storage dual-region buckets need a key in the same dual-region (or a multi-region that covers it), while Cloud SQL requires a key in the same region as the instance, so the minimum is one key for the bucket and one per Cloud SQL region; separate keys also satisfy the independent-revocation requirement. Option A fails because the global location is not usable for CMEK on these services. Option B fails because a regional key cannot protect a resource in a different region. Option C fails because Cloud SQL does not accept multi-region keys for regional instances.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/locations",
+      "https://cloud.google.com/sql/docs/mysql/configure-cmek"
+    ]
+  },
+  {
+    "id": "d3-sec-050",
+    "domain": 3,
+    "topic": "Default encryption",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A small nonprofit is moving donor spreadsheets to Cloud Storage and a Cloud SQL database. Its board asks whether the data will be encrypted at rest and what the organization must configure to ensure this. The nonprofit has no dedicated security staff and no regulatory requirement to control keys. What should you tell them?",
+    "options": [
+      "All data is encrypted at rest by default with Google-managed keys using AES-256, with no configuration required; CMEK is available later if they need to control keys themselves.",
+      "Encryption at rest must be enabled per bucket and per database instance by creating a Cloud KMS key and assigning it to each resource.",
+      "Encryption at rest is only available with customer-supplied encryption keys that the nonprofit must generate and provide.",
+      "Data is encrypted at rest only if the organization purchases Security Command Center Premium, which enables storage encryption."
+    ],
+    "answer": [0],
+    "explanation": "Google Cloud encrypts all customer content at rest by default using AES-256 with Google-managed keys and envelope encryption; nothing needs to be configured, which is ideal for an organization without security staff, and CMEK remains an option if requirements change. Option B describes CMEK, which is optional, not a prerequisite for encryption. Option C is wrong because CSEK is an optional Cloud Storage/Compute Engine feature. Option D is wrong because Security Command Center is a security posture and threat detection product unrelated to enabling encryption.",
+    "refs": [
+      "https://cloud.google.com/docs/security/encryption/default-encryption",
+      "https://cloud.google.com/storage/docs/encryption"
+    ]
+  }
+]

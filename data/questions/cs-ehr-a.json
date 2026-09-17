@@ -1,0 +1,433 @@
+[
+  {
+    "id": "cs-ehr-001",
+    "domain": 1,
+    "topic": "Migration planning",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. The lease on one of EHR Healthcare's colocation facilities expires in six months. That facility hosts several of the recently containerized customer-facing applications, a few non-containerized Linux and Windows VMs, and MySQL and MongoDB databases. Leadership wants to vacate the facility on time with the lowest migration risk. What should you do?",
+    "options": [
+      "Refactor every application in the facility into microservices on Cloud Run before the lease expires so that nothing legacy is moved to Google Cloud.",
+      "Run a Migration Center discovery and assessment, deploy the containerized applications to GKE, rehost the remaining VMs with Migrate to Virtual Machines, migrate the databases with Database Migration Service or managed equivalents, and defer deeper modernization until after the move.",
+      "Negotiate a multi-year lease extension and migrate the entire facility to Google Cloud VMware Engine so that no application changes are required.",
+      "Migrate only the databases to Cloud SQL now and leave the applications running in the colocation facility until they can be rewritten."
+    ],
+    "answer": [1],
+    "explanation": "The deciding factors are the hard six-month deadline and the goal of minimum risk. Google-recommended practice is to assess first (Migration Center), then move workloads with the lowest-friction path that fits each one: containers already run on Kubernetes so they map directly to GKE, VMs are rehosted with Migrate to Virtual Machines, and databases move with Database Migration Service or a managed equivalent; modernization continues afterward in the cloud. Option A is wrong because a full refactor to Cloud Run before the deadline is high-risk and unnecessary for applications that are already containerized. Option C is wrong because it adds lease cost and VMware Engine is not needed for workloads that are already on Kubernetes and bare-metal/KVM hosts. Option D is wrong because it leaves the applications in a facility that must be vacated and splits the data tier from the application tier across a WAN, increasing latency.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/migrate/virtual-machines/docs"
+    ]
+  },
+  {
+    "id": "cs-ehr-002",
+    "domain": 2,
+    "topic": "GKE Enterprise fleets",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare will keep some Kubernetes clusters on-premises next to the legacy insurance-provider integrations for several years while new clusters run in Google Cloud. The technical requirements call for a consistent way to manage container-based applications and to maintain multiple container-based environments. You want to follow Google-recommended practices. What should you do?",
+    "options": [
+      "Migrate every Kubernetes cluster to a single GKE Autopilot cluster in one region and decommission the on-premises clusters immediately.",
+      "Manage each cluster independently with kubectl and keep a separate Git repository of manifests per cluster so that teams can customize freely.",
+      "Use Cloud Deploy to push identical manifests to every cluster and compare cluster configuration drift by looking at Cloud Monitoring dashboards.",
+      "Enable GKE Enterprise, register the on-premises clusters as attached clusters and the GKE clusters into one fleet, and use Config Sync and Policy Controller to enforce consistent configuration and policy across all clusters."
+    ],
+    "answer": [3],
+    "explanation": "The executive statement asks for a platform that spans multiple environments seamlessly, and the technical requirements ask for consistent management of multiple container environments. GKE Enterprise fleets let you register both GKE and attached on-premises clusters, then Config Sync (GitOps) and Policy Controller apply the same configuration and guardrails everywhere, which directly addresses the outages caused by misconfigured and inconsistent systems. Option A violates the requirement to keep the legacy integrations, and therefore some clusters, on-premises. Option B perpetuates the 'similar but separate environments' problem described in the executive statement. Option C uses Cloud Deploy for something it is not designed for; Cloud Deploy is a delivery pipeline, not a fleet configuration and policy engine, and dashboards do not enforce anything.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/fleet-management/docs",
+      "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview",
+      "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-ehr-003",
+    "domain": 1,
+    "topic": "Cloud SQL for MySQL migration",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. The MySQL databases that back several customer-facing applications must move from the colocation facility to Google Cloud. The applications must keep meeting the 99.9% availability requirement, the cutover downtime must be minimal, and the operations team wants to reduce database administration effort. Which approach should you recommend?",
+    "options": [
+      "Use Database Migration Service to run a continuous replication migration into a Cloud SQL for MySQL instance with high availability enabled, then cut over during a short maintenance window.",
+      "Export the databases with mysqldump, upload the dump to Cloud Storage, import it into a single-zone Cloud SQL for MySQL instance, and enable high availability later.",
+      "Deploy MySQL on Compute Engine VMs with a custom primary/replica topology that the team manages and monitors themselves.",
+      "Use Datastream to replicate the MySQL data into Spanner so that the applications gain global scalability."
+    ],
+    "answer": [0],
+    "explanation": "Database Migration Service performs an initial load plus continuous change-data-capture replication, so the on-premises MySQL primary keeps serving until a brief cutover, meeting the minimal-downtime constraint. Cloud SQL with high availability provides a regional standby with automatic failover and a 99.95% SLA, which satisfies the 99.9% availability requirement while Google handles patching, backups, and failover (reliability and operational-excellence pillars). Option B causes long downtime during dump/import and initially runs without HA. Option C keeps all administration on the team, contradicting the goal of reducing infrastructure administration cost. Option D is wrong because Datastream does not target Spanner and moving to Spanner would require schema and application changes that are not justified here.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/mysql",
+      "https://cloud.google.com/sql/docs/mysql/high-availability"
+    ]
+  },
+  {
+    "id": "cs-ehr-004",
+    "domain": 1,
+    "topic": "Cloud SQL for SQL Server and Managed Microsoft AD",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. Several Microsoft SQL Server databases use Windows Authentication against EHR Healthcare's on-premises Active Directory, and application connection strings rely on domain accounts. You want to move these databases to a managed service in Google Cloud without changing the authentication model. What should you do?",
+    "options": [
+      "Create Cloud SQL for SQL Server instances with SQL authentication only and recreate every domain login as a SQL Server login.",
+      "Install SQL Server on Compute Engine VMs and join them to the on-premises Active Directory domain over Cloud VPN.",
+      "Deploy Managed Microsoft AD, establish a trust with the on-premises Active Directory forest, and create Cloud SQL for SQL Server instances integrated with the managed domain.",
+      "Migrate the databases to Cloud SQL for PostgreSQL with Database Migration Service and use IAM database authentication."
+    ],
+    "answer": [2],
+    "explanation": "Cloud SQL for SQL Server supports Windows Authentication only through Managed Microsoft AD. By creating a managed domain with a trust to the existing on-premises forest, existing domain users and groups continue to authenticate while the database itself is fully managed, which matches the goal of decreasing administration costs. Option A changes the authentication model and forces credential management changes in every application. Option B keeps SQL Server self-managed on VMs, contradicting the managed-service requirement. Option D is a heterogeneous migration to a different engine that would require rewriting T-SQL code and testing, far exceeding the scope of the requirement.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/sqlserver/configure-ad",
+      "https://cloud.google.com/managed-microsoft-ad/docs/create-trust"
+    ]
+  },
+  {
+    "id": "cs-ehr-005",
+    "domain": 1,
+    "topic": "MongoDB Atlas on Google Cloud Marketplace",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare's MongoDB clusters are administered by two engineers who also run the monitoring tools, and the team wants to eliminate database patching and backup duties as part of the move to Google Cloud. The applications use the standard MongoDB drivers and cannot be rewritten in the migration timeframe. What should you do?",
+    "options": [
+      "Rewrite the data-access layer of each application to use Firestore in Native mode and migrate the documents with Dataflow.",
+      "Run MongoDB as StatefulSets on GKE with regional Persistent Disks and build custom backup CronJobs.",
+      "Migrate the MongoDB data to Bigtable using a Dataflow template and update the applications to use the Bigtable client libraries.",
+      "Subscribe to MongoDB Atlas on Google Cloud through Google Cloud Marketplace, use Atlas live migration to move the data, and update the application connection strings."
+    ],
+    "answer": [3],
+    "explanation": "MongoDB Atlas from Google Cloud Marketplace is a fully managed MongoDB service that is billed through the Google Cloud account and keeps full driver compatibility, so the applications only need new connection strings while patching, backups, and scaling are handled by the provider. This satisfies both the no-rewrite constraint and the goal of reducing administration cost. Option A and Option C require application rewrites to different data models, violating the stated constraint. Option B keeps the team responsible for the database lifecycle, backups, and upgrades on GKE, which is the opposite of what they asked for.",
+    "refs": [
+      "https://cloud.google.com/mongodb",
+      "https://cloud.google.com/marketplace/docs"
+    ]
+  },
+  {
+    "id": "cs-ehr-006",
+    "domain": 2,
+    "topic": "Cloud Interconnect",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. The legacy file- and API-based insurance-provider integrations will remain in the surviving colocation facility for several years and will exchange large volumes of data with applications on GKE. The technical requirements call for a secure, high-performance connection between on-premises systems and Google Cloud, and the customer-facing systems that depend on this link must achieve 99.9% availability. Which connectivity design should you recommend?",
+    "options": [
+      "Configure a single Classic VPN tunnel with a static route from the colocation facility to the VPC network.",
+      "Provision Dedicated Interconnect with at least two VLAN attachments in separate edge availability domains of the same metro connected to Cloud Router with BGP, and add HA VPN over the internet as a backup path.",
+      "Set up Carrier Peering so that the on-premises systems can reach Google Cloud services over the peering link.",
+      "Publish the on-premises integration systems on public IP addresses behind TLS and restrict access with Cloud Armor IP allowlists so that no private link is needed."
+    ],
+    "answer": [1],
+    "explanation": "Dedicated Interconnect provides private, high-bandwidth (10 or 100 Gbps per circuit), low-latency connectivity that does not traverse the public internet. To receive the 99.9% availability SLA topology, Google requires at least two VLAN attachments in different edge availability domains of one metro with Cloud Router BGP sessions; adding HA VPN as an independent backup path further protects against Interconnect outage. Option A offers no SLA, limited bandwidth, and a single point of failure. Option C is wrong because Carrier Peering only provides access to Google public services, not to RFC 1918 VPC addresses, and carries no SLA. Option D exposes systems that handle PHI to the internet, which contradicts both the security requirement and regulatory compliance.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/production-level-overview",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/choosing-type"
+    ]
+  },
+  {
+    "id": "cs-ehr-007",
+    "domain": 3,
+    "topic": "Identity federation with Active Directory",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare manages all users in Microsoft Active Directory and wants employees to sign in to the Google Cloud console and gcloud with their existing corporate credentials. Active Directory must remain the single source of truth, and HR-driven deprovisioning must automatically remove Google Cloud access. Which approach should you recommend?",
+    "options": [
+      "Use Google Cloud Directory Sync to provision users and groups from Active Directory into Cloud Identity, and configure SAML single sign-on with AD FS (or a compatible IdP) so authentication stays in Active Directory.",
+      "Manually create Cloud Identity accounts for each employee with separate passwords and remove them when HR sends an email.",
+      "Deploy Managed Microsoft AD, migrate all user objects into it, and make the managed domain the new corporate identity source.",
+      "Export Active Directory users to a CSV file each month and bulk-import them through the Google Admin console."
+    ],
+    "answer": [0],
+    "explanation": "The Google-recommended pattern for organizations that run Active Directory is to keep AD authoritative: Google Cloud Directory Sync performs one-way provisioning of users and groups into Cloud Identity, while SAML federation with AD FS ensures passwords never leave the corporate IdP and disabled AD accounts lose access on the next sync. Option B and Option D are manual processes that leave orphaned accounts between runs, a significant compliance risk for a HIPAA-regulated company. Option C is wrong because Managed Microsoft AD is for domain-joining cloud workloads (such as Windows VMs and Cloud SQL for SQL Server); it does not provide console single sign-on and would force a disruptive identity migration.",
+    "refs": [
+      "https://cloud.google.com/architecture/identity/federating-gcp-with-active-directory-introduction",
+      "https://cloud.google.com/architecture/identity/federating-gcp-with-active-directory-synchronizing-user-accounts"
+    ]
+  },
+  {
+    "id": "cs-ehr-008",
+    "domain": 1,
+    "topic": "Multi-region GKE and global load balancing",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare serves hospitals and insurers in North America, Europe, and Asia from a single colocation facility today. After the migration, the web applications on GKE must provide 99.9% availability and noticeably lower latency for every customer region. How should you design the serving architecture?",
+    "options": [
+      "Deploy one zonal GKE cluster in us-central1 behind a regional external Application Load Balancer and enable Cloud CDN to reduce latency for remote users.",
+      "Deploy regional GKE clusters in several regions and publish per-region regional load balancer IP addresses in DNS using round-robin records.",
+      "Deploy regional GKE clusters in regions close to the major customer populations, expose them through a multi-cluster Gateway backed by a global external Application Load Balancer with Cloud CDN, and let the load balancer route each user to the nearest healthy cluster.",
+      "Deploy one large regional GKE cluster in europe-west1 and connect each customer over Cloud VPN so their traffic bypasses the public internet."
+    ],
+    "answer": [2],
+    "explanation": "Latency is dominated by distance to the serving region, so compute must be placed near each customer population; regional clusters remove single-zone failure and the global external Application Load Balancer with anycast IP steers users to the closest healthy backend and fails over automatically, satisfying both the latency and the 99.9% availability requirements (performance and reliability pillars). Multi-cluster Gateway is the Google-recommended way to front several GKE clusters with one global load balancer. Option A leaves a single zone as a point of failure and CDN only helps cacheable content, not dynamic EHR transactions. Option B relies on DNS round-robin, which has no health awareness and slow failover because of client caching. Option D keeps all users far from a single region and VPN adds operational overhead without solving distance-based latency.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/gateway-api",
+      "https://cloud.google.com/load-balancing/docs/https",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/regional-clusters"
+    ]
+  },
+  {
+    "id": "cs-ehr-009",
+    "domain": 6,
+    "topic": "Alerting strategy and SLOs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. Today EHR Healthcare's alerts are sent by email and are often ignored, and the business requires proactive action on system performance. You are designing the alerting strategy for the customer-facing applications on Google Cloud. What should you do?",
+    "options": [
+      "Keep the email alerts but add every engineer to the distribution list so that someone is likely to respond.",
+      "Export all metrics to BigQuery and have the operations team review dashboards in a weekly meeting.",
+      "Create alerting policies on every available metric with conservative thresholds and route them to a shared Google Chat space.",
+      "Define SLOs for the customer-facing services in Cloud Monitoring, create burn-rate alerting policies, route them to an on-call paging channel such as PagerDuty with severity levels and linked runbooks, and reserve email for low-priority notifications."
+    ],
+    "answer": [3],
+    "explanation": "Alerts are ignored when they are noisy and not actionable; the Well-Architected operational-excellence guidance is to alert on symptoms that affect users (SLO error-budget burn rates), page a defined on-call rotation, and attach runbooks so responders can act quickly. Cloud Monitoring supports SLO definitions, burn-rate alerts, and paging integrations such as PagerDuty. Option A increases noise and diffuses responsibility. Option B is reactive and cannot deliver proactive action. Option C generates even more low-value alerts in a chat space that is as easy to ignore as email.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate",
+      "https://cloud.google.com/monitoring/support/notification-options",
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "cs-ehr-010",
+    "domain": 6,
+    "topic": "Centralized logging",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare will have dozens of Google Cloud projects plus attached on-premises Kubernetes clusters, and the technical requirements demand consistent logging, log retention, monitoring, and alerting. The compliance team needs one place to search all logs with a uniform retention period. What should you do?",
+    "options": [
+      "Configure each project's _Default log bucket with 30-day retention and ask application teams to export logs manually when auditors request them.",
+      "Create an organization-level aggregated log sink that routes logs from all projects into a centralized Cloud Logging bucket in a dedicated logging project with a compliance-driven retention period, and enable Cloud Logging on the attached on-premises clusters so they report to the same project.",
+      "Deploy Elasticsearch and Kibana on GKE and forward all logs from every cluster with Fluent Bit.",
+      "Route all logs to Cloud Storage Archive buckets and create BigQuery external tables when someone needs to search them."
+    ],
+    "answer": [1],
+    "explanation": "An aggregated sink at the organization (or folder) level captures logs from all current and future projects without per-project configuration, and a dedicated logging project with a custom-retention log bucket gives auditors one searchable place with a consistent retention policy. Attached clusters in a GKE Enterprise fleet can send logs and metrics to Cloud Logging and Cloud Monitoring, meeting the 'consistent across environments' requirement. Option A leaves logs fragmented and dependent on manual effort. Option C recreates the self-managed open-source tooling the company is trying to leave behind. Option D loses Logs Explorer, log-based metrics, and alerting, and Archive retrieval is slow for investigations.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks",
+      "https://cloud.google.com/logging/docs/buckets"
+    ]
+  },
+  {
+    "id": "cs-ehr-011",
+    "domain": 1,
+    "topic": "Analytics and ML on operational data",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. The business wants to make predictions and generate reports on industry trends based on provider data that lives in Cloud SQL for MySQL and Cloud SQL for SQL Server after the migration. The analytics team knows SQL well but has no data-engineering staff, and analytical queries must not affect the transactional databases. What should you do?",
+    "options": [
+      "Use Datastream to replicate the operational databases into BigQuery continuously, build forecasting models with BigQuery ML, and publish reports with Looker.",
+      "Run the analytical queries directly against the Cloud SQL primary instances during off-peak hours.",
+      "Export nightly CSV files to Cloud Storage and load them into a long-running Dataproc Hadoop cluster for analysis.",
+      "Train custom TensorFlow models on Compute Engine VMs that read directly from Cloud SQL read replicas."
+    ],
+    "answer": [0],
+    "explanation": "Datastream is a serverless change-data-capture service that streams Cloud SQL data into BigQuery with minimal impact on the source, BigQuery ML lets a SQL-skilled team create time-series forecasting and classification models without moving data or writing Python, and Looker delivers governed reports. This matches the team's skills and the least-operational-overhead principle. Option B puts analytical load on the transactional databases and risks the 99.9% availability target. Option C is a batch, self-managed approach with a 24-hour data lag and cluster administration overhead. Option D requires ML engineering skills the team does not have and couples analytics to the operational replicas.",
+    "refs": [
+      "https://cloud.google.com/datastream/docs/overview",
+      "https://cloud.google.com/bigquery/docs/bqml-introduction"
+    ]
+  },
+  {
+    "id": "cs-ehr-012",
+    "domain": 5,
+    "topic": "Apigee API management",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. A key business requirement is to on-board new insurance providers as quickly as possible. Today each provider integration is hand-built, credentials are exchanged by email, and there is no consistent throttling or monitoring. You want a repeatable, secure way for new providers to consume EHR Healthcare's APIs. What should you do?",
+    "options": [
+      "Create a service account key for each provider and give them direct network access to the internal APIs on GKE.",
+      "Build a custom onboarding portal on Cloud Run that generates API keys and stores them in Firestore.",
+      "Publish the provider-facing APIs as API products in Apigee with a developer portal for self-service onboarding, and enforce authentication, quotas, and payload transformation policies at the proxy layer.",
+      "Expose the APIs through an external passthrough Network Load Balancer and control access with per-provider VPC firewall rules."
+    ],
+    "answer": [2],
+    "explanation": "Apigee is Google Cloud's API management platform: API products, a developer portal, and self-service app registration let a new provider obtain credentials and documentation in minutes, while OAuth, quota, threat-protection, and mediation policies are applied consistently without touching backend code, and Apigee analytics give visibility into usage. Option A distributes long-lived service account keys and exposes internal services, a security anti-pattern. Option B rebuilds a subset of Apigee functionality and creates maintenance burden. Option D provides no authentication, quota, or transformation and firewall rules per provider do not scale.",
+    "refs": [
+      "https://cloud.google.com/apigee/docs/api-platform/get-started/what-apigee",
+      "https://cloud.google.com/apigee/docs/api-platform/publish/what-api-product"
+    ]
+  },
+  {
+    "id": "cs-ehr-013",
+    "domain": 2,
+    "topic": "Cloud Healthcare API data ingestion",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare must create interfaces to ingest and process data from new providers. New providers send clinical data as FHIR resources over REST and as HL7v2 messages, and the data must be validated, stored in a compliant manner, and made available for the trend-analysis reports. Which architecture should you recommend?",
+    "options": [
+      "Store incoming provider files as BLOBs in Cloud SQL and parse them with stored procedures.",
+      "Ingest the data through the Cloud Healthcare API using FHIR and HL7v2 stores, and use its Pub/Sub notifications to trigger Dataflow pipelines that validate the data and load it into BigQuery.",
+      "Require all new providers to send data through the existing on-premises legacy integrations and batch-copy the results to Cloud Storage nightly.",
+      "Build a custom HL7 parser on Compute Engine that writes the parsed records directly into MongoDB."
+    ],
+    "answer": [1],
+    "explanation": "The Cloud Healthcare API provides managed, HIPAA-eligible FHIR and HL7v2 stores (with an MLLP adapter for HL7v2 delivery), performs schema validation, and emits Pub/Sub notifications for each new resource or message, so Dataflow can transform and stream data into BigQuery for the trend-analysis requirement without custom parsers. Option A misuses a relational database as a document store and makes validation and analytics hard. Option C routes new business through systems the case study says are scheduled for replacement and must not be extended. Option D reinvents healthcare-standard parsing and puts the operational burden on the team.",
+    "refs": [
+      "https://cloud.google.com/healthcare-api/docs/concepts/fhir",
+      "https://cloud.google.com/healthcare-api/docs/concepts/hl7v2",
+      "https://cloud.google.com/healthcare-api/docs/concepts/pubsub"
+    ]
+  },
+  {
+    "id": "cs-ehr-014",
+    "domain": 3,
+    "topic": "HIPAA compliance",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare stores protected health information (PHI) and must maintain regulatory compliance under HIPAA after moving to Google Cloud. The compliance officer asks you which foundational actions must be taken before PHI is processed in the new environment. Which two actions should you recommend? (Choose two.)",
+    "options": [
+      "Review and accept the Google Cloud Business Associate Agreement (BAA) and restrict PHI workloads to services covered by the BAA.",
+      "Disable Cloud Audit Logs on projects that store PHI so that patient identifiers never appear in logs.",
+      "Enable Data Access audit logs for the services that store PHI and route them to a centrally retained, access-controlled log bucket.",
+      "Download service account keys to the on-premises integration servers so they can authenticate to Google Cloud APIs.",
+      "Generate encryption keys on developer laptops and embed them in container images to encrypt PHI at the application layer."
+    ],
+    "answer": [0, 2],
+    "explanation": "HIPAA compliance on Google Cloud is a shared responsibility: the customer must execute the BAA and use only HIPAA-covered products for PHI, and it must be able to demonstrate who accessed PHI, which requires Data Access audit logs (off by default for most services) retained centrally and protected from tampering. Option B is the opposite of what auditors require; audit logs record access events, not the content of records. Option D introduces long-lived credentials that are hard to rotate and audit; Workload Identity Federation or short-lived tokens are recommended. Option E is an insecure key-management practice; Cloud KMS with CMEK is the appropriate control.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/hipaa",
+      "https://cloud.google.com/logging/docs/audit/configure-data-access"
+    ]
+  },
+  {
+    "id": "cs-ehr-015",
+    "domain": 5,
+    "topic": "CI/CD with Cloud Deploy",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare needs to roll out new continuous deployment capabilities to update its containerized software quickly across development, staging, and production GKE environments, while ensuring that only vetted images reach production and that a bad release can be halted before it affects all customers. What should you do?",
+    "options": [
+      "Have developers run kubectl apply from their workstations against each cluster after they finish manual testing.",
+      "Use Cloud Build to build the images and add a final Cloud Build step that runs kubectl apply against the production cluster on every merge to main.",
+      "Run Jenkins on a Compute Engine VM that uses SSH to connect to cluster nodes and pull new images.",
+      "Use Cloud Build to build and scan images into Artifact Registry, define a Cloud Deploy delivery pipeline that promotes releases through dev, staging, and production GKE targets with canary rollouts and required approvals, and enforce Binary Authorization on the clusters."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Deploy is Google's managed continuous-delivery service for GKE: a delivery pipeline models the environment progression, canary strategies limit blast radius, approvals gate production, and rollbacks are one action. Combined with Artifact Registry vulnerability scanning and Binary Authorization attestations, only verified images can run in production, satisfying both speed and safety (operational-excellence and security pillars). Option A is unauditable and error-prone. Option B deploys straight to production with no promotion, canary, or approval. Option C is a self-managed, node-level approach that bypasses Kubernetes deployment controls entirely.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/overview",
+      "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+      "https://cloud.google.com/binary-authorization/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-ehr-016",
+    "domain": 1,
+    "topic": "Disaster recovery design",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. EHR Healthcare is adapting its disaster recovery plan for the customer-facing applications that will run on GKE with Cloud SQL. The business has set an RPO of 15 minutes and an RTO of 1 hour for a regional outage and wants to control DR cost. Which design should you recommend?",
+    "options": [
+      "Run a scaled-down GKE cluster in a second region, configure a cross-region Cloud SQL read replica that can be promoted, replicate images and configuration through Artifact Registry and Config Sync, and fail traffic over using the global external Application Load Balancer.",
+      "Take nightly automated Cloud SQL backups and, in a disaster, rebuild the full environment in another region from Terraform and restore the latest backup.",
+      "Run a fully active-active deployment in three regions and migrate the databases to Spanner to guarantee zero data loss.",
+      "Rely on Cloud SQL high availability and regional GKE clusters, because they already protect against failures within the region."
+    ],
+    "answer": [0],
+    "explanation": "A warm-standby pattern meets a 15-minute RPO and 1-hour RTO at moderate cost: a cross-region read replica typically lags seconds to minutes and can be promoted quickly, a pre-provisioned small cluster with identical configuration (via Config Sync) can be scaled up within the RTO, and the global load balancer redirects users once backends in the DR region are healthy. Option B is a cold pattern whose RPO is up to 24 hours and whose rebuild time likely exceeds one hour. Option C exceeds the requirement, is the most expensive option, and forces a database re-platform to Spanner. Option D only addresses zonal failures; Cloud SQL HA and regional clusters do not protect against loss of an entire region.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/sql/docs/mysql/replication/cross-region-replicas"
+    ]
+  },
+  {
+    "id": "cs-ehr-017",
+    "domain": 4,
+    "topic": "Infrastructure as code and policy guardrails",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. The executive statement notes that many past outages were caused by misconfigured systems. As part of the move to Google Cloud, you must define a technical process that prevents configuration errors from reaching production while still allowing the team to provision environments dynamically. What should you do?",
+    "options": [
+      "Grant the Owner role to a small group of senior engineers so that fewer people can make configuration changes.",
+      "Write detailed runbooks for manual configuration and require peer sign-off in a ticket before each change.",
+      "Manage all infrastructure and Kubernetes configuration as code in Git, deploy it through Cloud Build pipelines that run automated policy validation (Terraform validation against organization policy and Policy Controller constraints), and remove direct write access to production for humans.",
+      "Enable Security Command Center Premium and review misconfiguration findings in a monthly meeting."
+    ],
+    "answer": [2],
+    "explanation": "Misconfiguration is best prevented by making every change declarative, peer-reviewed, tested, and validated automatically before it is applied; Terraform and Config Sync manifests in Git with Cloud Build pipelines provide that, policy-as-code (organization policy constraints, Policy Controller, Terraform validation) blocks non-compliant changes, and removing human write access to production removes the 'quick manual fix' failure mode. This embodies the operational-excellence pillar's automation and change-management guidance. Option A still allows manual, unvalidated changes. Option B is slow, human-dependent, and does not scale to dynamic environment provisioning. Option D is a valuable detective control but reacts after misconfigurations already exist.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/best-practices-for-terraform",
+      "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/overview",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
+    ]
+  },
+  {
+    "id": "cs-ehr-018",
+    "domain": 2,
+    "topic": "GKE Autopilot and autoscaling",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. Past outages were partly caused by inadequate capacity during traffic spikes, and the business wants to decrease infrastructure administration costs. You need to run the containerized customer-facing applications in Google Cloud so that capacity follows demand without engineers managing nodes. What should you do?",
+    "options": [
+      "Over-provision GKE Standard node pools for peak load and purchase three-year committed use discounts for the full capacity.",
+      "Run the workloads on GKE Autopilot clusters with Horizontal Pod Autoscaler configured on request-based metrics, so nodes are provisioned automatically and billed per pod resource request.",
+      "Run the containers on fixed-size managed instance groups of Compute Engine VMs behind a load balancer.",
+      "Schedule cron jobs that resize the node pools before the expected busy hours each day."
+    ],
+    "answer": [1],
+    "explanation": "GKE Autopilot removes node management entirely: Google provisions, scales, patches, and secures the nodes, and you pay only for pod resource requests, so HPA-driven scale-out during spikes is automatic and no idle capacity is paid for (cost-optimization and operational-excellence pillars). Option A pays for unused capacity and still requires node administration. Option C gives up Kubernetes orchestration the applications already rely on and does not scale dynamically. Option D relies on predictions and manual scripts, which is exactly the fragile approach that caused earlier outages.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/horizontalpodautoscaler"
+    ]
+  },
+  {
+    "id": "cs-ehr-019",
+    "domain": 3,
+    "topic": "Cloud Armor and Identity-Aware Proxy",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. After migrating to GKE, EHR Healthcare exposes patient-facing web portals to the internet and also runs internal administration consoles that operations staff currently reach through a jump host in the colocation facility. You must protect both classes of application in line with HIPAA expectations and Google-recommended practices. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Attach Cloud Armor security policies with preconfigured OWASP WAF rules and rate limiting to the global external Application Load Balancer that fronts the patient-facing portals.",
+      "Publish the administration consoles on public IP addresses protected by HTTP basic authentication.",
+      "Open TCP port 22 from 0.0.0.0/0 on the GKE nodes so operators can troubleshoot from anywhere.",
+      "Place the administration consoles behind Identity-Aware Proxy with Cloud Identity groups and context-aware access levels instead of a VPN or jump host.",
+      "Store the portals' session data in a Firestore database in test mode so that developers can debug quickly."
+    ],
+    "answer": [0, 3],
+    "explanation": "Cloud Armor provides DDoS protection, OWASP Top 10 WAF rules, and rate limiting at the edge for internet-facing applications, while Identity-Aware Proxy implements a zero-trust access model for internal tools by authenticating each request with corporate identity and device context, eliminating the jump host. Both are Google-recommended controls in the security pillar. Option B exposes privileged consoles with weak authentication. Option C opens SSH to the world, a classic misconfiguration that attackers scan for. Option E disables security rules on a datastore holding PHI-adjacent session data, which is unacceptable.",
+    "refs": [
+      "https://cloud.google.com/armor/docs/cloud-armor-overview",
+      "https://cloud.google.com/iap/docs/concepts-overview"
+    ]
+  },
+  {
+    "id": "cs-ehr-020",
+    "domain": 4,
+    "topic": "Reducing administration cost",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "ehr",
+    "question": "For this question, refer to the EHR Healthcare case study. The executive statement says EHR Healthcare has invested heavily in training staff on distinctly different systems and in managing similar but separate environments, and a business requirement is to decrease infrastructure administration costs. Which two design choices best support this requirement? (Choose two.)",
+    "options": [
+      "Lift and shift every server to Compute Engine VMs so that existing operating procedures remain unchanged.",
+      "Build an internal platform team to operate the open-source databases as containers on GKE.",
+      "Run the containerized applications on GKE Autopilot so that node provisioning, patching, and scaling are handled by Google.",
+      "Move the whole estate to Google Cloud VMware Engine so that no retraining is required and keep operating it exactly as today.",
+      "Replace self-managed MySQL, SQL Server, and Redis with Cloud SQL and Memorystore so that backups, patching, and failover are managed services."
+    ],
+    "answer": [2, 4],
+    "explanation": "Administration cost drops when undifferentiated work (node patching, database backups, failover, capacity) shifts to managed services; GKE Autopilot and managed databases such as Cloud SQL and Memorystore do exactly that while standardizing the team on one platform and one skill set (cost-optimization and operational-excellence pillars). Option A preserves every existing manual procedure and therefore the existing cost. Option B adds headcount to keep running databases the hard way. Option D keeps the current operating model, including the outages and inconsistent monitoring the executive complains about, and is typically more expensive than native services.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  }
+]

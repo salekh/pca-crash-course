@@ -1,0 +1,531 @@
+[
+  {
+    "id": "d1-des-076",
+    "domain": 1,
+    "topic": "Global external Application Load Balancer",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online education company serves an HTTPS web application to students in North America, Europe, and Asia from managed instance groups deployed in three regions. It wants a single anycast IP address, TLS termination at Google's edge, URL-based routing to different backends, and the ability to cache static content close to users. Which load balancer should you choose?",
+    "options": [
+      "A regional external Application Load Balancer in each region with DNS round robin.",
+      "An external passthrough Network Load Balancer with a backend service spanning all regions.",
+      "A global external Application Load Balancer with backends in all three regions and Cloud CDN enabled.",
+      "An internal Application Load Balancer exposed through Cloud NAT."
+    ],
+    "answer": [2],
+    "explanation": "The global external Application Load Balancer is the Layer 7 proxy that provides a single global anycast IP, TLS termination at Google Front Ends, URL maps for path and host routing, automatic routing of users to the nearest healthy backend region, and native Cloud CDN integration; it is the default choice for internet-facing HTTP(S) applications with a global audience. Option A gives three IPs, relies on DNS for failover, and has no cross-region proximity routing. Option B is a Layer 4 pass-through balancer that is regional and cannot terminate TLS, route by URL, or use Cloud CDN. Option D is for private clients only; Cloud NAT does not expose internal load balancers to the internet.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/choosing-load-balancer",
+      "https://cloud.google.com/load-balancing/docs/https"
+    ]
+  },
+  {
+    "id": "d1-des-077",
+    "domain": 1,
+    "topic": "Regional external Application Load Balancer",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A German public-sector agency is deploying an internet-facing HTTPS portal. Its data protection office requires that TLS termination and all Layer 7 processing of citizen traffic occur only within the europe-west3 region and that no proxying takes place at points of presence outside Germany. The application still needs HTTP header-based routing and a web application firewall. Which load balancer should you choose?",
+    "options": [
+      "Global external Application Load Balancer with backends only in europe-west3.",
+      "Regional external Application Load Balancer in europe-west3 with a regional Cloud Armor security policy.",
+      "External passthrough Network Load Balancer in europe-west3 with TLS terminated on the VMs.",
+      "Classic Application Load Balancer with Premium Tier networking."
+    ],
+    "answer": [1],
+    "explanation": "The regional external Application Load Balancer runs its Envoy-based proxies inside the chosen region, so TLS termination and Layer 7 processing happen only in europe-west3, meeting the residency requirement while still providing header-based routing and support for regional Cloud Armor security policies (WAF). Options A and D are global proxies: client TLS is terminated at the nearest Google Front End, which may be outside Germany, violating the constraint. Option C keeps processing in-region but is Layer 4 only; it cannot route on HTTP headers and Cloud Armor's WAF rules are not available for passthrough load balancers.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/https#regional-external-lb",
+      "https://cloud.google.com/armor/docs/security-policy-overview"
+    ]
+  },
+  {
+    "id": "d1-des-078",
+    "domain": 1,
+    "topic": "Internal Application Load Balancer",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank runs 25 internal microservices on Compute Engine managed instance groups and GKE in a single region. Front-end services call back-end services over HTTP using internal IPs, and the platform team wants path-based routing (for example /accounts to one service, /payments to another), gradual traffic splitting for canary releases, and no exposure to the internet. Which load balancer should you use?",
+    "options": [
+      "A regional internal Application Load Balancer with a URL map and weighted backend services.",
+      "An internal passthrough Network Load Balancer per microservice.",
+      "A global external Application Load Balancer with Cloud Armor rules that allow only internal IP ranges.",
+      "An external proxy Network Load Balancer with an internal-only firewall rule."
+    ],
+    "answer": [0],
+    "explanation": "The internal Application Load Balancer is an Envoy-based Layer 7 proxy with an internal IP address; it supports URL maps for path and host routing, weighted traffic splitting for canary deployments, header rewrites, and can mix MIG and GKE NEG backends, all without an internet-facing address. Option B is Layer 4 and cannot route by path or split traffic by weight, and it multiplies the number of load balancers. Option C is internet-facing by design; filtering by source IP does not make it private and internal RFC 1918 sources would not traverse it anyway. Option D is a TCP proxy for external clients and offers no HTTP routing.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/l7-internal",
+      "https://cloud.google.com/load-balancing/docs/l7-internal/traffic-management"
+    ]
+  },
+  {
+    "id": "d1-des-079",
+    "domain": 1,
+    "topic": "External passthrough Network Load Balancer",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A game studio hosts dedicated multiplayer game servers on Compute Engine in one region. Clients connect over UDP, the servers must see the client's original source IP address for anti-cheat logic, and the studio wants to avoid any proxy in the path to keep latency to a minimum. Which load balancer should you choose?",
+    "options": [
+      "Global external Application Load Balancer with WebSocket support.",
+      "External proxy Network Load Balancer with PROXY protocol enabled.",
+      "Regional internal Application Load Balancer with global access enabled.",
+      "External passthrough Network Load Balancer with a UDP forwarding rule and a backend service."
+    ],
+    "answer": [3],
+    "explanation": "The external passthrough Network Load Balancer forwards packets without proxying, so UDP is supported, the original client source IP is preserved for the game server to read directly, and no extra hop is introduced; it is the standard choice for UDP and latency-sensitive gaming traffic. Option A is an HTTP(S) proxy and does not support arbitrary UDP traffic. Option B supports only TCP, terminates the client connection at the proxy, and PROXY protocol is a workaround to recover the client IP rather than true preservation. Option C is for internal HTTP clients and cannot serve internet users or UDP.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/network",
+      "https://cloud.google.com/load-balancing/docs/choosing-load-balancer"
+    ]
+  },
+  {
+    "id": "d1-des-080",
+    "domain": 1,
+    "topic": "Cloud CDN and Cloud Armor",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A ticket-sales company runs its web application behind a global external Application Load Balancer. During high-demand sales it experiences both legitimate traffic spikes and Layer 7 attacks, including credential stuffing and SQL injection attempts, and the origin servers struggle to serve repeated requests for the same product images and JavaScript bundles. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enable Cloud CDN on the backend services and backend bucket so cacheable static content is served from Google's edge.",
+      "Move the application behind an external passthrough Network Load Balancer to reduce proxy overhead.",
+      "Deploy a third-party WAF appliance on a VM in front of the load balancer.",
+      "Attach a Cloud Armor security policy with preconfigured WAF rules (for example sqli and xss) and rate-based rules to the backend services.",
+      "Replace the global load balancer with Cloud DNS geo-routing to regional VMs."
+    ],
+    "answer": [0, 3],
+    "explanation": "These two features are designed to work together on the global external Application Load Balancer: Cloud CDN caches static assets at Google's edge, cutting origin load and latency during spikes, while Cloud Armor applies WAF rules from the ModSecurity core rule set and rate limiting or adaptive protection at the edge to stop SQL injection, credential stuffing, and volumetric Layer 7 attacks before they reach the origin. Option B removes Layer 7 capabilities entirely, including CDN and Cloud Armor WAF. Option C introduces a bottleneck and single point of failure that would itself be overwhelmed by attack traffic. Option E abandons the anycast load balancer and its edge protections for slower DNS-based steering.",
+    "refs": [
+      "https://cloud.google.com/cdn/docs/overview",
+      "https://cloud.google.com/armor/docs/waf-rules"
+    ]
+  },
+  {
+    "id": "d1-des-081",
+    "domain": 1,
+    "topic": "Proxy Network Load Balancer",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An IoT platform receives device telemetry over MQTT with TLS on TCP port 8883 from devices around the world. The company wants a single global anycast IP, TLS termination and certificate management handled by Google at the edge, and automatic routing of devices to the closest healthy backend region. The protocol is not HTTP. Which load balancer should you choose?",
+    "options": [
+      "Global external Application Load Balancer with a custom port on the backend service.",
+      "Global external proxy Network Load Balancer (SSL proxy) with a Google-managed certificate and backends in multiple regions.",
+      "Regional external passthrough Network Load Balancer with TLS terminated on the backend VMs.",
+      "Regional internal proxy Network Load Balancer with global access."
+    ],
+    "answer": [1],
+    "explanation": "The global external proxy Network Load Balancer is the Layer 4 proxy for non-HTTP TCP traffic: in SSL-proxy mode it terminates TLS at Google's edge with managed certificates, offers a single anycast IP, and routes connections to the closest region with healthy capacity, which matches an MQTT-over-TLS fleet. Option A is an HTTP(S) proxy and will not pass raw MQTT frames. Option C is regional (no anycast or cross-region proximity routing) and leaves TLS termination to the VMs. Option D serves only internal clients and cannot accept internet traffic from devices.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/ssl",
+      "https://cloud.google.com/load-balancing/docs/choosing-load-balancer"
+    ]
+  },
+  {
+    "id": "d1-des-082",
+    "domain": 1,
+    "topic": "Cross-region internal Application Load Balancer",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments processor runs an internal authorization API on GKE in us-central1 and us-east1. Internal clients (VMs and GKE services) exist in both regions and in on-premises data centers. The API must be reachable through a single internal hostname, requests should normally go to the client's nearest region, and if one region's backends fail, traffic must automatically shift to the other region without DNS changes. Which load balancing design should you recommend?",
+    "options": [
+      "A regional internal Application Load Balancer in each region with Cloud DNS routing policies that fail over based on health checks.",
+      "A global external Application Load Balancer with backends in both regions, restricted to internal source ranges with Cloud Armor.",
+      "A cross-region internal Application Load Balancer with backend NEGs in both regions and proxy subnets in each region.",
+      "An internal passthrough Network Load Balancer in each region with global access enabled and the clients configured with both IP addresses."
+    ],
+    "answer": [2],
+    "explanation": "The cross-region internal Application Load Balancer is a globally distributed Envoy-based Layer 7 balancer with internal addressing: clients in any region (and on-premises via hybrid connectivity) reach a single internal IP or hostname, traffic is steered to the closest healthy region, and if all backends in a region fail, it fails over automatically to the other region at the load balancer layer, with no DNS TTL delay. Option A depends on DNS-based failover, which is slower and subject to client caching. Option B exposes an internal API on a public IP, which violates the internal-only requirement. Option D is Layer 4, has no cross-region proximity logic, and pushes failover complexity to every client.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/l7-internal#cross-region",
+      "https://cloud.google.com/load-balancing/docs/l7-internal/setting-up-l7-cross-reg-internal"
+    ]
+  },
+  {
+    "id": "d1-des-083",
+    "domain": 1,
+    "topic": "Dedicated Interconnect",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital group already has network equipment in two colocation facilities that are Google Cloud Dedicated Interconnect locations in different metropolitan areas. It needs at least 10 Gbps of sustained private bandwidth to its VPC, a 99.99% availability SLA for the connection, and reachability to subnets in two Google Cloud regions. Which topology should you implement?",
+    "options": [
+      "One 10 Gbps Dedicated Interconnect connection with two VLAN attachments to a single Cloud Router.",
+      "Two 10 Gbps Dedicated Interconnect connections in the same edge availability domain of one metro, each with a VLAN attachment to one Cloud Router.",
+      "Two HA VPN gateways over the internet, one per colocation facility, with four tunnels total.",
+      "Four Dedicated Interconnect connections, two in each metro in different edge availability domains, with VLAN attachments to Cloud Routers in two regions and global dynamic routing enabled."
+    ],
+    "answer": [3],
+    "explanation": "Google's 99.99% Dedicated Interconnect topology requires four connections spread across two metros with two edge availability domains per metro, terminating on at least two Cloud Routers in two different regions, with the VPC in global dynamic routing mode so all regions' subnets are advertised and reachable. Option A is a single point of failure and qualifies for no SLA. Option B qualifies only for the 99.9% SLA because both circuits share one edge availability domain and one metro. Option C rides the public internet, tops out around 3 Gbps per tunnel, and does not meet the private 10 Gbps requirement.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/production-topology",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview"
+    ]
+  },
+  {
+    "id": "d1-des-084",
+    "domain": 1,
+    "topic": "Partner Interconnect",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mid-size manufacturer wants private, non-internet connectivity between its factory data center and Google Cloud at about 2 Gbps. The data center is not located in or near a Dedicated Interconnect colocation facility, and the company does not want to procure new circuits to one. What should you do?",
+    "options": [
+      "Order Partner Interconnect through a supported service provider that already reaches the factory, with VLAN attachments sized for 2 Gbps.",
+      "Order a 10 Gbps Dedicated Interconnect and build a long-haul fiber connection to the nearest colocation facility.",
+      "Use Cross-Cloud Interconnect to connect the factory router to Google Cloud.",
+      "Use Direct Peering to exchange traffic with Google at the nearest internet exchange."
+    ],
+    "answer": [0],
+    "explanation": "Partner Interconnect is designed for organizations whose premises cannot reach a Dedicated Interconnect location or that need less than 10 Gbps: a service provider extends its network to the customer and offers VLAN attachments from 50 Mbps to 50 Gbps, giving private RFC 1918 connectivity without a physical presence in a colocation facility. Option B requires expensive new circuits and over-provisions a 10 Gbps port for 2 Gbps. Option C is for connecting Google Cloud to other cloud providers' networks, not to on-premises sites. Option D provides connectivity to Google's public services and edge, not private access to VPC networks, and Google recommends Interconnect for VPC access.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/partner-overview",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/choosing-type"
+    ]
+  },
+  {
+    "id": "d1-des-085",
+    "domain": 1,
+    "topic": "HA VPN",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A law firm with a single office needs encrypted connectivity between its office firewall and its Google Cloud VPC for about 300 Mbps of traffic. The connection must have a 99.99% availability SLA, must use dynamic routing so new subnets are learned automatically, and must be operational within a week. Which connectivity option should you choose?",
+    "options": [
+      "Classic VPN with a single tunnel and static routes.",
+      "Dedicated Interconnect with a 10 Gbps connection and IPsec over the VLAN attachment.",
+      "HA VPN with two tunnels from the gateway's two interfaces to the office firewall and Cloud Router BGP sessions.",
+      "Partner Interconnect with a Layer 3 partner and no additional encryption."
+    ],
+    "answer": [2],
+    "explanation": "HA VPN provides IPsec encryption over the internet, a 99.99% availability SLA when both gateway interfaces have tunnels to the peer, and uses Cloud Router with BGP for dynamic route exchange; it can be provisioned in hours, which meets every requirement for a 300 Mbps office link. Option A offers only a 99.9% SLA, uses static routing, and Classic VPN is deprecated for new deployments in most scenarios. Option B is oversized, costly, and takes weeks to provision, and Interconnect is not encrypted by default. Option D takes longer to provision, is not encrypted, and is more than the office needs.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/vpn/concepts/overview",
+      "https://cloud.google.com/network-connectivity/docs/vpn/concepts/topologies"
+    ]
+  },
+  {
+    "id": "d1-des-086",
+    "domain": 1,
+    "topic": "Cross-Cloud Interconnect",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company runs its content pipeline on Google Cloud and its archive on another major public cloud. It must replicate about 50 TB per day between the two clouds with predictable throughput and latency, the traffic must not traverse the public internet, and the company wants Google to manage the physical connection with an SLA. Which connectivity option should you choose?",
+    "options": [
+      "HA VPN between a Cloud VPN gateway and the other cloud's managed VPN service with four tunnels.",
+      "Cross-Cloud Interconnect with two 10 Gbps connections between the Google Cloud VPC and the other cloud's network.",
+      "Dedicated Interconnect into a colocation facility plus a customer-managed router cross-connected to the other cloud.",
+      "Storage Transfer Service running over the public internet with bandwidth throttling."
+    ],
+    "answer": [1],
+    "explanation": "Cross-Cloud Interconnect is the Google-managed dedicated physical connection between a Google Cloud VPC and another cloud provider's network at 10 or 100 Gbps; it avoids the public internet, delivers predictable throughput and latency, and carries an SLA when deployed redundantly, so 50 TB per day (about 4.6 Gbps sustained) fits comfortably on two 10 Gbps links. Option A crosses the internet and is limited to roughly 3 Gbps per tunnel with variable latency. Option C works technically but the company must procure colocation space, hardware, and cross-connects and operate the router itself, which is the opposite of Google-managed. Option D uses the public internet, violating the constraint.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/choosing-type"
+    ]
+  },
+  {
+    "id": "d1-des-087",
+    "domain": 1,
+    "topic": "Cloud Router and BGP",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An enterprise connects its data center to Google Cloud with a Dedicated Interconnect terminated on a Cloud Router in us-central1, and it has added an HA VPN as a backup path terminated on a Cloud Router in us-east1. The VPC has subnets in five regions. On-premises must be able to reach every subnet through either path, and the Interconnect must always be preferred when it is healthy. Which two configurations should you make? (Choose two.)",
+    "options": [
+      "Configure the VPC with regional dynamic routing mode so each Cloud Router advertises only its own region.",
+      "Configure the VPC with global dynamic routing mode so both Cloud Routers advertise all subnets in all regions and learn on-premises routes for the whole VPC.",
+      "Set a lower advertised route priority (MED) on the Interconnect Cloud Router's BGP sessions and a higher one on the HA VPN sessions, and have on-premises prefer the Interconnect-learned routes symmetrically.",
+      "Create static routes on-premises for each Google Cloud subnet pointing at the Interconnect and delete the BGP sessions.",
+      "Advertise the same route priority on both paths so that traffic is load-balanced equally across the Interconnect and VPN."
+    ],
+    "answer": [1, 2],
+    "explanation": "Global dynamic routing mode makes each Cloud Router advertise subnets from every region and propagate learned on-premises routes to all regions, which is required when the two hybrid connections terminate in different regions and must each provide full reachability. Preferring the Interconnect is achieved with BGP route priorities: Cloud Router advertises a lower MED (preferred) on the Interconnect sessions and a higher MED on the VPN sessions, and on-premises applies local preference to match, giving deterministic, symmetric failover. Option A breaks reachability to the other four regions over each path. Option D removes dynamic failover entirely. Option E would send traffic across both paths, including the lower-bandwidth encrypted VPN, when the requirement is Interconnect preference.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/router/concepts/overview",
+      "https://cloud.google.com/network-connectivity/docs/router/how-to/advertising-overview"
+    ]
+  },
+  {
+    "id": "d1-des-088",
+    "domain": 1,
+    "topic": "Cloud NAT for serverless",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech's Cloud Run service must call a partner bank's API, and the partner allows traffic only from a small set of pre-registered static IP addresses. The service scales between zero and hundreds of instances. How should you design egress so that the partner sees a fixed source IP?",
+    "options": [
+      "Reserve a static external IP and assign it to the Cloud Run service in its configuration.",
+      "Route the service's traffic through a Compute Engine proxy VM that has a static external IP.",
+      "Use the Cloud Run instance IP addresses and ask the partner to allowlist the Google Cloud IP ranges.",
+      "Configure the service with Direct VPC egress (or a Serverless VPC Access connector) set to route all traffic through the VPC, and use a Cloud NAT gateway with a manually assigned static external IP for that subnet."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Run instances do not have stable external IPs; the documented approach for a static egress IP is to send the service's outbound traffic into the VPC (Direct VPC egress or a Serverless VPC Access connector with all-traffic routing) and let a Cloud NAT gateway with manually reserved static IP addresses perform source NAT, so every instance appears from the fixed IPs regardless of scale. Option A is not a Cloud Run capability. Option B works but introduces a self-managed single point of failure and bottleneck. Option C is insecure and impractical because Google's egress ranges are vast and shared with other customers.",
+    "refs": [
+      "https://cloud.google.com/run/docs/configuring/static-outbound-ip",
+      "https://cloud.google.com/nat/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-des-089",
+    "domain": 1,
+    "topic": "Cloud DNS peering",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A company operates a hub VPC that owns the Cloud DNS private zone internal.example.com containing records for shared services. Several application VPCs, connected to the hub by VPC Network Peering, must resolve names in that zone, but the network team wants to keep the zone and its records managed only in the hub project. What should you do?",
+    "options": [
+      "In each application VPC, create a Cloud DNS peering zone for internal.example.com that targets the hub VPC network.",
+      "Duplicate the private zone in each application project and synchronize records with a Cloud Run function.",
+      "Enable DNS forwarding on the VPC peering connections so DNS queries traverse the peering.",
+      "Convert internal.example.com to a public zone so that all VPCs can resolve it through public DNS."
+    ],
+    "answer": [0],
+    "explanation": "Cloud DNS peering zones let one VPC network delegate resolution of a namespace to another VPC's DNS configuration, so the application VPCs resolve internal.example.com by peering to the hub's private zone while the records remain authoritative and managed in the hub project alone; DNS peering works independently of VPC Network Peering. Option B duplicates administration and introduces drift. Option C does not exist; VPC Network Peering does not carry DNS resolution and private zones are not shared across peered networks automatically. Option D exposes internal hostnames publicly, which is a security anti-pattern.",
+    "refs": [
+      "https://cloud.google.com/dns/docs/zones/zones-overview#peering_zones",
+      "https://cloud.google.com/dns/docs/best-practices"
+    ]
+  },
+  {
+    "id": "d1-des-090",
+    "domain": 1,
+    "topic": "GKE container networking",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare SaaS provider runs multiple tenants' workloads in separate namespaces of a shared GKE cluster. Compliance requires that pods in one tenant namespace cannot initiate connections to pods in another tenant namespace, that allowed flows are logged, and the platform team wants a Google-managed data plane rather than installing a third-party CNI. What should you do?",
+    "options": [
+      "Rely on VPC firewall rules that reference the node service accounts to separate tenant traffic.",
+      "Install Calico manually on the cluster and write GlobalNetworkPolicy resources.",
+      "Create the cluster with GKE Dataplane V2 enabled, apply Kubernetes NetworkPolicy resources per namespace, and enable network policy logging.",
+      "Give each tenant a separate node pool and use node taints to isolate traffic."
+    ],
+    "answer": [2],
+    "explanation": "GKE Dataplane V2 is Google's eBPF-based, managed data plane (built on Cilium) that enforces Kubernetes NetworkPolicy natively without add-on installation and provides network policy logging, so namespace-to-namespace isolation and flow logging are achieved declaratively. Option A cannot work because VPC firewall rules operate on node IPs and service accounts, not on pod-level namespace identity within a node. Option B is the legacy approach that requires operating a third-party CNI, which the team wants to avoid. Option D separates scheduling but pods on different node pools remain fully routable to each other without network policy.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/dataplane-v2",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/network-policy"
+    ]
+  },
+  {
+    "id": "d1-des-091",
+    "domain": 1,
+    "topic": "GKE Gateway API",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer runs its storefront on GKE clusters in two regions. It wants to expose the services to the internet with a single global HTTPS load balancer, route traffic directly to pods rather than through node ports (container-native load balancing), let application teams manage their own routes in their namespaces while the platform team owns the listener and certificates, and use Cloud Armor and Cloud CDN. Which approach should you recommend?",
+    "options": [
+      "Deploy an in-cluster ingress-nginx controller behind an external passthrough Network Load Balancer in each region.",
+      "Use the GKE Gateway API with the gke-l7-global-external-managed (or multi-cluster) GatewayClass, with the platform team owning the Gateway and application teams owning HTTPRoutes.",
+      "Create a Kubernetes Service of type LoadBalancer for each storefront service and publish the resulting IPs in DNS.",
+      "Deploy a regional internal Application Load Balancer in each region and expose it with Cloud NAT."
+    ],
+    "answer": [1],
+    "explanation": "The GKE Gateway API is Google's recommended successor to Ingress: the gke-l7-global-external-managed GatewayClass (and its multi-cluster variant) provisions a global external Application Load Balancer that uses network endpoint groups for container-native routing straight to pods, supports GCPBackendPolicy for Cloud Armor and CDN, and its role-oriented model lets the platform team own the Gateway (listeners, certificates) while teams manage HTTPRoutes in their namespaces. Option A relies on a passthrough balancer per region and an in-cluster proxy, losing the global anycast IP, Cloud Armor, and CDN integration. Option C creates one Layer 4 passthrough load balancer per service with no HTTP routing or shared certificate management. Option D is internal-only; Cloud NAT does not publish internal load balancers.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/gateway-api",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/deploying-multi-cluster-gateways"
+    ]
+  },
+  {
+    "id": "d1-des-092",
+    "domain": 1,
+    "topic": "Private Service Connect for managed services",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A company is provisioning a new Cloud SQL for PostgreSQL instance that must be reachable over private IP from application VMs in three different VPC networks, including one that already peers with several other networks. The network team wants to avoid allocating a private services access range and avoid the transitive-routing problems of VPC Network Peering. Which connectivity method should you use?",
+    "options": [
+      "Configure private services access and export custom routes across all peering connections.",
+      "Assign the instance a public IP and restrict access with authorized networks.",
+      "Deploy the Cloud SQL Auth Proxy on a VM in each VPC and connect over the public IP.",
+      "Create the Cloud SQL instance with Private Service Connect enabled and create a PSC endpoint for it in each of the three VPC networks."
+    ],
+    "answer": [3],
+    "explanation": "Cloud SQL supports Private Service Connect: the instance exposes a service attachment and each consumer VPC creates an endpoint with an IP from its own subnet, so no private services access range is reserved, no VPC peering is created, and the transitive-routing limitation of peering is irrelevant because each VPC has its own endpoint. Option A uses peering-based private services access, which requires an allocated range and is exactly the transitive-routing pattern the team wants to avoid (peered-of-peered VPCs cannot reach the instance). Option B and Option C both traverse public IPs, which is less secure and not private connectivity; the Auth Proxy adds encryption and IAM but still depends on a public endpoint in this configuration.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/postgres/about-private-service-connect",
+      "https://cloud.google.com/vpc/docs/private-service-connect"
+    ]
+  },
+  {
+    "id": "d1-des-093",
+    "domain": 1,
+    "topic": "IP address planning",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A global enterprise is designing its Google Cloud VPC address plan. It will connect the VPC to on-premises data centers that use 10.0.0.0/8 extensively, run several large GKE clusters, and expects the number of regions and workloads to grow significantly over five years. Which two IP planning practices should you follow? (Choose two.)",
+    "options": [
+      "Reserve non-overlapping ranges for Google Cloud in the corporate IPAM before creating subnets, so that cloud subnets never collide with on-premises routes advertised over BGP.",
+      "Use the auto mode VPC so that subnets are created automatically in every region with predefined ranges.",
+      "Size GKE pod and service secondary ranges for the expected maximum cluster size from the start, since primary subnet ranges can be expanded but secondary ranges are harder to change after cluster creation.",
+      "Reuse the same subnet ranges in each region, because regions are isolated failure domains.",
+      "Allocate a /29 for each subnet and expand it only when it fills up."
+    ],
+    "answer": [0, 2],
+    "explanation": "Google's VPC design best practices stress planning address space up front: cloud ranges must be carved out of the corporate IPAM so they never overlap with on-premises prefixes (overlaps break BGP-learned routing over Interconnect or VPN), and GKE secondary ranges for pods and services should be sized for growth because, although a subnet's primary range can be expanded in place, the pod range assigned at cluster creation cannot be shrunk or replaced (additional pod ranges can only be added for new node pools). Option B is discouraged for enterprises because auto mode uses the fixed 10.128.0.0/9 range that commonly collides with on-premises networks. Option D is impossible within one VPC and would break routing. Option E creates constant expansion work and fragmentation.",
+    "refs": [
+      "https://cloud.google.com/architecture/best-practices-vpc-design",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/alias-ips"
+    ]
+  },
+  {
+    "id": "d1-des-094",
+    "domain": 1,
+    "topic": "VPC firewall rules",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A three-tier application runs on Compute Engine. The security team wants only the web-tier VMs to be able to reach the database-tier VMs on TCP port 5432, and it wants the control to be based on a strong workload identity that developers cannot change by editing instance metadata. How should you write the firewall rule?",
+    "options": [
+      "Allow TCP 5432 from the source IP range of the web subnet to the database subnet.",
+      "Allow TCP 5432 with the web-tier service account as the source and the database-tier service account as the target.",
+      "Allow TCP 5432 from instances with the network tag web to instances with the network tag db.",
+      "Allow TCP 5432 from 0.0.0.0/0 to the database subnet and rely on PostgreSQL authentication."
+    ],
+    "answer": [1],
+    "explanation": "Google recommends service accounts over network tags as firewall selectors when a strong identity is needed: a VM's service account can be changed only by a principal with IAM permission to act as that service account, whereas network tags can be edited by anyone with instance-level compute permissions. Option A is coarse; any VM placed in the web subnet gains database access. Option C is functional but tags are a weaker, mutable identity that developers can modify. Option D violates least privilege and exposes the database to the entire internet path.",
+    "refs": [
+      "https://cloud.google.com/firewall/docs/firewalls#service-accounts-vs-tags",
+      "https://cloud.google.com/firewall/docs/firewalls"
+    ]
+  },
+  {
+    "id": "d1-des-095",
+    "domain": 1,
+    "topic": "Cloud NGFW",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial institution must inspect east-west traffic between application tiers inside its Shared VPC for known exploits and malware signatures, including TLS-encrypted flows, and block detected threats inline. It wants a Google-managed capability rather than deploying and scaling its own firewall appliances. What should you do?",
+    "options": [
+      "Enable Cloud Next Generation Firewall Enterprise with intrusion prevention (threat signatures) and TLS inspection, and reference it from network firewall policy rules.",
+      "Enable VPC Flow Logs and create Cloud Monitoring alerts on suspicious traffic patterns.",
+      "Deploy Cloud IDS endpoints in each subnet and configure them to drop malicious packets.",
+      "Apply Cloud Armor security policies to internal traffic between the tiers."
+    ],
+    "answer": [0],
+    "explanation": "Cloud NGFW Enterprise adds Google-managed, Palo Alto Networks-powered intrusion prevention to network firewall policies, including TLS interception and inspection, and it blocks matching traffic inline for east-west and north-south flows without customer-managed appliances. Option B is detective only and does not block anything. Option C is wrong because Cloud IDS is an out-of-band detection service that mirrors traffic; it cannot drop packets. Option D is wrong because Cloud Armor protects workloads behind external Application Load Balancers and does not apply to VM-to-VM traffic inside the VPC.",
+    "refs": [
+      "https://cloud.google.com/firewall/docs/about-intrusion-prevention",
+      "https://cloud.google.com/firewall/docs/about-firewalls"
+    ]
+  },
+  {
+    "id": "d1-des-096",
+    "domain": 1,
+    "topic": "Private Google Access for on-premises",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A research institute connects to Google Cloud over Dedicated Interconnect. Its on-premises HPC cluster must upload results directly to Cloud Storage and read from BigQuery, but the institute's security policy prohibits any internet breakout from the HPC network, and the on-premises firewall drops traffic to public IP ranges. How should you enable API access from on-premises?",
+    "options": [
+      "Deploy a Cloud NAT gateway in the VPC and route on-premises API traffic through it.",
+      "Enable Private Google Access on the VPC subnets and instruct the HPC hosts to use the subnet's gateway.",
+      "Configure on-premises DNS to resolve *.googleapis.com to the private.googleapis.com or restricted.googleapis.com VIP (for example 199.36.153.8/30 or 199.36.153.4/30), advertise that range from Cloud Router over the Interconnect, and allow it on the firewall.",
+      "Install the Cloud Storage FUSE client on the HPC nodes so that API traffic is tunneled over the Interconnect."
+    ],
+    "answer": [2],
+    "explanation": "Private Google Access for on-premises hosts works by routing API traffic to the special virtual IP ranges for private.googleapis.com or restricted.googleapis.com across the Interconnect: Cloud Router must advertise the /30 as a custom route, on-premises DNS must map googleapis.com names to it, and firewalls must permit it; the traffic then never touches the internet. (A Private Service Connect endpoint for Google APIs is an equivalent alternative with a customer-chosen IP.) Option A is wrong because Cloud NAT serves only VMs in the VPC, not on-premises hosts. Option B is wrong because the subnet-level Private Google Access setting applies to VM instances in that subnet, not to on-premises clients. Option D is a client library, not a network path; it still needs a route to the API endpoints.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/private-google-access-hybrid",
+      "https://cloud.google.com/vpc/docs/configure-private-google-access-hybrid"
+    ]
+  },
+  {
+    "id": "d1-des-097",
+    "domain": 1,
+    "topic": "Cloud CDN media delivery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A streaming service stores video-on-demand segments in Cloud Storage and serves them to millions of subscribers worldwide. Content must be delivered with low latency, origin egress cost must be minimized, and only authenticated subscribers may download segments; links should expire after a short time. Which design should you recommend?",
+    "options": [
+      "Make the bucket public and serve it directly from storage.googleapis.com with per-object ACLs removed for speed.",
+      "Serve segments from Compute Engine VMs in each region that copy the files from the bucket on demand.",
+      "Front the bucket with a regional external Application Load Balancer in each subscriber region.",
+      "Configure the bucket as a backend bucket on a global external Application Load Balancer with Cloud CDN enabled, and protect content with Cloud CDN signed URLs or signed cookies."
+    ],
+    "answer": [3],
+    "explanation": "The standard media pattern is a Cloud Storage backend bucket behind a global external Application Load Balancer with Cloud CDN: segments are cached at Google's edge near subscribers, cache hits avoid origin egress charges, and Cloud CDN signed URLs or signed cookies grant time-limited access so unauthenticated users cannot fetch segments. Option A has no access control and no edge caching, so latency and egress cost are both worse. Option B is a self-built CDN with cache management, scaling, and cost problems. Option C provides no global anycast IP and regional external Application Load Balancers do not support Cloud CDN.",
+    "refs": [
+      "https://cloud.google.com/cdn/docs/using-signed-urls",
+      "https://cloud.google.com/cdn/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-des-098",
+    "domain": 1,
+    "topic": "Multi-region load balancing",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An airline is redesigning its public booking website for active-active operation in us-central1 and europe-west1. Requirements: one public IP address, users automatically served from the nearest healthy region, automatic failover if a region's application tier fails, and TLS certificates renewed without manual work. Which two design elements should you include? (Choose two.)",
+    "options": [
+      "Deploy regional managed instance groups in both regions and add them as backends to a single global external Application Load Balancer with health checks.",
+      "Deploy a regional external Application Load Balancer in each region and use Cloud DNS weighted round-robin to split traffic.",
+      "Peer the two regional VPC subnets so that the load balancers can share backends.",
+      "Attach a Google-managed SSL certificate (or Certificate Manager certificate) to the global load balancer's HTTPS proxy.",
+      "Configure the two regions in a single zonal managed instance group so failover is automatic."
+    ],
+    "answer": [0, 3],
+    "explanation": "A single global external Application Load Balancer with backends in both regions provides one anycast IP, proximity-based routing to the nearest region with healthy capacity, and automatic failover when health checks fail in one region; Google-managed certificates (via the load balancer or Certificate Manager) are provisioned and renewed automatically, removing manual TLS operations. Option B yields two IPs and DNS-based steering that is slow to fail over because of client caching. Option C is unnecessary because subnets in one VPC already communicate, and it is irrelevant to load balancer backends. Option E is invalid because a managed instance group is zonal or regional, never multi-regional.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/https",
+      "https://cloud.google.com/load-balancing/docs/ssl-certificates/google-managed-certs"
+    ]
+  },
+  {
+    "id": "d1-des-099",
+    "domain": 1,
+    "topic": "Internal load balancer global access",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company exposes an internal TCP service on Compute Engine in europe-west1 through an internal passthrough Network Load Balancer. Client VMs in asia-southeast1, in the same VPC, receive connection timeouts when they connect to the load balancer's internal IP, while clients in europe-west1 connect successfully. Firewall rules allow the traffic. What is the most likely cause and how should you fix it?",
+    "options": [
+      "Internal passthrough Network Load Balancers accept traffic only from clients in the same region by default; enable global access on the forwarding rule.",
+      "The VPC is in regional dynamic routing mode; switch it to global dynamic routing mode so that the load balancer route is propagated.",
+      "The load balancer needs a proxy-only subnet in asia-southeast1; create one there.",
+      "Internal load balancers cannot be reached across regions; deploy a second internal load balancer in asia-southeast1."
+    ],
+    "answer": [0],
+    "explanation": "By default the forwarding rule of an internal passthrough Network Load Balancer is reachable only from clients in the same region; enabling global access allows clients in any region of the VPC (and connected networks) to reach it, which resolves the timeouts with a single configuration change. Option B is wrong because dynamic routing mode governs Cloud Router route advertisement for hybrid connectivity, not intra-VPC reachability of load balancer IPs. Option C is wrong because proxy-only subnets are required for Envoy-based (proxy) load balancers, not passthrough ones. Option D is unnecessary duplication when the global access setting exists.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/internal#global_access",
+      "https://cloud.google.com/load-balancing/docs/internal/setting-up-internal#global-access"
+    ]
+  },
+  {
+    "id": "d1-des-100",
+    "domain": 1,
+    "topic": "Private services access",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup wants its Compute Engine application servers to connect to a new Memorystore for Redis instance and a Cloud SQL instance over internal IP addresses only, without any public IP on the managed services. The team is creating the instances in a VPC that has never hosted Google-managed services before. What must you configure first?",
+    "options": [
+      "A Cloud NAT gateway so the managed services can reach the VMs.",
+      "Private services access: allocate an internal IP range in the VPC and create a private connection to the Google service producer network (servicenetworking.googleapis.com).",
+      "A VPC Network Peering connection to the Cloud SQL project owned by Google.",
+      "A Serverless VPC Access connector in the same region as the instances."
+    ],
+    "answer": [1],
+    "explanation": "Managed services that run in a Google-owned producer VPC, such as Cloud SQL (peering mode) and Memorystore for Redis, are reached over private IP through private services access: you allocate an address range in your VPC and create a private connection, which establishes the VPC peering to the service producer network on your behalf. Option A is unrelated; Cloud NAT provides outbound internet for VMs. Option C describes the mechanism but you cannot peer manually with Google's producer project; the private connection must be created via the Service Networking API. Option D is for Cloud Run, Cloud Run functions, and App Engine to reach the VPC, not for Compute Engine VMs.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/private-services-access",
+      "https://cloud.google.com/vpc/docs/configure-private-services-access"
+    ]
+  }
+]

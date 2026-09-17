@@ -1,0 +1,429 @@
+[
+  {
+    "id": "cs-alt-021",
+    "domain": 1,
+    "topic": "Media CDN",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat streams audio and video from its Cloud Storage media library through the GKE platform to a global audience. Network egress from Cloud Storage now dominates the monthly bill, and viewers in Asia and South America report buffering during premieres. Reliability and cost management are the executive team's top priorities. What should you do?",
+    "options": [
+      "Add more GKE nodes in the existing region and increase the pod count of the streaming service before every premiere.",
+      "Create a regional external Application Load Balancer in each continent with its own copy of the media bucket.",
+      "Serve the media library through Media CDN with the Cloud Storage bucket as origin so segments are cached at Google's edge close to viewers.",
+      "Replicate the media library into a multi-region bucket and have clients download directly from storage.googleapis.com."
+    ],
+    "answer": [2],
+    "explanation": "Media CDN is Google's planet-scale CDN built for streaming; caching at the edge reduces both origin egress cost and latency for distant viewers, addressing both of Altostrat's top priorities. Option A scales compute, not the network path, and does nothing about egress cost or distance to viewers. Option B duplicates storage and still serves from a regional origin without an edge cache. Option D improves storage availability but every request still leaves Google's network from the bucket, so egress cost and buffering are not solved. This is a performance and cost-optimization decision.",
+    "refs": [
+      "https://cloud.google.com/media-cdn/docs/overview",
+      "https://cloud.google.com/media-cdn/docs/origins"
+    ]
+  },
+  {
+    "id": "cs-alt-022",
+    "domain": 1,
+    "topic": "Migration planning",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat is preparing to migrate its legacy on-premises content ingestion and archival systems to Google Cloud. Several dozen VMs, databases, and file servers are involved, dependencies between them are undocumented, and finance wants a cost estimate before committing to a migration wave plan. You want to follow Google-recommended practices. What should you do first?",
+    "options": [
+      "Use Migration Center to discover the on-premises inventory, capture utilization and dependency data, and generate a total cost of ownership estimate for target Google Cloud services.",
+      "Lift-and-shift every VM to Compute Engine with Migrate to Virtual Machines and analyze dependencies afterwards.",
+      "Rewrite the ingestion pipeline as Cloud Run functions immediately and decommission the on-premises servers.",
+      "Order a Transfer Appliance and copy all archival data to Cloud Storage before assessing the applications."
+    ],
+    "answer": [0],
+    "explanation": "Google's migration methodology starts with the assess phase; Migration Center provides agentless discovery, performance data, dependency mapping, and TCO reports that are needed to design migration waves and give finance the cost estimate. Option B migrates before understanding dependencies, risking outages and cost surprises. Option C skips assessment and commits to a rearchitecture without knowing whether it fits the workload. Option D moves data without knowing which applications depend on it or how they will access it in the cloud. The assess-plan-deploy-optimize sequence is the recommended practice.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "cs-alt-023",
+    "domain": 2,
+    "topic": "Disaster recovery",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's GKE platform runs in a single region and includes a stateful metadata service that stores its data on persistent volumes. The media library lives in a single-region Cloud Storage bucket. Following a regional incident, management set a recovery objective for a regional outage of RTO 1 hour and RPO 15 minutes for both the metadata service and newly uploaded media. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enable Backup for GKE with a scheduled backup plan for the metadata namespace and volumes, and prepare a restore plan into a standby cluster in a second region.",
+      "Take manual persistent disk snapshots once a week and store the snapshot names in a spreadsheet.",
+      "Convert the media library to a dual-region bucket with turbo replication enabled.",
+      "Add an Object Lifecycle Management rule that moves media to Nearline after 30 days.",
+      "Run a nightly gsutil cp job from a Compute Engine VM to copy new media to a bucket in another region.",
+      "Enable Object Versioning on the existing single-region bucket."
+    ],
+    "answer": [0, 2],
+    "explanation": "Backup for GKE captures both Kubernetes configuration and persistent volume data on a schedule and can restore into a cluster in another region, meeting the RTO/RPO for the stateful service. Dual-region buckets with turbo replication replicate newly written objects across regions with a 15-minute RPO SLA, exactly matching the media requirement. Weekly manual snapshots (Option B) give a seven-day RPO and are error-prone. Lifecycle rules (Option D) change storage class, not geographic redundancy. A nightly copy job (Option E) yields a 24-hour RPO and adds a VM to operate. Object Versioning (Option F) protects against overwrites but the data remains in a single region. This is a reliability-pillar decision.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/concepts/backup-for-gke",
+      "https://cloud.google.com/storage/docs/availability-durability#turbo-replication"
+    ]
+  },
+  {
+    "id": "cs-alt-024",
+    "domain": 1,
+    "topic": "Recommendation systems",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's personalized recommendations are generated by a nightly Cloud Run function that ranks content by overall popularity, so all users see similar suggestions and new episodes take a day to appear. Altostrat wants per-user recommendations that update as users watch, take a user's real-time session into account, and improve content virality, with minimal data-science staffing. What should you do?",
+    "options": [
+      "Keep the nightly function but add a per-genre popularity ranking table in BigQuery.",
+      "Use Vertex AI Search for media (recommendations) by importing the catalog and streaming user events, then call the recommendation serving API from the platform.",
+      "Train a matrix-factorization model in BigQuery ML each week and export the top-10 list per user to Memorystore.",
+      "Have the mobile app call Gemini with the user's entire viewing history and ask it to suggest content."
+    ],
+    "answer": [1],
+    "explanation": "Vertex AI Search for media provides managed, Google-quality recommendation models (recommended-for-you, others-you-may-like, more-like-this) that learn from streamed user events in near real time and require no data-science team, which satisfies the case study's personalized-recommendation and virality goals. Option A remains non-personalized and stale. Option C is personalized but weekly, cannot react to the current session, and needs ML maintenance. Option D sends large prompts on every request (cost), lacks real-time catalog awareness, and offers no evaluation or tuning loop, so it is not a reliable recommendation architecture.",
+    "refs": [
+      "https://cloud.google.com/generative-ai-app-builder/docs/media-recommendations-overview",
+      "https://cloud.google.com/generative-ai-app-builder/docs/record-user-events"
+    ]
+  },
+  {
+    "id": "cs-alt-025",
+    "domain": 3,
+    "topic": "Software supply chain security",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. As part of the CI/CD modernization, Altostrat's security team wants to guarantee that only container images built by the official Cloud Build pipeline, stored in Artifact Registry, and free of critical vulnerabilities can run on the production GKE clusters. Images pushed manually by developers must be rejected at deployment time. What should you do?",
+    "options": [
+      "Enable Binary Authorization on the production clusters with a policy that requires attestations created by the Cloud Build pipeline and by a vulnerability-scanning check, and deny all other images.",
+      "Restrict the artifactregistry.reader role so that only the GKE node service account can pull images.",
+      "Add a Cloud Build step that scans images with Trivy and posts the result to a Slack channel for manual review.",
+      "Configure an organization policy that restricts which Artifact Registry repositories can be created."
+    ],
+    "answer": [0],
+    "explanation": "Binary Authorization is the deploy-time admission control that enforces policy on GKE: images must carry signed attestations (for example, 'built by Cloud Build' and 'vulnerability scan passed' from Artifact Analysis), and anything else is blocked. This is the Google-recommended way to secure the software supply chain. Option B restricts who can read images, but a developer with push access could still deploy an image the nodes can read. Option C produces a report but has no enforcement. Option D controls repository creation, not what images are deployed. This is a security pillar control.",
+    "refs": [
+      "https://cloud.google.com/binary-authorization/docs/overview",
+      "https://cloud.google.com/binary-authorization/docs/cloud-build"
+    ]
+  },
+  {
+    "id": "cs-alt-026",
+    "domain": 3,
+    "topic": "IAM least privilege",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. A security review found that all of Altostrat's Cloud Run functions (transcoding, metadata extraction, recommendations) run with the default Compute Engine service account, which holds the Editor role on the project. The metadata extraction function only needs to read from the media bucket and write rows into one BigQuery dataset. You want to remediate this following the principle of least privilege. What should you do?",
+    "options": [
+      "Keep the default service account but downgrade its project role from Editor to Viewer.",
+      "Create a shared 'functions' service account with the Storage Admin and BigQuery Admin roles and assign it to every function.",
+      "Create a dedicated service account for the metadata extraction function, grant it Storage Object Viewer on the media bucket and BigQuery Data Editor on the target dataset only, and repeat the pattern for each function.",
+      "Generate a JSON key for the default service account and store it in Secret Manager for the functions to load at startup."
+    ],
+    "answer": [2],
+    "explanation": "Least privilege means a dedicated identity per workload with the narrowest roles scoped to the specific resources it uses; a per-function service account with bucket-level and dataset-level grants achieves this and is the documented recommendation for Cloud Run. Option A would break the functions (Viewer cannot write to BigQuery) and still shares one identity across all workloads. Option B is still over-privileged (Admin roles at project scope) and shared. Option D introduces a long-lived key, which is a security anti-pattern, and does nothing to reduce the excessive permissions.",
+    "refs": [
+      "https://cloud.google.com/run/docs/securing/service-identity",
+      "https://cloud.google.com/iam/docs/using-iam-securely"
+    ]
+  },
+  {
+    "id": "cs-alt-027",
+    "domain": 2,
+    "topic": "Video Intelligence API",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat is adding a feature that lets community contributors upload video clips. Every clip must be screened for sexually explicit visual content before it becomes visible, and flagged segments must be identified with timestamps so moderators can review them quickly. The team wants a pre-trained service and no model training. What should you do?",
+    "options": [
+      "Extract one frame per second with FFmpeg and send each frame to the Vision API SafeSearch feature.",
+      "Call the Video Intelligence API explicit content detection feature on each uploaded clip and hold clips with flagged frames for moderator review.",
+      "Train a custom image classifier on Vertex AI with labeled examples of explicit content.",
+      "Run the Natural Language API on the clip's title and description to detect inappropriate words."
+    ],
+    "answer": [1],
+    "explanation": "Video Intelligence API explicit content detection analyzes video natively and returns per-frame likelihood annotations with time offsets, giving moderators exactly the timestamps they need without any training, which fulfils the 'detect and filter inappropriate content' requirement. Option A works but requires custom frame extraction, generates many more API calls, and loses the managed video handling. Option C requires curating a sensitive training dataset and maintaining a model. Option D inspects text metadata only and cannot detect what is visually in the clip.",
+    "refs": [
+      "https://cloud.google.com/video-intelligence/docs/analyze-safesearch",
+      "https://cloud.google.com/video-intelligence/docs/features"
+    ]
+  },
+  {
+    "id": "cs-alt-028",
+    "domain": 4,
+    "topic": "BigQuery cost optimization",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's BigQuery costs have grown sharply. Most analyst queries filter the multi-terabyte playback-events table by event date and by content category, yet the table is neither partitioned nor clustered, and dashboards run the same queries repeatedly on on-demand pricing. Which two changes should you make to reduce cost while keeping the analysts' SQL workflow? (Choose two.)",
+    "options": [
+      "Partition the playback-events table by event date, cluster it by content category, and require a partition filter on queries.",
+      "Export the table to Cloud SQL for PostgreSQL and point the dashboards there.",
+      "Instruct analysts to use SELECT * so BigQuery can cache complete results.",
+      "Move the analytics project to a BigQuery Editions reservation with autoscaling slots (or set custom per-project query quotas) to cap and predict spend.",
+      "Store the events as CSV files in Cloud Storage and query them with external tables.",
+      "Increase the table's expiration so historical data is never deleted."
+    ],
+    "answer": [0, 3],
+    "explanation": "Partitioning by date and clustering by category means each query scans only the relevant slices, drastically reducing bytes billed, and requiring a partition filter prevents accidental full scans. For repetitive, predictable workloads, Editions reservations (or custom quotas) turn unpredictable on-demand charges into a controlled budget. Option B moves terabytes into an OLTP database that is not designed for analytical scans. Option C increases bytes scanned; selecting only needed columns reduces cost. Option E loses BigQuery's columnar storage and makes scans slower and more expensive. Option F affects retention, not query cost, and may increase storage cost.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/best-practices-costs",
+      "https://cloud.google.com/bigquery/docs/editions-intro"
+    ]
+  },
+  {
+    "id": "cs-alt-029",
+    "domain": 6,
+    "topic": "SLOs and error budgets",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's executives state that reliability is a top priority, yet the engineering and product teams argue about whether the content API is 'reliable enough' to keep shipping features. The API is fronted by an external Application Load Balancer and runs on GKE. You want an objective, data-driven mechanism that balances feature velocity against reliability with minimal custom tooling. What should you do?",
+    "options": [
+      "Set a target of zero errors and freeze all deployments whenever any 5xx response is observed.",
+      "Create an uptime check against the API and email the product team when it fails.",
+      "Track mean time to recovery in a spreadsheet and review it at the quarterly business review.",
+      "Define the content API as a service in Cloud Monitoring, create availability and latency SLOs based on load-balancer request metrics, and configure error-budget burn-rate alerts that gate releases when the budget is being exhausted."
+    ],
+    "answer": [3],
+    "explanation": "SRE practice, embedded in the Well-Architected Framework's reliability and operational-excellence pillars, uses SLOs and error budgets as the shared contract between product and engineering: while budget remains, teams ship; when burn rate is high, they prioritize reliability. Cloud Monitoring's service monitoring builds SLOs directly from load-balancer or Istio metrics and provides burn-rate alerting out of the box. Option A is an unrealistic 100% target that halts all delivery. Option B measures only binary availability from a few probes and provides no budget. Option C is manual, lagging, and not actionable during the release cycle.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "cs-alt-030",
+    "domain": 6,
+    "topic": "Event-driven reliability",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's metadata extraction Cloud Run function is triggered by a Pub/Sub subscription. Occasionally the function processes a file slowly, the message is redelivered, and the same asset is extracted twice, producing duplicate rows in BigQuery and double API charges. A few malformed files also fail permanently and are redelivered forever, consuming capacity. You need to fix both problems following Google-recommended practices. What should you do?",
+    "options": [
+      "Set the subscription's acknowledgement deadline to the maximum and disable retries on the function.",
+      "Make the function idempotent by keying its BigQuery writes on the asset's object name and generation (or using an insertId/dedup key), extend the ack deadline appropriately, and configure a dead-letter topic on the subscription with a bounded maximum delivery attempts.",
+      "Switch the trigger from Pub/Sub to a Cloud Scheduler job that lists the bucket every minute and processes new objects.",
+      "Enable exactly-once delivery on the subscription and rely on it to prevent all duplicate processing without changing the function."
+    ],
+    "answer": [1],
+    "explanation": "Pub/Sub guarantees at-least-once delivery, so consumers must be idempotent; keying writes on a stable identifier such as object name plus generation makes duplicate deliveries harmless, while a dead-letter topic with a maximum delivery attempt count stops poison messages from being redelivered forever and preserves them for inspection. Option A merely delays redelivery and disabling retries loses legitimately failed messages. Option C replaces an event-driven design with polling that adds latency and its own duplicate-handling problems. Option D helps reduce duplicates in some cases but exactly-once delivery only applies within an ack deadline for pull subscriptions and does not address poison messages, so it is not a complete solution. This is an operational-excellence and reliability decision.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/handling-failures",
+      "https://cloud.google.com/pubsub/docs/subscription-properties#ack_deadline"
+    ]
+  },
+  {
+    "id": "cs-alt-031",
+    "domain": 5,
+    "topic": "Gemini Cloud Assist",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. A junior engineer on Altostrat's platform team is investigating why a GKE deployment for the content API began returning errors after a recent change. The engineer is not yet fluent in Cloud Logging query syntax or in interpreting GKE events, and the team wants faster root-cause analysis without hiring more SREs. Which capability should you recommend the engineer use first?",
+    "options": [
+      "Export all logs to BigQuery and write SQL queries to correlate error spikes with deployments.",
+      "Open a P1 support case with Google Cloud Support and wait for the analysis.",
+      "Use Gemini Cloud Assist investigations from the Google Cloud console to analyze the relevant logs, metrics, and configuration changes and receive natural-language observations and suggested remediations.",
+      "Attach a debugger to the running pods with kubectl port-forward and step through the code."
+    ],
+    "answer": [2],
+    "explanation": "Gemini Cloud Assist is the AI-powered assistant integrated into the console that can run investigations across logs, metrics, and recent configuration changes and explain probable causes in natural language, which is exactly what helps a less experienced engineer troubleshoot quickly; the exam guide lists it under both design and implementation objectives. Option A is a valid analytics approach but slower and requires the SQL and log-schema skills the engineer lacks. Option B outsources troubleshooting and delays resolution. Option D is a deep code-level technique that assumes the cause is already narrowed to application code.",
+    "refs": [
+      "https://cloud.google.com/gemini/docs/cloud-assist/overview",
+      "https://cloud.google.com/gemini/docs/cloud-assist/investigations"
+    ]
+  },
+  {
+    "id": "cs-alt-032",
+    "domain": 4,
+    "topic": "Generative AI cost optimization",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat wants to generate summaries and metadata for its entire back catalog of roughly two million archived episodes, in addition to the real-time summaries generated for new uploads. Latency for the back catalog does not matter, but the finance team has capped the project budget, and the current approach of calling a Gemini Pro model synchronously per file from Cloud Run functions is projected to exceed it by a wide margin. What should you do?",
+    "options": [
+      "Use Vertex AI batch prediction with a Gemini Flash-class model, submitting the catalog as a BigQuery or Cloud Storage input and writing results back to BigQuery, and keep the online path only for new uploads.",
+      "Keep the synchronous per-file calls but increase the Cloud Run function concurrency so the job finishes faster.",
+      "Provision dedicated GPUs on GKE and self-host an open model from Model Garden to avoid per-token pricing.",
+      "Purchase Provisioned Throughput for Gemini Pro sized to process the whole backlog in one week."
+    ],
+    "answer": [0],
+    "explanation": "The deciding factor is a fixed budget with no latency requirement. Batch prediction on Vertex AI is priced at a discount compared with online requests, and choosing a Flash-class model for straightforward summarization is far cheaper per token than a Pro model, together producing the largest cost reduction with no infrastructure to manage. Option B changes throughput, not price. Option C incurs continuous GPU and operations cost and requires ML operations skills the team does not have; it rarely beats managed batch pricing for a one-off backfill. Option D is designed for guaranteed capacity on latency-sensitive online workloads and would be the most expensive way to run an offline backfill. This is a cost-optimization decision.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/batch-prediction-gemini",
+      "https://cloud.google.com/vertex-ai/generative-ai/pricing"
+    ]
+  },
+  {
+    "id": "cs-alt-033",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's BigQuery warehouse contains subscriber PII and viewing histories, and the media buckets contain unreleased premium content. Following an incident in which a compromised developer credential was used to copy a BigQuery table to a bucket in an external project, the CISO requires that even a valid credential cannot move this data outside Altostrat's approved projects, while the GKE platform and Cloud Run functions in those projects continue to work. What should you do?",
+    "options": [
+      "Enable Data Access audit logs for BigQuery and Cloud Storage and create an alert on export operations.",
+      "Apply customer-managed encryption keys from Cloud KMS to the datasets and buckets.",
+      "Remove the BigQuery Data Viewer role from all developers and route every query through a review process.",
+      "Create a VPC Service Controls perimeter that includes the data and platform projects with the BigQuery and Cloud Storage APIs restricted, add ingress and egress rules only for approved identities and projects, and enable Private Google Access so in-perimeter workloads keep functioning."
+    ],
+    "answer": [3],
+    "explanation": "VPC Service Controls is the control designed to mitigate data exfiltration by a stolen credential: within the perimeter, calls to restricted APIs that would move data to a resource outside the perimeter are denied regardless of IAM permissions, while workloads inside continue to operate. Option A detects exfiltration after the fact but does not prevent it. Option B protects data at rest; a credential authorized to read the data can still decrypt and copy it. Option C harms productivity and does not stop a compromised account that still needs legitimate access. This is a defense-in-depth security pillar decision.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/overview",
+      "https://cloud.google.com/vpc-service-controls/docs/ingress-egress-rules"
+    ]
+  },
+  {
+    "id": "cs-alt-034",
+    "domain": 1,
+    "topic": "Streaming analytics",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's editorial team wants to detect trending topics within minutes of them emerging so it can promote related content while interest is high. Playback, search, and share events are emitted by the GKE platform at up to 200,000 events per second. The events must also land in the BigQuery warehouse for the existing historical analyses. The team wants a managed, autoscaling design. What should you do?",
+    "options": [
+      "Write events to Cloud SQL from the platform and run a stored procedure every hour to compute trends.",
+      "Publish events to Pub/Sub, process them with a streaming Dataflow pipeline that computes windowed trend aggregates, and write both raw events and aggregates to BigQuery (or use the BigQuery subscription for raw events).",
+      "Append events to files in Cloud Storage and load them into BigQuery with a nightly batch job.",
+      "Send events directly to a Bigtable table and have editors query Bigtable with SQL."
+    ],
+    "answer": [1],
+    "explanation": "Pub/Sub plus Dataflow is Google's managed, autoscaling streaming-analytics pattern: Dataflow handles windowing and late data for near-real-time trend detection, and BigQuery receives the results and raw events through streaming inserts or the Storage Write API (a Pub/Sub BigQuery subscription can also land raw events without code). Option A cannot absorb 200,000 events per second and produces hourly, not minute-level, insight. Option C delivers insight a day late, missing the virality window. Option D offers low-latency key lookups but is not an analytics warehouse for ad hoc trend queries, and it bypasses the existing BigQuery investment.",
+    "refs": [
+      "https://cloud.google.com/architecture/streaming-analytics",
+      "https://cloud.google.com/pubsub/docs/bigquery"
+    ]
+  },
+  {
+    "id": "cs-alt-035",
+    "domain": 4,
+    "topic": "KPIs and ROI",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's CFO has approved the generative-AI support assistant on the condition that its business value is measured and reviewed quarterly. You are asked to propose the key performance indicators that best demonstrate the assistant's return on investment relative to the business requirement of 24/7 self-service support. Which two KPIs should you propose? (Choose two.)",
+    "options": [
+      "Number of GPU hours consumed by the assistant each month.",
+      "Self-service containment rate: the percentage of conversations resolved without escalation to a human agent.",
+      "Total number of prompts sent to the model per day.",
+      "Lines of code committed by the assistant development team.",
+      "Cost per resolved conversation compared with the cost of a human-handled contact, alongside customer satisfaction (CSAT) for assisted sessions.",
+      "Number of Gemini model versions evaluated during development."
+    ],
+    "answer": [1, 4],
+    "explanation": "ROI must link the investment to a business outcome. Containment rate shows how much support demand the assistant absorbs (the 24/7 self-service goal), and cost per resolved conversation versus human handling combined with CSAT quantifies savings without hiding a drop in quality. GPU hours, prompt counts, and model versions (Options A, C, F) are activity or cost inputs, not outcomes; more prompts could even indicate the assistant is failing to resolve issues. Lines of code (Option D) is a discredited productivity proxy. This aligns with the exam objective of defining success measurements such as KPIs and ROI.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/cost-optimization/align-cloud-spending-business-value",
+      "https://cloud.google.com/dialogflow/cx/docs/concept/analytics"
+    ]
+  },
+  {
+    "id": "cs-alt-036",
+    "domain": 1,
+    "topic": "Multi-region GKE",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's GKE content-delivery platform runs in a single region behind a regional load balancer. A regional networking incident recently made the entire platform unavailable for 90 minutes. Because reliability is a top priority, Altostrat wants the platform to survive the loss of a region with automatic failover and a single global anycast IP, while keeping the GKE-based architecture and existing manifests. What should you do?",
+    "options": [
+      "Deploy GKE clusters in two regions, register them in a fleet, and expose the service through a global external Application Load Balancer using the multi-cluster Gateway (or Multi Cluster Ingress) with health-check-based failover.",
+      "Increase the number of zones in the existing regional cluster to three and add more nodes per zone.",
+      "Create a second cluster in another region and update the DNS A record manually when an outage is detected.",
+      "Migrate the platform from GKE to Cloud Run in one region because Cloud Run has a higher SLA."
+    ],
+    "answer": [0],
+    "explanation": "Multi-cluster Gateway on GKE Enterprise fleets programs a global external Application Load Balancer with backends in multiple regions, providing a single anycast IP, proximity routing, and automatic failover when a region's backends become unhealthy, while reusing the existing Kubernetes manifests. Option B improves zonal resilience but a regional outage still takes down everything. Option C depends on humans and DNS TTLs, leading to long failover times. Option D changes platforms, contradicts the constraint to keep GKE, and a single-region deployment of any product still fails with the region. This is a reliability pillar decision.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/gateway-api",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/deploying-multi-cluster-gateways"
+    ]
+  },
+  {
+    "id": "cs-alt-037",
+    "domain": 5,
+    "topic": "Infrastructure as Code",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's platform team creates GKE clusters, Cloud Storage buckets, and BigQuery datasets by hand in the console, so environments drift and new environments take days to build. The team wants reproducible infrastructure that is reviewed in Git, deployed automatically, and checked for drift, with a managed execution service so it does not need to run and secure its own state backend and runners. What should you do?",
+    "options": [
+      "Write Bash scripts around gcloud commands and store them in a shared drive for engineers to run.",
+      "Export the current projects with gcloud and re-import them into new projects when an environment is needed.",
+      "Use Cloud Deployment Manager templates stored in a Cloud Storage bucket and deploy them manually per environment.",
+      "Define the infrastructure in Terraform modules stored in a Git repository, and run plans and applies through Infrastructure Manager triggered from Cloud Build on pull-request merges."
+    ],
+    "answer": [3],
+    "explanation": "Terraform is the recommended IaC language for Google Cloud, and Infrastructure Manager is the managed service that executes Terraform, stores state, and tracks deployments so the team does not operate its own backend; wiring it to Cloud Build gives Git-reviewed, automated, repeatable environments and lets drift be detected by comparing plans. Option A produces imperative scripts without state, drift detection, or review. Option B is not a supported way to clone infrastructure. Option C uses a deprecated tool and remains manual. This meets the case-study goal of simplifying infrastructure management for rapid deployment.",
+    "refs": [
+      "https://cloud.google.com/infrastructure-manager/docs/overview",
+      "https://cloud.google.com/docs/terraform/best-practices-for-terraform"
+    ]
+  },
+  {
+    "id": "cs-alt-038",
+    "domain": 5,
+    "topic": "Local development and emulators",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's developers iterate on the Pub/Sub-triggered Cloud Run functions that perform metadata extraction. Each developer currently tests against topics in a shared development project, which creates cross-talk between developers, unexpected charges, and slow feedback loops. The team wants fast, isolated local testing that does not require cloud resources or credentials. What should you do?",
+    "options": [
+      "Create a separate Google Cloud project per developer and grant each developer the Owner role.",
+      "Point all developers at the production topics with a per-developer message attribute filter.",
+      "Ask developers to unit-test only the pure business logic and skip testing message handling.",
+      "Run the Pub/Sub emulator locally (for example through Cloud Code or the gcloud CLI) and run the function with the Functions Framework, setting the PUBSUB_EMULATOR_HOST environment variable so the client library targets the emulator."
+    ],
+    "answer": [3],
+    "explanation": "The Pub/Sub emulator plus the Functions Framework lets developers exercise the real publish-and-trigger path on their workstation with no cloud resources, credentials, or cost, giving the fastest and most isolated feedback loop; the exam guide explicitly lists Cloud Emulators and Cloud Code under programmatic interaction. Option A isolates developers but still requires cloud round trips, incurs cost, and grants excessive privileges. Option B is dangerous and violates separation of environments. Option C leaves the integration behavior untested, which is where the duplicate-processing bugs originate.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/emulator",
+      "https://cloud.google.com/functions/docs/functions-framework"
+    ]
+  },
+  {
+    "id": "cs-alt-039",
+    "domain": 1,
+    "topic": "ML model serving",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's data team trained a dynamic-pricing model in BigQuery ML that predicts the subscription offer most likely to convert a given visitor. The checkout page must obtain a prediction in under 100 milliseconds at peak traffic, and the model must be retrained automatically every week on fresh warehouse data with the new version promoted only if it beats the current one. What should you do?",
+    "options": [
+      "Have the checkout service execute an ML.PREDICT query against BigQuery for every visitor.",
+      "Precompute a prediction for every existing subscriber nightly into a Cloud SQL table and use a default offer for unknown visitors.",
+      "Export the BigQuery ML model to Vertex AI Model Registry, deploy it to a Vertex AI online prediction endpoint with autoscaling, and orchestrate weekly retraining, evaluation, and conditional deployment with Vertex AI Pipelines.",
+      "Retrain the model in a Dataflow pipeline every week and embed the model file into the checkout container image."
+    ],
+    "answer": [2],
+    "explanation": "BigQuery ML models can be registered in Vertex AI Model Registry and served from an online endpoint that delivers low-latency, autoscaled predictions, while Vertex AI Pipelines automates the weekly train-evaluate-compare-deploy workflow, which also supports the case study's auditability requirement through model lineage. Option A is wrong because BigQuery queries take seconds and are billed per scan, so they cannot meet a 100 ms interactive SLO. Option B cannot personalize for new visitors and is stale. Option D couples model releases to application deployments and Dataflow is not a model-training service, complicating both retraining and rollback.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/managing-models-vertex",
+      "https://cloud.google.com/vertex-ai/docs/pipelines/introduction"
+    ]
+  },
+  {
+    "id": "cs-alt-040",
+    "domain": 3,
+    "topic": "Audit logging",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. To satisfy the requirement that AI systems are auditable, Altostrat's compliance team must be able to show, for seven years, every read of training data in BigQuery and every prediction request made to Vertex AI endpoints across all of Altostrat's projects, and must be able to prove the records were not altered. Some of these logs are not captured today. What should you do?",
+    "options": [
+      "Rely on the default Admin Activity audit logs and increase the _Default log bucket retention to seven years in each project.",
+      "Have each application write its own audit records to a BigQuery table that the compliance team can query.",
+      "Enable Cloud Logging Data Access logs only in the production project and export them weekly to a spreadsheet.",
+      "Enable Data Access audit logs for BigQuery and Vertex AI at the organization level, create an aggregated organization-level sink that routes them to a central Cloud Logging bucket (or Cloud Storage bucket) with a seven-year retention policy that is locked."
+    ],
+    "answer": [3],
+    "explanation": "Data reads and prediction calls are Data Access audit logs, which are disabled by default (except for BigQuery) and must be enabled through the audit configuration; setting it at the organization level covers every current and future project. An aggregated sink at the organization scope centralizes the logs, and a locked retention policy on the destination bucket makes them immutable for the required period. Option A relies on Admin Activity logs, which do not record data reads or predictions. Option B is application-dependent, incomplete, and editable. Option C misses non-production projects and spreadsheets are neither complete nor tamper-proof. This is a compliance and audit control from the security pillar.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/audit/configure-data-access",
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks",
+      "https://cloud.google.com/logging/docs/buckets#locked-buckets"
+    ]
+  }
+]

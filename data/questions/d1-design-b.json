@@ -1,0 +1,531 @@
+[
+  {
+    "id": "d1-des-026",
+    "domain": 1,
+    "topic": "Cloud Storage classes",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company must retain scanned policy documents for seven years to satisfy regulators. After the first month, documents are almost never read; a regulator request happens less than once a year and can tolerate a few seconds of retrieval time. The company wants the lowest storage cost. Which Cloud Storage class should you use for the long-term copy?",
+    "options": [
+      "Standard storage, because it has no minimum storage duration.",
+      "Archive storage, because it has the lowest at-rest cost and data is still available within milliseconds when a request occurs.",
+      "Nearline storage, because it is intended for data accessed less than once a month.",
+      "Coldline storage, because it is the lowest-cost class that can be read without a restore operation."
+    ],
+    "answer": [1],
+    "explanation": "Archive storage is designed for data accessed less than once a year and has the lowest per-GB storage price; unlike tape-style archives at other providers it still serves objects online with millisecond first-byte latency, so the occasional regulator request is fine. Its 365-day minimum storage duration and higher retrieval price are irrelevant for a seven-year, rarely read retention. Option A is the most expensive at rest and is meant for hot data. Option C (Nearline) and Option D (Coldline) target monthly and quarterly access respectively and cost more per GB than Archive; the claim that Archive requires a restore operation is false in Cloud Storage.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/storage-classes",
+      "https://cloud.google.com/storage/pricing"
+    ]
+  },
+  {
+    "id": "d1-des-027",
+    "domain": 1,
+    "topic": "Cloud Storage Autoclass",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media analytics company ingests several petabytes of user-generated content into Cloud Storage. Some objects are read heavily for weeks, others are never read again, and the data team cannot predict which is which at upload time. The company wants to minimize total storage cost with the least operational effort and without paying unexpected early-deletion or retrieval fees. What should you do?",
+    "options": [
+      "Store all objects in Coldline and pay retrieval fees only for the objects that turn out to be popular.",
+      "Store all objects in Standard and write a monthly script that reads access logs and rewrites cold objects to Archive.",
+      "Configure Object Lifecycle Management rules that move every object to Nearline after 30 days and Archive after 90 days.",
+      "Enable Autoclass on the bucket so that each object transitions between classes automatically based on its own access pattern."
+    ],
+    "answer": [3],
+    "explanation": "Autoclass is built for exactly this situation: unpredictable or mixed access patterns. It moves each object individually to colder classes when it is not accessed and back to Standard when it is read, and it waives early-deletion and retrieval charges, so cost optimizes itself with zero rules to maintain. Option A incurs retrieval fees and 90-day minimum-duration charges on popular objects. Option B is custom tooling that must be operated and still guesses at future access. Option C applies the same age-based schedule to every object regardless of actual access, so popular 60-day-old objects would incur Nearline retrieval charges, and objects moved to Archive then read again pay retrieval fees.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/autoclass",
+      "https://cloud.google.com/storage/docs/lifecycle"
+    ]
+  },
+  {
+    "id": "d1-des-028",
+    "domain": 1,
+    "topic": "Hyperdisk",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A trading firm runs a self-managed Microsoft SQL Server database on a Compute Engine C3 instance. The workload needs sustained 120,000 IOPS with sub-millisecond latency on a 2 TB volume, and the firm wants to tune IOPS independently of capacity so that it does not have to over-provision disk size just to get performance. Which block storage option should you choose?",
+    "options": [
+      "Hyperdisk Extreme, provisioning the IOPS explicitly for the 2 TB volume.",
+      "Balanced Persistent Disk, increasing the disk size until the IOPS limit is reached.",
+      "Local SSD, striping several devices to reach the required IOPS.",
+      "Hyperdisk Throughput, provisioning the maximum throughput available."
+    ],
+    "answer": [0],
+    "explanation": "Hyperdisk decouples performance from capacity: with Hyperdisk Extreme you provision IOPS (and therefore throughput) directly for a volume, reaching hundreds of thousands of IOPS on supported machine series such as C3 and M3 without buying unneeded terabytes. Option B ties IOPS to size (about 6 IOPS per GB for pd-balanced), so 120,000 IOPS would require a disk far larger than 2 TB and it still caps below that figure per VM. Option C delivers very high IOPS but is ephemeral; data is lost when the VM stops or is migrated, which is unacceptable for a production database. Option D is optimized for high sequential throughput on large-scale analytics workloads, not high random IOPS with low latency.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/hyperdisks",
+      "https://cloud.google.com/compute/docs/disks/hyperdisk-perf-limits"
+    ]
+  },
+  {
+    "id": "d1-des-029",
+    "domain": 1,
+    "topic": "Filestore",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university is lifting and shifting a research portal whose application servers share home directories and uploaded datasets over NFS. After migration, 30 Compute Engine VMs across multiple zones must mount the same POSIX file system, and the storage must survive a zonal outage with a 99.99% availability SLA. What should you do?",
+    "options": [
+      "Attach a single Persistent Disk in multi-writer mode to all 30 VMs.",
+      "Mount a Cloud Storage bucket on each VM with Cloud Storage FUSE.",
+      "Create a Filestore Enterprise instance, which is regional, and mount it from all VMs over NFS.",
+      "Create a Filestore Basic HDD instance in one zone and take daily backups to Cloud Storage."
+    ],
+    "answer": [2],
+    "explanation": "Filestore is Google Cloud's managed NFS service, and the Enterprise tier replicates data synchronously across zones in a region with a 99.99% availability SLA, so 30 VMs in different zones can mount the same POSIX file share and survive a zone loss. Option A is wrong because multi-writer Persistent Disk supports only a small number of attachments, requires a cluster-aware file system, and is zonal. Option B provides object storage semantics through FUSE, which is not fully POSIX compliant (no file locking, weak consistency for concurrent writers) and is unsuitable for shared home directories. Option D is a zonal tier with a 99.9% SLA; daily backups would leave up to 24 hours of data loss and an outage during a zonal failure.",
+    "refs": [
+      "https://cloud.google.com/filestore/docs/service-tiers",
+      "https://cloud.google.com/filestore/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-des-030",
+    "domain": 1,
+    "topic": "Spanner",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A gaming company is designing the inventory and currency database for a new title expected to reach tens of millions of players in North America and Europe. Item trades between players must be strongly consistent and transactional, the database must remain writable during a regional outage, and it must scale horizontally without sharding logic in the application. Which two design decisions should you make? (Choose two.)",
+    "options": [
+      "Use Cloud SQL for PostgreSQL with cross-region read replicas and promote a replica if the primary region fails.",
+      "Use Spanner with a multi-region instance configuration so writes remain available if a region is lost.",
+      "Use Bigtable with replication across two regions and let the application resolve write conflicts.",
+      "Design primary keys that avoid monotonically increasing values (for example, use UUIDv4 or bit-reversed sequences) so writes are distributed across splits.",
+      "Use Firestore in Datastore mode with entity groups per player to guarantee transactional trades."
+    ],
+    "answer": [1, 3],
+    "explanation": "Spanner is the only Google Cloud relational database that combines external (strong) consistency, ACID transactions across rows, horizontal scale without application sharding, and multi-region configurations with a 99.999% availability SLA that keep the database writable through a regional failure. To realize that scale, Spanner schema design must avoid hotspots, so keys should not be sequential; UUIDs or bit-reversed sequences distribute load across splits. Option A cannot accept writes during a primary-region outage until a manual or scripted promotion (RPO > 0) and does not scale writes horizontally. Option C is eventually consistent across replicas and has only single-row atomicity, which does not fit transactional trades. Option E is limited by entity-group write throughput and Datastore-mode transactions do not span regions in the required way.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/instance-configurations",
+      "https://cloud.google.com/spanner/docs/schema-design"
+    ]
+  },
+  {
+    "id": "d1-des-031",
+    "domain": 1,
+    "topic": "Cloud SQL",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS company runs a 600 GB PostgreSQL 15 database on-premises for its billing application. The company wants to move it to a managed service with minimal application changes, requires a 99.99% availability SLA with near-zero downtime for planned maintenance, and wants to keep cost as low as possible while meeting those requirements. Which service should you choose?",
+    "options": [
+      "Spanner with the PostgreSQL interface in a regional configuration.",
+      "AlloyDB for PostgreSQL with a primary instance and two read pool instances.",
+      "Cloud SQL for PostgreSQL, Enterprise Plus edition, with high availability enabled.",
+      "PostgreSQL installed on a Compute Engine regional managed instance group with a regional Persistent Disk."
+    ],
+    "answer": [2],
+    "explanation": "Cloud SQL Enterprise Plus edition offers a 99.99% availability SLA when HA is enabled, near-zero downtime planned maintenance (sub-second failover), and full PostgreSQL wire compatibility, so the billing application moves with minimal change at the lowest managed price among the options that meet the SLA. Option A requires schema and driver changes because the PostgreSQL interface is a dialect subset, and Spanner pricing is higher for a 600 GB workload with no need for horizontal scale. Option B also meets the SLA and is fully compatible but costs more; it is justified when you need AlloyDB's higher throughput, columnar engine, or larger scale, none of which are stated requirements. Option D is self-managed, so the company owns patching, failover scripting, and backups, and no managed 99.99% SLA applies.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/editions-intro",
+      "https://cloud.google.com/sql/docs/postgres/high-availability"
+    ]
+  },
+  {
+    "id": "d1-des-032",
+    "domain": 1,
+    "topic": "Bigtable",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An energy utility collects readings from 20 million smart meters every 15 minutes. The platform must sustain millions of writes per second, retrieve the last 24 hours of readings for a single meter in single-digit milliseconds, and store several petabytes. Queries are always by meter ID and time range; there is no need for joins or secondary indexes. Which database should you choose?",
+    "options": [
+      "Bigtable, with a row key composed of meter ID and a reversed timestamp.",
+      "Cloud SQL for MySQL with a table partitioned by day.",
+      "Firestore in Native mode with a collection per meter.",
+      "BigQuery with a table partitioned by ingestion time and clustered by meter ID."
+    ],
+    "answer": [0],
+    "explanation": "Bigtable is the purpose-built wide-column store for very high write throughput, petabyte scale, and low-latency single-key or key-range reads, which is exactly a time-series lookup keyed by meter ID and time; a row key of meter ID plus reversed timestamp keeps a meter's recent readings contiguous while spreading writes across nodes. Option B cannot scale to millions of writes per second or petabytes in a single instance. Option C has per-document write limits and is not economical at petabyte scale for time-series data. Option D is an analytics warehouse: it excels at scanning and aggregating but per-key point lookups have hundreds of milliseconds to seconds of latency, which fails the single-digit millisecond requirement.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/schema-design-time-series",
+      "https://cloud.google.com/bigtable/docs/overview"
+    ]
+  },
+  {
+    "id": "d1-des-033",
+    "domain": 1,
+    "topic": "Firestore",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup is building a mobile field-service app. Technicians work in areas with intermittent connectivity, so the app must keep working offline and synchronize automatically when the network returns, and dispatchers must see technician status updates in real time. The data model is document-oriented and the company wants a serverless database that requires no capacity planning. Which database should you choose?",
+    "options": [
+      "Cloud SQL for PostgreSQL with the mobile app polling a REST API every 30 seconds.",
+      "Firestore in Native mode using the mobile SDKs with offline persistence and real-time listeners.",
+      "Bigtable accessed through a Cloud Run API layer.",
+      "Memorystore for Redis using Pub/Sub channels for status updates."
+    ],
+    "answer": [1],
+    "explanation": "Firestore Native mode is the serverless document database designed for mobile and web clients: its Android, iOS, and web SDKs provide offline persistence with automatic sync and real-time snapshot listeners, and Firestore scales automatically without provisioning. Option A requires building and hosting an API, offers no offline sync, and polling is neither real time nor efficient. Option C is a high-throughput wide-column store with no client SDK offline capability and would require a custom sync layer. Option D is an in-memory cache, not a durable system of record, and is not reachable from mobile clients directly.",
+    "refs": [
+      "https://cloud.google.com/firestore/docs/firestore-or-datastore",
+      "https://firebase.google.com/docs/firestore/manage-data/enable-offline"
+    ]
+  },
+  {
+    "id": "d1-des-034",
+    "domain": 1,
+    "topic": "Memorystore",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An e-commerce platform on GKE stores shopping-cart sessions in a self-managed Redis deployment that has become a bottleneck at 1.5 million operations per second and a source of outages during node failures. The team wants a managed, horizontally scalable, in-memory store with sub-millisecond latency, automatic failover, and no change to the Redis client libraries. What should you do?",
+    "options": [
+      "Move session data to Firestore and cache it in the application's local memory.",
+      "Move session data to Cloud SQL for MySQL with a memory table engine.",
+      "Deploy Memorystore for Memcached with the maximum number of nodes.",
+      "Deploy a Memorystore for Redis Cluster (or Valkey) instance with multiple shards and replicas, and connect with the existing Redis cluster-aware client."
+    ],
+    "answer": [3],
+    "explanation": "Memorystore for Redis Cluster (and the newer Memorystore for Valkey) is Google's fully managed, sharded in-memory service: it scales horizontally to millions of operations per second by adding shards, provides automatic failover with replicas across zones, and speaks the open-source Redis Cluster protocol, so the existing client libraries work. Option A adds persistent-storage latency and loses cross-pod session consistency. Option B is a relational database that cannot deliver sub-millisecond latency at that rate. Option C is a different protocol (Memcached), has no replication or automatic failover, and would require changing client libraries and data structures.",
+    "refs": [
+      "https://cloud.google.com/memorystore/docs/cluster/memorystore-for-redis-cluster-overview",
+      "https://cloud.google.com/memorystore/docs/valkey/product-overview"
+    ]
+  },
+  {
+    "id": "d1-des-035",
+    "domain": 1,
+    "topic": "BigQuery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail chain wants to analyze eight years of point-of-sale transactions (about 300 TB) to build seasonal demand forecasts. Business analysts will run ad hoc SQL over the full history several times a day, and the company does not want to manage clusters or plan storage capacity. Which storage and query platform should you choose?",
+    "options": [
+      "Load the data into a Cloud SQL for PostgreSQL Enterprise Plus instance with the largest available machine type.",
+      "Store the data in Cloud Storage and run Spark SQL on a long-running Dataproc cluster.",
+      "Load the data into BigQuery using partitioned and clustered tables, and let analysts query with standard SQL.",
+      "Store the data in Bigtable and expose aggregations through a Cloud Run API."
+    ],
+    "answer": [2],
+    "explanation": "BigQuery is the serverless, petabyte-scale data warehouse: storage and compute scale independently with no capacity planning, analysts use ANSI SQL directly, and partitioning plus clustering keeps ad hoc queries fast and cheap by pruning scanned bytes; BigQuery ML can even produce the forecasts in place. Option A cannot practically hold or scan 300 TB for analytical workloads. Option B works but requires sizing, patching, and paying for an always-on cluster, which contradicts the no-cluster requirement. Option D is a NoSQL key-value store with no SQL analytics capability; every aggregation would have to be precomputed.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/introduction",
+      "https://cloud.google.com/bigquery/docs/partitioned-tables"
+    ]
+  },
+  {
+    "id": "d1-des-036",
+    "domain": 1,
+    "topic": "Cloud SQL disaster recovery",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing company runs its order database on Cloud SQL for MySQL in us-central1. A regulator now requires the company to survive the loss of the entire region with a recovery point objective (RPO) of under one minute and a recovery time objective (RTO) of under 15 minutes, while keeping the managed-service model. What should you do?",
+    "options": [
+      "Enable automated backups and point-in-time recovery, and restore to a new instance in another region during a disaster.",
+      "Enable high availability on the instance and create a cross-region read replica in us-east1; during a regional outage, promote the replica and update the application connection string.",
+      "Enable high availability on the instance so that the standby in the second zone takes over automatically.",
+      "Export the database to Cloud Storage every hour with a dual-region bucket and import it into a new instance in another region if needed."
+    ],
+    "answer": [1],
+    "explanation": "Cross-region read replicas replicate asynchronously with typical lag of seconds, which meets an RPO under one minute, and promoting a replica takes minutes, which fits a 15-minute RTO; combining this with in-region HA covers both zonal and regional failures while staying fully managed, which is the Google-documented DR pattern for Cloud SQL. Option A depends on backups that are taken daily plus transaction logs; restoring across regions typically takes far longer than 15 minutes for a sizable database, and the recovery point can exceed one minute. Option C protects only against a zone failure; the standby is in the same region. Option D yields an RPO of up to one hour and a long import-based RTO.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/mysql/intro-to-cloud-sql-disaster-recovery",
+      "https://cloud.google.com/sql/docs/mysql/replication/cross-region-replicas"
+    ]
+  },
+  {
+    "id": "d1-des-037",
+    "domain": 1,
+    "topic": "Cloud Storage compliance",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A brokerage must store trade confirmation records in Cloud Storage so that no user, including project owners, can delete or overwrite a record for five years after it is written. After five years the records should be removed automatically to reduce cost. Which two configurations should you apply to the bucket? (Choose two.)",
+    "options": [
+      "Configure a five-year retention policy on the bucket and lock it.",
+      "Enable object versioning so that overwritten records are kept as noncurrent versions.",
+      "Add an Object Lifecycle Management rule that deletes objects once their age exceeds five years.",
+      "Grant only the Storage Object Viewer role to all users and remove all other IAM bindings.",
+      "Enable Autoclass so that records move to Archive storage after five years."
+    ],
+    "answer": [0, 2],
+    "explanation": "A locked bucket retention policy (Bucket Lock) enforces WORM semantics: objects cannot be deleted or replaced until they reach the retention age, and once locked, the policy itself cannot be removed or shortened even by project owners, which satisfies the regulator. A lifecycle Delete rule with age greater than five years removes records automatically once the retention period has expired, controlling cost without manual work. Option B keeps extra copies but does not prevent deletion of versions and increases cost. Option D relies on IAM, which an administrator can change at any time, so it is not immutable enforcement. Option E addresses storage-class cost, not deletion, and Autoclass transitions are based on access rather than a fixed age.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/bucket-lock",
+      "https://cloud.google.com/storage/docs/lifecycle"
+    ]
+  },
+  {
+    "id": "d1-des-038",
+    "domain": 1,
+    "topic": "Regional Persistent Disk",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company runs a legacy license server on a single Compute Engine VM. The software cannot be clustered and keeps its state on the boot disk's data partition. The company wants the service to be restored in another zone within minutes if the VM's zone fails, without losing any committed writes, and prefers not to build a custom replication process. What should you do?",
+    "options": [
+      "Take hourly snapshots of the disk and restore the latest snapshot into a new VM in another zone.",
+      "Attach a Local SSD for the data partition and rsync it to a second VM every minute.",
+      "Store the state directory on a Cloud Storage bucket mounted with Cloud Storage FUSE.",
+      "Place the data on a regional Persistent Disk (or Hyperdisk Balanced High Availability) that synchronously replicates to a second zone, and force-attach it to a standby VM during a zonal failure."
+    ],
+    "answer": [3],
+    "explanation": "Regional Persistent Disk and Hyperdisk Balanced High Availability replicate every write synchronously to two zones in the same region, so a zonal failure loses no committed data (RPO zero) and the disk can be force-attached to a VM in the surviving zone within minutes, which is the Google-recommended pattern for single-instance stateful applications that cannot be clustered. Option A leaves up to an hour of data loss. Option B is custom replication with Local SSD, which is ephemeral and loses data on host failure; minute-level rsync also violates the no-data-loss requirement. Option C changes the storage semantics to object storage through FUSE, which many legacy applications cannot use reliably and offers no block-level consistency.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/high-availability-regional-persistent-disk",
+      "https://cloud.google.com/compute/docs/disks/repd-failover"
+    ]
+  },
+  {
+    "id": "d1-des-039",
+    "domain": 1,
+    "topic": "Local SSD",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A video platform transcodes uploaded files on Compute Engine. Each job downloads a source file from Cloud Storage, writes hundreds of gigabytes of temporary intermediate files with very high random I/O, and uploads the final rendition back to Cloud Storage. The temporary files have no value after the job finishes. The team wants the fastest scratch storage at the lowest cost. What should you use for the scratch space?",
+    "options": [
+      "Local SSD attached to the transcoding VM.",
+      "Hyperdisk Extreme provisioned with the maximum IOPS.",
+      "A regional Persistent Disk so that intermediate files are protected.",
+      "A Filestore Enterprise share mounted on all transcoding VMs."
+    ],
+    "answer": [0],
+    "explanation": "Local SSD is physically attached NVMe storage with the highest IOPS and lowest latency of any Compute Engine disk option at a low price per GB; its ephemeral nature (data lost on VM stop or host failure) is irrelevant because the intermediate files are disposable and the source and output live in Cloud Storage. Option B delivers high IOPS but at a significantly higher cost, and paying for durability that is not needed contradicts the cost goal. Option C pays a replication premium for data that has no value after the job. Option D adds network file system latency and is priced for shared, durable capacity, the opposite of high-speed scratch.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/local-ssd",
+      "https://cloud.google.com/compute/docs/disks"
+    ]
+  },
+  {
+    "id": "d1-des-040",
+    "domain": 1,
+    "topic": "Cloud Storage dual-region",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial data provider processes market files in Compute Engine and Dataflow jobs that run in both europe-west1 and europe-west4 in an active-active pattern. Both regions read and write the same Cloud Storage bucket. The company requires that data written in one region be available in the other within 15 minutes to meet its disaster recovery RPO, and it wants to avoid cross-region egress charges when the local region reads data. Which bucket configuration should you choose?",
+    "options": [
+      "A multi-region bucket in the EU location, because it stores data in more than one region.",
+      "A dual-region bucket spanning europe-west1 and europe-west4 with turbo replication enabled.",
+      "Two regional buckets, one in each region, kept in sync with Storage Transfer Service jobs that run every 15 minutes.",
+      "A regional bucket in europe-west1 with Cloud CDN in front of it for reads from europe-west4."
+    ],
+    "answer": [1],
+    "explanation": "A dual-region bucket lets you pick the exact two regions where compute runs; reads from either region are served locally without cross-region egress, and turbo replication provides a 15-minute RPO SLA for asynchronous replication between the two regions, which is precisely the stated requirement. Option A stores data across an unspecified set of EU regions that may not include the compute regions, does not offer a replication SLA, and does not guarantee colocation with compute. Option C is operationally heavier, introduces eventual duplication logic for active-active writes, and lacks a single namespace. Option D is for public HTTP content caching, not for a read-write data processing bucket, and provides neither DR nor a consistent second copy.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/locations",
+      "https://cloud.google.com/storage/docs/availability-durability"
+    ]
+  },
+  {
+    "id": "d1-des-041",
+    "domain": 1,
+    "topic": "Cloud SQL",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional restaurant chain runs its reservation system on a 200 GB MySQL 8 database in a colocation facility. All customers are in one country, the team has strong MySQL skills, and the application uses stored procedures and MySQL-specific SQL. The company wants a managed database that requires the fewest application changes. What should you do?",
+    "options": [
+      "Migrate to Spanner and rewrite the stored procedures in GoogleSQL.",
+      "Migrate to Bigtable and refactor the schema into wide rows.",
+      "Migrate to Cloud SQL for MySQL using Database Migration Service.",
+      "Migrate to AlloyDB for PostgreSQL and convert the MySQL syntax with the conversion workspace."
+    ],
+    "answer": [2],
+    "explanation": "Cloud SQL for MySQL is a managed, fully compatible MySQL engine, so stored procedures and dialect-specific SQL move unchanged, and Database Migration Service performs a continuous, minimal-downtime homogeneous migration; this maximizes reuse of team skills and minimizes change, which is the stated priority for a small, single-country database. Option A requires rewriting application SQL and procedures for a globally distributed database the workload does not need. Option B is a NoSQL store that would require a complete application and schema rewrite. Option D changes the database engine, which forces syntax conversion and testing of every stored procedure even though the requirement is fewest changes.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/mysql/introduction",
+      "https://cloud.google.com/database-migration/docs/mysql"
+    ]
+  },
+  {
+    "id": "d1-des-042",
+    "domain": 1,
+    "topic": "Cloud Storage FUSE",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A machine learning team stores a 200 TB image training dataset in a Cloud Storage bucket. Training jobs run as pods on GKE and use a PyTorch data loader that expects the dataset to be available as files on a local path. The team wants to avoid copying the dataset to every node before training and wants to keep Cloud Storage as the single source of truth. What should you do?",
+    "options": [
+      "Create a Filestore Enterprise instance, copy the dataset into it, and mount it on the training pods.",
+      "Create a 200 TB Persistent Disk per node pool and use an init container to download the data.",
+      "Rewrite the data loader to call the Cloud Storage JSON API for each image.",
+      "Use the Cloud Storage FUSE CSI driver on GKE to mount the bucket as a volume in the training pods, enabling file caching and parallel downloads."
+    ],
+    "answer": [3],
+    "explanation": "The Cloud Storage FUSE CSI driver is Google's recommended way to give GKE (and Vertex AI) training workloads file-system access to bucket data: the bucket is mounted directly into the pod, the data stays in Cloud Storage as the source of truth, and the driver's file cache, parallel downloads, and metadata prefetch are tuned for large read-mostly ML datasets. Option A duplicates 200 TB into an expensive NFS tier and creates a second copy to keep in sync. Option B pre-copies the entire dataset to each node pool, which is slow, costly, and exactly what the team wants to avoid. Option C requires rewriting the loader and loses the framework's file-based optimizations.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver",
+      "https://cloud.google.com/storage/docs/cloud-storage-fuse/overview"
+    ]
+  },
+  {
+    "id": "d1-des-043",
+    "domain": 1,
+    "topic": "AlloyDB",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare analytics vendor runs a 50 TB PostgreSQL database on Compute Engine that is projected to reach 100 TB within two years. The application depends on PostgreSQL extensions and wire compatibility, needs a 99.99% availability SLA, must serve heavy read traffic plus operational reporting queries that today slow down transactions, and the team wants a managed service. Which database should you choose?",
+    "options": [
+      "AlloyDB for PostgreSQL with read pool instances and the columnar engine enabled for the reporting queries.",
+      "Cloud SQL for PostgreSQL Enterprise edition with read replicas.",
+      "Spanner with the PostgreSQL interface in a regional configuration.",
+      "BigQuery, using federated queries to keep transactional data in Cloud SQL."
+    ],
+    "answer": [0],
+    "explanation": "AlloyDB is fully PostgreSQL-compatible (extensions included), supports databases up to 128 TB, provides a 99.99% availability SLA including maintenance, scales reads with up to 20 read pool nodes, and its in-memory columnar engine accelerates analytical and reporting queries on transactional data (HTAP), which directly resolves the reporting slowdown. Option B fails on scale: Cloud SQL storage tops out at 64 TB, below the 100 TB projection, and Enterprise edition has only a 99.95% SLA. Option C is not full PostgreSQL (limited extension and feature support), so the application would need changes, and it is priced for global distribution the workload does not need. Option D turns an operational database problem into a data warehouse problem; it does not provide a transactional PostgreSQL system of record.",
+    "refs": [
+      "https://cloud.google.com/alloydb/docs/overview",
+      "https://cloud.google.com/alloydb/docs/columnar-engine/about"
+    ]
+  },
+  {
+    "id": "d1-des-044",
+    "domain": 1,
+    "topic": "Cloud Storage cost optimization",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A genomics startup stores 4 PB in Cloud Storage: raw sequencing output that is analyzed for two weeks and then rarely accessed, nightly database backups kept for 90 days, and a versioned bucket of pipeline artifacts with thousands of superseded versions. Storage is now 40% of the cloud bill. Which three actions should you take to reduce cost? (Choose three.)",
+    "options": [
+      "Add a lifecycle rule that transitions raw sequencing objects to Coldline or Archive after 30 days.",
+      "Move all buckets to a multi-region location to benefit from lower per-GB pricing.",
+      "Add a lifecycle rule that deletes noncurrent object versions in the artifacts bucket after a fixed number of newer versions or days.",
+      "Enable turbo replication on the backup bucket to reduce restore time.",
+      "Store the nightly backups in Nearline and add a lifecycle rule that deletes them after 90 days."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "The three savings levers are matching storage class to access pattern and deleting data that is no longer needed: raw output read only in its first two weeks belongs in Coldline or Archive after 30 days; backups that are retained 90 days and rarely restored fit Nearline (30-day minimum) with automatic deletion at 90 days; and noncurrent versions in a versioned bucket accumulate silently, so a lifecycle rule on noncurrent versions or number of newer versions is essential. Option B is wrong because multi-region storage costs more per GB than regional storage, not less. Option D adds a replication premium and has nothing to do with reducing storage cost.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/lifecycle",
+      "https://cloud.google.com/storage/docs/storage-classes"
+    ]
+  },
+  {
+    "id": "d1-des-045",
+    "domain": 1,
+    "topic": "Hyperdisk Throughput",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company runs a self-managed Apache Kafka cluster on Compute Engine that ingests 2 GB/s of log data. The brokers write large sequential segments and retain 7 days of data (about 1.2 PB across the cluster). Random IOPS requirements are low, but each broker needs high sustained sequential throughput at the lowest cost per terabyte. Which disk type should you choose for the broker data volumes?",
+    "options": [
+      "Hyperdisk Extreme, because it has the highest performance ceiling.",
+      "Hyperdisk Throughput, provisioning the required MB/s per broker independently of capacity.",
+      "Standard Persistent Disk, because it is the cheapest per GB.",
+      "Local SSD, striped across eight devices per broker."
+    ],
+    "answer": [1],
+    "explanation": "Hyperdisk Throughput is designed for scale-out, throughput-oriented workloads such as Kafka, Hadoop, and cold analytics: you provision MB/s explicitly on large, low-cost capacity, so 1.2 PB of retention with high sequential bandwidth is achieved without paying for IOPS you do not need. Option A prices for extreme random IOPS and is far more expensive per TB for a sequential workload. Option C is cheap per GB but its throughput scales with size and caps at a level that cannot sustain a 2 GB/s ingest fleet without massive over-provisioning. Option D is ephemeral, capped in capacity per VM (well under what 7-day retention needs), and a host failure would lose partition data.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/hyperdisks",
+      "https://cloud.google.com/compute/docs/disks/hyperdisk-perf-limits"
+    ]
+  },
+  {
+    "id": "d1-des-046",
+    "domain": 1,
+    "topic": "Static content hosting",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketing agency needs to host a static website (HTML, CSS, JavaScript, images) for a product launch expected to receive millions of visitors worldwide over one weekend. The site must be served over HTTPS on a custom domain and the agency wants the least infrastructure to manage. What should you do?",
+    "options": [
+      "Upload the files to a Cloud Storage bucket, configure it as a backend bucket behind a global external Application Load Balancer with Cloud CDN and a Google-managed certificate.",
+      "Deploy an nginx container to a GKE Autopilot cluster and serve the files from a Persistent Disk.",
+      "Store the files on a Filestore share mounted by a managed instance group of web servers.",
+      "Serve the files from a Compute Engine VM with Apache and attach a static external IP address."
+    ],
+    "answer": [0],
+    "explanation": "Cloud Storage is the correct storage type for immutable static assets: it scales automatically, and placing the bucket behind a global external Application Load Balancer adds HTTPS with a Google-managed certificate, a custom domain, and Cloud CDN caching at Google's edge to absorb a worldwide traffic spike with nothing to patch or scale. Option B introduces Kubernetes, containers, and a zonal disk that cannot be shared across many replicas. Option C is a file-storage anti-pattern for static web content and requires managing web servers. Option D is a single VM that becomes both a bottleneck and a single point of failure during a launch.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/hosting-static-website",
+      "https://cloud.google.com/load-balancing/docs/https/ext-load-balancer-backend-buckets"
+    ]
+  },
+  {
+    "id": "d1-des-047",
+    "domain": 1,
+    "topic": "Spanner",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A European neobank is designing the core ledger for its payments platform. Requirements: relational schema with SQL and ACID transactions, all data must remain within the European Union, the ledger must survive the loss of an entire region with zero data loss, and it must offer a 99.999% availability SLA. Which database configuration should you choose?",
+    "options": [
+      "Cloud SQL for PostgreSQL in europe-west3 with high availability and a cross-region read replica in europe-west1.",
+      "AlloyDB for PostgreSQL in europe-west4 with cross-region replication to a secondary cluster in europe-west1.",
+      "Spanner with the eur3 or eur6 multi-region instance configuration.",
+      "Bigtable with multi-cluster replication across three EU regions."
+    ],
+    "answer": [2],
+    "explanation": "Spanner multi-region configurations such as eur3 and eur6 place read-write replicas in multiple EU regions and use synchronous Paxos replication, so a full regional outage causes no data loss and no manual failover, and these configurations carry the 99.999% availability SLA; all replicas are inside the EU, satisfying data residency. Option A replicates asynchronously to the read replica, so a regional loss means data loss (RPO > 0) and manual promotion, with a 99.99% SLA at best. Option B is also asynchronous cross-region replication with a 99.99% SLA, so it cannot guarantee zero data loss on regional failure. Option D is not relational, offers eventual consistency between clusters, and lacks multi-row ACID transactions needed for a ledger.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/instance-configurations",
+      "https://cloud.google.com/spanner/sla"
+    ]
+  },
+  {
+    "id": "d1-des-048",
+    "domain": 1,
+    "topic": "GKE shared storage",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A publishing company runs a content management system on GKE with six replicas. Editors upload images through any replica, and every replica must immediately see the uploaded files on a POSIX file path that the CMS plugin expects. The team wants a managed solution that supports ReadWriteMany volumes. What should you do?",
+    "options": [
+      "Use a Persistent Disk PersistentVolumeClaim with the ReadWriteOnce access mode and schedule all replicas on the same node.",
+      "Provision a Filestore instance through the Filestore CSI driver and mount it as a ReadWriteMany PersistentVolume in all replicas.",
+      "Mount a Cloud Storage bucket with the Cloud Storage FUSE CSI driver and rely on it for POSIX file locking.",
+      "Attach a Local SSD to each node and replicate uploads between nodes with a sidecar container."
+    ],
+    "answer": [1],
+    "explanation": "Filestore, consumed through the GKE Filestore CSI driver, is the managed NFS option that provides true ReadWriteMany PersistentVolumes with POSIX semantics, so all six replicas across nodes and zones see uploads immediately. Option A forces all replicas onto a single node, eliminating high availability and still not sharing the disk safely. Option C provides object storage through FUSE; it lacks full POSIX features such as file locking and atomic rename semantics that many CMS plugins depend on, so it is not a safe drop-in for shared writes. Option D is ephemeral storage plus a home-grown replication system, which is fragile and operationally heavy.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/filestore-for-gke",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/filestore-csi-driver"
+    ]
+  },
+  {
+    "id": "d1-des-049",
+    "domain": 1,
+    "topic": "Cloud Storage lifecycle design",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A broadcast studio ingests about 50 TB per week of raw 4K footage. Editors in a single region work intensively on footage for the first 30 days; afterwards the footage is retained indefinitely but is retrieved only a few times per year, and when it is requested, retrieval latency of a few seconds is acceptable. Which two storage design decisions should you make? (Choose two.)",
+    "options": [
+      "Upload footage directly to the Archive storage class to obtain the lowest price from day one.",
+      "Store the footage in the Standard class in a regional bucket colocated with the editing workstations and rendering VMs.",
+      "Store the footage in Nearline and configure a lifecycle rule to delete it after 30 days.",
+      "Configure an Object Lifecycle Management rule that transitions objects to the Archive class once they are older than 30 days.",
+      "Place the footage in a multi-region bucket so that editors experience lower latency."
+    ],
+    "answer": [1, 3],
+    "explanation": "During the 30-day active edit window objects are read many times, so Standard class (no retrieval fee, no minimum duration) in a regional bucket in the same region as the editing compute gives the best performance and cost; after the active period, a lifecycle rule moves objects to Archive, which is the cheapest class for data read a few times a year and still serves objects within milliseconds. Option A would incur Archive retrieval charges on every edit read during the first 30 days, making it more expensive overall. Option C deletes footage that must be retained indefinitely. Option E costs more per GB and is intended for geo-redundant, globally consumed content, not single-region editing.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/lifecycle",
+      "https://cloud.google.com/storage/docs/locations"
+    ]
+  },
+  {
+    "id": "d1-des-050",
+    "domain": 1,
+    "topic": "Serving and analytics storage",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An ad-tech platform receives 500,000 events per second. Two consumers need the data: a bidding service that must look up a user's most recent 100 events by user ID in under 10 milliseconds, and data scientists who run ad hoc SQL over months of history. The architecture team wants to avoid running two custom ETL systems and wants each consumer to use a store optimized for its access pattern. Which design should you recommend?",
+    "options": [
+      "Store all events in BigQuery and have the bidding service query it with clustered tables on user ID.",
+      "Store all events in Bigtable and have data scientists use the Bigtable SQL editor for their analysis.",
+      "Store all events in Spanner, which supports both low-latency lookups and analytical SQL in one engine.",
+      "Ingest events into Pub/Sub and use a single Dataflow pipeline that writes to Bigtable for the bidding lookups and streams the same events into BigQuery for analytics."
+    ],
+    "answer": [3],
+    "explanation": "This is the classic Google Cloud streaming architecture: Pub/Sub decouples producers, one Dataflow pipeline fans out to two sinks, Bigtable serves single-key reads with single-digit millisecond latency at high write rates, and BigQuery provides serverless ad hoc SQL over the complete history. One pipeline, two purpose-built stores. Option A fails the 10-millisecond requirement; BigQuery point queries take hundreds of milliseconds or more. Option B fails the analysts: Bigtable's SQL support is for key-based and limited queries, not months-scale ad hoc aggregation. Option C would be very expensive at 500,000 writes per second and Spanner is not designed for petabyte-scale analytical scans compared with BigQuery.",
+    "refs": [
+      "https://cloud.google.com/architecture/streaming-analytics",
+      "https://cloud.google.com/bigtable/docs/overview"
+    ]
+  }
+]

@@ -1,0 +1,127 @@
+/* ===================================================================
+   AI Tech GTM — long-form techdoc stylesheet (headless Chrome / print)
+   Proves multi-page: running headers, page numbers, TOC, break control,
+   repeating table headers, figure handling, cover page.
+   =================================================================== */
+
+@font-face{font-family:'Google Sans';src:url('../fonts/GoogleSans-Regular.ttf')format('truetype');font-weight:400;}
+@font-face{font-family:'Google Sans';src:url('../fonts/GoogleSans-Medium.ttf')format('truetype');font-weight:500;}
+@font-face{font-family:'Google Sans';src:url('../fonts/GoogleSans-Bold.ttf')format('truetype');font-weight:700;}
+@font-face{font-family:'Google Sans Text';src:url('../fonts/GoogleSansText-Regular.ttf')format('truetype');font-weight:400;}
+@font-face{font-family:'Google Sans Text';src:url('../fonts/GoogleSansText-Medium.ttf')format('truetype');font-weight:500;}
+@font-face{font-family:'Google Sans Text';src:url('../fonts/GoogleSansText-Bold.ttf')format('truetype');font-weight:700;}
+@font-face{font-family:'Google Sans Text';src:url('../fonts/GoogleSansText-Italic.ttf')format('truetype');font-style:italic;}
+@font-face{font-family:'Google Sans Mono';src:url('../fonts/GoogleSansCode-Regular.ttf')format('truetype');font-weight:400;}
+
+:root{
+  --canvas:#FFFFFF; --wash:#F8F9FA; --ink:#202124; --ink2:#5F6368;
+  --accent:#4471ED; --gblue:#4285F4; --gred:#EA4335; --gyel:#FBBC04; --ggrn:#34A853;
+  --rule:#DADCE0; --tint:#E8F0FE;
+}
+
+/* ---------- page setup: running header + folio ---------- */
+@page{
+  size:A4; margin:18mm 16mm 16mm 16mm;
+  @top-left{ content:string(doctitle); font-family:'Google Sans Text'; font-size:7.5pt; color:#5F6368; }
+  @top-right{ content:string(section); font-family:'Google Sans Text'; font-size:7.5pt; color:#5F6368; }
+  @bottom-left{ content:"Google Cloud  |  Proprietary & Confidential"; font-family:'Google Sans Text'; font-size:7pt; color:#5F6368; }
+  @bottom-right{ content:counter(page); font-family:'Google Sans'; font-size:8pt; color:#202124; font-weight:700; }
+}
+@page cover{ margin:0; @top-left{content:none} @top-right{content:none}
+             @bottom-left{content:none} @bottom-right{content:none} }
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Google Sans Text',sans-serif; color:var(--ink);
+  font-size:9.5pt; line-height:1.5; background:#fff;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  counter-reset:sec fig tbl;
+}
+h1,h2,h3,h4{font-family:'Google Sans';font-weight:700;letter-spacing:-.01em;}
+
+/* ---------- cover ---------- */
+.cover{page:cover; width:210mm; height:297mm; position:relative; overflow:hidden;
+       background:var(--wash); display:flex; flex-direction:column; break-after:page;}
+.cover .grad{height:10mm;background:url('../brand/bg_gradient_divider.png') center/100% 400% no-repeat;}
+.cover .motif{position:absolute;right:-70mm;top:36mm;width:190mm;opacity:.13;}
+.cover .body{padding:26mm 20mm 0;position:relative;z-index:2;flex:1;}
+.cover .mark{width:30mm;margin-bottom:16mm;}
+.cover .eyebrow{font-family:'Google Sans';font-size:8.5pt;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin-bottom:6mm;}
+.cover h1{font-size:38pt;line-height:1.05;max-width:150mm;}
+.cover .sub{margin-top:7mm;font-size:13pt;color:var(--ink2);max-width:135mm;line-height:1.4;}
+.cover .meta{padding:0 20mm 18mm;position:relative;z-index:2;font-size:9pt;color:var(--ink2);}
+.cover .meta b{font-family:'Google Sans';color:var(--ink);}
+.cover .rule{height:1.2pt;background:var(--ink);margin:0 20mm 6mm;}
+.cover .lockups{display:flex;align-items:center;gap:5mm;padding:0 20mm 14mm;}
+.cover .lockups img.g{height:5mm;opacity:.8;}
+
+/* ---------- toc ---------- */
+.toc{break-after:page;}
+.toc h2{font-size:16pt;margin-bottom:6mm;padding-bottom:2mm;border-bottom:1.2pt solid var(--ink);}
+.toc ol{list-style:none;counter-reset:tocn;}
+.toc li{counter-increment:tocn;display:flex;align-items:baseline;gap:3mm;margin-bottom:3mm;font-size:10pt;}
+.toc li::before{content:counter(tocn,decimal-leading-zero);font-family:'Google Sans';font-weight:700;
+  color:var(--accent);font-size:9pt;min-width:9mm;}
+.toc .dots{flex:1;border-bottom:.5pt dotted var(--rule);margin:0 2mm 1mm;}
+
+/* ---------- sections ---------- */
+section{break-before:page;}
+section:first-of-type{break-before:auto;}
+h2.sec{string-set:section content(); counter-increment:sec; font-size:19pt; margin-bottom:5mm;
+  padding-bottom:2.5mm; border-bottom:1.2pt solid var(--ink);}
+h2.sec::before{content:counter(sec,decimal-leading-zero) "  ";color:var(--accent);}
+h3{font-size:11.5pt;margin:6mm 0 2.5mm;}
+h4{font-size:9.8pt;margin:4mm 0 1.5mm;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;font-size:8pt;}
+p{margin-bottom:3mm;}
+p.lead{font-size:11pt;color:var(--ink2);line-height:1.45;margin-bottom:5mm;}
+
+ul,ol{margin:0 0 3.5mm 0;list-style:none;}
+li{position:relative;padding-left:5.5mm;margin-bottom:1.8mm;}
+ul li::before{content:'';position:absolute;left:0;top:1.7mm;width:2.1mm;height:2.1mm;border-radius:50%;background:var(--accent);}
+ol{counter-reset:oln;}
+ol li{counter-increment:oln;}
+ol li::before{content:counter(oln);position:absolute;left:0;top:0;font-family:'Google Sans';
+  font-weight:700;font-size:8pt;color:var(--accent);}
+
+/* ---------- tables: header repeats across pages ---------- */
+table{width:100%;border-collapse:collapse;font-size:8.6pt;margin:0 0 5mm;break-inside:auto;}
+thead{display:table-header-group;}
+tr{break-inside:avoid;}
+th{background:var(--tint);font-family:'Google Sans';font-weight:700;text-align:left;
+   padding:2.4mm 2.6mm;border-bottom:.8pt solid var(--rule);font-size:8.3pt;}
+td{padding:2.2mm 2.6mm;border-bottom:.5pt solid var(--rule);vertical-align:top;}
+td.n{font-family:'Google Sans';font-weight:700;color:var(--accent);white-space:nowrap;}
+
+/* ---------- callouts ---------- */
+.callout{background:var(--wash);border-left:3pt solid var(--accent);padding:4mm 4.5mm;
+  margin:0 0 5mm;break-inside:avoid;}
+.callout.warn{border-left-color:var(--gred);}
+.callout.tip{border-left-color:var(--ggrn);}
+.callout .t{font-family:'Google Sans';font-weight:700;font-size:9pt;margin-bottom:1.6mm;}
+.callout p{font-size:8.8pt;color:var(--ink2);margin:0;line-height:1.45;}
+
+/* ---------- stat strip ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;margin:0 0 5mm;
+  padding:4mm 0;border-top:1.2pt solid var(--ink);border-bottom:.6pt solid var(--rule);break-inside:avoid;}
+.stat .n{font-family:'Google Sans';font-size:22pt;font-weight:700;color:var(--accent);line-height:1;}
+.stat .l{font-size:8pt;color:var(--ink2);margin-top:1.8mm;line-height:1.35;}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:0 0 5mm;break-inside:avoid;}
+.card{background:#fff;border:.6pt solid var(--rule);border-radius:2mm;padding:4mm;
+  box-shadow:0 1px 3px rgba(60,64,67,.10);}
+.card .h{font-family:'Google Sans';font-weight:700;font-size:9.4pt;margin-bottom:1.6mm;}
+.card p{font-size:8.5pt;color:var(--ink2);margin:0;line-height:1.42;}
+
+/* ---------- figures ---------- */
+figure{margin:0 0 5mm;break-inside:avoid;}
+figure img{width:100%;display:block;border:.6pt solid var(--rule);border-radius:1.5mm;}
+figcaption{counter-increment:fig;font-size:8pt;color:var(--ink2);margin-top:2mm;line-height:1.4;}
+figcaption::before{content:"Figure " counter(fig) ".  ";font-family:'Google Sans';font-weight:700;color:var(--ink);}
+
+code{font-family:'Google Sans Mono';font-size:8.4pt;background:var(--wash);padding:.3mm 1mm;border-radius:.8mm;}
+pre{font-family:'Google Sans Mono';font-size:8.2pt;background:var(--wash);padding:3.5mm;
+  border-left:2.4pt solid var(--rule);margin-bottom:4mm;break-inside:avoid;line-height:1.45;}
+
+.avoid{break-inside:avoid;}

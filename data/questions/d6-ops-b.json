@@ -1,0 +1,594 @@
+[
+  {
+    "id": "d6-ops-029",
+    "domain": 6,
+    "topic": "Cloud Monitoring metrics scopes",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company runs production workloads across 40 Google Cloud projects, one per microservice. The SRE team wants a single set of dashboards and alerting policies that cover all 40 projects, and they want new projects to be easy to add. You want to follow Google-recommended practices with minimal operational overhead. What should you do?",
+    "options": [
+      "Export the metrics of each project to BigQuery with a scheduled job and build the dashboards in Looker Studio on top of the exported tables",
+      "Create a dedicated scoping project, add the 40 projects to its metrics scope, and build the dashboards and alerting policies in that scoping project",
+      "Deploy a self-managed Prometheus server in each project and federate them into a central Grafana instance",
+      "Grant the SRE team the Monitoring Viewer role in each project and have them switch projects in the console when they need to compare metrics"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Monitoring metrics scopes let one scoping project view, chart, and alert on metrics from many monitored projects, which is the recommended approach for multi-project observability; Google recommends a dedicated, otherwise-empty scoping project so that its lifecycle is independent of workloads. Exporting to BigQuery (option A) adds latency, cost, and custom tooling, and cannot drive real-time alerting policies. Self-managed Prometheus federation (option C) introduces significant operational overhead that the managed service already avoids. Switching between projects manually (option D) prevents cross-project dashboards and alerting entirely.",
+    "refs": [
+      "https://cloud.google.com/monitoring/settings",
+      "https://cloud.google.com/monitoring/settings/multiple-projects"
+    ]
+  },
+  {
+    "id": "d6-ops-030",
+    "domain": 6,
+    "topic": "Synthetic monitors",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online brokerage wants to verify every minute that a customer can log in, view a portfolio, and place a simulated order through the web application, which involves several sequential HTTP requests, session cookies, and JavaScript rendering. The team wants an alert if any step fails or if the whole journey exceeds five seconds, with the least amount of infrastructure to maintain. What should you do?",
+    "options": [
+      "Create a Cloud Monitoring HTTP uptime check against the login URL that expects an HTTP 200 response and alerts when the check fails",
+      "Deploy a Compute Engine VM running a cron job with Selenium that executes the journey and writes results to a Cloud Storage bucket",
+      "Enable global external Application Load Balancer logging and create a log-based alert when the order endpoint returns no traffic for five minutes",
+      "Create a Cloud Monitoring synthetic monitor that runs a Puppeteer script implementing the multi-step journey on a schedule, and configure an alerting policy on its failures and execution time"
+    ],
+    "answer": [3],
+    "explanation": "Synthetic monitors in Cloud Monitoring run custom scripts (for example, Puppeteer-based browser journeys) as Cloud Run functions on a schedule, record pass/fail and execution latency as metrics, and integrate directly with alerting, which is exactly what a multi-step, JavaScript-dependent user journey needs. A simple HTTP uptime check (option A) can only validate a single request and response, not a stateful multi-step flow. A cron VM with Selenium (option B) works but requires patching, scaling, and custom alerting, which is more operational overhead than necessary. Load balancer logs (option C) only show real user traffic; the absence of orders may reflect a quiet market, not a failure, and it does not proactively test the journey.",
+    "refs": [
+      "https://cloud.google.com/monitoring/synthetic-monitors",
+      "https://cloud.google.com/monitoring/uptime-checks/introduction"
+    ]
+  },
+  {
+    "id": "d6-ops-031",
+    "domain": 6,
+    "topic": "Aggregated log sinks",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pharmaceutical company must retain Admin Activity and Data Access audit logs from every current and future project in its Google Cloud organization in a central BigQuery dataset owned by the compliance team. Project owners must not be able to opt out. What should you do?",
+    "options": [
+      "Create an aggregated sink at the organization level with the include-children option and a filter for audit logs, with the compliance project's BigQuery dataset as the destination, and grant the sink's writer identity the BigQuery Data Editor role on that dataset",
+      "Create a sink in each existing project that routes audit logs to the compliance BigQuery dataset, and document that new projects must add the same sink during onboarding",
+      "Enable BigQuery export in the Cloud Billing account settings so that audit logs from all projects are exported alongside billing data",
+      "Create a Cloud Run function triggered by Pub/Sub that copies audit log entries from each project's _Default bucket into BigQuery every hour"
+    ],
+    "answer": [0],
+    "explanation": "An aggregated sink created at the organization (or folder) level with includeChildren set to true routes matching log entries from all projects underneath, including projects created later, and because it lives at the organization level, project owners cannot modify or delete it. The sink's service account must be granted write access on the destination dataset. Per-project sinks (option B) rely on manual onboarding and can be removed by project owners. Billing export (option C) exports cost data, not audit logs. A custom copy function (option D) is fragile, adds latency, and duplicates functionality that the Log Router provides natively.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks",
+      "https://cloud.google.com/logging/docs/routing/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-032",
+    "domain": 6,
+    "topic": "Log bucket retention and locking",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial regulator requires a bank to keep Cloud Audit Logs for seven years and to be able to prove that no one, including project administrators, could have deleted or shortened the retention of those logs. The bank wants to keep the logs queryable in Cloud Logging rather than only in an archive. What should you do?",
+    "options": [
+      "Keep the audit logs in the _Default log bucket and set its retention to 2,555 days, relying on IAM to prevent changes",
+      "Route the audit logs to a Cloud Storage bucket with a retention policy and delete them from Cloud Logging to reduce cost",
+      "Create a dedicated user-defined log bucket with a retention period of 2,555 days, route audit logs to it with a sink, and lock the bucket so that retention cannot be shortened and the bucket cannot be deleted",
+      "Export the audit logs to BigQuery with a table expiration of seven years and restrict the dataset with VPC Service Controls"
+    ],
+    "answer": [2],
+    "explanation": "User-defined log buckets support custom retention up to 3,650 days, and locking a bucket makes its retention policy immutable: the bucket cannot be deleted and retention cannot be reduced until every entry has expired, which is the property the regulator asks for while keeping the logs queryable in Logs Explorer and Log Analytics. Relying on IAM alone with the _Default bucket (option A) does not give the immutability guarantee, and the _Default bucket cannot be locked. Moving logs only to Cloud Storage (option B) satisfies immutability but violates the requirement to keep them queryable in Cloud Logging. BigQuery table expiration (option D) is a deletion mechanism, not a guarantee against early deletion, and VPC Service Controls do not prevent authorized deletion.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/buckets",
+      "https://cloud.google.com/logging/docs/routing/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-033",
+    "domain": 6,
+    "topic": "Logging cost control",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A social media startup's Cloud Logging bill tripled after a new recommendation service on GKE began emitting verbose DEBUG-level request traces. The team still needs WARNING and ERROR entries from that service for troubleshooting, and it must not affect logs from other workloads. Which action reduces cost most directly while meeting these requirements?",
+    "options": [
+      "Reduce the retention period of the _Default log bucket from 30 days to 7 days for the entire project",
+      "Add an exclusion filter to the _Default sink that drops entries from the recommendation service's container with severity below WARNING, and ask the team to lower the default log level in the application",
+      "Route all logs from the project to a Cloud Storage bucket and disable ingestion into the _Default bucket",
+      "Create a log-based metric that counts DEBUG entries so that the team can see how much they are logging"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Logging charges primarily on ingestion volume, so the most direct saving is to stop ingesting the unneeded entries; an exclusion filter on the _Default sink scoped to that container's low-severity entries prevents them from being stored and billed while preserving WARNING and ERROR entries and leaving other workloads untouched. Reducing retention (option A) lowers storage cost slightly but not ingestion cost, which is the dominant charge, and it affects all logs. Disabling the _Default bucket for the whole project (option C) removes all logs from Logs Explorer, harming troubleshooting for every team. A log-based metric (option D) provides visibility but does not reduce the volume ingested.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/exclusions",
+      "https://cloud.google.com/stackdriver/pricing"
+    ]
+  },
+  {
+    "id": "d6-ops-034",
+    "domain": 6,
+    "topic": "Data Access audit logs",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company enabled Data Access audit logs for all services at the organization level to satisfy an auditor. Logging costs increased tenfold, driven almost entirely by DATA_READ entries from Cloud Storage buckets that serve public video thumbnails and by BigQuery reads from an internal reporting service account. The auditor actually only requires a record of who reads or modifies objects in two buckets containing personal data. What should you do?",
+    "options": [
+      "Keep organization-wide Data Access logging enabled and reduce the log bucket retention to one day so that storage costs drop",
+      "Disable Data Access audit logs entirely and rely on Admin Activity audit logs, which are free and always enabled",
+      "Keep the current configuration but create a log-based metric that excludes the noisy buckets from dashboards",
+      "Narrow the Data Access audit log configuration so that DATA_READ and DATA_WRITE are enabled only for the required services, add the reporting service account as an exempted principal for BigQuery, and add an exclusion filter for reads on the public thumbnail buckets"
+    ],
+    "answer": [3],
+    "explanation": "Data Access audit logs are chargeable and can be extremely voluminous; the configuration should be scoped to what compliance actually needs. Restricting the enabled log types per service, exempting known high-volume principals such as the reporting service account, and excluding reads on public buckets at the sink keep the required evidence for the personal-data buckets while eliminating the bulk of the cost. Cutting retention (option A) does not reduce ingestion charges, which dominate. Disabling Data Access logs entirely (option B) loses the object-read records the auditor requires, because Admin Activity logs do not record data reads. A log-based metric (option C) only hides the noise in dashboards; every entry is still ingested and billed.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/audit/configure-data-access",
+      "https://cloud.google.com/logging/docs/exclusions"
+    ]
+  },
+  {
+    "id": "d6-ops-035",
+    "domain": 6,
+    "topic": "Network logging",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A healthcare company's security team suspects that a compromised VM in a Shared VPC is attempting lateral movement to other subnets, and the network team separately needs to understand which internal flows would traverse a planned Cloud Interconnect before sizing it. Both teams need data within the next few days and want to use native Google Cloud capabilities. Which two features should you enable? (Choose two.)",
+    "options": [
+      "VPC Flow Logs on the relevant subnets, with an appropriate sampling rate and aggregation interval, exported to BigQuery for analysis",
+      "Data Access audit logs for the Compute Engine API so that every packet is recorded",
+      "Cloud CDN logging so that cache misses reveal the internal traffic pattern",
+      "Firewall Rules Logging on the deny rules and on the rules that govern inter-subnet traffic, so that allowed and denied connection attempts are recorded with the matching rule",
+      "Cloud DNS query logging on the public managed zones"
+    ],
+    "answer": [0, 3],
+    "explanation": "VPC Flow Logs record sampled network flows between VMs, subnets, and on-premises destinations, including bytes and packets, which is the right data source both for detecting unexpected east-west traffic and for estimating the volume that would cross an interconnect. Firewall Rules Logging records which rule allowed or denied a connection attempt, revealing scanning and blocked lateral movement. Data Access audit logs (option B) record API calls, not network packets. Cloud CDN logging (option C) covers edge cache behavior for external HTTP traffic, not internal flows. Public DNS query logs (option E) show name resolution by external clients, not internal VM-to-VM traffic.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/flow-logs",
+      "https://cloud.google.com/firewall/docs/firewall-rules-logging"
+    ]
+  },
+  {
+    "id": "d6-ops-036",
+    "domain": 6,
+    "topic": "Managed Service for Prometheus",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A gaming studio runs 12 GKE Standard clusters, each with its own self-managed Prometheus server and Grafana. Prometheus servers are running out of memory, retention is limited to seven days, and there is no global view across clusters. The team has hundreds of PromQL dashboards and alert rules that it does not want to rewrite. Which approach should you recommend?",
+    "options": [
+      "Replace Prometheus with the Ops Agent on every node and rebuild the dashboards in Cloud Monitoring using MQL",
+      "Increase the memory of the Prometheus nodes and configure remote write to a self-managed Thanos deployment for long-term storage",
+      "Enable Google Cloud Managed Service for Prometheus with managed collection on every cluster, keep the existing PromQL dashboards by pointing Grafana at the managed service's Prometheus-compatible API, and migrate alert rules to Cloud Monitoring PromQL alerting policies",
+      "Export Prometheus metrics to BigQuery through a custom exporter and build cross-cluster dashboards in Looker Studio"
+    ],
+    "answer": [2],
+    "explanation": "Managed Service for Prometheus stores metrics in the same globally scaled backend as Cloud Monitoring, retains them for 24 months, provides a Prometheus-compatible query API that Grafana can use unchanged, and supports PromQL in Cloud Monitoring alerting, so existing dashboards and rules carry over with minimal rework and no Prometheus servers to size. Rebuilding everything in MQL (option A) throws away the team's PromQL investment. Scaling Prometheus and adding Thanos (option B) keeps significant operational overhead and does not eliminate the scaling problem. Exporting to BigQuery (option D) is not suited to real-time metrics or alerting and requires custom tooling.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/managed-prometheus",
+      "https://cloud.google.com/monitoring/promql/promql-alerting"
+    ]
+  },
+  {
+    "id": "d6-ops-037",
+    "domain": 6,
+    "topic": "Ops Agent",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company runs 200 Compute Engine VMs hosting a legacy Java application. The operations team can see CPU and network metrics in Cloud Monitoring but cannot see memory utilization, disk usage, or the application's log files, which are written to /var/log/app/. They want this telemetry with the least ongoing effort. What should you do?",
+    "options": [
+      "Install the Ops Agent on the VMs using a VM Manager agent policy, and configure it to collect host metrics and the application log files",
+      "Write a cron job on each VM that runs free and df every minute and posts the values to the Cloud Monitoring API",
+      "Enable Data Access audit logs for Compute Engine so that VM memory usage is recorded",
+      "Enable VPC Flow Logs on the subnet so that application activity can be inferred from network traffic"
+    ],
+    "answer": [0],
+    "explanation": "Guest-level telemetry such as memory, disk, and application log files requires an agent inside the VM; the Ops Agent is Google's unified logging and metrics agent, and agent policies in VM Manager install and maintain it automatically across a fleet, minimizing toil. A cron job with custom API calls (option B) is fragile, unmaintained toil that would also not collect log files. Data Access audit logs (option C) record API calls, not operating system metrics. VPC Flow Logs (option D) record network flows and cannot provide memory, disk, or application log data.",
+    "refs": [
+      "https://cloud.google.com/monitoring/agent/ops-agent",
+      "https://cloud.google.com/compute/docs/os-config/agent-policies"
+    ]
+  },
+  {
+    "id": "d6-ops-038",
+    "domain": 6,
+    "topic": "Burn-rate alerting",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online marketplace has a 99.9% availability SLO over a rolling 30-day window defined in Cloud Monitoring SLO monitoring. The current alert pages the on-call engineer whenever the five-minute error rate exceeds 0.1%, which causes many pages for short blips and once failed to page during a slow, day-long degradation that consumed a third of the monthly error budget. You want alerts that are both fast for serious incidents and resistant to noise. What should you do?",
+    "options": [
+      "Keep the single five-minute threshold but add a 30-minute alert delay so that short blips do not page",
+      "Create two burn-rate alerting policies on the SLO: a fast-burn policy (for example, a 14.4x burn rate over a one-hour window with a five-minute short window) that pages, and a slow-burn policy (for example, a 1x to 2x burn rate over a six-hour or multi-day window) that creates a ticket",
+      "Replace the SLO alert with an uptime check every minute from six regions and page when two consecutive checks fail",
+      "Lower the SLO to 99.5% so that the existing five-minute threshold alert fires less frequently"
+    ],
+    "answer": [1],
+    "explanation": "Multi-window, multi-burn-rate alerting is the SRE-recommended pattern: a high burn rate over a short window catches fast outages quickly and is worth paging, while a low burn rate over a long window catches slow leaks like the day-long degradation, and the short window in each pair makes the alert reset promptly once the problem stops. Cloud Monitoring SLO monitoring supports burn-rate conditions directly. Adding a delay to a raw error-rate threshold (option A) delays detection of real outages and still ignores budget consumption. Uptime checks (option C) test reachability from outside but do not measure the SLO's error budget or catch partial degradations. Loosening the SLO (option D) changes the target rather than fixing the alerting design.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate",
+      "https://cloud.google.com/monitoring/alerts/concepts-indepth"
+    ]
+  },
+  {
+    "id": "d6-ops-039",
+    "domain": 6,
+    "topic": "Log-based metrics",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments company's Cloud Run service writes a structured log entry with the field event=\"payment_declined\" and a reason code every time a card payment is rejected. The fraud team wants a chart of declines per reason code over time and an alert if declines per minute rise sharply, without changing the application code. What should you do?",
+    "options": [
+      "Create a log sink to BigQuery and schedule a query every five minutes that sends an email when the count exceeds a threshold",
+      "Enable Error Reporting on the Cloud Run service so that declines are grouped and counted automatically",
+      "Add Cloud Trace instrumentation to the payment path and alert on trace span counts with the decline attribute",
+      "Create a counter log-based metric filtered on the event field with a label extracted from the reason code, chart it in a dashboard, and create a metric-threshold alerting policy on its rate"
+    ],
+    "answer": [3],
+    "explanation": "Log-based metrics turn matching log entries into Cloud Monitoring time series without any application change; a counter metric with a label extracted from the reason code supports per-reason charts, and the resulting metric can drive a standard alerting policy in near real time. A BigQuery sink with a scheduled query (option A) is slower, more expensive, and requires custom notification logic. Error Reporting (option B) groups stack traces from exceptions and would not treat an ordinary business event as an error. Cloud Trace (option C) is for latency analysis and would require code changes.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/logs-based-metrics",
+      "https://cloud.google.com/logging/docs/logs-based-metrics/counter-metrics"
+    ]
+  },
+  {
+    "id": "d6-ops-040",
+    "domain": 6,
+    "topic": "Cloud Trace",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An airline's booking flow spans eight microservices on GKE and Cloud Run, plus Spanner and an external payment gateway. End-to-end latency at the 95th percentile occasionally jumps from 400 ms to 3 seconds, but each team's per-service dashboards look healthy and nobody can identify which hop is responsible. What should you recommend to identify the source of the latency?",
+    "options": [
+      "Instrument the services with OpenTelemetry to propagate trace context across calls and export spans to Cloud Trace, then use the trace explorer and latency distribution to find the span that accounts for the slow requests",
+      "Enable Cloud Profiler on every service to capture CPU and heap profiles and compare flame graphs across services",
+      "Increase the logging level to DEBUG on all services and correlate timestamps manually in Logs Explorer",
+      "Add an uptime check for each microservice so that slow services fail the check and become visible"
+    ],
+    "answer": [0],
+    "explanation": "Distributed tracing is the tool designed for this problem: with trace context propagated across every hop, Cloud Trace shows a waterfall of spans per request so the specific service or external call responsible for the tail latency is immediately visible, and the analysis reports compare latency distributions over time. Cloud Profiler (option B) shows where CPU and memory are spent inside one process, not which hop in a distributed request is slow. Manual timestamp correlation across DEBUG logs (option C) is slow, expensive, and error-prone, and it lacks per-request causality. Uptime checks (option D) test individual endpoints in isolation and would not reproduce the production call chain or the intermittent tail.",
+    "refs": [
+      "https://cloud.google.com/trace/docs/overview",
+      "https://cloud.google.com/trace/docs/setup"
+    ]
+  },
+  {
+    "id": "d6-ops-041",
+    "domain": 6,
+    "topic": "Cloud Profiler",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A video streaming company's recommendation service, written in Java and running on GKE, consumes twice the CPU it did six months ago, and its node pool cost has become the largest line item in the platform budget. Engineers cannot reproduce the CPU usage in staging and do not want to add overhead to production. Which tool should you use to find where the CPU time is being spent?",
+    "options": [
+      "Cloud Trace, to view the latency of each request handled by the service",
+      "Error Reporting, to identify exceptions that might be consuming CPU during retries",
+      "Cloud Profiler, which continuously collects low-overhead CPU and heap profiles from the production service and presents flame graphs that can be compared across versions and time",
+      "VPC Flow Logs, to correlate CPU usage with the volume of incoming network traffic"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Profiler is designed for exactly this case: it samples CPU, heap, and other profiles from production processes with very low overhead, aggregates them, and displays flame graphs that pinpoint hot code paths; comparing profiles across versions shows what changed over the past six months. Cloud Trace (option A) explains request latency across services, not which functions consume CPU inside a process. Error Reporting (option B) aggregates exceptions and is unrelated to CPU profiling. VPC Flow Logs (option D) describe network flows and cannot attribute CPU time to code.",
+    "refs": [
+      "https://cloud.google.com/profiler/docs/about-profiler",
+      "https://cloud.google.com/profiler/docs/profiling-java"
+    ]
+  },
+  {
+    "id": "d6-ops-042",
+    "domain": 6,
+    "topic": "Error Reporting",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup deploys a Python API on Cloud Run several times a day. After a recent release, a new type of unhandled exception began occurring for a small percentage of requests, and it went unnoticed for two days because the error rate stayed below the alert threshold. The team wants to be notified as soon as a previously unseen exception type appears, with no additional code. What should you do?",
+    "options": [
+      "Create a log-based metric for every possible exception class name and an alerting policy for each one",
+      "Use Error Reporting, which automatically groups stack traces from Cloud Run logs, and configure its notifications for newly detected error groups",
+      "Enable Cloud Profiler and review heap profiles daily for abnormal allocations",
+      "Create an uptime check that calls the API and alert when it returns a 500 status"
+    ],
+    "answer": [1],
+    "explanation": "Error Reporting ingests exceptions from Cloud Run logs automatically, de-duplicates them into error groups, and can notify when a new error group is first seen, which directly addresses 'unseen exception type' detection without any instrumentation. Per-exception log-based metrics (option A) require knowing the exception names in advance, defeating the purpose. Cloud Profiler (option C) analyzes resource consumption, not exceptions. An uptime check (option D) samples a single endpoint occasionally and would miss a low-rate error affecting only some requests.",
+    "refs": [
+      "https://cloud.google.com/error-reporting/docs",
+      "https://cloud.google.com/error-reporting/docs/notifications"
+    ]
+  },
+  {
+    "id": "d6-ops-043",
+    "domain": 6,
+    "topic": "Log Analytics",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer's security operations team wants to run ad-hoc SQL over the last 90 days of global external Application Load Balancer request logs joined with Cloud Armor security policy logs, for example to find the top client IPs whose requests were both rate-limited and later succeeded. They want to avoid building and maintaining an export pipeline, and they want the data to remain governed by Cloud Logging retention and access controls. What should you do?",
+    "options": [
+      "Create a log sink to a Cloud Storage bucket and query the exported files with BigQuery external tables",
+      "Use the Logs Explorer query language with the aggregate view to approximate the join manually",
+      "Create a Dataflow pipeline that reads logs from a Pub/Sub sink and writes them to Bigtable for analysis",
+      "Route the load balancer and Cloud Armor logs to a log bucket that has Log Analytics enabled with a 90-day retention, and run the SQL queries in the Log Analytics page or through the linked BigQuery dataset"
+    ],
+    "answer": [3],
+    "explanation": "Upgrading a log bucket to use Log Analytics lets you query its logs with SQL directly inside Cloud Logging, including joins and aggregations, without any export pipeline; the bucket's retention and IAM continue to govern the data, and an optional linked BigQuery dataset allows the same data to be queried from BigQuery or Looker Studio. Cloud Storage export with external tables (option A) adds an export path, loses Cloud Logging access controls, and has poor query performance on raw JSON. The Logs Explorer query language (option B) cannot perform SQL-style joins. A Dataflow-to-Bigtable pipeline (option C) is heavy custom infrastructure and Bigtable is not an analytical SQL engine.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/log-analytics",
+      "https://cloud.google.com/logging/docs/buckets#upgrade-bucket"
+    ]
+  },
+  {
+    "id": "d6-ops-044",
+    "domain": 6,
+    "topic": "Load balancer logging",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Users of a travel website report intermittent HTTP 502 errors. The site runs on a managed instance group behind a global external Application Load Balancer. The application's own logs show no errors during the reported times, and the backend VMs appear healthy. Which step should you take first to diagnose the problem?",
+    "options": [
+      "Enable logging on the load balancer's backend service and examine the statusDetails field of the request log entries for the failed requests",
+      "Enable VPC Flow Logs on the backend subnet and look for dropped packets to the VMs",
+      "Enable Cloud Profiler on the application to look for slow code paths",
+      "Increase the size of the managed instance group by 50% to rule out capacity problems"
+    ],
+    "answer": [0],
+    "explanation": "The load balancer is the component that generated the 502 responses, so its own request logs are the authoritative source; the statusDetails field explains why the proxy failed the request (for example, backend connection closed before response, backend timeout, or failed health check), which immediately points to the right layer. VPC Flow Logs (option B) show flow-level data, not HTTP failure reasons. Cloud Profiler (option C) is for CPU and memory hot spots, not proxy errors. Blindly adding capacity (option D) is a guess that costs money and may not address the cause.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/https/https-logging-monitoring",
+      "https://cloud.google.com/load-balancing/docs/https/troubleshooting-ext-https-lbs"
+    ]
+  },
+  {
+    "id": "d6-ops-045",
+    "domain": 6,
+    "topic": "Cloud NAT logging",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A data-processing platform runs on a private GKE cluster whose nodes reach third-party APIs through Cloud NAT. During peak batch windows, a fraction of outbound HTTPS calls fail with connection timeouts, while the same calls succeed at low load. The application logs only show the timeout. What should you do to confirm the cause?",
+    "options": [
+      "Enable Firewall Rules Logging on the egress allow rule and look for denied connections",
+      "Enable Data Access audit logs on the third-party API project to see the rejected calls",
+      "Enable Cloud NAT logging for errors and review the port allocation and dropped-connection metrics for the NAT gateway to determine whether the gateway is running out of source ports",
+      "Enable Cloud Trace on the GKE workloads and look for long spans on outbound calls"
+    ],
+    "answer": [2],
+    "explanation": "Timeouts that appear only under high concurrency from a NAT gateway are the classic symptom of source port exhaustion; Cloud NAT logging (translation and error events) and the NAT gateway's dropped_sent_packets and port usage metrics show whether connections are being dropped because no ports are available, after which you can increase ports per VM, enable dynamic port allocation, or add NAT IP addresses. Firewall Rules Logging (option A) would show denies, but an allow rule that permits traffic at low load does not start denying under load. You cannot enable audit logs in a third party's project (option B). Cloud Trace (option D) would show the calls are slow but not why the NAT layer dropped them.",
+    "refs": [
+      "https://cloud.google.com/nat/docs/monitoring",
+      "https://cloud.google.com/nat/docs/troubleshooting"
+    ]
+  },
+  {
+    "id": "d6-ops-046",
+    "domain": 6,
+    "topic": "Notification routing",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A fintech company uses Cloud Monitoring alerting policies for a dozen services. Today every alert goes to a single email distribution list, so urgent SLO burn alerts and low-priority capacity warnings are indistinguishable and often ignored. The SRE lead wants critical alerts to page the on-call engineer through PagerDuty, warnings to post to a team Slack channel, and both to be traceable to a severity level. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Create separate PagerDuty and Slack notification channels and attach the PagerDuty channel to the alerting policies that represent user-impacting symptoms, and the Slack channel to the informational and capacity policies",
+      "Configure a single webhook channel that posts to both PagerDuty and Slack, and let the on-call engineer decide which alerts matter",
+      "Set the severity field (for example, CRITICAL or WARNING) on each alerting policy so that it is carried in the notification payload and can be used for routing and reporting in PagerDuty and Slack",
+      "Increase the auto-close duration of all policies to seven days so that fewer notifications are generated",
+      "Send all notifications to Pub/Sub only, and build a Cloud Run service that parses the alert text to decide who to notify"
+    ],
+    "answer": [0, 2],
+    "explanation": "Cloud Monitoring supports multiple notification channel types, including PagerDuty and Slack, and each alerting policy can target different channels, so mapping paging policies to PagerDuty and informational policies to Slack is native functionality. Setting the policy severity attaches a machine-readable level to every notification, letting downstream tools route and report on it consistently. Sending everything through one webhook (option B) recreates the current undifferentiated stream. Extending auto-close (option D) does not change routing and can hide repeat incidents. A custom Pub/Sub router (option E) is unnecessary engineering when native channels and severity already provide the capability.",
+    "refs": [
+      "https://cloud.google.com/monitoring/support/notification-options",
+      "https://cloud.google.com/monitoring/alerts/policies-overview"
+    ]
+  },
+  {
+    "id": "d6-ops-047",
+    "domain": 6,
+    "topic": "GKE observability",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A platform team operating GKE Standard clusters wants to monitor Kubernetes API server latency, scheduler behavior, and per-deployment replica availability (kube-state style metrics) in Cloud Monitoring, and to alert on them, without deploying or maintaining any additional agents or exporters in the clusters. What should you do?",
+    "options": [
+      "Deploy kube-state-metrics and a Prometheus server in each cluster and configure remote write to Cloud Monitoring",
+      "Enable the GKE control plane metrics and kube state metrics observability packages on the clusters, which deliver these metrics through Managed Service for Prometheus into Cloud Monitoring for dashboards and alerting",
+      "Install the Ops Agent on every node with a Kubernetes receiver configured for the API server",
+      "Enable Data Access audit logs for the Kubernetes Engine API and derive the metrics from log-based metrics"
+    ],
+    "answer": [1],
+    "explanation": "GKE offers managed observability packages: control plane metrics (API server, scheduler, controller manager) and kube state metrics can be enabled per cluster and are collected by Google-managed components into Cloud Monitoring, where they can be charted and alerted on with PromQL or MQL, with no customer-managed agents. Self-deployed kube-state-metrics and Prometheus (option A) works but is exactly the operational burden the team wants to avoid. The Ops Agent (option C) targets Compute Engine VMs, not GKE nodes, and does not scrape the Kubernetes control plane. Audit logs (option D) record API requests and cannot provide latency or replica-state metrics reliably.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/control-plane-metrics",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/kube-state-metrics"
+    ]
+  },
+  {
+    "id": "d6-ops-048",
+    "domain": 6,
+    "topic": "Private uptime checks",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company hosts an internal claims API on a regional internal Application Load Balancer in a Shared VPC; it has no public IP address by policy. The operations team wants Cloud Monitoring uptime checks against this API so that failures create alerts like their public services do. When they created a standard uptime check, it failed with connection errors. What should you do?",
+    "options": [
+      "Assign a public IP to the load balancer temporarily and restrict it to Google's uptime check IP ranges with a firewall rule",
+      "Replace the uptime check with a cron job on a VM inside the VPC that curls the API and writes a custom metric",
+      "Convert the uptime check to a TCP check on port 443, which does not require public reachability",
+      "Register the internal endpoint as a Service Directory service and create a private uptime check that targets that Service Directory service, allowing the check to run from inside the VPC network"
+    ],
+    "answer": [3],
+    "explanation": "Cloud Monitoring private uptime checks use Service Directory to reach endpoints that are only accessible inside a VPC network; registering the internal load balancer as a Service Directory service and targeting it from a private uptime check keeps the endpoint private while giving the same alerting integration as public checks. Exposing a public IP (option A) violates the stated policy. A VM-based cron job (option B) works but adds a server to manage and does not integrate as an uptime check. Standard checks, whether HTTP or TCP (option C), originate from Google's public probers and cannot reach a private address, so changing the protocol does not help.",
+    "refs": [
+      "https://cloud.google.com/monitoring/uptime-checks/private-checks",
+      "https://cloud.google.com/monitoring/uptime-checks/introduction"
+    ]
+  },
+  {
+    "id": "d6-ops-049",
+    "domain": 6,
+    "topic": "PromQL alerting",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A team of former Prometheus operators runs services on GKE Autopilot with Managed Service for Prometheus. They want an alert when the ratio of HTTP 5xx responses to total requests, summed across all pods of a service, stays above 2% for ten minutes, using a rule expressed as sum(rate(http_requests_total{code=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])). They do not want to run Alertmanager or any additional components. What should you do?",
+    "options": [
+      "Create a Cloud Monitoring alerting policy with a PromQL condition containing the ratio expression and a ten-minute duration, and attach the team's notification channels",
+      "Deploy an in-cluster Prometheus Alertmanager and configure it to forward notifications to Cloud Monitoring notification channels through a webhook",
+      "Create two separate metric-threshold alerting policies, one on the 5xx rate and one on the total rate, and page when both fire",
+      "Convert the expression to a log-based metric on the ingress logs and alert on that metric instead"
+    ],
+    "answer": [0],
+    "explanation": "Cloud Monitoring alerting policies support conditions written in PromQL, including arithmetic between series such as ratios, along with a duration and standard notification channels, so the team can use its existing expression directly against metrics ingested by Managed Service for Prometheus without any extra components. Running Alertmanager (option B) adds the component the team explicitly wants to avoid. Two independent threshold policies (option C) cannot express a ratio; both firing does not mean the ratio exceeded 2%. Rebuilding the signal from ingress logs (option D) changes the data source, adds logging cost, and discards the existing metric.",
+    "refs": [
+      "https://cloud.google.com/monitoring/promql/promql-alerting",
+      "https://cloud.google.com/stackdriver/docs/managed-prometheus"
+    ]
+  },
+  {
+    "id": "d6-ops-050",
+    "domain": 6,
+    "topic": "Forecast-based alerting",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A genomics company's analysis cluster writes results to a set of persistent disks that fill up gradually over days. The current alert fires at 90% utilization, but by then engineers often have less than an hour before jobs start failing, and several incidents happened overnight. The team wants to be warned early enough to act during working hours, without lowering the threshold so far that it constantly fires on disks that are stable at 70%. What should you do?",
+    "options": [
+      "Lower the threshold to 50% so that the alert fires days earlier on every disk",
+      "Create an uptime check on the analysis service so that the on-call engineer is paged when jobs fail",
+      "Create an alerting policy on the disk utilization metric with a forecast condition (or an MQL/PromQL predict_linear-style expression) that triggers when the metric is projected to cross 95% within the next 48 hours",
+      "Replace the alert with a weekly report of disk utilization emailed to the team"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Monitoring supports forecast conditions in metric-threshold alerting policies, and MQL and PromQL can express linear prediction; alerting when the disk is predicted to cross the limit within a chosen horizon warns about disks that are actually trending toward failure while ignoring disks that sit at a stable 70%. A flat lower threshold (option A) fires on stable disks and does not distinguish trend from level. An uptime check (option B) only reacts after jobs fail, which is the situation to avoid. A weekly report (option D) is too infrequent for disks that can fill between reports and removes real-time alerting.",
+    "refs": [
+      "https://cloud.google.com/monitoring/alerts/types-of-conditions",
+      "https://cloud.google.com/monitoring/mql/alerts"
+    ]
+  },
+  {
+    "id": "d6-ops-051",
+    "domain": 6,
+    "topic": "Log routing to external systems",
+    "difficulty": "easy",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A bank's security operations center uses a third-party SIEM and needs Google Cloud audit logs delivered in near real time. Separately, the internal audit team needs all logs kept for ten years at the lowest possible storage cost and rarely accesses them. Which two log routing configurations should you implement? (Choose two.)",
+    "options": [
+      "A Log Router sink that sends the audit logs to a Pub/Sub topic consumed by the SIEM's native integration or a Dataflow template",
+      "A Log Router sink that sends the audit logs to Cloud Monitoring so that the SIEM can read them through the Monitoring API",
+      "A Log Router sink that sends all logs to a BigQuery dataset with ten-year table expiration for the audit team",
+      "A Log Router sink that sends all logs to a Cloud Storage bucket using the Archive storage class with a retention policy, for the audit team",
+      "A Log Router sink that sends all logs to Bigtable for long-term storage"
+    ],
+    "answer": [0, 3],
+    "explanation": "Pub/Sub is the recommended sink destination for streaming logs to third-party systems in near real time, and most SIEMs provide native Pub/Sub integrations or supported Dataflow templates. For long-term, rarely accessed retention, a Cloud Storage bucket in the Archive class with a bucket retention policy is the cheapest compliant option. Cloud Monitoring (option B) is not a log sink destination for log entries. BigQuery (option C) is excellent for analysis but is more expensive than Archive storage for data that is rarely queried, and table expiration is a deletion mechanism rather than retention protection. Bigtable (option E) is not a supported sink destination.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/routing/overview",
+      "https://cloud.google.com/logging/docs/export/configure_export_v2"
+    ]
+  },
+  {
+    "id": "d6-ops-052",
+    "domain": 6,
+    "topic": "Log data residency",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A German public-sector agency is adopting Google Cloud and is required by policy to keep all application and audit log data at rest inside Germany. Its projects run entirely in europe-west3. The agency also wants any project created in the future to comply automatically. What should you do?",
+    "options": [
+      "Leave logs in the _Default bucket, because the _Default bucket is automatically created in the region where the project's resources run",
+      "Route all logs to a BigQuery dataset located in europe-west3 and disable the _Default bucket in each project",
+      "Create a log sink to a Cloud Storage bucket in europe-west3 and delete the logs from Cloud Logging after export",
+      "Create user-defined log buckets in europe-west3 and route logs to them with sinks, configure the organization's default resource location for new log buckets, and enforce the resource locations organization policy constraint to europe-west3"
+    ],
+    "answer": [3],
+    "explanation": "The _Default and _Required buckets are created in the global location unless you configure the default resource location, so meeting a residency requirement means creating regional log buckets (or setting the default storage location) in europe-west3 and routing logs there; the organization-level default location and the constraints/gcp.resourceLocations policy make future projects compliant automatically. Option A is factually wrong about where the _Default bucket lives. Option B loses Logs Explorer access and does not address the _Required bucket for audit logs. Option C moves logs out of Cloud Logging, harming operability, and the initial ingestion into a global bucket would still violate the policy.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/regionalized-logs",
+      "https://cloud.google.com/logging/docs/default-settings"
+    ]
+  },
+  {
+    "id": "d6-ops-053",
+    "domain": 6,
+    "topic": "Benchmarking",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fraud-detection company is deciding whether to move its latency-sensitive scoring service from N2 to C3 or to Tau T2D machine types. A vendor whitepaper shows synthetic CPU benchmark scores for each family. The CFO wants the decision made on real cost-per-request at the required p99 latency, and the engineering lead wants confidence before committing to a three-year commitment. What should you recommend?",
+    "options": [
+      "Deploy the actual scoring service on each candidate machine family in a like-for-like environment, drive it with a distributed load test that replays production-shaped traffic, measure p99 latency and requests per second per instance, and compute cost per request for each family before committing",
+      "Select the family with the highest synthetic benchmark score in the whitepaper, because CPU score is the best predictor of application latency",
+      "Choose the cheapest family per vCPU-hour, because the CFO's requirement is cost-focused",
+      "Migrate production to C3 for one week and observe the effect on the latency dashboards, then try T2D the following week"
+    ],
+    "answer": [0],
+    "explanation": "Synthetic benchmarks rarely predict the behavior of a specific workload, which depends on memory bandwidth, instruction mix, and concurrency; the sound approach is to benchmark the real application under representative load on each candidate, measure the metrics that matter (p99 latency and throughput per instance), and derive cost per request, which is the metric that combines both stakeholders' concerns. Choosing by whitepaper score (option B) or price per vCPU (option C) ignores actual throughput at the required latency and can lead to a more expensive result per request. Experimenting on production (option D) exposes users to risk and confounds results with normal traffic variation.",
+    "refs": [
+      "https://cloud.google.com/architecture/distributed-load-testing-using-gke",
+      "https://cloud.google.com/architecture/framework/performance-optimization"
+    ]
+  },
+  {
+    "id": "d6-ops-054",
+    "domain": 6,
+    "topic": "Detecting silent failures",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A utility company runs a nightly billing job on Compute Engine, started by Cloud Scheduler, that writes a custom Cloud Monitoring metric billing/run_completed when it finishes. Last month the job silently stopped running for a week because the VM was accidentally shut down; no alert fired because the existing alerts only watch the job's error count, which stayed at zero. Which two alerting configurations should you add to detect this class of failure? (Choose two.)",
+    "options": [
+      "An alerting policy on the VM's CPU utilization that fires when utilization is below 5%",
+      "An alerting policy that fires when the job's error-count metric is exactly zero for 24 hours",
+      "A metric-absence alerting policy on billing/run_completed that fires if no data point has been written for 26 hours",
+      "A dashboard widget showing billing/run_completed so that engineers can notice missing runs",
+      "A log-based alerting policy on the Cloud Scheduler job's attempt-finished log entries with a non-OK status, so that failed or unreachable job attempts notify the team"
+    ],
+    "answer": [2, 4],
+    "explanation": "Silent failures require alerting on the absence of expected good signals, not just on the presence of bad ones. A metric-absence condition on the completion metric fires when the nightly job does not report success within the expected window, regardless of why. Cloud Scheduler logs each attempt with its status, so a log-based alert on non-OK attempts catches cases where the target could not be reached, such as a stopped VM. A low-CPU alert (option A) is a poor proxy that fires on any idle VM. Zero errors (option B) is the normal healthy state, so alerting on it would page constantly. A dashboard (option D) relies on someone looking, which is what failed last month.",
+    "refs": [
+      "https://cloud.google.com/monitoring/alerts/types-of-conditions",
+      "https://cloud.google.com/scheduler/docs/monitoring-jobs"
+    ]
+  },
+  {
+    "id": "d6-ops-055",
+    "domain": 6,
+    "topic": "SLO monitoring",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketplace company has agreed on SLOs for its search service running on GKE behind a global external Application Load Balancer. Product managers want to see the remaining error budget and SLO compliance for the current 28-day window at any time, and SREs want burn-rate alerts, all without building a custom reporting pipeline. What should you do?",
+    "options": [
+      "Export load balancer logs to BigQuery, compute availability with a scheduled query, and publish a Looker Studio report that product managers can open",
+      "Create a spreadsheet that the on-call engineer updates daily with the availability figure from the dashboards",
+      "Define the search service and its availability and latency SLOs in Cloud Monitoring SLO monitoring, using the load balancer request metrics as SLIs, share the built-in SLO dashboard showing error budget remaining, and create burn-rate alerting policies on the SLOs",
+      "Create a custom dashboard with a line chart of the 5xx error rate and instruct product managers to compare it visually to the SLO target"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Monitoring SLO monitoring lets you declare a service, define SLIs from existing metrics (such as load balancer request counts and latencies), set an SLO with a compliance window, and then automatically shows SLO compliance and remaining error budget, while supporting burn-rate alerting policies on the same SLO, so both stakeholder groups are served by a native feature. A BigQuery and Looker Studio pipeline (option A) is custom work that the company wants to avoid and it provides no burn-rate alerting. A manual spreadsheet (option B) is toil and inaccurate. A raw error-rate chart (option D) does not represent error budget consumption over the compliance window.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/ui/create-slo"
+    ]
+  },
+  {
+    "id": "d6-ops-056",
+    "domain": 6,
+    "topic": "Cloud Audit Logs investigation",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A production Compute Engine VM belonging to an analytics team disappeared overnight, and the team suspects it was deleted. The project has not enabled any additional logging beyond the defaults. The operations lead needs to determine who deleted the VM and when, as quickly as possible. What should you do?",
+    "options": [
+      "Enable Data Access audit logs for Compute Engine and wait for the next deletion to capture the identity",
+      "Query the Admin Activity audit logs in Logs Explorer for the compute.instances.delete method on that instance, which are always enabled and retained for 400 days in the _Required bucket, and read the principal and timestamp from the entry",
+      "Check VPC Flow Logs for the last traffic to the VM's IP address to identify who connected before the deletion",
+      "Open a support case and ask Google to restore the VM and provide the deletion history"
+    ],
+    "answer": [1],
+    "explanation": "Admin Activity audit logs record every configuration-changing API call, including instance deletion, with the caller's identity and timestamp; they cannot be disabled, are free, and are stored in the _Required bucket for 400 days, so the answer is already available in Logs Explorer. Data Access logs (option A) record reads and would not help retroactively. VPC Flow Logs (option C) show network flows, not API calls, and were not enabled. Google support (option D) cannot restore a deleted VM and the customer already has the log needed to answer the question.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/audit",
+      "https://cloud.google.com/compute/docs/logging/audit-logging"
+    ]
+  }
+]

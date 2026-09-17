@@ -1,0 +1,573 @@
+[
+  {
+    "id": "d6-ops-084",
+    "domain": 6,
+    "topic": "Binary Authorization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments company runs its services on GKE. A recent audit found that an engineer had deployed a container image built on a laptop directly to the production cluster, bypassing the CI pipeline and vulnerability scanning. The company wants to guarantee that only images built by its Cloud Build pipeline and free of critical vulnerabilities can run in production, while keeping an audited emergency path. What should you do?",
+    "options": [
+      "Restrict kubectl access to the production cluster to a single senior engineer who verifies image provenance manually before applying manifests",
+      "Enable Binary Authorization on the production cluster with a policy that requires attestations created by Cloud Build for provenance and by a vulnerability-scanning step for the absence of critical CVEs, configure dry-run mode first, and use break-glass annotations for audited emergency deployments",
+      "Configure a Kubernetes admission webhook that checks image names for the string 'cloudbuild' before admitting pods",
+      "Enable Artifact Analysis vulnerability scanning on Artifact Registry and send an email to the team whenever a critical vulnerability is found"
+    ],
+    "answer": [1],
+    "explanation": "Binary Authorization is the deploy-time policy control for GKE and Cloud Run: it admits only images that carry the required cryptographically signed attestations, such as a Cloud Build provenance attestation and a vulnerability-scan attestation, and it supports dry-run for safe rollout and break-glass annotations that allow but log emergency exceptions. Manual verification by one person (option A) is a bottleneck and not a reliable control. Matching image name strings (option C) is trivially spoofed and proves nothing about provenance. Scanning with email notifications (option D) provides visibility but does not prevent a vulnerable or unscanned image from being deployed.",
+    "refs": [
+      "https://cloud.google.com/binary-authorization/docs/overview",
+      "https://cloud.google.com/binary-authorization/docs/using-breakglass"
+    ]
+  },
+  {
+    "id": "d6-ops-085",
+    "domain": 6,
+    "topic": "Security scanning gates in CI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare software vendor builds container images with Cloud Build and stores them in Artifact Registry. Vulnerability scanning is enabled on the registry, but images with critical CVEs still reach staging because the scan results are only reviewed weekly. The vendor wants the pipeline itself to block images that contain critical vulnerabilities before they are pushed or deployed. What should you do?",
+    "options": [
+      "Add a Cloud Build step that runs Artifact Analysis On-Demand Scanning against the locally built image and fails the build when any vulnerability at or above the CRITICAL severity threshold is found, so that the image is never pushed",
+      "Create a log-based alert on Artifact Registry scan results and page the on-call engineer whenever a critical vulnerability is detected",
+      "Move image builds to developer laptops where engineers can inspect scan results before pushing",
+      "Schedule the weekly review to occur daily instead so that vulnerable images are found sooner"
+    ],
+    "answer": [0],
+    "explanation": "A quality gate must be enforced in the pipeline: On-Demand Scanning lets a Cloud Build step scan the image before it is pushed, and failing the build on critical findings guarantees vulnerable images never enter the registry or any environment. Alerting on registry scan results (option B) is reactive and does not stop the image from being deployed. Moving builds to laptops (option C) removes reproducibility and auditability and does not create an enforced gate. A more frequent manual review (option D) is still after the fact and relies on people.",
+    "refs": [
+      "https://cloud.google.com/artifact-analysis/docs/ods-cloudbuild",
+      "https://cloud.google.com/artifact-analysis/docs/os-overview"
+    ]
+  },
+  {
+    "id": "d6-ops-086",
+    "domain": 6,
+    "topic": "Code review and presubmit checks",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ten-person startup pushes code directly to the main branch, and Cloud Build deploys every commit to production. Several recent outages were caused by simple mistakes that a second pair of eyes or a unit test would have caught. The team wants to add basic quality control with minimal process overhead. What should you do?",
+    "options": [
+      "Introduce a weekly release meeting in which the CTO reviews every commit from the previous week before it is deployed",
+      "Require each developer to test changes manually in production behind an IP allowlist before merging",
+      "Protect the main branch so that changes arrive through pull requests that require at least one approving review and a passing Cloud Build presubmit run of the unit tests and linters before merge",
+      "Disable automatic deployment and have the on-call engineer deploy manually at the end of each day"
+    ],
+    "answer": [2],
+    "explanation": "Branch protection with mandatory peer review and an automated presubmit build is the lightweight, industry-standard quality gate: it catches mistakes before they merge, keeps continuous deployment intact, and scales with the team. A weekly CTO review (option A) delays every change by up to a week and creates a bottleneck. Manual testing in production (option B) exposes users to untested code and is not a repeatable control. Manual end-of-day deployment (option D) batches changes, which increases risk, and does not add any review or test.",
+    "refs": [
+      "https://cloud.google.com/build/docs/automating-builds/create-manage-triggers",
+      "https://cloud.google.com/architecture/devops/devops-tech-continuous-integration"
+    ]
+  },
+  {
+    "id": "d6-ops-087",
+    "domain": 6,
+    "topic": "CI quality gates",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A media company's platform team is defining the mandatory quality gates that every service's Cloud Build pipeline must pass before an image can be promoted to the staging environment. They want gates that are objective, automated, and that measurably reduce defects reaching production. Which two gates should they require? (Choose two.)",
+    "options": [
+      "Static analysis and linting of the source code, failing the build on high-severity findings such as hard-coded credentials or unsafe deserialization",
+      "A manual sign-off from the head of engineering recorded in an email thread",
+      "A requirement that the build finishes in under 60 seconds, to keep developers productive",
+      "Unit and integration test execution with a minimum code-coverage threshold that fails the build when coverage drops below the agreed level or when any test fails",
+      "A step that automatically merges the pull request if the developer has more than two years of tenure"
+    ],
+    "answer": [0, 3],
+    "explanation": "Automated static analysis and enforced test execution with coverage thresholds are objective, repeatable gates that catch a large class of defects and security issues early, which is the essence of shifting quality control left in the pipeline. A manual email sign-off (option B) is neither automated nor objective and adds latency. A build-duration limit (option C) is a productivity metric, not a quality gate, and could encourage skipping tests. Auto-merging based on tenure (option E) bypasses review entirely and is unrelated to code quality.",
+    "refs": [
+      "https://cloud.google.com/build/docs/overview",
+      "https://cloud.google.com/architecture/devops/devops-tech-test-automation"
+    ]
+  },
+  {
+    "id": "d6-ops-088",
+    "domain": 6,
+    "topic": "Infrastructure configuration validation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail bank manages all Google Cloud infrastructure with Terraform applied by Cloud Build. Twice this year a plan was applied that created a publicly readable Cloud Storage bucket and a VM with an external IP address, violating the bank's security standards; both were caught only later by Security Command Center. The bank wants to prevent non-compliant infrastructure from ever being created, while still allowing developers to write their own Terraform. What should you do?",
+    "options": [
+      "Grant the Cloud Build service account only the Viewer role so that non-compliant resources cannot be created",
+      "Ask Security Command Center to scan more frequently so that violations are detected within minutes of creation",
+      "Require every Terraform plan to be reviewed by the security team in a weekly meeting before it can be applied",
+      "Add a policy validation step to the Cloud Build pipeline that runs the Terraform plan through gcloud terraform vet against a policy library of constraints (for example, no public buckets and no external IPs), failing the pipeline before apply, and back the most critical rules with organization policy constraints as a second line of defense"
+    ],
+    "answer": [3],
+    "explanation": "Terraform policy validation (gcloud terraform vet with the Policy Library) evaluates the planned changes against organization constraints before anything is created, so non-compliant infrastructure fails in the pipeline rather than being detected afterwards; enforcing the most important rules with organization policy constraints (such as restricting public access and external IPs) ensures they hold even if someone bypasses the pipeline. A Viewer-only service account (option A) would prevent all deployments, not just bad ones. More frequent detection (option B) is still detection after creation. Weekly manual review (option C) is slow, does not scale, and is prone to human error.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/policy-validation",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-089",
+    "domain": 6,
+    "topic": "Configuration drift on GKE",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecommunications company operates 25 GKE clusters. Configuration is defined in a Git repository, but engineers frequently make emergency changes with kubectl edit that are never committed back, so clusters drift apart and later Git-based deployments overwrite fixes or fail unexpectedly. The company wants Git to be the enforced source of truth, wants drift to be corrected automatically, and wants to block resources that violate security policies at admission time. What should you do?",
+    "options": [
+      "Run a nightly job that executes kubectl diff against every cluster and emails the differences to the platform team",
+      "Enable Config Sync on all clusters as part of a fleet, pointing at the Git repository, so that it continuously reconciles the declared state and reverts out-of-band changes, and enable Policy Controller with constraints that reject non-compliant resources at admission",
+      "Revoke kubectl access from all engineers and require every change, including emergencies, to go through a weekly change board",
+      "Use Cloud Deploy to redeploy all manifests to every cluster every hour so that manual changes are overwritten"
+    ],
+    "answer": [1],
+    "explanation": "Config Sync is GKE's GitOps controller: it continuously reconciles each cluster to the Git-declared state and automatically reverts drift caused by manual edits, and fleet-level management makes it uniform across all 25 clusters; Policy Controller adds admission-time enforcement of security and organizational constraints. A nightly diff email (option A) only reports drift, it does not correct or prevent it. Revoking all access with a weekly board (option C) makes emergency response impossible and does not address drift that already exists. Hourly redeploys with Cloud Deploy (option D) is a blunt, resource-intensive workaround that neither detects drift promptly nor enforces policy.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview",
+      "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-090",
+    "domain": 6,
+    "topic": "Infrastructure drift detection",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company provisions all Compute Engine, Cloud SQL, and networking resources with Terraform. During a recent incident, engineers discovered that a firewall rule had been modified in the console months earlier and that the Terraform state no longer matched reality, which caused a later apply to unexpectedly remove the change. The company wants to detect such drift within a day and reduce the chance that it happens again. What should you recommend?",
+    "options": [
+      "Schedule a daily Cloud Build job that runs terraform plan against production and raises an alert or ticket when the plan is not empty, and remove direct console and gcloud modification permissions from engineers so that changes must flow through the pipeline",
+      "Run terraform apply automatically every hour so that any manual change is immediately reverted without notification",
+      "Enable Data Access audit logs on all services and review them weekly for console modifications",
+      "Store the Terraform state in a Cloud Storage bucket with object versioning so that previous states can be restored after drift is discovered"
+    ],
+    "answer": [0],
+    "explanation": "Drift detection for Terraform-managed infrastructure is achieved by regularly executing a plan against live state and surfacing any difference; combining that with least-privilege IAM that removes out-of-band write access closes the gap that allowed the manual edit. Auto-applying hourly (option B) silently destroys potentially intentional emergency fixes and provides no visibility. Audit logs (option C) record who changed what, but weekly manual review is slow and does not compare against the desired state. State versioning (option D) protects the state file itself but does nothing to detect that reality has diverged from it.",
+    "refs": [
+      "https://cloud.google.com/docs/terraform/best-practices-for-terraform",
+      "https://cloud.google.com/infrastructure-manager/docs/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-091",
+    "domain": 6,
+    "topic": "Cost anomaly detection",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university research group discovered at month end that a misconfigured Dataflow job had run continuously for three weeks, consuming most of the group's annual budget. They want to be notified automatically within a day if spending in any project suddenly deviates from its normal pattern, without building custom analytics. What should you do?",
+    "options": [
+      "Export billing data to BigQuery and manually review the totals every Friday",
+      "Set a hard quota on the number of Dataflow workers in each project so that a runaway job cannot consume more than a fixed amount",
+      "Use Cloud Billing cost anomaly detection to receive alerts when spend deviates from the forecast, and complement it with Cloud Billing budgets that send threshold notifications to email and Pub/Sub for automated responses",
+      "Ask each researcher to check the Billing console once a day"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Billing anomaly detection automatically identifies unexpected spending patterns and alerts on them, and budgets with threshold notifications provide a complementary control that can trigger automation via Pub/Sub; together they give timely, low-effort visibility. Weekly manual review (option A) would have taken up to a week to notice. Worker quotas (option B) limit one specific failure mode but do not detect anomalies in other services. Daily manual console checks (option D) are unreliable and do not scale.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/cost-anomalies",
+      "https://cloud.google.com/billing/docs/how-to/budgets"
+    ]
+  },
+  {
+    "id": "d6-ops-092",
+    "domain": 6,
+    "topic": "SLO reviews",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing platform's search service has an availability SLO of 99.9%. For the last four quarters it has actually delivered 99.99%, user satisfaction scores are high, and the team has never come close to exhausting its error budget. At the quarterly SLO review, one engineer proposes raising the SLO to 99.99% because 'that is what we deliver anyway'. What should you advise?",
+    "options": [
+      "Raise the SLO to 99.99% immediately, because an SLO should always reflect the best performance the service has demonstrated",
+      "Remove the SLO, since the service is clearly reliable enough and the objective is no longer useful",
+      "Raise the SLO to 99.999% to give the team an ambitious target for next year",
+      "Keep the SLO at 99.9% unless users actually need more reliability; instead, use the unspent error budget deliberately, for example to increase release velocity, run chaos experiments, or perform risky upgrades, and confirm that the SLI still reflects the user experience"
+    ],
+    "answer": [3],
+    "explanation": "An SLO should represent the reliability users need, not the maximum the system has happened to achieve; tightening it merely because performance exceeded it would raise costs and constrain future change without a user benefit, and it removes the room to spend budget on innovation and resilience testing that SRE recommends. Raising the SLO reflexively (options A and C) creates an ever-tightening trap and makes every future change riskier. Deleting the SLO (option B) removes the shared language between product and engineering and the alerting that protects users. Periodic SLO reviews should ask whether the SLI and target still match user happiness, which is what the correct option does.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/set-realistic-targets",
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+    ]
+  },
+  {
+    "id": "d6-ops-093",
+    "domain": 6,
+    "topic": "Capacity headroom for zonal failure",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online brokerage runs its trading API on a regional managed instance group distributed evenly across three zones, with the autoscaler targeting 90% CPU utilization to minimize cost. During a recent zonal disruption, the surviving instances in the other two zones were immediately overloaded and the API returned errors for 20 minutes until the autoscaler added capacity. The business wants the API to survive the loss of any single zone without user impact. What should you recommend?",
+    "options": [
+      "Lower the autoscaler's target utilization so that steady-state load per zone leaves enough headroom for the remaining zones to absorb a failed zone's traffic (roughly no more than two-thirds utilization with three zones), and verify with a game day that simulates zone loss",
+      "Move the instance group to a single zone with larger machine types so that a zonal outage affects either all traffic or none, simplifying the failure mode",
+      "Keep the 90% target but configure the autoscaler's cool-down period to zero so that scaling reacts faster",
+      "Replace the managed instance group with an unmanaged instance group so that instances can be added manually during an incident"
+    ],
+    "answer": [0],
+    "explanation": "Surviving a zone failure without impact requires N+1 capacity to already be running: with three zones, each zone must be able to absorb one-third more load, which means steady-state utilization must stay at or below about two-thirds; the autoscaler cannot add instances fast enough during a sudden shift, so headroom must be pre-provisioned and its adequacy validated through failure testing. A single zone (option B) eliminates zonal resilience entirely. Zero cool-down (option C) does not solve instance boot time and can cause oscillation. Unmanaged groups (option D) lose autoscaling and autohealing and rely on humans during the worst moments.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/build-highly-available-systems",
+      "https://cloud.google.com/compute/docs/autoscaler"
+    ]
+  },
+  {
+    "id": "d6-ops-094",
+    "domain": 6,
+    "topic": "Chaos engineering",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A food-delivery company's architecture is documented as zone-resilient, but the design has never been exercised under a real failure. The reliability team wants to adopt chaos engineering to validate the design without endangering customers or surprising other teams. What should you do?",
+    "options": [
+      "Shut down a production zone's instances during the dinner peak without notice so that the test is as realistic as possible",
+      "Rely on the architecture review documents, because deliberately injecting failures into a working system is contrary to reliability goals",
+      "Start with a hypothesis (for example, 'losing zone B causes no SLO impact'), run the experiment first in a production-like staging environment, then in production during low traffic with a limited blast radius, defined abort criteria, stakeholder notification, and observability in place, and feed findings into a postmortem-style report",
+      "Ask Google Cloud support to disable a zone for the company's project so that the test is performed by the provider"
+    ],
+    "answer": [2],
+    "explanation": "Chaos engineering is disciplined experimentation: form a hypothesis about steady state, minimize blast radius, start in lower environments before production, define clear abort conditions and rollback, inform stakeholders, and measure with existing observability, then document learnings and action items. An unannounced peak-time outage (option A) is reckless and confuses a real incident with a test. Trusting documents alone (option B) is exactly the gap the team wants to close; the Well-Architected Framework reliability pillar explicitly recommends testing recovery from failures. Google does not disable zones on request (option D); customers simulate failures within their own resources.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
+      "https://cloud.google.com/architecture/scalable-and-resilient-apps"
+    ]
+  },
+  {
+    "id": "d6-ops-095",
+    "domain": 6,
+    "topic": "Penetration testing on Google Cloud",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company must perform an annual third-party penetration test of its customer-facing application, which runs on GKE, Cloud Run, and Cloud SQL, to satisfy PCI DSS. The compliance officer asks whether Google must approve the test in advance and what rules apply. What should you tell them?",
+    "options": [
+      "Google must approve every penetration test in writing at least 30 days in advance, and tests may be run only from Google-provided IP ranges",
+      "No advance notice or approval from Google is required to test your own Google Cloud resources, but the testing must comply with the Acceptable Use Policy and Terms of Service, must target only the company's own projects and applications, and must not attempt to attack Google's shared infrastructure or other customers",
+      "Penetration testing is prohibited on Google Cloud; the company must rely solely on Google's own compliance reports",
+      "The test may proceed only if the company temporarily disables Cloud Armor and VPC Service Controls so that the testers can reach all endpoints"
+    ],
+    "answer": [1],
+    "explanation": "Google Cloud does not require customers to notify or obtain permission before conducting penetration tests against their own resources, provided the activity complies with the Acceptable Use Policy and Terms of Service and is confined to the customer's own applications and projects; attacking Google's infrastructure or other tenants is prohibited. There is no 30-day approval process or restriction to Google IP ranges (option A). Testing is not prohibited (option C); it is a normal part of customer security programs and compliance. Disabling security controls (option D) is unnecessary and would make the test unrepresentative of the real defenses, and testers should be given scoped access instead.",
+    "refs": [
+      "https://cloud.google.com/security/overview/whitepaper",
+      "https://cloud.google.com/terms/aup"
+    ]
+  },
+  {
+    "id": "d6-ops-096",
+    "domain": 6,
+    "topic": "Load testing before launch",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticket-sales platform is launching sales for a major concert tour and expects a sudden spike to 50,000 requests per second within a minute of the on-sale time. The team's current load test runs a single script from one engineer's laptop against staging at 500 requests per second and passes. The architect is asked whether the platform is ready. Which testing approach should you recommend before the sale?",
+    "options": [
+      "Approve the launch, because the platform is serverless and will scale automatically to whatever traffic arrives",
+      "Run the existing laptop test for a longer duration, since duration matters more than throughput for finding problems",
+      "Test only the front-end web tier at high load and mock all back-end calls, because the back end is shared and should not be disturbed",
+      "Run a distributed load test (for example, Locust or a similar tool on GKE) from multiple regions against a production-like environment, reproducing the real spike shape and user journeys end to end at 1.5 to 2 times the expected peak, and verify SLIs, autoscaling behavior, quotas, and downstream capacity such as the database and payment provider"
+    ],
+    "answer": [3],
+    "explanation": "A realistic pre-launch load test must reproduce the expected scale, ramp shape, and end-to-end user journeys, including all dependencies, with headroom above the forecast; a single laptop cannot generate 50,000 requests per second, and testing at 1% of expected load proves nothing about behavior at peak, autoscaler ramp rates, quota limits, or database saturation. Assuming serverless scaling suffices (option A) ignores cold starts, per-region limits, and non-elastic dependencies. Longer duration at trivial throughput (option B) misses the spike behavior entirely. Mocking the back end (option C) hides exactly the components most likely to fail under load.",
+    "refs": [
+      "https://cloud.google.com/architecture/distributed-load-testing-using-gke",
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
+    ]
+  },
+  {
+    "id": "d6-ops-097",
+    "domain": 6,
+    "topic": "Graceful degradation",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online bookstore's product page calls a personalized-recommendation service running on Vertex AI. When the recommendation service is slow or unavailable, the entire product page fails to load, even though recommendations are not essential to completing a purchase. The company wants product pages to remain usable during recommendation outages. What should you do?",
+    "options": [
+      "Design the product page to degrade gracefully: call the recommendation service with a short timeout, and on timeout or error render the page with a cached or non-personalized fallback such as best-sellers instead of failing the whole page",
+      "Increase the timeout for the recommendation call to 60 seconds so that slow responses are eventually received",
+      "Deploy a second copy of the recommendation service and retry the call against it whenever the first one fails",
+      "Move the recommendation service to the same GKE cluster as the product page to eliminate network latency"
+    ],
+    "answer": [0],
+    "explanation": "A non-critical dependency should never take down a critical user journey; graceful degradation means bounding the wait with a short timeout and serving a reasonable fallback so the page still loads, which the Well-Architected Framework reliability pillar recommends explicitly. A longer timeout (option B) makes the page slower and still fails when the service is down. A second replica with retries (option C) adds cost and does not help if the failure is systemic, and retries lengthen the user's wait. Co-location (option D) reduces latency but does nothing about unavailability.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation",
+      "https://cloud.google.com/architecture/scalable-and-resilient-apps"
+    ]
+  },
+  {
+    "id": "d6-ops-098",
+    "domain": 6,
+    "topic": "Retries, backoff, and circuit breakers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ride-hailing company's trip service calls a fare-calculation service. During a brief fare-service slowdown, the trip service's clients retried failed calls immediately and repeatedly, tripling the load on the fare service and turning a 30-second blip into a 40-minute outage. Which set of changes should you recommend to prevent this cascading failure?",
+    "options": [
+      "Remove all retries from the trip service so that a single failure is returned to the user immediately",
+      "Increase the fare service's capacity by 300% so that it can absorb retry storms in the future",
+      "Implement retries with exponential backoff and jitter, cap the number of retries with a retry budget, set explicit per-call timeouts and deadlines, add a circuit breaker that stops calling the fare service when its failure rate is high, and make the fare calls idempotent so that retries are safe",
+      "Queue every fare request in Pub/Sub and process them asynchronously so that the fare service is never called synchronously"
+    ],
+    "answer": [2],
+    "explanation": "Retry storms are a classic cascading-failure pattern; the remedy is a combination of controlled retries (exponential backoff with jitter and a bounded retry budget), timeouts so callers do not pile up, a circuit breaker that sheds calls to an unhealthy dependency so it can recover, and idempotency so retries cannot cause duplicate side effects. Eliminating retries entirely (option A) sacrifices resilience to transient errors. Tripling capacity (option B) is expensive and only postpones the problem to the next amplification factor. Making fare calculation asynchronous (option D) changes the user experience of a latency-sensitive interactive flow and does not address the retry behavior itself.",
+    "refs": [
+      "https://cloud.google.com/architecture/scalable-and-resilient-apps",
+      "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation"
+    ]
+  },
+  {
+    "id": "d6-ops-099",
+    "domain": 6,
+    "topic": "Load shedding",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A news publisher's API on GKE behind a global external Application Load Balancer collapses entirely whenever a breaking-news event sends five times normal traffic, and most of the surge comes from a handful of aggressive third-party scrapers. The publisher wants the service to keep serving its own mobile app users during surges, even if some lower-priority requests must be rejected. Which two measures should you implement? (Choose two.)",
+    "options": [
+      "Configure the load balancer health check to mark backends unhealthy sooner so that overloaded pods are removed from rotation faster",
+      "Apply Cloud Armor rate-limiting rules at the load balancer that throttle or ban clients exceeding a per-client request threshold, so that scrapers are shed at the edge before reaching the backends",
+      "Increase the Kubernetes pod memory limits so that pods can queue more requests before failing",
+      "Implement application-level load shedding that rejects low-priority or excess requests early with HTTP 429 or 503 (with Retry-After) when concurrency or queue depth passes a threshold, prioritizing authenticated mobile-app traffic",
+      "Disable autoscaling during breaking-news events so that the number of pods is predictable"
+    ],
+    "answer": [1, 3],
+    "explanation": "Surviving overload requires shedding excess or low-value load before it saturates the system: Cloud Armor rate limiting removes abusive clients at the edge without consuming backend capacity, and application-level load shedding with prioritization ensures that when capacity is exceeded, the service fails fast for low-priority requests and keeps serving high-value users rather than collapsing for everyone. Faster health-check failure (option A) removes overloaded pods and pushes even more load onto the remaining ones, accelerating collapse. Larger memory limits (option C) just build longer queues and worse latency. Disabling autoscaling (option E) removes the ability to add capacity when it is most needed.",
+    "refs": [
+      "https://cloud.google.com/armor/docs/rate-limiting-overview",
+      "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation"
+    ]
+  },
+  {
+    "id": "d6-ops-100",
+    "domain": 6,
+    "topic": "Regional isolation and blast radius",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global fintech runs identical stacks in four regions, but all four regions read feature configuration from a single global Firestore document, and a configuration push last month contained a malformed value that took every region down at once. The company's stated goal is that no single change or failure should ever affect more than one region at a time. What should you recommend?",
+    "options": [
+      "Keep the single global configuration store but add a schema validation step before writes so that malformed values are rejected",
+      "Give each region its own independent configuration store and deployment pipeline stage, roll configuration changes out region by region with automated verification and bake time between regions, and eliminate other shared global singletons (control planes, caches, or databases) that all regions depend on synchronously",
+      "Replicate the Firestore document to a second global database in a different provider so that there is a fallback copy",
+      "Reduce the number of regions to two so that a global change affects fewer stacks"
+    ],
+    "answer": [1],
+    "explanation": "The outage was caused by a global singleton that coupled all regions; true regional isolation requires that each region can operate on its own state and that configuration and code changes propagate progressively with verification, so a bad change is caught in the first region. Validation on the shared store (option A) reduces one class of bad values but leaves the global coupling and simultaneous propagation in place. A replicated copy (option C) reproduces the same malformed value everywhere. Fewer regions (option D) shrinks capacity and resilience without solving the coupling.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/build-highly-available-systems",
+      "https://cloud.google.com/architecture/disaster-recovery"
+    ]
+  },
+  {
+    "id": "d6-ops-101",
+    "domain": 6,
+    "topic": "Dependency failure planning",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online marketplace processes card payments through a single third-party payment provider called synchronously during checkout. When the provider had a two-hour outage, the marketplace lost all sales during that time. The business wants to keep accepting orders during future provider outages and to reduce dependence on any single provider, while keeping the checkout experience simple. Which approach should you recommend?",
+    "options": [
+      "Increase the timeout of the payment call to 10 minutes so that customers wait until the provider recovers",
+      "Display a maintenance page for the whole site whenever the provider's status page reports an incident",
+      "Retry every failed payment call up to 50 times so that the order eventually succeeds when the provider comes back",
+      "Decouple order acceptance from payment capture: accept the order, enqueue the payment request in Pub/Sub for asynchronous processing with retries, integrate a secondary payment provider as an automatic fallback, and inform the customer that confirmation will follow if the primary path is delayed"
+    ],
+    "answer": [3],
+    "explanation": "Planning for dependency failure means the critical business transaction must not be hard-coupled to a single external system: accepting the order and processing payment asynchronously through a durable queue allows the business to continue during an outage, and a secondary provider adds redundancy for the payment step itself. A ten-minute synchronous wait (option A) abandons customers and ties up resources. A site-wide maintenance page (option B) converts a partial dependency failure into a total outage. Fifty synchronous retries (option C) hammer the struggling provider and still block checkout.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation",
+      "https://cloud.google.com/pubsub/docs/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-102",
+    "domain": 6,
+    "topic": "Zero-downtime host maintenance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company runs a licensing server on a single Compute Engine VM that the entire factory floor depends on. Twice in the last quarter the VM was stopped for several minutes by Google host maintenance events, halting production. The VM's availability policy is currently set to terminate on host maintenance. The company wants to eliminate these interruptions with the smallest possible change. What should you do?",
+    "options": [
+      "Change the VM's on-host-maintenance policy to MIGRATE so that Compute Engine live-migrates the VM to another host without stopping it during maintenance events",
+      "Move the VM into a managed instance group with autohealing so that a replacement VM is created after each maintenance stop",
+      "Schedule a nightly reboot of the VM so that pending maintenance is applied at a predictable time",
+      "Enable the automatic restart option so that the VM starts again immediately after the maintenance event"
+    ],
+    "answer": [0],
+    "explanation": "Compute Engine live migration keeps a VM running while the underlying host is serviced, and it is the default policy for most machine types; the VM was being stopped only because its policy was set to TERMINATE, so switching to MIGRATE removes the interruption with a one-line change. A MIG with autohealing (option B) still incurs an outage while the replacement boots, and the licensing server is stateful. Nightly reboots (option C) add planned downtime and do not prevent host maintenance. Automatic restart (option D) shortens but does not eliminate the outage.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/live-migration-process",
+      "https://cloud.google.com/compute/docs/instances/host-maintenance-options"
+    ]
+  },
+  {
+    "id": "d6-ops-103",
+    "domain": 6,
+    "topic": "Disaster recovery testing",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional airline has a documented disaster recovery plan for its crew-scheduling system on Google Cloud, with an RTO of two hours, but the plan has never been executed since it was written eighteen months ago. Several of the engineers who wrote it have left the company. What should you recommend?",
+    "options": [
+      "Rewrite the plan in more detail so that new engineers can follow it if a disaster occurs",
+      "Assume the plan is valid, because the underlying Google Cloud services have not changed",
+      "Schedule regular DR exercises (for example, quarterly) that execute the failover and failback procedures end to end in a controlled way, measure the achieved RTO and RPO against the targets, and update the plan and automation based on what is learned",
+      "Purchase a Premium Support plan so that Google can execute the recovery on the airline's behalf during a disaster"
+    ],
+    "answer": [2],
+    "explanation": "A DR plan that has never been tested is an assumption, not a capability; regular, rehearsed exercises reveal missing permissions, outdated runbooks, undocumented dependencies, and staff knowledge gaps, and they produce real measurements of RTO and RPO, which the Well-Architected Framework reliability pillar requires. More documentation (option A) does not prove the plan works. Assuming validity (option B) ignores eighteen months of application, configuration, and personnel changes. Google support (option D) assists with Google Cloud issues but does not operate the customer's failover.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
+      "https://cloud.google.com/architecture/disaster-recovery"
+    ]
+  },
+  {
+    "id": "d6-ops-104",
+    "domain": 6,
+    "topic": "Fault injection in a service mesh",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank's microservices on GKE use Cloud Service Mesh. Developers have configured timeouts and retries in their services, but nobody knows whether they actually behave correctly when a downstream service is slow or returns errors, and testing this requires the downstream team to deliberately break their service. The reliability team wants a repeatable, low-risk way to verify this behavior. What should you recommend?",
+    "options": [
+      "Ask each downstream team to add an environment variable that makes their service return errors on demand, and coordinate manual test sessions",
+      "Use Cloud Service Mesh fault injection in the VirtualService or route configuration to inject delays and HTTP errors for a controlled percentage of requests to the downstream service in a staging mesh, and observe the callers' timeout, retry, and circuit-breaking behavior through mesh telemetry",
+      "Block the downstream service's IP address with a firewall rule during business hours and watch what happens to callers",
+      "Run a CPU stress tool on the downstream service's nodes to make it slow, then observe the callers"
+    ],
+    "answer": [1],
+    "explanation": "Service mesh fault injection lets you introduce artificial latency or error responses at the proxy layer for a chosen fraction of traffic without modifying or breaking the downstream service, which makes resilience tests repeatable, targeted, and safe, and the mesh's built-in telemetry shows exactly how callers respond. Requiring downstream teams to add failure switches (option A) spreads test code through production services and depends on manual coordination. A firewall block (option C) is a crude, all-or-nothing failure that also affects other callers. CPU stress on nodes (option D) affects unrelated workloads on those nodes and produces unpredictable behavior.",
+    "refs": [
+      "https://cloud.google.com/service-mesh/docs/overview",
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
+    ]
+  },
+  {
+    "id": "d6-ops-105",
+    "domain": 6,
+    "topic": "Health check design",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS company's API runs on a managed instance group behind an external Application Load Balancer. The load balancer health check calls /healthz, which verifies connectivity to Cloud SQL and to a downstream inventory service. When the inventory service became slow last week, every instance failed its health check simultaneously, the load balancer had no healthy backends, and the entire API went down, although most endpoints did not use the inventory service. What should you change?",
+    "options": [
+      "Increase the health check's unhealthy threshold to ten consecutive failures so that brief dependency slowdowns are tolerated",
+      "Remove the health check entirely so that the load balancer always sends traffic to all instances",
+      "Move the inventory dependency check to a separate endpoint that pages the on-call engineer but keep it in the load balancer health check as well",
+      "Make the load balancer health check shallow, verifying only that the instance's own process can serve requests, and expose dependency status through separate readiness signals and alerting, so that a slow shared dependency degrades only the endpoints that use it rather than removing all backends from rotation"
+    ],
+    "answer": [3],
+    "explanation": "A load balancer health check should answer 'can this instance serve traffic', not 'are all dependencies healthy'; when a shared dependency is included, every instance fails together and a partial degradation becomes a total outage, which is a well-known cascading failure pattern. Shallow health checks keep instances in rotation, and per-request handling plus alerting on dependency status provide the needed visibility. Raising the unhealthy threshold (option A) only delays the same collapse. Removing the health check (option B) means truly dead instances keep receiving traffic. Keeping the dependency in the load balancer check (option C) preserves the failure mode.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/health-check-concepts",
+      "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation"
+    ]
+  },
+  {
+    "id": "d6-ops-106",
+    "domain": 6,
+    "topic": "Acting on load test results",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A retailer's pre-launch load test of its product catalog API (Cloud Run in front of a Cloud SQL for PostgreSQL instance) showed that at 60% of the target load, database CPU reached 100% and p99 latency exceeded the SLO, while Cloud Run instances remained lightly loaded. Analysis shows that 95% of database queries are repeated reads of the same few thousand catalog items. Which two changes should you make before the launch? (Choose two.)",
+    "options": [
+      "Introduce a Memorystore for Redis cache in front of Cloud SQL for the hot catalog reads, with appropriate TTLs and cache invalidation on writes",
+      "Increase the Cloud Run maximum instance count so that more instances can send queries to the database",
+      "Add Cloud SQL read replicas and route read-only catalog queries to them, or scale the instance tier, and re-run the load test to confirm the SLO is met at 1.5 times target load",
+      "Lower the load test target to 60% so that the test passes",
+      "Switch the Cloud Run service to Spot-style pricing to reduce cost during the launch"
+    ],
+    "answer": [0, 2],
+    "explanation": "The bottleneck is the database, not compute; caching repeated reads in Memorystore removes most of the load at the source, and read replicas or a larger tier increase remaining read capacity, after which the test must be repeated to prove the fix at target load plus headroom. Adding Cloud Run instances (option B) increases pressure on the already saturated database. Lowering the target (option D) hides the problem instead of fixing it. Cloud Run has no Spot pricing (option E), and cost was not the issue identified by the test.",
+    "refs": [
+      "https://cloud.google.com/memorystore/docs/redis/redis-overview",
+      "https://cloud.google.com/sql/docs/postgres/replication"
+    ]
+  },
+  {
+    "id": "d6-ops-107",
+    "domain": 6,
+    "topic": "Autohealing",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A tax-preparation company runs a stateless web tier on a managed instance group. About once a week, an instance's application process deadlocks: the VM stays running and passes the default instance-level checks, but the application stops answering HTTP requests until an engineer manually restarts it. The company wants these instances to be repaired automatically. What should you do?",
+    "options": [
+      "Configure autohealing on the managed instance group with an application-level HTTP health check against the web endpoint, so that instances whose application stops responding are automatically recreated",
+      "Set up an alerting policy on instance CPU utilization that pages an engineer to restart the instance",
+      "Enable automatic restart in the instance template so that the VM reboots when the process deadlocks",
+      "Reduce the instance group size to one so that a deadlock is easier to notice and fix"
+    ],
+    "answer": [0],
+    "explanation": "MIG autohealing uses an application-level health check to detect instances whose VM is running but whose application is unresponsive, and it recreates them automatically without human involvement, which directly removes this weekly toil. Paging an engineer (option B) keeps the manual step, and CPU utilization may look normal during a deadlock anyway. Automatic restart (option C) only reacts to a VM crash or host event, not an application hang. Shrinking to one instance (option D) reduces availability and does nothing to automate repair.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/autohealing-instances-in-migs",
+      "https://cloud.google.com/load-balancing/docs/health-check-concepts"
+    ]
+  },
+  {
+    "id": "d6-ops-108",
+    "domain": 6,
+    "topic": "Web application security scanning",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Before launching a new customer portal on App Engine and Cloud Run, an insurance company wants an automated check for common web vulnerabilities such as cross-site scripting, mixed content, and outdated libraries, run against the staging deployment as part of its release quality controls. They prefer native Google Cloud tooling and want to schedule the scans regularly. What should you do?",
+    "options": [
+      "Rely on Cloud Armor's preconfigured WAF rules in production, since they block the same classes of attacks",
+      "Enable Data Access audit logs on the portal and search for suspicious request patterns after launch",
+      "Configure Security Command Center Web Security Scanner custom scans against the staging URLs with test credentials, schedule them to run regularly, and review findings before each release",
+      "Run Artifact Analysis vulnerability scanning on the container images, which also detects application-level web vulnerabilities"
+    ],
+    "answer": [2],
+    "explanation": "Web Security Scanner, part of Security Command Center, crawls and tests deployed App Engine, Compute Engine, and GKE/Cloud Run web applications for common vulnerabilities such as XSS, mixed content, and outdated libraries, and custom scans can be scheduled against non-production URLs with authentication, which fits a pre-release quality gate. Cloud Armor WAF rules (option A) mitigate some attacks at runtime but do not find vulnerabilities in the application or replace testing. Audit logs (option B) are reactive and do not detect vulnerabilities. Artifact Analysis (option D) scans OS and language packages in images for known CVEs, not runtime web application flaws like XSS.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/concepts-web-security-scanner-overview",
+      "https://cloud.google.com/security-command-center/docs/how-to-use-web-security-scanner"
+    ]
+  },
+  {
+    "id": "d6-ops-109",
+    "domain": 6,
+    "topic": "Poison messages and dead-letter topics",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company processes shipment events from a Pub/Sub subscription with a Cloud Run service. A single malformed event caused the service to throw an exception on every delivery attempt; Pub/Sub kept redelivering the same message, the subscription backlog grew for hours, and all subsequent shipments were delayed. The company wants to ensure that one bad message can never block processing again while retaining the bad messages for analysis. What should you do?",
+    "options": [
+      "Configure the service to acknowledge every message immediately upon receipt, before processing, so that failures do not cause redelivery",
+      "Configure a dead-letter topic on the subscription with a maximum delivery attempts threshold, so that messages that repeatedly fail are moved aside for inspection while healthy messages continue to flow, and add an alert on the dead-letter topic's message count",
+      "Increase the acknowledgment deadline to the maximum value so that the service has more time to process each message",
+      "Switch the subscription to ordered delivery so that the malformed message is processed in isolation"
+    ],
+    "answer": [1],
+    "explanation": "Pub/Sub dead-letter topics are designed for poison messages: after the configured number of failed delivery attempts, the message is forwarded to the dead-letter topic and removed from the main subscription, so the pipeline keeps moving and the bad message is preserved for debugging; alerting on the dead-letter backlog provides visibility. Acknowledging before processing (option A) risks silently losing messages on any transient failure. A longer acknowledgment deadline (option C) does not help a message that fails deterministically. Ordered delivery (option D) makes head-of-line blocking worse, not better.",
+    "refs": [
+      "https://cloud.google.com/pubsub/docs/handling-failures",
+      "https://cloud.google.com/pubsub/docs/dead-letter-topics"
+    ]
+  },
+  {
+    "id": "d6-ops-110",
+    "domain": 6,
+    "topic": "Zone-resilient GKE design",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A healthcare scheduling application runs on a zonal GKE Standard cluster with a three-replica stateless Deployment and a single-replica PostgreSQL StatefulSet on a zonal persistent disk. A recent zone outage took the application down for two hours. The company wants the application to remain available through the loss of any single zone within the region, with the fewest architectural changes. Which two changes should you make? (Choose two.)",
+    "options": [
+      "Recreate the cluster as a regional GKE cluster with node pools spanning three zones, and add pod topology spread constraints or anti-affinity so that Deployment replicas are distributed across zones",
+      "Keep the zonal cluster but increase the Deployment to nine replicas so that more pods are available during an outage",
+      "Enable GKE node auto-upgrade so that nodes are always on the latest version",
+      "Move the PostgreSQL database to a Cloud SQL instance configured for high availability (regional), which fails over automatically to a standby in another zone",
+      "Store the database files on a Cloud Storage bucket mounted with Cloud Storage FUSE so that they survive a zone failure"
+    ],
+    "answer": [0, 3],
+    "explanation": "Zone resilience needs both compute and data to be spread across zones: a regional cluster with multi-zone node pools and spread constraints keeps the control plane and application replicas available when a zone fails, and a regional (HA) Cloud SQL instance replaces the single-zone StatefulSet with a managed database that fails over automatically. More replicas in the same zone (option B) all disappear together. Node auto-upgrade (option C) is good hygiene but unrelated to zonal failure. Cloud Storage FUSE (option E) is object storage and is not suitable as a PostgreSQL data directory.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/regional-clusters",
+      "https://cloud.google.com/sql/docs/postgres/high-availability"
+    ]
+  }
+]

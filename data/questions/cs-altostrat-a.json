@@ -1,0 +1,430 @@
+[
+  {
+    "id": "cs-alt-001",
+    "domain": 2,
+    "topic": "Cloud Storage Autoclass",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's media library in Cloud Storage contains millions of audio and video files. Access patterns vary widely: recently published episodes are streamed constantly, while older podcasts and documentaries are rarely retrieved but occasionally see unpredictable spikes when a topic becomes newsworthy. Altostrat wants to reduce storage cost without incurring surprise retrieval fees and without building custom tooling to track access patterns. What should you do?",
+    "options": [
+      "Create an Object Lifecycle Management rule that moves every object older than 30 days to Coldline storage.",
+      "Keep all content in Standard storage and write a Cloud Run function that moves objects to Archive storage based on access logs analyzed in BigQuery.",
+      "Enable Autoclass on the bucket so objects transition automatically between storage classes based on their actual access patterns.",
+      "Create one bucket per storage class and have the content team move files manually when content is retired."
+    ],
+    "answer": [2],
+    "explanation": "The deciding factor is unpredictable access combined with the case-study requirement to optimize storage cost while keeping content highly available. Autoclass automatically moves objects to colder classes when they are not accessed and moves them back to Standard on access, and Autoclass buckets do not charge early-deletion or retrieval fees, so newsworthy spikes on old content do not generate surprise bills. Option A is wrong because a fixed age-based rule ignores access patterns and Coldline retrieval and early-deletion fees would apply when old content spikes. Option B rebuilds what Autoclass already provides and adds operational overhead. Option D is manual, error-prone, and does not scale to millions of objects. This is a cost-optimization pillar decision that also preserves availability.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/autoclass",
+      "https://cloud.google.com/storage/docs/storage-classes"
+    ]
+  },
+  {
+    "id": "cs-alt-002",
+    "domain": 2,
+    "topic": "Cloud Storage retention and lifecycle",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. After a documentary is published, its raw high-bitrate master files are kept only for legal and future remastering purposes. Masters are practically never accessed in the first several years but must be retained for at least 10 years, and the compliance team requires that nobody, including project owners, can delete or overwrite them during that period. The finished transcoded renditions must remain instantly available to the GKE delivery platform. You want to minimize cost. What should you do?",
+    "options": [
+      "Store masters in a dedicated bucket whose default storage class is Archive, configure a 10-year bucket retention policy and lock it; keep renditions in a separate Standard storage bucket.",
+      "Enable Autoclass on a single bucket holding both masters and renditions, and rely on Autoclass to prevent early deletion of the master files.",
+      "Store masters in Coldline with a lifecycle rule that deletes them after 10 years, and store renditions in Nearline to reduce cost further.",
+      "Store masters in Standard storage with a locked retention policy and enable Object Versioning so overwrites keep the previous copy."
+    ],
+    "answer": [0],
+    "explanation": "Archive is the lowest-cost class for data accessed less than once a year, and a locked bucket retention policy provides WORM-style immutability that even project owners cannot remove, satisfying the compliance requirement. Separating masters from renditions lets each set use the right class. Option B is wrong because Autoclass optimizes class transitions but provides no deletion protection. Option C has no immutability control, and Nearline renditions would incur retrieval fees and a 30-day minimum on frequently streamed content. Option D meets the immutability requirement but stores rarely accessed petabytes in the most expensive class, contradicting the cost-management priority in the executive statement.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/bucket-lock",
+      "https://cloud.google.com/storage/docs/storage-classes"
+    ]
+  },
+  {
+    "id": "cs-alt-003",
+    "domain": 2,
+    "topic": "Dedicated Interconnect",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's on-premises ingestion systems push about 40 TB of new raw footage per day into Cloud Storage and will continue to do so until the ingestion workflow is migrated. Transfers currently traverse the public internet with inconsistent throughput. Altostrat needs secure, high-performance hybrid connectivity backed by a 99.99% availability SLA, and traffic to Google APIs must not traverse the public internet. Which approach should you recommend?",
+    "options": [
+      "Deploy one HA VPN gateway with two tunnels to a single Cloud Router and route all Google API traffic through the tunnels.",
+      "Provision a single 10 Gbps Dedicated Interconnect connection in one edge availability domain and enable Private Google Access on the VPC subnets.",
+      "Use Partner Interconnect with a single 1 Gbps VLAN attachment and configure Cloud NAT so on-premises hosts can reach Cloud Storage.",
+      "Provision Dedicated Interconnect with four VLAN attachments across two metropolitan areas and both edge availability domains, connected to Cloud Routers in two regions, and advertise the private.googleapis.com range over BGP so ingestion traffic reaches Cloud Storage privately."
+    ],
+    "answer": [3],
+    "explanation": "40 TB per day is roughly 3.7 Gbps sustained, and the case study demands secure, high-performance connectivity with a 99.99% SLA. Only the 99.99% Dedicated Interconnect topology (four connections in two metros, two edge availability domains, Cloud Routers in two regions) meets that SLA, and advertising the private.googleapis.com range lets on-premises hosts reach Cloud Storage without the public internet. Option A cannot sustain this throughput reliably because HA VPN tunnels are capped around 3 Gbps each and still ride the internet. Option B provides only a 99.9% topology and a single point of failure. Option C is undersized at 1 Gbps, and Cloud NAT does not provide on-premises access to Google APIs. This is a reliability and performance-optimization decision.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/dedicated-creating-9999-availability"
+    ]
+  },
+  {
+    "id": "cs-alt-004",
+    "domain": 1,
+    "topic": "GKE Enterprise and fleets",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat must provide scalable Kubernetes environments both on-premises (for the ingestion and archival workflows that will remain in the data center for another 18 months) and in Google Cloud. The platform team wants a single view of all clusters, consistent policy enforcement, and the same GitOps deployment workflow in both locations with the least operational overhead. What should you do?",
+    "options": [
+      "Install upstream Kubernetes on on-premises VMs with kubeadm and replicate the GKE cluster configuration manually with shell scripts.",
+      "Deploy Google Distributed Cloud (GKE Enterprise) on the on-premises hardware, register the on-premises and GKE clusters into one fleet, and use Config Sync and Policy Controller to apply configuration and guardrails from a Git repository.",
+      "Migrate all on-premises workloads immediately to GKE Autopilot in Google Cloud and decommission the data center ahead of schedule.",
+      "Run Rancher-managed Kubernetes on-premises and self-managed Kubernetes on Compute Engine VMs, connected over Cloud VPN."
+    ],
+    "answer": [1],
+    "explanation": "The technical requirement is performant Kubernetes on-premises and in the cloud with simplified management. GKE Enterprise fleets give a single management plane across Google Distributed Cloud and GKE clusters, and Config Sync plus Policy Controller enforce the same GitOps configuration and policies everywhere, which directly supports 'accelerate and enhance the reliability of operational workflows across all environments'. Option A creates two different, hand-maintained platforms. Option C ignores that the ingestion and archival systems are only slated for future migration and cannot move immediately. Option D introduces two unmanaged control planes and loses the centralized management the case study requires. This is an operational-excellence decision.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/overview",
+      "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-alt-005",
+    "domain": 5,
+    "topic": "CI/CD tooling",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat wants to modernize CI/CD for its containerized GKE workloads using a centralized, managed platform. On every commit the pipeline must build container images from source, store them in a managed registry that scans for vulnerabilities, and promote releases through development, staging, and production GKE clusters with approval gates and one-click rollbacks. The team wants to run as little self-managed infrastructure as possible. Which three Google Cloud services should you use? (Choose three.)",
+    "options": [
+      "Cloud Build",
+      "Jenkins on a Compute Engine managed instance group",
+      "Artifact Registry",
+      "Container Registry",
+      "Cloud Deploy",
+      "Cloud Deployment Manager"
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "Cloud Build provides serverless, trigger-based image builds; Artifact Registry is the recommended managed registry with built-in vulnerability scanning through Artifact Analysis; and Cloud Deploy provides managed delivery pipelines that promote releases across GKE targets with approvals and rollbacks. Together they meet the case study's 'centralized management platform' requirement without self-managed servers. Jenkins on Compute Engine is self-managed infrastructure. Container Registry is deprecated in favor of Artifact Registry. Cloud Deployment Manager is a deprecated infrastructure-provisioning tool, not a release-promotion tool. This aligns with the operational-excellence pillar's automation guidance.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/overview",
+      "https://cloud.google.com/artifact-registry/docs/overview",
+      "https://cloud.google.com/build/docs/overview"
+    ]
+  },
+  {
+    "id": "cs-alt-006",
+    "domain": 3,
+    "topic": "Workforce Identity Federation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat authenticates users through Google Identity and several third-party identity providers. Content editors at a recently acquired studio sign in through the studio's own Okta tenant. Altostrat wants these editors to use the Google Cloud console and access Cloud Storage buckets with their existing corporate credentials. Security policy prohibits creating duplicate user accounts in Cloud Identity, and access must be revoked automatically when the studio deactivates an employee. What should you do?",
+    "options": [
+      "Provision a Cloud Identity account for each editor with Google Cloud Directory Sync and enable SAML single sign-on to Okta.",
+      "Create a Workforce Identity Federation pool with the studio's Okta tenant as the provider and grant IAM roles to principal sets from that pool.",
+      "Create a service account per editor, distribute JSON keys, and rotate the keys every 90 days.",
+      "Configure Workload Identity Federation with Okta as an OIDC provider and have editors impersonate a shared service account."
+    ],
+    "answer": [1],
+    "explanation": "Workforce Identity Federation lets human users from an external IdP access Google Cloud (console and APIs) without provisioning accounts in Cloud Identity; when Okta disables the user, they can no longer obtain federated credentials, so revocation is automatic. Option A synchronizes duplicate accounts, which the policy prohibits. Option C uses long-lived service-account keys, an anti-pattern that provides no per-user auditability or automatic revocation. Option D is wrong because Workload Identity Federation is designed for non-human workloads, not for interactive console access by employees. This is a security pillar decision favoring federated, keyless identity.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/workforce-identity-federation",
+      "https://cloud.google.com/iam/docs/workforce-sign-in-okta"
+    ]
+  },
+  {
+    "id": "cs-alt-007",
+    "domain": 3,
+    "topic": "Identity Platform",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's new conversational self-service portal must let millions of consumers sign in with email and password, Google, Apple, and Facebook accounts. The team wants multi-factor authentication, brute-force protection, and drop-in client SDKs for web and mobile, and it does not want to operate its own identity server. What should you do?",
+    "options": [
+      "Create a Cloud Identity account for each consumer and use Google Workspace single sign-on.",
+      "Configure Workforce Identity Federation with Facebook and Apple as workforce identity providers.",
+      "Build a custom authentication service on GKE that stores salted password hashes in Cloud SQL.",
+      "Use Identity Platform with the required identity providers enabled and integrate its client SDKs into the portal."
+    ],
+    "answer": [3],
+    "explanation": "Identity Platform is Google Cloud's customer identity and access management (CIAM) service: it supports email/password and social providers, MFA, abuse protection, and client SDKs, scaling to millions of end users with no servers to manage. Option A is wrong because Cloud Identity is for workforce accounts and is not designed or priced for consumer sign-in. Option B is wrong because Workforce Identity Federation targets employees and partners accessing Google Cloud resources, not application end users. Option C adds significant security risk and operational overhead compared with a managed service, conflicting with the case study's simplification goal.",
+    "refs": [
+      "https://cloud.google.com/identity-platform/docs/concepts",
+      "https://cloud.google.com/identity-platform/docs/concepts-authentication"
+    ]
+  },
+  {
+    "id": "cs-alt-008",
+    "domain": 6,
+    "topic": "Managed Service for Prometheus",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's SRE team runs self-managed Prometheus servers inside each GKE cluster. Retention is limited to 15 days, the servers run out of memory during traffic spikes, and metrics from different clusters cannot be queried together. The team wants to keep its existing PromQL dashboards and alerting rules while eliminating this operational burden. What should you do?",
+    "options": [
+      "Enable Google Cloud Managed Service for Prometheus with managed collection on the GKE clusters, and query all clusters with PromQL through Cloud Monitoring.",
+      "Increase the memory limits of the Prometheus pods and deploy Thanos with a Cloud Storage bucket for long-term retention.",
+      "Replace Prometheus with the Ops Agent and rewrite every dashboard and alert using Monitoring Query Language.",
+      "Export Prometheus metrics to BigQuery every minute and rebuild the dashboards in Looker Studio."
+    ],
+    "answer": [0],
+    "explanation": "Managed Service for Prometheus is a fully managed, PromQL-compatible backend with 24 months of retention and a global query view across clusters, so existing dashboards and rules keep working while the memory and retention problems disappear. Option B keeps the team operating Prometheus and Thanos, which is the burden they want to remove. Option C forces a rewrite of all PromQL assets and the Ops Agent is not the tool for GKE pod metrics. Option D turns a monitoring system into a batch analytics pipeline that cannot drive real-time alerting. This reflects the operational-excellence pillar's guidance to prefer managed observability.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/managed-prometheus",
+      "https://cloud.google.com/stackdriver/docs/managed-prometheus/setup-managed"
+    ]
+  },
+  {
+    "id": "cs-alt-009",
+    "domain": 6,
+    "topic": "Alerting strategy",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat currently delivers all alerts by email. During a weekend outage of the recommendation service, the alert email went unread for four hours and the availability objective was breached. Altostrat wants critical alerts to reach the on-call engineer immediately with escalation if unacknowledged, while low-severity alerts continue to go to the team mailbox. It does not want to build a custom notification service. What should you do?",
+    "options": [
+      "Send every alerting policy to a Pub/Sub topic and write a Cloud Run function that emails the on-call engineer directly.",
+      "Lower the alert thresholds so that more emails are generated during incidents.",
+      "Assign severity levels to alerting policies and configure notification channels so critical policies route to an on-call tool such as PagerDuty (or SMS/Google Chat with escalation) while informational policies keep using the email channel.",
+      "Replace Cloud Monitoring alerting with Prometheus Alertmanager and send all alerts to a Slack channel."
+    ],
+    "answer": [2],
+    "explanation": "Cloud Monitoring supports multiple notification channel types and severity labels on alerting policies, so critical alerts can page an on-call engineer through an integrated incident-management tool with escalation, while informational alerts remain on email. This directly addresses the case study's weakness of email-only alerting and improves reliability. Option A is the custom notification service the team wants to avoid and still ends in email. Option B increases noise rather than reaching the right person. Option D swaps one channel for another without escalation and discards the existing Cloud Monitoring integration. This is an operational-excellence decision about alerting strategy.",
+    "refs": [
+      "https://cloud.google.com/monitoring/support/notification-options",
+      "https://cloud.google.com/monitoring/alerts"
+    ]
+  },
+  {
+    "id": "cs-alt-010",
+    "domain": 1,
+    "topic": "Vertex AI Agent Builder",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat wants to offer 24/7 natural-language support inside its apps. The assistant must answer questions using Altostrat's help-center articles and subscription policies, look up a signed-in user's subscription status through an existing REST API, and hand off to a human agent when it cannot help. The team has no machine learning engineers and wants a managed solution. What should you do?",
+    "options": [
+      "Fine-tune an open model from Model Garden on historical support transcripts and serve it on a GKE cluster with GPUs.",
+      "Build the assistant with Conversational Agents in Vertex AI Agent Builder, ground it in a data store created from the help-center content, and add an OpenAPI tool that calls the subscription API.",
+      "Use the Natural Language API to classify each question and return canned responses from a Firestore lookup table.",
+      "Call the Gemini API directly from the mobile app, pasting the full help-center text into every prompt."
+    ],
+    "answer": [1],
+    "explanation": "Vertex AI Agent Builder's Conversational Agents provide a managed, generative assistant that can be grounded in enterprise content through data stores, call external systems through tools, and escalate to live agents, which matches the case-study requirements for advanced chatbots with personalized assistance and no ML staff. Option A requires ML expertise and GPU cluster operations, contradicting the constraint. Option C only classifies intent and cannot generate grounded answers or call APIs conversationally. Option D exposes API credentials in the client, sends huge prompts on every request (cost), and provides no grounding, tooling, or handoff mechanism.",
+    "refs": [
+      "https://cloud.google.com/dialogflow/cx/docs/concept/generative",
+      "https://cloud.google.com/generative-ai-app-builder/docs/introduction"
+    ]
+  },
+  {
+    "id": "cs-alt-011",
+    "domain": 2,
+    "topic": "Gemini multimodal summarization",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat wants to automatically generate a concise text summary every time a new podcast episode or video is uploaded to its Cloud Storage media bucket. Summaries must reflect both the spoken and the visual content of videos. The team wants an event-driven design with minimal custom code and no self-hosted models. What should you do?",
+    "options": [
+      "Train a custom sequence-to-sequence model on Vertex AI using past editorial summaries and run batch predictions every night.",
+      "Use Video Intelligence API label detection and concatenate the top labels into a summary paragraph.",
+      "Deploy an open-source summarization model on GKE with GPUs and poll the bucket every minute for new files.",
+      "Use an Eventarc trigger on object finalization to invoke a Cloud Run function that calls a Gemini multimodal model on Vertex AI with the file's Cloud Storage URI and stores the returned summary in BigQuery."
+    ],
+    "answer": [3],
+    "explanation": "Gemini models on Vertex AI natively accept audio and video input referenced by Cloud Storage URI and can produce summaries in a single call, and Eventarc plus Cloud Run functions is the event-driven pattern Altostrat already uses for metadata extraction. Option A requires training data, ML expertise, and delays results to a nightly batch. Option B produces a list of labels, not a coherent summary of spoken content. Option C requires operating GPU infrastructure and polling, which the constraints exclude. This meets the 'automated summarization for diverse media' requirement with the least operational overhead.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/video-understanding",
+      "https://cloud.google.com/run/docs/triggering/using-eventarc"
+    ]
+  },
+  {
+    "id": "cs-alt-012",
+    "domain": 2,
+    "topic": "Pre-trained AI APIs",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's metadata extraction pipeline must identify objects, scenes, shot changes, and on-screen text in videos, and must produce time-stamped transcripts of speech in more than 50 languages. The team wants to use pre-trained APIs and avoid training or hosting any models. Which two services should you use? (Choose two.)",
+    "options": [
+      "Vision API",
+      "Video Intelligence API",
+      "Natural Language API",
+      "Speech-to-Text with the Chirp model",
+      "A custom AutoML Video Classification model",
+      "Document AI"
+    ],
+    "answer": [1, 3],
+    "explanation": "The Video Intelligence API is the pre-trained service for video: label detection, shot change detection, object tracking, and text (OCR) detection with timestamps. Speech-to-Text with the Chirp model provides accurate, time-stamped transcription in over 100 languages. Together they satisfy the 'extract rich metadata using NLP and computer vision' requirement without any model training. Vision API works on still images, so you would have to extract frames yourself and lose temporal information. Natural Language API analyzes text but does not process audio or video. AutoML Video requires training a custom model, which the constraint excludes. Document AI is for scanned documents and forms.",
+    "refs": [
+      "https://cloud.google.com/video-intelligence/docs/features",
+      "https://cloud.google.com/speech-to-text/v2/docs/chirp-model"
+    ]
+  },
+  {
+    "id": "cs-alt-013",
+    "domain": 3,
+    "topic": "Model Armor",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's new viewer chatbot accepts free-text questions and comments, and its responses are generated by Gemini on Vertex AI. The Trust & Safety team requires that prompts attempting jailbreaks or prompt injection are blocked, that personal data typed by users is detected and de-identified before it reaches the model or logs, and that hateful or sexually explicit model responses are filtered before display. Policies must be defined centrally and apply to every application that calls the model. What should you do?",
+    "options": [
+      "Create Model Armor templates that enable prompt-injection and jailbreak detection, Sensitive Data Protection inspection, and responsible-AI filters, and enforce them on all prompts and responses through the Vertex AI integration (or by calling Model Armor from the application).",
+      "Add a system prompt instructing Gemini to refuse harmful requests and never to repeat personal data it receives.",
+      "Configure Cloud Armor WAF rules on the external Application Load Balancer to block malicious text patterns in chatbot request bodies.",
+      "Run Natural Language API sentiment analysis on every prompt and reject prompts whose sentiment score is negative."
+    ],
+    "answer": [0],
+    "explanation": "Model Armor is the managed service that screens LLM prompts and responses for prompt injection, jailbreaks, sensitive data (via Sensitive Data Protection), malicious URLs, and responsible-AI categories, using centrally managed templates that can be enforced across applications, which maps directly to 'design AI-powered detection of harmful content' and the securing-AI exam objective. Option B relies on the model following instructions, which is exactly what jailbreaks defeat, and it provides no PII redaction or central policy. Option C is a web-application firewall for HTTP attacks, not semantic prompt analysis. Option D measures sentiment, not safety, and would reject legitimate negative feedback while missing polite prompt-injection attempts.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/model-armor-overview",
+      "https://cloud.google.com/security-command-center/docs/model-armor-vertex-integration"
+    ]
+  },
+  {
+    "id": "cs-alt-014",
+    "domain": 3,
+    "topic": "Explainable and auditable AI",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's internal audit team must be able to explain why the company's custom TensorFlow recommendation model promoted a specific piece of content to a specific user, prove which model version was serving at that moment, detect when live traffic drifts from the training distribution, and show who deployed or changed the model. What should you do?",
+    "options": [
+      "Log every prediction request and response to Cloud Logging and keep each TensorFlow SavedModel in a Cloud Storage bucket with versioned object names.",
+      "Replace the custom model with Gemini and rely on its built-in safety filters to provide explanations.",
+      "Register every model version in Vertex AI Model Registry, deploy to a Vertex AI endpoint with Vertex Explainable AI feature attributions enabled, turn on Vertex AI Model Monitoring for skew and drift, and retain Cloud Audit Logs (Admin Activity and Data Access) for the project.",
+      "Store the model weights in Artifact Registry and enable Binary Authorization on the serving cluster."
+    ],
+    "answer": [2],
+    "explanation": "The case study explicitly requires that AI systems be auditable and their decisions explainable. Vertex AI Model Registry provides versioned lineage, Vertex Explainable AI returns per-prediction feature attributions that explain individual recommendations, Model Monitoring detects training-serving skew and drift, and Cloud Audit Logs record who deployed or modified models. Option A records inputs and outputs but cannot explain a decision or detect drift. Option B changes the product and does not provide feature attributions for a recommendation ranking. Option D protects the software supply chain but says nothing about model explanations, versions in serving, or drift. This applies the security and operational-excellence pillars to responsible AI.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/docs/explainable-ai/overview",
+      "https://cloud.google.com/vertex-ai/docs/model-monitoring/overview",
+      "https://cloud.google.com/vertex-ai/docs/model-registry/introduction"
+    ]
+  },
+  {
+    "id": "cs-alt-015",
+    "domain": 1,
+    "topic": "BigQuery ML forecasting",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's content strategy analysts are proficient in SQL but not Python. They want to forecast weekly listening hours per podcast category for the next quarter and flag anomalous consumption patterns, using the playback events already stored in BigQuery. They want results with the least engineering effort. What should you do?",
+    "options": [
+      "Export the events to Cloud Storage and train a custom forecasting model with TensorFlow in Vertex AI Workbench.",
+      "Create a BigQuery ML ARIMA_PLUS time-series model with CREATE MODEL, then use ML.FORECAST for the forecast and ML.DETECT_ANOMALIES for anomaly detection.",
+      "Stream the events into Bigtable and compute moving averages in a Dataflow pipeline.",
+      "Load the data into Vertex AI Feature Store and train an AutoML tabular classification model."
+    ],
+    "answer": [1],
+    "explanation": "BigQuery ML lets SQL-proficient analysts train and use forecasting models where the data already lives; ARIMA_PLUS handles multiple time series (one per category) in a single model and exposes ML.FORECAST and ML.DETECT_ANOMALIES functions. This satisfies 'analyze media content to identify trends' with minimal effort. Option A requires Python and ML skills the analysts lack and moves data unnecessarily. Option C builds a streaming system for a batch analytics problem and does not produce forecasts. Option D uses classification rather than time-series forecasting and adds services without benefit. This is a cost-optimization and skills-fit decision.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/arima-plus-time-series-forecasting-tutorial",
+      "https://cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-detect-anomalies"
+    ]
+  },
+  {
+    "id": "cs-alt-016",
+    "domain": 1,
+    "topic": "Vertex AI Search",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat wants viewers to discover content by describing it in natural language, for example 'the interview where a climate scientist discussed glacier melt in the Andes', across transcripts, documents, and metadata for millions of assets stored in Cloud Storage and BigQuery. The solution must understand intent and synonyms rather than exact keywords, return generative answers with citations, and require minimal ML expertise. What should you do?",
+    "options": [
+      "Build a full-text keyword index over the transcripts in Cloud SQL for PostgreSQL.",
+      "Run Elasticsearch on GKE with BM25 ranking over the transcript text.",
+      "Generate embeddings with a custom pipeline and store them in Memorystore for Redis for vector similarity lookups.",
+      "Create a Vertex AI Search app in Agent Builder with data stores connected to the Cloud Storage and BigQuery content, and enable search summaries with citations."
+    ],
+    "answer": [3],
+    "explanation": "Vertex AI Search is a managed semantic and generative search engine that ingests unstructured content from Cloud Storage and structured data from BigQuery, understands natural-language intent, and returns grounded summaries with citations, meeting the 'LLMs and conversational AI for personalized experiences and content discovery' goal with almost no ML work. Option A and Option B are keyword systems that miss synonyms and intent and cannot generate answers. Option C requires building and operating an embedding pipeline and vector store and still lacks generative answers with citations, which violates the minimal-expertise constraint.",
+    "refs": [
+      "https://cloud.google.com/generative-ai-app-builder/docs/enterprise-search-introduction",
+      "https://cloud.google.com/generative-ai-app-builder/docs/create-data-store-es"
+    ]
+  },
+  {
+    "id": "cs-alt-017",
+    "domain": 1,
+    "topic": "Transcoder API",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's video transcoding runs in Cloud Run functions triggered by uploads. Feature-length documentaries exceed the function timeout, causing failed and duplicated jobs, and the team maintains custom FFmpeg containers and encoding presets. Reliability and cost are Altostrat's top priorities, and the team wants to minimize custom code. What should you do?",
+    "options": [
+      "Replace the custom transcoding logic with the Transcoder API: the upload-triggered Cloud Run function submits a transcoding job with the required output profiles, and results are written back to Cloud Storage.",
+      "Raise the Cloud Run function timeout and memory to the maximum and add retries with exponential backoff.",
+      "Move transcoding to a GKE Standard GPU node pool with a custom job queue built on Memorystore.",
+      "Run FFmpeg on a large Compute Engine instance with a cron job that scans the bucket every hour."
+    ],
+    "answer": [0],
+    "explanation": "The Transcoder API is a fully managed service purpose-built for converting media files into streaming formats; it handles long inputs asynchronously, removes the custom FFmpeg containers, and bills per minute of output, which satisfies reliability, cost, and minimal-code constraints at the same time. Option B still leaves long files at risk of hitting limits and keeps the custom encoder. Option C solves the timeout but adds a GPU cluster and a hand-built queue to operate. Option D is a single point of failure, introduces up to an hour of latency, and wastes an always-on VM. This is a build-versus-buy disposition decision favoring the managed service.",
+    "refs": [
+      "https://cloud.google.com/transcoder/docs/concepts/overview",
+      "https://cloud.google.com/transcoder/docs/how-to/jobs"
+    ]
+  },
+  {
+    "id": "cs-alt-018",
+    "domain": 1,
+    "topic": "Data transfer planning",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's on-premises archival system holds 3 PB of historical broadcast footage that must be migrated to a Cloud Storage bucket within six weeks, when the data-center lease expires. The site has one 10 Gbps Dedicated Interconnect that also carries the daily production ingestion traffic of roughly 4 Gbps on average. Data must be encrypted in transit and at rest. What should you do?",
+    "options": [
+      "Use Storage Transfer Service for on-premises data over the Interconnect and cap its bandwidth at 6 Gbps so production ingestion is not affected.",
+      "Run gsutil -m rsync in parallel from several on-premises servers over the Interconnect until the copy finishes.",
+      "Order multiple Transfer Appliances, load the archive locally, ship them to Google for ingestion into the bucket, and use the Interconnect only for the small delta produced while the appliances are in transit.",
+      "Compress the footage with an on-premises Dataflow pipeline and upload it over the public internet with Storage Transfer Service."
+    ],
+    "answer": [2],
+    "explanation": "At the roughly 6 Gbps left over after production traffic, 3 PB would take about 46 days at perfect utilization, exceeding the six-week deadline with no margin. Transfer Appliance is the recommended option when data exceeds what the network can move in time; the appliances are encrypted, so the in-transit and at-rest requirements are met, and the Interconnect remains free for production ingestion and the final delta. Option A is the right tool for online transfer but the math shows it cannot make the deadline. Option B is slower and less robust than Storage Transfer Service and has the same bandwidth problem. Option D compresses already-compressed video for little gain, uses the slower public internet, and Dataflow does not run on-premises.",
+    "refs": [
+      "https://cloud.google.com/transfer-appliance/docs/4.0/overview",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-transferring-your-large-datasets"
+    ]
+  },
+  {
+    "id": "cs-alt-019",
+    "domain": 4,
+    "topic": "GKE cost optimization",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's GKE bill has doubled in a year. Analysis shows a steady baseline of user-facing content-delivery services plus a large, spiky batch workload that generates thumbnails and previews and can tolerate interruption and retries. The reliability of the user-facing services must not decrease. Which two actions should you take to reduce cost? (Choose two.)",
+    "options": [
+      "Move all node pools, including the content-delivery services, to Spot VMs.",
+      "Run the thumbnail batch workload on a Spot VM node pool (or Autopilot Spot Pods) with tolerations, checkpointing, and automatic retries.",
+      "Disable the cluster autoscaler and fix node counts at peak capacity to avoid scaling delays.",
+      "Move the user-facing services into a single zone to eliminate inter-zone traffic charges.",
+      "Purchase committed use discounts that cover the predictable baseline compute of the content-delivery services.",
+      "Increase every pod's CPU request to guarantee extra headroom."
+    ],
+    "answer": [1, 4],
+    "explanation": "The cost-optimization pillar recommends matching purchasing models to workload characteristics: fault-tolerant, interruptible batch jobs belong on Spot capacity (60–91% cheaper), and steady, predictable baseline usage should be covered by committed use discounts. Option A would expose latency-sensitive user-facing services to preemption, reducing reliability. Option C removes elasticity and pays for peak capacity all the time. Option D lowers availability, contradicting the reliability priority in the executive statement. Option F increases requested resources and therefore cost, the opposite of right-sizing.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "cs-alt-020",
+    "domain": 2,
+    "topic": "Private Google Access for on-premises",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "altostrat",
+    "question": "For this question, refer to the Altostrat Media case study. Altostrat's on-premises ingestion servers upload footage to Cloud Storage over the Dedicated Interconnect. The security team requires that these uploads never traverse the public internet, and the servers have no public IP addresses and no NAT path to the internet. The Google Cloud VPC uses a private-only design. How should you configure access to the Cloud Storage API?",
+    "options": [
+      "Enable Private Google Access on the VPC subnets; on-premises hosts automatically inherit it through the VLAN attachment.",
+      "Configure on-premises DNS to resolve *.googleapis.com to the private.googleapis.com virtual IP range, advertise that range as a custom route from Cloud Router over the Interconnect, and add on-premises routes for it toward the VLAN attachments.",
+      "Deploy a Cloud NAT gateway in the VPC and route on-premises traffic through it to reach storage.googleapis.com.",
+      "Create a proxy VM with an external IP address in the VPC and configure the ingestion servers to use it as an HTTP forward proxy."
+    ],
+    "answer": [1],
+    "explanation": "Private Google Access for on-premises hosts requires three things: DNS records that map Google API names to the private.googleapis.com (or restricted.googleapis.com) VIP, a custom route advertisement of that range from Cloud Router over the Interconnect, and matching routes on-premises. Traffic then reaches Cloud Storage entirely over the Interconnect. Option A is wrong because subnet-level Private Google Access applies only to VM instances in the VPC, not to on-premises hosts. Option C is wrong because Cloud NAT only serves VMs in the VPC and would send traffic to the public internet anyway. Option D introduces a public IP and a single-VM bottleneck, violating the security requirement. A Private Service Connect endpoint for Google APIs would be an equally valid alternative design.",
+    "refs": [
+      "https://cloud.google.com/vpc/docs/configure-private-google-access-hybrid",
+      "https://cloud.google.com/vpc/docs/private-google-access-hybrid"
+    ]
+  }
+]

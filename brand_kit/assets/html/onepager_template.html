@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'Google Sans';src:url('../fonts/GoogleSans-Regular.ttf')format('truetype');font-weight:400;font-style:normal;}
+@font-face{font-family:'Google Sans';src:url('../fonts/GoogleSans-Medium.ttf')format('truetype');font-weight:500;font-style:normal;}
+@font-face{font-family:'Google Sans';src:url('../fonts/GoogleSans-Bold.ttf')format('truetype');font-weight:700;font-style:normal;}
+@font-face{font-family:'Google Sans Text';src:url('../fonts/GoogleSansText-Regular.ttf')format('truetype');font-weight:400;}
+@font-face{font-family:'Google Sans Text';src:url('../fonts/GoogleSansText-Medium.ttf')format('truetype');font-weight:500;}
+@font-face{font-family:'Google Sans Text';src:url('../fonts/GoogleSansText-Bold.ttf')format('truetype');font-weight:700;}
+@font-face{font-family:'Google Sans Mono';src:url('../fonts/GoogleSansCode-Regular.ttf')format('truetype');}
+
+:root{
+  --canvas:#F8F9FA; --ink:#000; --ink2:#5F6368; --accent:#4471ED;
+  --gblue:#4285F4; --gred:#EA4335; --gyel:#FBBC04; --ggrn:#34A853; --rule:#DADCE0;
+}
+@page{ size:A4; margin:0; }
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{width:210mm; height:297mm;}
+body{
+  font-family:'Google Sans Text',sans-serif; color:var(--ink);
+  background:var(--canvas); font-size:9.2pt; line-height:1.45;
+  display:flex; flex-direction:column; -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.gradbar{height:6mm; background:url('../brand/bg_gradient_divider.png') center/100% 400% no-repeat; flex:none;}
+
+/* ---------- header ---------- */
+header{padding:8mm 14mm 5mm; flex:none; position:relative;}
+.eyebrow{font-family:'Google Sans';font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin-bottom:3.5mm;}
+h1{font-family:'Google Sans';font-size:25pt;line-height:1.08;font-weight:700;letter-spacing:-.015em;max-width:135mm;}
+.sub{margin-top:3.5mm;font-size:11pt;color:var(--ink2);max-width:130mm;line-height:1.42;}
+.mark{position:absolute;top:9mm;right:14mm;width:26mm;}
+.mark img{width:100%;display:block;}
+
+/* ---------- stat strip ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:0 14mm 7mm;
+  border-top:1.2pt solid var(--ink);border-bottom:.6pt solid var(--rule);}
+.stat{padding:5mm 6mm 5mm 0;}
+.stat:not(:last-child){border-right:.6pt solid var(--rule);padding-left:0;}
+.stat:not(:first-child){padding-left:6mm;}
+.stat .n{font-family:'Google Sans';font-size:26pt;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.02em;}
+.stat .l{font-size:8.2pt;color:var(--ink2);margin-top:2mm;line-height:1.35;}
+
+/* ---------- body ---------- */
+main{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;gap:0 9mm;padding:0 14mm;min-height:0;}
+h2{font-family:'Google Sans';font-size:11.5pt;font-weight:700;margin:0 0 2.5mm;
+   padding-bottom:1.6mm;border-bottom:1pt solid var(--ink);letter-spacing:-.005em;}
+section{margin-bottom:5mm;}
+p{margin-bottom:2.6mm;}
+ul{list-style:none;}
+li{position:relative;padding-left:5.2mm;margin-bottom:2.1mm;line-height:1.42;}
+li::before{content:'';position:absolute;left:0;top:1.5mm;width:2.1mm;height:2.1mm;border-radius:50%;background:var(--accent);}
+.k{font-weight:700;}
+
+table{width:100%;border-collapse:collapse;font-size:8.4pt;}
+th{background:#E8F0FE;font-family:'Google Sans';font-weight:700;text-align:left;
+   padding:2.1mm 2.4mm;border-bottom:.8pt solid var(--rule);font-size:8.2pt;}
+td{padding:2mm 2.4mm;border-bottom:.5pt solid var(--rule);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+
+.callout{background:#fff;border-left:2.6pt solid var(--accent);padding:3.4mm 4mm;
+  box-shadow:0 1px 3px rgba(60,64,67,.12);margin-bottom:5mm;}
+.callout .t{font-family:'Google Sans';font-weight:700;font-size:9pt;margin-bottom:1.4mm;}
+.callout p{font-size:8.6pt;color:var(--ink2);margin:0;line-height:1.42;}
+
+.cta{background:var(--ink);color:#fff;padding:5mm 6mm;display:flex;
+  justify-content:space-between;align-items:center;gap:6mm;}
+.cta .t{font-family:'Google Sans';font-size:12pt;font-weight:700;line-height:1.2;}
+.cta .d{font-size:8.4pt;color:#BABBBC;margin-top:1.4mm;line-height:1.4;}
+.cta .who{font-size:8.4pt;text-align:right;white-space:nowrap;line-height:1.5;}
+.cta .who b{font-family:'Google Sans';color:#fff;}
+
+/* ---------- footer ---------- */
+footer{flex:none;padding:3.5mm 14mm 4.5mm;display:flex;justify-content:space-between;
+  align-items:center;border-top:.6pt solid var(--rule);font-size:7.2pt;color:var(--ink2);}
+footer .l{display:flex;align-items:center;gap:3mm;}
+footer img.m{height:5.2mm;}
+footer img.g{height:3.6mm;opacity:.75;}
+</style></head><body>
+
+<div class="gradbar"></div>
+
+<header>
+  <div class="mark"><img src="../brand/logo_mark_color.png" alt=""></div>
+  <div class="eyebrow">Solution Brief &nbsp;·&nbsp; AI Tech Group</div>
+  <h1>Agentic SDLC Accelerator</h1>
+  <p class="sub">Move engineering teams from assisted code completion to governed, autonomous
+  delivery workflows — with the guardrails, identity model and evaluation harness that make
+  agentic development safe to run in production.</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="n">3–5×</div><div class="l">Throughput on well-scoped refactor and migration work</div></div>
+  <div class="stat"><div class="n">40%</div><div class="l">Reduction in code review cycle time across pilot teams</div></div>
+  <div class="stat"><div class="n">6 wks</div><div class="l">From discovery workshop to a governed production pilot</div></div>
+</div>
+
+<main>
+  <div>
+    <section>
+      <h2>The challenge</h2>
+      <p>Coding assistants have saturated. The next increment is not faster typing — it is
+      delegating whole units of work to agents that plan, execute and verify. Most enterprises
+      stall at exactly that step.</p>
+      <ul>
+        <li><span class="k">No containment model.</span> Agents run with developer-level
+        credentials and unbounded filesystem and network reach.</li>
+        <li><span class="k">No non-human identity.</span> Agent actions are indistinguishable
+        from human ones in the audit trail.</li>
+        <li><span class="k">No evaluation harness.</span> Quality is judged anecdotally, so
+        rollout stays stuck in perpetual pilot.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>The approach</h2>
+      <table>
+        <tr><th style="width:26%">Phase</th><th>Outcome</th></tr>
+        <tr><td><b>Discover</b></td><td>Value-stream mapping; agent-suitability scoring per workflow</td></tr>
+        <tr><td><b>Contain</b></td><td>Sandboxing tiers, kill switches, prompt-injection defence</td></tr>
+        <tr><td><b>Instrument</b></td><td>Eval harness, golden tasks, regression gates in CI</td></tr>
+        <tr><td><b>Scale</b></td><td>Root–worker topology, tool governance, cost controls</td></tr>
+      </table>
+    </section>
+  </div>
+
+  <div>
+    <section>
+      <h2>Architecture at a glance</h2>
+      <p>A root orchestrator decomposes intent and delegates to sandboxed workers. Every tool
+      call is brokered through a gateway that enforces identity, policy and budget — so
+      autonomy scales without surrendering control.</p>
+      <ul>
+        <li><span class="k">Model + harness.</span> Capability comes from the harness around
+        the model, not the model alone.</li>
+        <li><span class="k">Two-tier gateway.</span> Model gateway for tokens and caching;
+        agent gateway for tools, identity and policy.</li>
+        <li><span class="k">Protocol-native.</span> MCP for tools, A2A for inter-agent
+        delegation, with security posture defined at both layers.</li>
+      </ul>
+    </section>
+
+    <div class="callout">
+      <div class="t">Why now</div>
+      <p>Context windows, tool-use reliability and structured planning crossed the threshold
+      where multi-step delegation succeeds often enough to change process design — not just
+      developer ergonomics.</p>
+    </div>
+
+    <section>
+      <h2>What you get</h2>
+      <ul>
+        <li>Reference architecture and threat model, tailored to your estate</li>
+        <li>Working pilot on a real repository — not a sandbox demo</li>
+        <li>Evaluation harness and adoption metrics your leadership can track</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<div style="padding:0 14mm 5mm;">
+  <div class="cta">
+    <div>
+      <div class="t">Start with a half-day discovery workshop</div>
+      <div class="d">We map your delivery workflows, score them for agent suitability, and leave you with a costed 6-week pilot plan.</div>
+    </div>
+    <div class="who"><b>Sanchit Alekh</b><br>AI Customer Engineer<br>Google Cloud</div>
+  </div>
+</div>
+
+<footer>
+  <div class="l">
+    <img class="m" src="../brand/logo_mark_color.png" alt="">
+    <img class="g" src="../brand/gcloud_lockup_color.png" alt="">
+  </div>
+  <div>Google Cloud &nbsp;|&nbsp; Proprietary &amp; Confidential</div>
+</footer>
+
+</body></html>

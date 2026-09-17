@@ -1,0 +1,530 @@
+[
+  {
+    "id": "mx-dat-001",
+    "domain": 1,
+    "topic": "AlloyDB vs Cloud SQL",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company runs its order-management system on Cloud SQL for PostgreSQL. The database is 4 TB and growing, and the operations team now runs heavy aggregation reports against the primary instance during business hours, causing transactional latency to spike. The company wants to keep PostgreSQL wire compatibility, avoid changing application code, and eliminate the analytical impact on transactional workloads with the least operational overhead. What should you do?",
+    "options": [
+      "Add two Cloud SQL read replicas and route all reports to the replicas through a connection pooler.",
+      "Migrate the database to Spanner using the PostgreSQL interface and run reports against Spanner Data Boost.",
+      "Migrate the database to AlloyDB for PostgreSQL, enable the columnar engine, and direct reporting queries to a read pool instance.",
+      "Export nightly snapshots to BigQuery with Datastream and rewrite the reports as BigQuery SQL."
+    ],
+    "answer": [2],
+    "explanation": "AlloyDB is fully PostgreSQL-compatible, so no application changes are required, and its columnar engine accelerates analytical queries by up to 100x while read pool instances isolate reporting traffic from the primary. This directly satisfies the compatibility, minimal-change, and performance constraints (performance-optimization pillar). Option A keeps the same row-oriented engine, so heavy aggregations remain slow and replicas add replication lag to manage. Option B requires schema and application changes because Spanner's PostgreSQL interface is not a drop-in replacement for an existing PostgreSQL database. Option D forces the team to rewrite reports and introduces data freshness gaps rather than solving the problem in place.",
+    "refs": [
+      "https://cloud.google.com/alloydb/docs/columnar-engine/about",
+      "https://cloud.google.com/alloydb/docs/overview"
+    ]
+  },
+  {
+    "id": "mx-dat-002",
+    "domain": 1,
+    "topic": "Spanner",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global ticketing platform sells seats for events in North America, Europe, and Asia. Overselling a seat is unacceptable, so every purchase must be a strongly consistent transaction, and customers on every continent must be served with low read latency. The platform must remain available at 99.999% during a regional outage. Which database should you recommend?",
+    "options": [
+      "Spanner in a multi-region instance configuration",
+      "Cloud SQL for MySQL with cross-region read replicas",
+      "Bigtable with multi-cluster replication across three regions",
+      "Firestore in Native mode in a multi-region location"
+    ],
+    "answer": [0],
+    "explanation": "Spanner multi-region configurations provide externally consistent (strongly consistent) transactions with a 99.999% availability SLA and place read-only or read-write replicas close to users on multiple continents, which is exactly what a global seat-inventory system needs. Option B offers eventually consistent replicas and a regional write endpoint with a 99.95%/99.99% SLA, so it cannot guarantee both consistency and 99.999% availability. Option C is a NoSQL wide-column store whose cross-cluster replication is eventually consistent, which risks overselling. Option D is strongly consistent but is a document database with per-transaction limits and write throughput characteristics unsuited to a high-contention, relational inventory model.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/instance-configurations",
+      "https://cloud.google.com/spanner/sla"
+    ]
+  },
+  {
+    "id": "mx-dat-003",
+    "domain": 4,
+    "topic": "Spanner processing units",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup uses Spanner for its production database. It also needs isolated development and QA environments that hold roughly 20 GB of data each and receive light, bursty traffic. Finance has asked you to minimize the monthly Spanner spend for these non-production environments without switching to a different database engine. What should you do?",
+    "options": [
+      "Create each non-production environment as a 1-node Spanner instance in a single-region configuration.",
+      "Consolidate development and QA into one 3-node instance and use separate databases for isolation.",
+      "Use the Spanner emulator for both development and QA and skip cloud instances entirely.",
+      "Create each non-production instance with 100 processing units in a single-region configuration."
+    ],
+    "answer": [3],
+    "explanation": "Spanner instances can be sized in processing units, and 1,000 processing units equal one node. A 100-PU instance costs one tenth of a node and supports up to 409.6 GB of storage (as of recent limits), so it easily hosts a 20 GB, low-traffic environment while keeping the same engine and features as production (cost-optimization pillar). Option A pays for ten times more capacity than needed. Option B over-provisions even more and removes environment isolation. Option C is useful for local unit tests, but the emulator does not support all production features, has no persistence guarantees, and cannot serve a shared QA environment reliably.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/compute-capacity",
+      "https://cloud.google.com/spanner/pricing"
+    ]
+  },
+  {
+    "id": "mx-dat-004",
+    "domain": 2,
+    "topic": "Bigtable row-key design",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A smart-meter company ingests readings from 5 million meters into Bigtable every 15 minutes. The row key is currently the reading timestamp followed by the meter ID. Monitoring shows that writes concentrate on a single node and throughput is far below expectations despite adding nodes. The most common query retrieves all readings for one meter over a time range. How should you redesign the row key?",
+    "options": [
+      "Keep the timestamp first but add more Bigtable nodes and enable autoscaling.",
+      "Use the meter ID followed by the reading timestamp so writes spread across the keyspace and per-meter scans stay contiguous.",
+      "Use a random UUID as the row key and store the meter ID and timestamp as column qualifiers.",
+      "Hash the timestamp and prepend the hash to the existing key to randomize placement."
+    ],
+    "answer": [1],
+    "explanation": "A row key that begins with a monotonically increasing timestamp sends all new writes to the same tablet, creating a hotspot that adding nodes cannot fix. Putting a high-cardinality, well-distributed identifier (meter ID) first spreads writes across nodes, and keeping the timestamp as the suffix keeps each meter's readings lexicographically adjacent so range scans for one meter remain efficient. Option A does not remove the hotspot because the key design, not capacity, is the bottleneck. Option C removes hotspotting but destroys locality, forcing a full-table scan for the primary query. Option D randomizes placement but similarly breaks the ability to scan a meter's readings by time range.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/schema-design",
+      "https://cloud.google.com/bigtable/docs/schema-design-time-series"
+    ]
+  },
+  {
+    "id": "mx-dat-005",
+    "domain": 1,
+    "topic": "Bigtable vs BigQuery",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An ad-tech company needs to store user-profile features that are looked up by a bidding service on every ad request. The service must read a single row by key in under 10 milliseconds at a sustained rate of 500,000 requests per second, and the data set is about 30 TB. Which storage service should you choose?",
+    "options": [
+      "BigQuery with BI Engine acceleration enabled",
+      "Firestore in Datastore mode",
+      "Bigtable with SSD storage",
+      "Cloud Storage with a Cloud CDN cache in front"
+    ],
+    "answer": [2],
+    "explanation": "Bigtable is designed for single-digit-millisecond point reads at very high throughput on petabyte-scale key-value or wide-column data, so an SSD-backed Bigtable instance is the right fit for a low-latency feature store. Option A is an analytical warehouse; even with BI Engine, BigQuery is not a serving database and cannot sustain 500,000 point lookups per second with millisecond latency. Option B scales well but has higher per-operation latency and cost at this throughput and is not optimized for 30 TB of hot key-value data. Option D is an object store; per-object latency and request costs make it unsuitable as a real-time key-value lookup layer.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/overview",
+      "https://cloud.google.com/architecture/storage-advisor"
+    ]
+  },
+  {
+    "id": "mx-dat-006",
+    "domain": 4,
+    "topic": "BigQuery partitioning and clustering",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer stores 200 TB of point-of-sale transactions in a single BigQuery table. Analysts almost always filter by transaction_date and store_id, but every query scans the full table and monthly on-demand costs have tripled. You need to reduce query cost with the least change to the analysts' SQL. What should you do?",
+    "options": [
+      "Recreate the table partitioned by transaction_date and clustered by store_id, then set require_partition_filter to true.",
+      "Split the table into one table per store and instruct analysts to query the appropriate table.",
+      "Create a materialized view for each store that filters on store_id and refresh it hourly.",
+      "Move the table to a flat-rate Enterprise edition reservation so scanned bytes no longer affect cost."
+    ],
+    "answer": [0],
+    "explanation": "Partitioning by transaction_date prunes entire partitions when queries filter on date, and clustering by store_id sorts data within each partition so BigQuery skips irrelevant blocks; together they dramatically reduce bytes scanned with no change to query text beyond requiring a date filter. Option B creates an operational burden (hundreds of tables) and requires analysts to change how they query. Option C creates many refresh jobs and does not help queries that span stores. Option D changes the pricing model but does not reduce the work performed; slots would still be consumed by full scans, and it does not follow the cost-optimization principle of eliminating waste first.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/partitioned-tables",
+      "https://cloud.google.com/bigquery/docs/clustered-tables"
+    ]
+  },
+  {
+    "id": "mx-dat-007",
+    "domain": 4,
+    "topic": "BigQuery slots and editions",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial analytics firm runs a steady 24x7 BigQuery workload that averages 800 slots but bursts to 2,500 slots for end-of-day batch jobs. On-demand pricing has become unpredictable, and the CFO wants a predictable monthly bill while keeping the batch jobs from slowing down. Which approach should you recommend?",
+    "options": [
+      "Stay on on-demand pricing and set a project-level custom daily query quota to cap spend.",
+      "Purchase a 2,500-slot one-year commitment so the batch peak is always covered.",
+      "Purchase a 3-year commitment for 2,500 slots and disable autoscaling to avoid surprise charges.",
+      "Purchase an Enterprise edition commitment for about 800 baseline slots and configure a reservation with autoscaling up to 2,500 slots."
+    ],
+    "answer": [3],
+    "explanation": "BigQuery editions let you commit to a baseline of slots at a discounted rate for steady-state usage and configure autoscaling that adds slots only during peaks, billed per second. Committing to the 800-slot baseline gives predictable core spend, while autoscaling to 2,500 slots preserves batch performance without paying for idle capacity 20+ hours a day (cost-optimization pillar). Option A caps spend but will fail jobs when the quota is hit and does nothing to make cost predictable at the peak. Options B and C pay for 2,500 slots continuously, which is roughly three times the average need and wastes money; option C additionally locks in the waste for three years.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/editions-intro",
+      "https://cloud.google.com/bigquery/docs/slots-autoscaling-intro"
+    ]
+  },
+  {
+    "id": "mx-dat-008",
+    "domain": 4,
+    "topic": "BigQuery BI Engine",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketing team uses Looker Studio dashboards that query a 50 GB BigQuery table with dozens of interactive filters. Users complain that each filter change takes 5 to 8 seconds to render. The team wants sub-second dashboard interactions without changing the dashboards or moving the data. What should you do?",
+    "options": [
+      "Export the table to Cloud SQL and repoint the dashboards.",
+      "Create a BI Engine reservation in the project and region that hosts the table.",
+      "Convert the dashboards to scheduled PDF reports delivered by email.",
+      "Enable BigQuery query result caching and increase the cache TTL."
+    ],
+    "answer": [1],
+    "explanation": "BI Engine is an in-memory analysis service that transparently accelerates BigQuery queries from Looker Studio and other BI tools, so a reservation sized to hold the working set delivers sub-second responses without changing dashboards or data location. Option A moves data to a transactional database that is slower for analytical scans and adds ETL work. Option C removes interactivity, which the team wants to keep. Option D is already on by default; cached results only help identical repeated queries, not new filter combinations, and the TTL is not configurable in the way described.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/bi-engine-intro",
+      "https://cloud.google.com/bigquery/docs/bi-engine-looker-studio"
+    ]
+  },
+  {
+    "id": "mx-dat-009",
+    "domain": 4,
+    "topic": "BigQuery materialized views",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company streams clickstream events into a BigQuery table that grows by 2 TB per day. A dashboard recomputes the same per-country, per-hour aggregations every minute, and the repeated scans are the largest line item on the BigQuery bill. Aggregates must reflect newly arrived rows within a few minutes. What should you do to reduce cost while keeping results fresh?",
+    "options": [
+      "Schedule a query every minute that overwrites a summary table used by the dashboard.",
+      "Create a logical view with the aggregation and instruct the dashboard to query the view.",
+      "Create a materialized view over the base table with the per-country, per-hour aggregation and point the dashboard at it.",
+      "Copy the table to a second dataset in a cheaper region and run the dashboard there."
+    ],
+    "answer": [2],
+    "explanation": "BigQuery materialized views precompute aggregations, are incrementally and automatically refreshed as new rows land, and BigQuery can even rewrite queries against the base table to use them. Queries read only the small precomputed result plus a delta of new data, cutting scanned bytes substantially while staying near real time. Option A recomputes the full aggregation every minute, which is exactly the expensive pattern you want to avoid. Option B is only a saved query; it re-scans the base table on every execution. Option D does not reduce scanned bytes and adds copy costs and staleness.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/materialized-views-intro"
+    ]
+  },
+  {
+    "id": "mx-dat-010",
+    "domain": 1,
+    "topic": "Firestore modes",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup is building a collaborative note-taking mobile app. Users' notes must synchronize in real time across their devices, remain readable and editable while a device is offline, and merge automatically when connectivity returns. The two-person backend team wants a fully managed database that requires no servers to operate. Which database should you choose?",
+    "options": [
+      "Firestore in Native mode",
+      "Firestore in Datastore mode",
+      "Cloud SQL for PostgreSQL with the Cloud SQL Auth Proxy",
+      "Bigtable with the HBase client library"
+    ],
+    "answer": [0],
+    "explanation": "Firestore in Native mode provides mobile and web client SDKs with real-time listeners, offline persistence, and automatic synchronization, making it purpose-built for collaborative mobile apps operated by small teams. Option B (Datastore mode) is intended for server-side applications and does not support real-time listeners or mobile offline SDKs. Option C requires the team to build their own sync and offline logic and manage connectivity from mobile devices. Option D is a high-throughput analytical NoSQL store with no client SDKs for mobile synchronization.",
+    "refs": [
+      "https://cloud.google.com/firestore/docs/firestore-or-datastore",
+      "https://cloud.google.com/firestore/docs/manage-data/enable-offline"
+    ]
+  },
+  {
+    "id": "mx-dat-011",
+    "domain": 1,
+    "topic": "Memorystore",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile game backend on GKE keeps player session state and a live leaderboard in an open-source Redis deployment that the team manages themselves on Compute Engine VMs. Traffic is expected to grow tenfold in the next quarter and the team wants sub-millisecond latency, horizontal scaling, and no more manual Redis operations. What should you do?",
+    "options": [
+      "Move the session state to Cloud SQL and the leaderboard to BigQuery.",
+      "Store sessions in Firestore and compute the leaderboard with a scheduled Dataflow job.",
+      "Deploy a larger self-managed Redis VM with more memory and enable persistence.",
+      "Migrate to Memorystore for Redis Cluster and connect from GKE over Private Service Connect."
+    ],
+    "answer": [3],
+    "explanation": "Memorystore for Redis Cluster is a fully managed, horizontally scalable Redis service with sub-millisecond latency and native sorted sets for leaderboards; it removes Redis operations from the team and connects privately to GKE. Option A replaces an in-memory store with disk-based systems that cannot meet sub-millisecond latency for session lookups. Option B introduces batch latency for a leaderboard that needs to be live. Option C keeps the operational burden and single-node scaling limit the team wants to escape.",
+    "refs": [
+      "https://cloud.google.com/memorystore/docs/cluster/memorystore-for-redis-cluster-overview"
+    ]
+  },
+  {
+    "id": "mx-dat-012",
+    "domain": 2,
+    "topic": "Cloud SQL high availability",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An insurance company is moving a MySQL claims database to Cloud SQL. The business requires automatic failover within the primary region if a zone fails, plus the ability to recover in a second region if the whole primary region becomes unavailable, with an RPO of a few seconds. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enable the high-availability (regional) configuration on the primary instance.",
+      "Schedule daily automated backups and store them in a multi-region Cloud Storage bucket.",
+      "Create a cross-region read replica that can be promoted during a regional outage.",
+      "Deploy two independent Cloud SQL instances in different regions and dual-write from the application.",
+      "Enable point-in-time recovery and rely on it for regional failover."
+    ],
+    "answer": [0, 2],
+    "explanation": "The regional HA configuration synchronously replicates to a standby in another zone and fails over automatically, meeting the zonal requirement. A cross-region read replica receives changes asynchronously with seconds of lag and can be promoted to a standalone primary, satisfying the regional DR requirement with an RPO of seconds (reliability pillar). Option B provides only daily granularity, far worse than the RPO. Option D pushes consistency and conflict handling into the application and is an anti-pattern for a relational database. Option E restores to a point in time within the same region using transaction logs; it does not provide a ready instance in another region and does not help if the region is down.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/mysql/high-availability",
+      "https://cloud.google.com/sql/docs/mysql/replication/cross-region-replicas"
+    ]
+  },
+  {
+    "id": "mx-dat-013",
+    "domain": 2,
+    "topic": "Spanner schema design",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments company migrated its transactions table to Spanner. The primary key is an auto-incrementing INT64 transaction number carried over from the legacy schema. Under load, write latency is high and Key Visualizer shows a bright band at the end of the keyspace, even though the instance is far from its CPU limit. Downstream systems still need to sort transactions in creation order. What should you do?",
+    "options": [
+      "Increase the instance's processing units until the latency target is met.",
+      "Change the primary key to a bit-reversed sequence value or a UUIDv4, and keep a separate indexed timestamp column for ordering.",
+      "Add a secondary index on the transaction number so reads no longer touch the base table.",
+      "Interleave the transactions table under a parent table keyed by merchant ID."
+    ],
+    "answer": [1],
+    "explanation": "Monotonically increasing primary keys concentrate all inserts on the last split, creating a write hotspot that added capacity cannot relieve, which is what the band at the end of the keyspace indicates. Spanner's recommended fix is a well-distributed key such as a bit-reversed sequence (a built-in sequence option) or a UUIDv4, with creation order preserved through a separate timestamp column. Option A wastes money because the bottleneck is key distribution, not compute. Option C makes the problem worse: an index on a monotonically increasing value is itself a hotspot. Option D can help co-locate related rows, but if the interleaved child key still increases monotonically per merchant, hot merchants still hotspot, and it does not address the root cause.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/schema-design",
+      "https://cloud.google.com/spanner/docs/key-visualizer"
+    ]
+  },
+  {
+    "id": "mx-dat-014",
+    "domain": 1,
+    "topic": "Cloud SQL vs Spanner",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional hospital network is migrating a 600 GB PostgreSQL database that backs its appointment system. All users are in one country, peak load is about 3,000 transactions per second, and the application relies on PostgreSQL extensions and stored procedures. The team needs a 99.99% availability SLA, near-zero-downtime maintenance, and the smallest possible migration effort. Which database should you choose?",
+    "options": [
+      "Spanner with the PostgreSQL interface in a single-region configuration",
+      "Firestore in Datastore mode with a relational-to-document mapping layer",
+      "Cloud SQL for PostgreSQL Enterprise Plus edition with high availability enabled",
+      "Bigtable with a PostgreSQL-compatible proxy running on GKE"
+    ],
+    "answer": [2],
+    "explanation": "Cloud SQL Enterprise Plus offers a 99.99% availability SLA, near-zero-downtime planned maintenance, and full PostgreSQL compatibility including extensions and stored procedures, so the migration is essentially lift-and-shift. The workload is regional and modest in scale, so a globally distributed database is unnecessary. Option A does not support many PostgreSQL extensions or stored procedures and would require schema and code changes, contradicting the minimal-effort requirement. Option B would require re-architecting the data model entirely. Option D is not a real product pattern and Bigtable has no relational capabilities.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/postgres/editions-intro",
+      "https://cloud.google.com/sql/sla"
+    ]
+  },
+  {
+    "id": "mx-dat-015",
+    "domain": 4,
+    "topic": "BigQuery storage cost",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecom stores 7 years of call detail records in a date-partitioned BigQuery table. Only the most recent 13 months are queried; older partitions exist solely for a legal retention rule and are never modified. Storage is now the largest BigQuery cost. You want to reduce cost while staying compliant and without adding an ETL process. What should you do?",
+    "options": [
+      "Export partitions older than 13 months to Cloud Storage Archive class and delete them from BigQuery.",
+      "Convert the table to a clustered, unpartitioned table to reduce metadata overhead.",
+      "Set a partition expiration of 7 years, and switch the dataset to the physical storage billing model after confirming the compressed size is lower.",
+      "Move the older partitions to a second table in a region with cheaper storage pricing."
+    ],
+    "answer": [2],
+    "explanation": "Partitions that have not been modified for 90 consecutive days automatically move to long-term storage at roughly half price, so the old partitions already benefit without any ETL. A 7-year partition expiration deletes data automatically once retention ends, and the physical storage billing model charges for compressed bytes, which is usually much cheaper for highly compressible records like CDRs. Option A adds an export pipeline and complicates any future legal query. Option B removes partition pruning and long-term storage eligibility at the partition level, increasing both query and storage cost. Option D adds a copy job and cross-region complexity for little gain.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/best-practices-storage",
+      "https://cloud.google.com/bigquery/pricing#storage"
+    ]
+  },
+  {
+    "id": "mx-dat-016",
+    "domain": 1,
+    "topic": "AlloyDB vs Spanner",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech is designing a new ledger service for customers in the EU and the US. Regulators require that a regional outage not interrupt write availability, users on both continents must experience low write latency, and all balances must be strongly consistent. The engineers prefer PostgreSQL syntax but are writing the application from scratch. Which database design should you recommend?",
+    "options": [
+      "Spanner with the PostgreSQL interface in a dual-region or multi-region configuration spanning the EU and US.",
+      "AlloyDB for PostgreSQL in a US region with a cross-region secondary cluster in the EU for disaster recovery.",
+      "AlloyDB for PostgreSQL primary clusters in both the EU and the US with bi-directional logical replication.",
+      "Cloud SQL for PostgreSQL in each region with application-level sharding by customer home region."
+    ],
+    "answer": [0],
+    "explanation": "The deciding factor is the need for strongly consistent writes that survive a regional outage and serve two continents; only Spanner provides synchronous multi-region replication with external consistency and continued write availability if a region is lost. Because the application is new, the PostgreSQL interface gives engineers familiar syntax without the migration constraints of an existing schema. Option B is regional for writes; a failover to the EU secondary is a manual promotion with non-zero RPO/RTO, so write availability is interrupted. Option C introduces conflict resolution and eventual consistency between two independent primaries, violating the strong-consistency requirement for balances. Option D keeps each shard single-region, so a regional outage still stops writes for that shard's customers.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/postgresql-interface",
+      "https://cloud.google.com/spanner/docs/instance-configurations"
+    ]
+  },
+  {
+    "id": "mx-dat-017",
+    "domain": 2,
+    "topic": "Bigtable replication",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fraud-detection service reads and writes device fingerprints in a Bigtable instance with clusters in us-east1 and us-west1. The team wants the instance to keep serving automatically if one region fails. However, one workflow writes a fingerprint and immediately reads it back to compute a score, and that workflow must never see stale data. How should you configure application profiles?",
+    "options": [
+      "Use a single app profile with multi-cluster routing for all workloads and enable read-your-writes in the client library.",
+      "Create a multi-cluster routing profile for general traffic and a single-cluster routing profile pinned to one cluster for the read-after-write workflow.",
+      "Use single-cluster routing for all traffic and rely on Cloud Monitoring alerts to switch clusters manually during an outage.",
+      "Use multi-cluster routing for all traffic and add a 2-second sleep between the write and the read."
+    ],
+    "answer": [1],
+    "explanation": "Bigtable replication is eventually consistent across clusters. Multi-cluster routing gives automatic failover and high availability, but a request may be served by a different cluster than the one that received the write. Pinning the read-after-write workflow to one cluster with single-cluster routing guarantees strong consistency for that path, while other traffic keeps the availability benefits of multi-cluster routing. Option A is invalid because there is no read-your-writes setting in the client that overrides eventual cross-cluster consistency. Option C sacrifices automatic failover for all workloads. Option D is a race condition, not a consistency guarantee, and adds latency to a real-time scoring path.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/app-profiles",
+      "https://cloud.google.com/bigtable/docs/replication-overview#consistency-model"
+    ]
+  },
+  {
+    "id": "mx-dat-018",
+    "domain": 4,
+    "topic": "BigQuery cost controls",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A university research department shares one BigQuery project on on-demand pricing. Last month a single student ran repeated SELECT * queries against a 90 TB partitioned events table and consumed most of the department's annual budget. You need to prevent a repeat without moving to capacity pricing or blocking legitimate research. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Grant students the BigQuery Data Viewer role only on a sampled 1 TB copy of the table.",
+      "Set require_partition_filter to true on the events table so queries must prune partitions.",
+      "Disable query result caching so students are aware of every query's cost.",
+      "Configure a per-user custom daily query usage quota for bytes billed in the project.",
+      "Turn on BigQuery BI Engine to reduce the bytes scanned by ad hoc queries."
+    ],
+    "answer": [1, 3],
+    "explanation": "Requiring a partition filter blocks full-table scans at the source, and a per-user daily bytes-billed quota caps how much any single person can spend, so one mistake cannot exhaust the shared budget. Both are native BigQuery controls that keep on-demand pricing and leave legitimate, filtered queries unaffected (cost-optimization pillar). Option A restricts research to a sample and adds a copy to maintain. Option C increases cost because cached results are free. Option E accelerates BI dashboards but does not reduce billed bytes for ad hoc on-demand queries.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/custom-quotas",
+      "https://cloud.google.com/bigquery/docs/best-practices-costs"
+    ]
+  },
+  {
+    "id": "mx-dat-019",
+    "domain": 1,
+    "topic": "Firestore Datastore mode",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government agency runs a citizen-services backend on App Engine that has used Datastore for a decade. The application is server-side only, uses entity groups and ancestor queries, and must now scale from 5 million to 50 million entities while remaining strongly consistent for all queries. The agency wants to avoid rewriting data-access code. What should you do?",
+    "options": [
+      "Migrate to Firestore in Native mode to gain real-time listeners and stronger consistency.",
+      "Migrate the data to Spanner and replace the Datastore client library with the Spanner client.",
+      "Ensure the database is Firestore in Datastore mode, which keeps the Datastore API while providing strong consistency and higher scale.",
+      "Keep the legacy Datastore database and add a Memorystore cache to absorb the extra load."
+    ],
+    "answer": [2],
+    "explanation": "Firestore in Datastore mode is the successor to legacy Datastore: it keeps the same Datastore API and client libraries, removes the old eventual-consistency limitations (all queries are strongly consistent), and lifts the previous write-throughput limits on entity groups, so the agency scales without changing code. Option A would require rewriting data access to the Firestore API and is aimed at mobile/web clients rather than a server-only App Engine app. Option B is a full rewrite of the data layer. Option D leaves the old consistency and throughput limits in place and legacy Datastore databases are automatically upgraded to Datastore mode anyway.",
+    "refs": [
+      "https://cloud.google.com/datastore/docs/firestore-or-datastore",
+      "https://cloud.google.com/datastore/docs/upgrade-to-firestore"
+    ]
+  },
+  {
+    "id": "mx-dat-020",
+    "domain": 2,
+    "topic": "Memorystore high availability",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An e-commerce checkout service caches product prices in a Memorystore for Redis Basic tier instance. During a recent zone maintenance event the cache became unavailable for several minutes and checkout latency spiked because every request fell through to Cloud SQL. The team wants the cache to survive a zonal failure with automatic failover and to scale read throughput without changing the application's cache logic. What should you do?",
+    "options": [
+      "Upgrade to a Memorystore for Redis Standard tier instance and enable read replicas.",
+      "Deploy two Basic tier instances in different zones and have the application write to both.",
+      "Enable RDB snapshots on the Basic tier instance so it can be restored quickly after a failure.",
+      "Replace Memorystore with a Cloud SQL read replica dedicated to price lookups."
+    ],
+    "answer": [0],
+    "explanation": "Standard tier provides a replica in a different zone with automatic failover and a 99.9% SLA, and enabling read replicas adds a read endpoint that scales read throughput; the application continues to use standard Redis commands. Option B pushes dual-write consistency into the application and does not provide automatic failover. Option C only speeds recovery after an outage; it does not prevent the outage or provide failover. Option D removes the in-memory cache entirely, making the latency spike permanent rather than fixing the availability issue.",
+    "refs": [
+      "https://cloud.google.com/memorystore/docs/redis/high-availability",
+      "https://cloud.google.com/memorystore/docs/redis/read-replicas-overview"
+    ]
+  },
+  {
+    "id": "mx-dat-021",
+    "domain": 2,
+    "topic": "BigQuery ingestion",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech writes trade events into BigQuery from a fleet of Cloud Run services using the legacy tabledata.insertAll streaming API. Duplicate rows occasionally appear after retries, and the streaming ingestion cost is significant. The company needs exactly-once delivery semantics for these rows and lower ingestion cost while keeping data queryable within seconds. What should you do?",
+    "options": [
+      "Buffer events in Cloud Storage and load them every 5 minutes with batch load jobs.",
+      "Continue using insertAll but add an insertId to every row and increase client-side retry back-off.",
+      "Send events through Pub/Sub to a Dataflow job that deduplicates and uses insertAll.",
+      "Switch the services to the BigQuery Storage Write API using committed-type streams with offsets for exactly-once semantics."
+    ],
+    "answer": [3],
+    "explanation": "The Storage Write API is the recommended replacement for the legacy streaming API: it is cheaper per GB, supports exactly-once semantics through stream offsets, and makes data available for query immediately. Option A satisfies cost but violates the seconds-level freshness requirement. Option B relies on best-effort deduplication that BigQuery explicitly does not guarantee, and it keeps the higher legacy pricing. Option C adds a Dataflow pipeline to operate and still ends with the legacy API, so cost and best-effort deduplication remain issues.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/write-api",
+      "https://cloud.google.com/bigquery/docs/write-api-streaming#exactly-once"
+    ]
+  },
+  {
+    "id": "mx-dat-022",
+    "domain": 2,
+    "topic": "Spanner backup and recovery",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS provider stores tenant configuration in Spanner. Last week an operator ran an erroneous UPDATE that corrupted rows for hundreds of tenants; the problem was noticed 30 hours later. Daily backups were 20 hours old at that point and restoring them would have lost a day of legitimate changes. Management wants the ability to recover the exact state from any moment in the previous 7 days with minimal data loss. What should you do?",
+    "options": [
+      "Increase backup frequency to hourly and retain backups for 7 days.",
+      "Set the database's version_retention_period to 7 days and use stale reads at a chosen timestamp to recover the affected rows.",
+      "Enable Spanner change streams and replay them into a copy of the database after an incident.",
+      "Export the database to Cloud Storage every 15 minutes with a scheduled Dataflow template."
+    ],
+    "answer": [1],
+    "explanation": "Spanner point-in-time recovery is enabled by extending the database's version retention period up to 7 days; you can then perform stale reads or a Dataflow export at any timestamp in that window, or create a backup/restore at that timestamp, recovering just the corrupted rows without losing unrelated changes. Option A still leaves gaps of up to an hour and requires a full restore that discards later legitimate writes. Option C can reconstruct history but requires building and operating a replay pipeline, which is more complex and slower than PITR. Option D produces coarse snapshots, adds continuous export cost, and still loses up to 15 minutes of data.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/pitr",
+      "https://cloud.google.com/spanner/docs/backup"
+    ]
+  },
+  {
+    "id": "mx-dat-023",
+    "domain": 1,
+    "topic": "BigQuery Omni",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturer keeps 500 TB of historical sensor data in Amazon S3 because a contractual agreement forbids moving that data set out of AWS. Its analysts already use BigQuery for all other reporting and want to join summarized S3 data with Google Cloud data using standard SQL, without building a new data platform in AWS. What should you recommend?",
+    "options": [
+      "Use Storage Transfer Service to copy the S3 data to Cloud Storage and query it with BigLake tables.",
+      "Deploy Dataproc in Google Cloud and read S3 directly over the internet with the S3A connector.",
+      "Use BigQuery Omni to query the data in place in AWS and bring aggregated results into BigQuery with cross-cloud joins or transfers.",
+      "Stand up Amazon Redshift and have analysts switch between the two warehouses."
+    ],
+    "answer": [2],
+    "explanation": "BigQuery Omni runs the BigQuery engine inside AWS so the raw data never leaves S3, satisfying the contractual constraint, while analysts use the familiar BigQuery interface and can move only aggregated results to Google Cloud via cross-cloud joins or cross-cloud transfer. Option A violates the agreement by moving the data set. Option B moves the data out of AWS at query time and incurs large egress charges and poor performance. Option D creates a second platform and skill set to maintain, which the company explicitly wants to avoid.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/omni-introduction",
+      "https://cloud.google.com/bigquery/docs/omni-aws-cross-cloud-transfer"
+    ]
+  },
+  {
+    "id": "mx-dat-024",
+    "domain": 2,
+    "topic": "AlloyDB read pools",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online marketplace runs on AlloyDB for PostgreSQL. The primary instance is saturated by a mix of order writes and a large volume of catalog browsing reads. Writes are fine but read latency during sales events is unacceptable. The team wants to scale reads independently and keep replicas within seconds of the primary, with no changes to the SQL. What should you do?",
+    "options": [
+      "Add a read pool instance with multiple nodes to the AlloyDB cluster and route browsing queries to the read pool endpoint.",
+      "Create a second AlloyDB cluster and use logical replication to copy the catalog tables.",
+      "Vertically scale the primary instance to the largest available machine type.",
+      "Export the catalog to Cloud Storage nightly and serve it from a static site."
+    ],
+    "answer": [0],
+    "explanation": "AlloyDB read pool instances are horizontally scalable read replicas that share the cluster's intelligent storage layer, so they stay within milliseconds to seconds of the primary and can be added or resized independently of write capacity. Routing browsing traffic to the read pool endpoint requires only a connection string change, not SQL changes. Option B introduces an additional cluster and replication lag to manage. Option C has a hard ceiling and pays for larger write capacity that is not needed. Option D loses freshness and does not address dynamic catalog queries.",
+    "refs": [
+      "https://cloud.google.com/alloydb/docs/instance-read-pool-create",
+      "https://cloud.google.com/alloydb/docs/overview#read-pool"
+    ]
+  },
+  {
+    "id": "mx-dat-025",
+    "domain": 1,
+    "topic": "Bigtable schema design",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A ride-hailing company is designing a Bigtable schema to store per-vehicle GPS pings at 1 Hz from 300,000 vehicles. The primary access pattern is to fetch the last 10 minutes of pings for a given vehicle, and a secondary pattern is to find all vehicles inside a city during a time window. You want to follow Google-recommended schema practices for performance. Which three design decisions should you make? (Choose three.)",
+    "options": [
+      "Start the row key with a value that spreads writes evenly, such as vehicle ID, rather than a timestamp.",
+      "Store all pings for a vehicle for an entire day in a single row so a single read returns them.",
+      "Keep individual rows under 100 MB and individual cells under 10 MB, using one row per vehicle per time bucket.",
+      "Use a single column family per ping so each sensor value can be versioned independently.",
+      "Denormalize by writing a second table keyed by city and time bucket to serve the secondary query pattern.",
+      "Create a secondary index on the city column so both access patterns share one table."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "Bigtable performance depends on key design: leading with a well-distributed value (vehicle ID) avoids hotspots, and appending a time bucket keeps recent pings for a vehicle contiguous. Rows should stay under 100 MB (cells under 10 MB) for efficient reads, so a row per vehicle per time bucket rather than an unbounded daily row is recommended. Because Bigtable has no secondary indexes, the recommended pattern for a second access path is a denormalized second table with a key that fits that query (city plus time bucket). Option B risks oversized rows and slow reads. Option D is backwards: column families should group related, commonly read-together columns, and too many families hurts performance. Option F is not possible in Bigtable.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/schema-design",
+      "https://cloud.google.com/bigtable/docs/schema-design-time-series",
+      "https://cloud.google.com/bigtable/quotas#limits-data-size"
+    ]
+  }
+]

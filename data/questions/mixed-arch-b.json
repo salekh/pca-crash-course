@@ -1,0 +1,533 @@
+[
+  {
+    "id": "mx-arc-026",
+    "domain": 3,
+    "topic": "Service account impersonation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Developers at a fintech need to run Terraform locally against a staging project using the same permissions as the CI pipeline's deployment service account, so that plan output matches what CI will apply. The security team prohibits creating or downloading service account keys. What should you do?",
+    "options": [
+      "Create a key for the deployment service account, store it in Secret Manager, and let developers fetch it when needed.",
+      "Grant developers the Service Account Token Creator role on the deployment service account and have them use gcloud and Terraform with service account impersonation.",
+      "Grant developers the same project roles as the deployment service account directly on their user accounts.",
+      "Add the developers as Service Account Users so they can attach the account to their laptops."
+    ],
+    "answer": [1],
+    "explanation": "Service account impersonation lets an authenticated user request short-lived credentials for a service account they hold roles/iam.serviceAccountTokenCreator on; gcloud's --impersonate-service-account flag and Terraform's impersonate_service_account provider setting then act exactly as the pipeline identity, with every action attributed to both the user and the service account in audit logs. Option A still creates a long-lived key, which is what the policy prohibits. Option C duplicates permissions on human identities, drifts over time, and does not guarantee parity with the pipeline. Option D is for attaching a service account to resources such as VMs, not for obtaining credentials on a laptop.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/service-account-impersonation",
+      "https://cloud.google.com/docs/authentication/use-service-account-impersonation"
+    ]
+  },
+  {
+    "id": "mx-arc-027",
+    "domain": 3,
+    "topic": "Workload Identity Federation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company uses GitHub Actions to build container images and deploy them to Cloud Run. The pipeline currently authenticates with a service account key stored as a GitHub secret, and a recent audit demanded removal of all long-lived cloud credentials from external systems. Deployments must continue only from the company's own GitHub organization and the main branch. What should you do?",
+    "options": [
+      "Rotate the service account key automatically every 24 hours using a scheduled workflow.",
+      "Move the key into GitHub's encrypted environment secrets with required reviewers.",
+      "Run a self-hosted GitHub runner on a Compute Engine VM and use its attached service account.",
+      "Configure Workload Identity Federation with GitHub's OIDC provider, add an attribute condition restricting the repository owner and branch, and let the workflow exchange its OIDC token for short-lived Google credentials."
+    ],
+    "answer": [3],
+    "explanation": "Workload Identity Federation allows GitHub Actions to exchange its OIDC identity token for short-lived Google Cloud credentials with no stored keys at all, and attribute conditions on the provider (for example, repository_owner and ref) ensure only workflows from the company's organization and main branch can obtain credentials. Options A and B keep a long-lived key in an external system, which the audit forbids regardless of rotation or access controls. Option C removes the key but requires the company to run and secure its own runners, a significant operational burden compared with the keyless federation the platform already provides.",
+    "refs": [
+      "https://cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines",
+      "https://cloud.google.com/iam/docs/workload-identity-federation"
+    ]
+  },
+  {
+    "id": "mx-arc-028",
+    "domain": 3,
+    "topic": "Organization policy",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A European insurer is subject to data-residency rules that require all customer data to remain in EU regions. It has dozens of projects under an 'EU-Workloads' folder, and developers have occasionally created buckets and databases in US regions by mistake. You need a preventive control that applies automatically to every current and future project in the folder. What should you do?",
+    "options": [
+      "Set the constraints/gcp.resourceLocations organization policy on the EU-Workloads folder with an allowed value list of EU locations.",
+      "Create a Cloud Asset Inventory feed that alerts the security team when a resource is created outside the EU.",
+      "Add a VPC Service Controls perimeter around the folder's projects that denies access from non-EU IP addresses.",
+      "Write a Terraform validation rule and require all developers to use Terraform for resource creation."
+    ],
+    "answer": [0],
+    "explanation": "The resource locations organization policy constraint is a preventive guardrail enforced by the platform at creation time, and setting it on the folder means every existing and future child project inherits it without any per-project work. Option B is detective, not preventive, and only notifies after data has already landed outside the EU. Option C controls which identities and networks can access APIs, not where resources may be created. Option D can be bypassed by anyone using the console or gcloud and depends on developer compliance.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
+    ]
+  },
+  {
+    "id": "mx-arc-029",
+    "domain": 3,
+    "topic": "VPC Service Controls",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital group stores de-identified research data in BigQuery and Cloud Storage. Its main concern is data exfiltration: if an analyst's credentials are phished, the attacker must not be able to copy data to a project or bucket outside the organization or query it from an unmanaged device. IAM roles are already tightly scoped. What additional control should you implement?",
+    "options": [
+      "Enable CMEK on the datasets and buckets so exported data is unreadable outside the organization.",
+      "Require two-factor authentication for all analysts and shorten session lengths.",
+      "Create a VPC Service Controls perimeter around the research projects, include BigQuery and Cloud Storage as restricted services, and use access levels to allow access only from corporate networks and managed devices.",
+      "Turn on Data Access audit logs for BigQuery and Cloud Storage and review them daily."
+    ],
+    "answer": [2],
+    "explanation": "VPC Service Controls creates a perimeter that blocks API calls that would move data between a protected project and any resource outside the perimeter, even when the caller has valid IAM permissions, which directly addresses credential-theft exfiltration; access levels (Access Context Manager) add context-aware conditions such as corporate IP ranges and device policy. Option A protects data at rest but a valid principal can still read and re-export decrypted data. Option B lowers the chance of compromise but does nothing once a session is hijacked. Option D is detective after the fact and does not stop the copy.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/overview",
+      "https://cloud.google.com/vpc-service-controls/docs/service-perimeters"
+    ]
+  },
+  {
+    "id": "mx-arc-030",
+    "domain": 3,
+    "topic": "Identity-Aware Proxy",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company hosts an internal HR web application on a managed instance group behind an HTTPS load balancer. Remote employees currently connect through a legacy VPN to reach it. The company wants to retire the VPN, allow access only to employees signed in with corporate Google Workspace accounts from company-managed devices, and avoid modifying the application. What should you do?",
+    "options": [
+      "Expose the application publicly and add a login page to the application that validates corporate credentials.",
+      "Enable Identity-Aware Proxy on the load balancer backend service, grant employees the IAP-secured Web App User role, and add an access level requiring managed devices.",
+      "Restrict the load balancer with a Cloud Armor policy allowing only the corporate office IP ranges.",
+      "Deploy a Cloud VPN gateway and issue certificates to each remote employee."
+    ],
+    "answer": [1],
+    "explanation": "Identity-Aware Proxy enforces identity and context at the load balancer, so users authenticate with Google Workspace before any request reaches the backend, IAM roles decide who is allowed, and Access Context Manager access levels can require a company-managed device; the application needs no changes. This is the core zero-trust pattern of Chrome Enterprise Premium. Option A requires application changes and reinvents authentication. Option C ties access to networks, which does not work for remote employees and is not identity-based. Option D replaces one VPN with another, contrary to the goal.",
+    "refs": [
+      "https://cloud.google.com/iap/docs/concepts-overview",
+      "https://cloud.google.com/iap/docs/enabling-compute-howto"
+    ]
+  },
+  {
+    "id": "mx-arc-031",
+    "domain": 3,
+    "topic": "Key management",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A national bank's regulator requires that encryption keys protecting customer data in Cloud Storage and BigQuery be generated and stored in a key manager physically outside the cloud provider, that the bank be able to cut off Google's ability to decrypt the data at any moment, and that every key access be justified and logged. Which encryption approach should you use?",
+    "options": [
+      "Google-managed encryption keys with Access Transparency logs enabled.",
+      "Customer-managed encryption keys in Cloud KMS using software keys with automatic rotation.",
+      "Customer-supplied encryption keys passed with every API request from the bank's applications.",
+      "Cloud External Key Manager (Cloud EKM) with keys held in the bank's external key manager and Key Access Justifications enabled."
+    ],
+    "answer": [3],
+    "explanation": "Cloud EKM lets Google Cloud services such as Cloud Storage and BigQuery use keys that live in an external key manager outside Google; the bank retains sole custody, can deny key access instantly to render data unreadable, and Key Access Justifications provides a reason code for every access that can be approved or denied by policy. Option A leaves key custody entirely with Google. Option B stores keys inside Google Cloud, which does not meet the 'physically outside the provider' rule, although it provides control and logging. Option C is not supported by BigQuery for this pattern, requires the application to ship keys with each call, and provides no centralized justification or logging.",
+    "refs": [
+      "https://cloud.google.com/kms/docs/ekm",
+      "https://cloud.google.com/assured-workloads/key-access-justifications/docs/overview"
+    ]
+  },
+  {
+    "id": "mx-arc-032",
+    "domain": 3,
+    "topic": "Secret Manager",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A code review at a retail company discovered database passwords and third-party API tokens hard-coded in Cloud Run environment variables defined in a Git repository. You need to remove secrets from source control, restrict which services can read each secret, keep a version history, and be able to rotate secrets without redeploying code. What should you do?",
+    "options": [
+      "Move the values to a .env file excluded from Git and copy it manually to each environment.",
+      "Encrypt the values with Cloud KMS and commit the ciphertext to the repository.",
+      "Store each secret in Secret Manager, grant only the specific service's service account the Secret Accessor role, and mount or reference the latest secret version from Cloud Run.",
+      "Store secrets in a private Cloud Storage bucket and download them at container startup."
+    ],
+    "answer": [2],
+    "explanation": "Secret Manager is the purpose-built service: it versions secrets, enforces per-secret IAM (Secret Accessor granted to the workload's service account), logs every access, integrates natively with Cloud Run through environment variable or volume references, and supports rotation notifications. Option A relies on manual copies and offers no access control or audit trail. Option B keeps ciphertext in Git and still requires a custom decryption path and versioning discipline. Option D reinvents a secret store with weaker controls and no versioning semantics.",
+    "refs": [
+      "https://cloud.google.com/secret-manager/docs/overview",
+      "https://cloud.google.com/run/docs/configuring/services/secrets"
+    ]
+  },
+  {
+    "id": "mx-arc-033",
+    "domain": 3,
+    "topic": "Securing AI applications",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An insurer is launching a customer-facing chatbot built on Gemini through Vertex AI. Security testing showed that crafted prompts can make the model reveal its system instructions, and customers sometimes paste policy numbers and national ID numbers into the chat, which are then stored in conversation logs. You must mitigate both issues before launch using managed services. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Route prompts and responses through Model Armor with prompt-injection, jailbreak, and sensitive-data filters enabled.",
+      "Lower the model temperature to zero so the model no longer produces unexpected responses.",
+      "Fine-tune the model on the insurer's own data so it stops following malicious instructions.",
+      "Use Sensitive Data Protection to inspect and de-identify PII in messages before they are logged or sent to the model.",
+      "Disable conversation logging entirely so no PII is ever stored."
+    ],
+    "answer": [0, 3],
+    "explanation": "Model Armor is Google Cloud's managed screening layer for LLM prompts and responses, detecting prompt injection and jailbreak attempts, harmful content, and sensitive data; Sensitive Data Protection (formerly DLP) provides inspection and de-identification (masking or tokenization) of PII so policy and ID numbers are redacted before storage or model calls. Option B affects randomness, not adversarial instruction following. Option C does not reliably prevent prompt injection and is a costly, indirect approach. Option E removes logs needed for quality, compliance, and incident investigation rather than solving the PII handling problem.",
+    "refs": [
+      "https://cloud.google.com/security-command-center/docs/model-armor-overview",
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data"
+    ]
+  },
+  {
+    "id": "mx-arc-034",
+    "domain": 4,
+    "topic": "Cloud Storage classes",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A law firm must retain closed-case document archives for 10 years. Files are almost never accessed after closing, but when a regulator requests one it must be available within a few seconds, and no employee, including administrators, may delete a file before the retention period ends. You want the lowest storage cost. How should you configure the bucket?",
+    "options": [
+      "Standard storage with object versioning enabled.",
+      "Archive storage class with a 10-year bucket retention policy that is locked.",
+      "Nearline storage class with a lifecycle rule that deletes objects after 10 years.",
+      "Coldline storage class with Object Holds applied by a nightly script."
+    ],
+    "answer": [1],
+    "explanation": "Archive is the lowest-cost class for data accessed less than once a year, and unlike tape-style archives it still delivers millisecond access. A locked bucket retention policy makes deletion before the retention period impossible for anyone, including project owners, satisfying the compliance requirement. Option A is the most expensive class and versioning does not prevent deletion. Option C costs more than Archive for data that is rarely read, and a lifecycle delete rule does not prevent early deletion. Option D relies on a script for compliance and Coldline is pricier than Archive for this access pattern.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/storage-classes",
+      "https://cloud.google.com/storage/docs/bucket-lock"
+    ]
+  },
+  {
+    "id": "mx-arc-035",
+    "domain": 4,
+    "topic": "Network egress cost",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A game studio distributes 2 GB game patches to millions of players worldwide from a Cloud Storage bucket in us-central1 behind a global external Application Load Balancer. Network egress is now the studio's largest cloud cost and players in Asia report slow downloads. What should you do to reduce cost and improve download speed?",
+    "options": [
+      "Enable Cloud CDN on the load balancer's backend bucket so patches are cached at Google edge locations close to players.",
+      "Change the bucket to a multi-region location so egress is charged at a lower rate.",
+      "Compress the patch files with gzip before uploading them to the bucket.",
+      "Replace the load balancer with signed URLs pointing directly at the bucket."
+    ],
+    "answer": [0],
+    "explanation": "Cloud CDN serves cached content from Google's edge points of presence, which cuts latency for distant players and replaces expensive origin egress with lower-priced CDN cache egress, and cache fill from Cloud Storage to the CDN is charged at a discounted rate. Option B improves availability but does not change internet egress pricing, which depends on destination, not source. Option C has minimal effect on already-compressed game assets. Option D still serves every byte from the single origin region.",
+    "refs": [
+      "https://cloud.google.com/cdn/docs/overview",
+      "https://cloud.google.com/cdn/pricing"
+    ]
+  },
+  {
+    "id": "mx-arc-036",
+    "domain": 4,
+    "topic": "Cost governance",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A university's research computing group runs 300 Compute Engine VMs across 40 projects. Monthly spend has doubled, a review found many VMs at 2% average CPU, and several projects were only discovered to be over budget when the invoice arrived. You need to reduce waste and prevent surprise overspend with the least manual effort. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Ask every research lead to email a monthly utilization report for their VMs.",
+      "Review and apply the VM rightsizing and idle-resource recommendations from Recommender (Active Assist) across the projects.",
+      "Create Cloud Billing budgets per project with threshold alerts published to Pub/Sub, and use a Cloud Run function to notify owners or cap noncritical projects.",
+      "Move all VMs to the largest machine type to reduce the number of instances to manage.",
+      "Disable billing on projects that exceed their budget by hand at month end."
+    ],
+    "answer": [1, 2],
+    "explanation": "Recommender continuously analyzes utilization and produces machine-type rightsizing and idle VM recommendations that can be applied in bulk, addressing the waste; Cloud Billing budgets with programmatic notifications give early warning at configurable thresholds and can trigger automation (notifications, or for noncritical projects, disabling billing) before the invoice arrives. Option A is manual and unreliable. Option D increases cost. Option E is manual, reactive, and risks destroying critical research resources.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/apply-machine-type-recommendations-for-instances",
+      "https://cloud.google.com/billing/docs/how-to/budgets-programmatic-notifications"
+    ]
+  },
+  {
+    "id": "mx-arc-037",
+    "domain": 1,
+    "topic": "Multi-region active-active design",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A global payments company is designing a new API platform that must keep serving reads and writes even if an entire Google Cloud region fails, with no manual failover steps and a single public endpoint for clients on three continents. Which three design elements should be part of your architecture? (Choose three.)",
+    "options": [
+      "Spanner in a multi-region instance configuration as the transactional database.",
+      "Cloud SQL with a cross-region read replica that the on-call engineer promotes during an outage.",
+      "A global external Application Load Balancer with backend services containing healthy stateless backends in multiple regions.",
+      "A regional external Application Load Balancer in each region with clients choosing a region-specific hostname.",
+      "Stateless application tiers deployed in at least two regions, such as Cloud Run services or regional GKE clusters.",
+      "A single GKE cluster in the primary region with Persistent Disk snapshots copied to a second region."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "An active-active multi-region design needs three layers to be regional-failure tolerant: a database that continues accepting writes when a region is lost (Spanner multi-region), a global anycast entry point that health-checks and shifts traffic automatically (global external Application Load Balancer), and stateless compute deployed in more than one region behind it. Option B requires a human promotion step and interrupts writes. Option D gives clients region-specific endpoints and no automatic cross-region failover. Option F is a single-region design with a cold recovery path, which is exactly what the requirement rules out.",
+    "refs": [
+      "https://cloud.google.com/architecture/deployment-archetypes/multiregional",
+      "https://cloud.google.com/load-balancing/docs/https"
+    ]
+  },
+  {
+    "id": "mx-arc-038",
+    "domain": 1,
+    "topic": "Regional failover",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A regional retailer runs its e-commerce site on a managed instance group and Cloud SQL for PostgreSQL in us-east1. The business has approved a disaster-recovery budget for a warm standby that keeps costs modest during normal operation, with an RTO of 1 hour and an RPO of under 5 minutes if us-east1 becomes unavailable. Which two components should you add? (Choose two.)",
+    "options": [
+      "Daily Cloud SQL automated backups exported to a multi-region Cloud Storage bucket.",
+      "A Cloud SQL cross-region read replica in us-central1 that can be promoted to primary.",
+      "A second full-size managed instance group in us-central1 receiving 50% of production traffic.",
+      "A minimally sized managed instance group in us-central1 built from the same instance template, scaled up during failover, behind a global external Application Load Balancer with health checks.",
+      "A Spanner multi-region instance replacing Cloud SQL."
+    ],
+    "answer": [1, 3],
+    "explanation": "A cross-region read replica replicates asynchronously with typically seconds of lag, meeting the sub-5-minute RPO, and promotion takes minutes, fitting inside the 1-hour RTO. A small warm-standby MIG in the second region, scaled out during failover and fronted by a global load balancer that automatically stops routing to unhealthy backends, keeps standby cost modest while supporting the RTO. Option A only meets an RPO of 24 hours. Option C is a hot active-active design that doubles cost beyond the approved warm-standby budget. Option E is a database migration that far exceeds the scope and budget for a regional retailer's DR requirement.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/sql/docs/postgres/replication/cross-region-replicas"
+    ]
+  },
+  {
+    "id": "mx-arc-039",
+    "domain": 2,
+    "topic": "Backup and DR Service",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital runs 500 Compute Engine VMs hosting clinical applications and several self-managed SQL Server databases. Regulators require application-consistent backups every 4 hours, retention for 90 days, backup data stored in a separate project that VM administrators cannot access, and central reporting on backup success. Which approach should you recommend?",
+    "options": [
+      "Use the Backup and DR Service with backup plans and a backup vault in a dedicated project, applying the plans to the VMs and databases.",
+      "Configure snapshot schedules on each VM's persistent disks and store the snapshots in the same project.",
+      "Write a script that runs gcloud compute disks snapshot every 4 hours from a Cloud Scheduler-triggered Cloud Run job.",
+      "Copy database backup files to a Cloud Storage bucket with a 90-day lifecycle rule."
+    ],
+    "answer": [0],
+    "explanation": "The Backup and DR Service provides centrally managed, policy-based backups with application-consistent support for Compute Engine VMs and databases such as SQL Server, immutable backup vaults that can live in an isolated project with separate IAM, and a central console and reports for compliance. Option B produces crash-consistent snapshots by default, lacks database-aware consistency, keeps backups in the same project as the VM administrators, and has no central reporting. Option C is custom tooling that must be maintained and audited. Option D covers only the databases and leaves the VMs unprotected.",
+    "refs": [
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-dr",
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-vault"
+    ]
+  },
+  {
+    "id": "mx-arc-040",
+    "domain": 4,
+    "topic": "DR tiers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A nonprofit runs an internal donor-management application on Compute Engine and Cloud SQL in one region. Leadership accepts an RTO of 24 hours and an RPO of 24 hours for a regional disaster but has almost no budget for standby infrastructure. All infrastructure is already defined in Terraform. Which disaster-recovery pattern is most appropriate?",
+    "options": [
+      "A hot standby: run a full duplicate environment in a second region behind a global load balancer.",
+      "A cold pattern: replicate daily Cloud SQL backups and disk images to a second region and recreate the environment from Terraform when a disaster occurs.",
+      "A warm standby: keep a scaled-down replica of the environment running in a second region.",
+      "A pilot light: keep a Cloud SQL cross-region replica running continuously and provision compute only during a disaster."
+    ],
+    "answer": [1],
+    "explanation": "DR tiers trade cost against recovery speed. With a 24-hour RTO and RPO and nearly no standby budget, a cold (backup and restore) pattern is the right match: daily backups and images copied to another region cost very little to store, and Terraform makes rebuilding the environment within a day realistic and repeatable. Option A and Option C keep resources running continuously, which the budget does not allow and the RTO does not require. Option D still pays for a continuously running replica, which is more than a 24-hour RPO justifies for a cost-constrained organization.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/dr-scenarios-for-applications"
+    ]
+  },
+  {
+    "id": "mx-arc-041",
+    "domain": 6,
+    "topic": "SLO burn-rate alerting",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An SRE team defined a 99.9% 30-day availability SLO for a checkout API and created an alert that pages whenever the 5-minute error rate exceeds 0.1%. On-call engineers are now paged several times a night for brief blips that never threaten the SLO, yet a slow, sustained degradation last month consumed most of the error budget before anyone noticed. How should you redesign the alerting?",
+    "options": [
+      "Raise the error threshold to 1% over 5 minutes so only larger incidents page.",
+      "Alert on the absolute count of errors per hour instead of a rate.",
+      "Replace the paging alert with a daily email report of the error budget.",
+      "Define the SLO in Cloud Monitoring and configure multi-window, multi-burn-rate alerts: a fast-burn condition (for example, 14.4x over 1 hour) that pages and a slow-burn condition (for example, 1x over 3 days) that opens a ticket."
+    ],
+    "answer": [3],
+    "explanation": "Burn-rate alerting ties alerts to error budget consumption rather than raw error rates: a high burn rate over a short window catches outages that would exhaust the budget quickly, while a low burn rate over a long window catches slow degradations, and short blips that consume negligible budget no longer page. Cloud Monitoring supports SLO definitions and burn-rate alerting policies natively. Option A reduces noise but would have missed the sustained low-level degradation entirely. Option B is sensitive to traffic volume rather than reliability. Option C removes timely paging for genuine fast-burning incidents.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate",
+      "https://sre.google/workbook/alerting-on-slos/"
+    ]
+  },
+  {
+    "id": "mx-arc-042",
+    "domain": 3,
+    "topic": "Log sinks and retention",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial-services organization with 200 projects must keep Admin Activity and Data Access audit logs from every project for 7 years in a tamper-proof form for regulators, while project owners retain the ability to view logs in their own projects. Newly created projects must be covered automatically. How should you configure logging?",
+    "options": [
+      "Ask each project owner to create a sink from their project to a Cloud Storage bucket in their project with a 7-year lifecycle rule.",
+      "Set the default _Default log bucket retention to 7 years in every project using a script run monthly.",
+      "Create an aggregated sink at the organization level with include-children enabled that routes audit logs to a Cloud Logging bucket in a dedicated, locked-down project, and lock the bucket's 7-year retention policy.",
+      "Export audit logs to BigQuery in each project and rely on BigQuery table expiration set to 7 years."
+    ],
+    "answer": [2],
+    "explanation": "An organization-level aggregated sink with include-children automatically captures logs from all existing and future projects and folders, routing them to a central log bucket in a project where project owners have no access; locking the retention policy on that bucket makes the retention immutable so nobody can shorten it or delete entries, satisfying the tamper-proof requirement. Logs also continue to flow to each project's own buckets, preserving local visibility. Option A depends on every owner complying and leaves logs under the control of the people being audited. Option B misses new projects between runs and keeps logs in owner-controlled projects. Option D provides no immutability and is decentralized.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks",
+      "https://cloud.google.com/logging/docs/buckets#lock-bucket"
+    ]
+  },
+  {
+    "id": "mx-arc-043",
+    "domain": 6,
+    "topic": "Uptime checks",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A travel booking site is served from a global external Application Load Balancer. Internal dashboards show healthy backends, yet customers in some countries occasionally report that the site is unreachable for several minutes and the operations team learns about it only from social media. You want to detect such regional availability problems within minutes and notify the on-call engineer. What should you do?",
+    "options": [
+      "Create a Cloud Monitoring uptime check against the public URL from multiple global checker regions and attach an alerting policy with a notification channel.",
+      "Increase the load balancer health check frequency to every 5 seconds.",
+      "Enable Cloud CDN so requests are served from the edge even when the origin is unreachable.",
+      "Create a log-based metric on 5xx responses in the load balancer logs and alert when it rises."
+    ],
+    "answer": [0],
+    "explanation": "Uptime checks probe the public endpoint from Google checker locations around the world, so they detect availability issues in the path between users and the load balancer that internal backend health checks cannot see, and alerting policies notify on-call through channels such as PagerDuty or SMS. Option B only verifies backend health from the load balancer, which is already reported as healthy. Option C may mask some failures but does not detect or alert on them. Option D catches server errors but not reachability failures where requests never arrive.",
+    "refs": [
+      "https://cloud.google.com/monitoring/uptime-checks",
+      "https://cloud.google.com/monitoring/alerts"
+    ]
+  },
+  {
+    "id": "mx-arc-044",
+    "domain": 6,
+    "topic": "Managed Service for Prometheus",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company runs 15 GKE clusters, each with its own self-managed Prometheus server. The servers frequently run out of memory, retention is limited to a few days, and there is no single place to query metrics across clusters. Developers have hundreds of PromQL dashboards in Grafana that they do not want to rewrite. What should you recommend?",
+    "options": [
+      "Replace Prometheus with the Cloud Monitoring agent and rebuild dashboards in Cloud Monitoring.",
+      "Enable Google Cloud Managed Service for Prometheus on the clusters and point Grafana at its PromQL-compatible endpoint for global querying.",
+      "Federate the 15 Prometheus servers into one large central Prometheus VM with a bigger disk.",
+      "Export metrics from each Prometheus server to BigQuery and build Looker Studio dashboards."
+    ],
+    "answer": [1],
+    "explanation": "Managed Service for Prometheus keeps the Prometheus collection model and full PromQL compatibility while storing metrics in Monarch, Google's globally scalable time-series store, with 24 months of retention and a single query surface across all clusters; existing Grafana dashboards work unchanged via the PromQL API. Option A discards the PromQL investment. Option C moves the scaling problem to a single larger bottleneck that still needs care and feeding. Option D turns a real-time monitoring system into batch analytics and breaks PromQL dashboards.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/managed-prometheus",
+      "https://cloud.google.com/stackdriver/docs/managed-prometheus/query"
+    ]
+  },
+  {
+    "id": "mx-arc-045",
+    "domain": 1,
+    "topic": "Migrate to Virtual Machines",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurer is migrating 800 VMware virtual machines to Compute Engine within nine months. Applications are grouped into interdependent tiers, downtime per application must be limited to a single short cutover, and each application must be validated in Google Cloud before the production switch without affecting the source VMs. Which migration approach should you recommend?",
+    "options": [
+      "Export each VM to an OVA file, upload it to Cloud Storage, and import it with the virtual disk import tool.",
+      "Rebuild every application from scratch on GKE to avoid moving legacy VMs.",
+      "Take VMware snapshots and copy them to Persistent Disk with a custom rsync script during a weekend outage.",
+      "Use Migrate to Virtual Machines to replicate VMs continuously, organize them into migration groups (waves) by application dependency, run test clones for validation, and perform cut-overs per wave."
+    ],
+    "answer": [3],
+    "explanation": "Migrate to Virtual Machines is designed for large-scale VM migrations: it replicates source VMs continuously in the background, lets you group them into waves aligned to application dependencies, supports test clones that run in Google Cloud without disrupting the source, and performs a final short cut-over per group. Option A is a manual, one-VM-at-a-time process with long outages and no test capability, unsuitable for 800 VMs. Option B is a re-architecture project that cannot fit nine months for 800 VMs. Option C is an unsupported, error-prone approach requiring an extended outage.",
+    "refs": [
+      "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/migration-journey",
+      "https://cloud.google.com/migrate/virtual-machines/docs/5.0/concepts/overview"
+    ]
+  },
+  {
+    "id": "mx-arc-046",
+    "domain": 1,
+    "topic": "Migration Center",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company has decided to move its two on-premises data centers to Google Cloud but has incomplete documentation of its roughly 1,200 servers, their utilization, and their dependencies. The CFO wants a defensible total cost of ownership comparison before any migration work begins. What should you do first?",
+    "options": [
+      "Order Transfer Appliances for both data centers so data movement can begin in parallel with planning.",
+      "Create a landing zone with Shared VPC and Interconnect so migrated workloads have a destination.",
+      "Deploy the Migration Center discovery client to collect server inventory, performance data, and dependencies, then generate TCO and rightsizing reports.",
+      "Start migrating the least critical applications with Migrate to Virtual Machines to learn by doing."
+    ],
+    "answer": [2],
+    "explanation": "Assessment precedes planning and execution in Google's migration methodology. Migration Center's discovery client (or imported data from other tools) builds an inventory with utilization and dependency data and produces TCO estimates and Google Cloud sizing recommendations, giving the CFO the defensible comparison required. Option A commits to data transfer before knowing what data exists. Option B builds infrastructure before requirements are known. Option D skips assessment and risks migrating servers with unknown dependencies.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "mx-arc-047",
+    "domain": 1,
+    "topic": "RAG with Vertex AI Search",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecom wants a chatbot that answers support agents' questions using 40,000 internal PDF and HTML documents that change weekly. Answers must cite the source document, must not invent policies, and the two-person team has no machine learning expertise. Which approach should you recommend?",
+    "options": [
+      "Fine-tune a Gemini model on the documents monthly and deploy it to a Vertex AI endpoint.",
+      "Create a Vertex AI Search data store over the documents and build the chatbot with Vertex AI Agent Builder so Gemini responses are grounded in retrieved documents with citations.",
+      "Concatenate all documents into the system prompt of each Gemini request.",
+      "Train a custom sequence-to-sequence model on Vertex AI with the documents as training data."
+    ],
+    "answer": [1],
+    "explanation": "Retrieval-augmented generation is the recommended pattern for question answering over frequently changing enterprise content: Vertex AI Search indexes the documents (with connectors and scheduled refresh), and grounding Gemini in retrieved passages produces answers with citations and greatly reduces hallucination, all through managed Agent Builder tooling that requires no ML expertise. Option A bakes knowledge into weights, becomes stale between tunings, and does not provide citations. Option C exceeds context limits for 40,000 documents and would be prohibitively expensive per request. Option D is a large ML project with worse results than a foundation model plus retrieval.",
+    "refs": [
+      "https://cloud.google.com/generative-ai-app-builder/docs/introduction",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/grounding/overview"
+    ]
+  },
+  {
+    "id": "mx-arc-048",
+    "domain": 2,
+    "topic": "Tuning vs prompting",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A medical coding company uses Gemini on Vertex AI to classify clinical notes into thousands of specialized billing codes. With careful prompt engineering and a dozen few-shot examples, accuracy plateaued at 78%, still below the required 92%. The company has 60,000 historically labeled notes. Latency and per-request cost must not increase. What should you do next?",
+    "options": [
+      "Run supervised fine-tuning of the Gemini model on the labeled notes in Vertex AI and evaluate the tuned model against a held-out set before deployment.",
+      "Increase the number of few-shot examples in the prompt to several hundred to cover more codes.",
+      "Switch to the largest available model in Model Garden and raise the temperature to explore more codes.",
+      "Add retrieval of similar historical notes to each prompt so the model sees more context."
+    ],
+    "answer": [0],
+    "explanation": "The decision rule is prompt first, tune when prompting plateaus and you have a sizeable labeled dataset for a narrow, specialized task. Supervised fine-tuning teaches the model the domain-specific mapping directly, typically lifts accuracy well beyond few-shot prompting, and keeps prompts short so latency and token cost do not rise. Option B increases prompt length and cost substantially and still cannot cover thousands of codes. Option C increases cost and latency, and higher temperature reduces classification consistency. Option D lengthens each prompt (raising cost and latency) and is better suited to knowledge retrieval than to learning a precise classification scheme.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-models",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning"
+    ]
+  },
+  {
+    "id": "mx-arc-049",
+    "domain": 6,
+    "topic": "Evaluating and monitoring LLM outputs",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A retailer's product-description generator built on Gemini is about to move from pilot to production. Leadership wants objective evidence that a new prompt template or model version is better than the current one before release, and ongoing detection of quality regressions or unsafe outputs after release. Which two practices should you implement? (Choose two.)",
+    "options": [
+      "Use the Vertex AI Gen AI evaluation service to score candidate prompts and model versions against a curated evaluation dataset with metrics such as groundedness, fluency, and pairwise preference before promotion.",
+      "Rely on the model's default safety settings and promote new versions after a manual spot check of five outputs.",
+      "Log production prompts and responses to BigQuery, sample them regularly for automated and human review, and alert on drops in evaluation scores or increases in safety-filter triggers.",
+      "Retrain the model every week so quality never regresses.",
+      "Pin the application to the oldest model version indefinitely to avoid change."
+    ],
+    "answer": [0, 2],
+    "explanation": "Pre-release evaluation with the Gen AI evaluation service gives repeatable, metric-based comparisons (including model-based and pairwise judgments) so decisions are objective rather than anecdotal. Post-release, logging prompts and responses, sampling them for automated scoring and human review, and alerting on score or safety-trigger trends implements continuous quality monitoring, which is the operational-excellence approach for generative AI systems. Option B is not objective evidence. Option D confuses retraining with evaluation and would itself introduce unassessed changes. Option E avoids improvement and eventually collides with model deprecation.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/models/evaluation-overview",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/request-response-logging"
+    ]
+  },
+  {
+    "id": "mx-arc-050",
+    "domain": 5,
+    "topic": "Gemini Cloud Assist",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mid-size company's platform team is stretched thin. Engineers spend hours correlating logs, metrics, and recent configuration changes when a GKE service degrades, and they also struggle to spot cost and reliability improvements across dozens of projects. The CTO wants to accelerate troubleshooting and optimization without hiring additional SREs. Which capability should you introduce?",
+    "options": [
+      "Export all logs to BigQuery and train a custom anomaly-detection model on Vertex AI.",
+      "Purchase a third-party AIOps platform and integrate it with Cloud Logging.",
+      "Create more dashboards in Cloud Monitoring so engineers can see all signals on one screen.",
+      "Enable Gemini Cloud Assist so engineers can run AI-driven investigations that correlate logs, metrics, and changes, and use its recommendations and natural-language queries to find cost and reliability optimizations."
+    ],
+    "answer": [3],
+    "explanation": "Gemini Cloud Assist is built into the Google Cloud console to help design, operate, troubleshoot, and optimize; its investigations feature analyzes logs, metrics, and configuration changes to propose root causes and remediations, and it surfaces cost and reliability recommendations across projects through natural-language interaction, directly addressing the team's capacity problem. Option A is a substantial ML project the stretched team cannot support. Option B adds cost and integration work when a native capability exists. Option C adds more data to look at but does not reduce the correlation effort.",
+    "refs": [
+      "https://cloud.google.com/products/gemini/cloud-assist",
+      "https://cloud.google.com/gemini/docs/cloud-assist/investigations"
+    ]
+  }
+]

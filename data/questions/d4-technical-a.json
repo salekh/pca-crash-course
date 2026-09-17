@@ -1,0 +1,489 @@
+[
+  {
+    "id": "d4-tec-001",
+    "domain": 4,
+    "topic": "DORA metrics",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The CTO of a Series B fintech startup wants to baseline the software delivery performance of the platform team before investing in a new CI/CD platform on Google Cloud. She asks you to recommend a small set of industry-standard, outcome-oriented metrics that can be compared against published benchmarks and tracked quarterly. Which set of metrics should you recommend?",
+    "options": [
+      "Lines of code per developer, number of commits per week, unit-test coverage percentage, and average build duration",
+      "Mean time between failures, monthly uptime percentage, average CPU utilization, and HTTP 5xx error rate",
+      "Deployment frequency, lead time for changes, change failure rate, and time to restore service",
+      "Sprint velocity, story points completed, burndown accuracy, and number of open pull requests"
+    ],
+    "answer": [2],
+    "explanation": "The deciding factor is 'industry-standard, outcome-oriented, comparable to published benchmarks.' The four DORA metrics (deployment frequency, lead time for changes, change failure rate, and time to restore service) are exactly that: they are published yearly in the DORA State of DevOps report with elite/high/medium/low bands, and Google recommends them as the primary way to measure software delivery performance. Option A lists activity/output metrics (lines of code, commits) that reward volume rather than outcomes and are easily gamed. Option B lists operational reliability metrics; they are useful SLIs but do not measure delivery performance and have no delivery benchmark bands. Option D lists agile team-process metrics that are team-relative and not comparable across organizations. This maps to the operational excellence pillar of the Well-Architected Framework, which recommends measuring and continuously improving delivery throughput and stability.",
+    "refs": [
+      "https://cloud.google.com/blog/products/devops-sre/using-the-four-keys-to-measure-your-devops-performance",
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "d4-tec-002",
+    "domain": 4,
+    "topic": "Cloud Build triggers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company hosts its application source in GitHub. Its existing Cloud Build triggers rely on Cloud Source Repositories mirrors that were created years ago, but Cloud Source Repositories is no longer available to new projects and the company is standing up a fresh set of projects for a new product line. You need to trigger builds on pull requests and on pushes to the main branch in the new projects, following Google-recommended practices and with the least operational overhead. What should you do?",
+    "options": [
+      "Create a Cloud Build repositories (2nd gen) host connection to GitHub, link the repositories, and create pull-request and push triggers against the linked repositories",
+      "Create new Cloud Source Repositories in the new projects, configure GitHub mirroring, and point the triggers at the mirrored repositories",
+      "Run a self-hosted GitHub Actions runner on a Compute Engine instance that executes gcloud builds submit on every push and pull request",
+      "Create a Cloud Scheduler job that polls the GitHub API every minute and starts a build through the Cloud Build API when a new commit is detected"
+    ],
+    "answer": [0],
+    "explanation": "Cloud Build's 2nd-generation repository connections let you connect directly to GitHub (or GitHub Enterprise, GitLab, Bitbucket) through a host connection stored in Secret Manager, and then create pull-request and branch/tag triggers without any intermediary. This is the Google-recommended replacement for the Cloud Source Repositories mirroring pattern and involves no infrastructure to maintain. Option B is not viable because Cloud Source Repositories cannot be enabled in new projects after its deprecation. Option C adds a VM and a second CI system to operate, and Cloud Build cannot report pull-request status back to GitHub in that model without extra scripting. Option D is a polling anti-pattern that adds latency, API quota consumption, and custom code, and it cannot natively distinguish pull-request events. This aligns with the operational excellence pillar (automate and simplify the toolchain).",
+    "refs": [
+      "https://cloud.google.com/build/docs/repositories",
+      "https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github"
+    ]
+  },
+  {
+    "id": "d4-tec-003",
+    "domain": 4,
+    "topic": "Cloud Deploy approvals",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments company runs its services on GKE across dev, staging, and production clusters. Auditors require that every production deployment be explicitly approved by a named release manager, that the approval be recorded, and that developers cannot bypass the gate. The engineering team wants to keep using its existing Skaffold configuration. Which approach should you recommend?",
+    "options": [
+      "Add a manual step to the Cloud Build pipeline that waits for a Slack reaction from a release manager before running kubectl apply against the production cluster",
+      "Protect the production branch in the Git provider so only release managers can merge, and let a push trigger deploy directly to production",
+      "Give release managers the Kubernetes Engine Admin role on the production cluster and require them to run the deployment manually from Cloud Shell",
+      "Define a Cloud Deploy delivery pipeline with dev, staging, and prod targets, set requireApproval on the prod target, and grant release managers only the Cloud Deploy Approver role"
+    ],
+    "answer": [3],
+    "explanation": "Cloud Deploy natively models environment promotion with targets; setting requireApproval: true on the production target pauses every rollout until a principal with roles/clouddeploy.approver approves it, and the approval is written to Cloud Audit Logs with the approver's identity. Because Cloud Deploy consumes Skaffold configuration, the team keeps its existing manifests. Option A is custom, unaudited automation; a Slack reaction is not a verifiable identity and a long-running Cloud Build step is fragile and costs build minutes. Option B controls merge rights, not deployment rights, and a merge does not produce a deployment-specific approval record. Option C is manual, error-prone, and grants broad cluster admin rights, violating least privilege and separation of duties. Cloud Deploy approvals satisfy both the operational excellence and security pillars of the Well-Architected Framework.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/promote-release",
+      "https://cloud.google.com/deploy/docs/iam-roles-permissions"
+    ]
+  },
+  {
+    "id": "d4-tec-004",
+    "domain": 4,
+    "topic": "Canary deployments on Cloud Run",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online travel agency runs its booking API on Cloud Run. Past releases have caused customer-visible incidents because a new revision received 100% of traffic immediately. The team wants every production release to first receive 10% of traffic, then 50%, then 100%, with an automated smoke test executed at each stage and the rollout halted automatically if the test fails. They want to implement this with managed tooling and minimal custom scripting. What should you do?",
+    "options": [
+      "Write a Cloud Build pipeline that deploys the revision with --no-traffic, then uses gcloud run services update-traffic in three sequential steps with a sleep between them",
+      "Create a Cloud Deploy delivery pipeline with a Cloud Run target that uses a canary strategy with percentages [10, 50] and enables deploy verification so the smoke test runs after each phase",
+      "Deploy two separate Cloud Run services (blue and green) behind a global external Application Load Balancer and shift traffic by editing the URL map weights after each manual test",
+      "Enable Cloud Run gradual rollouts with a maximum of 10% traffic per new revision and rely on Cloud Monitoring uptime checks to alert if errors rise"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Deploy supports a declarative canary strategy for Cloud Run targets: you list the phases as percentages, Cloud Deploy manages the traffic split between the previous and new revisions, and the verify option runs a Skaffold verify container (your smoke test) after each phase. If verification fails, the phase fails and the rollout stops, which is exactly the required behavior with no custom orchestration code. Option A reproduces the same flow with imperative scripting and fixed sleeps rather than test-driven gates; it is fragile and provides no rollout history or approval model. Option C introduces a load balancer and two services purely for traffic shifting and still relies on manual testing, adding cost and operational overhead. Option D describes a feature that does not exist in that form; Cloud Run traffic splitting itself is not stage-aware, and alerting after the fact is detection, not an automated gate.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+      "https://cloud.google.com/deploy/docs/verify-deployment"
+    ]
+  },
+  {
+    "id": "d4-tec-005",
+    "domain": 4,
+    "topic": "Blue/green on managed instance groups",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer serves its web tier from a regional managed instance group (MIG) behind a global external Application Load Balancer. During peak season the operations team wants each release to be switchable to the new version in seconds and, if a problem is found, reverted to the previous version just as quickly without waiting for instances to be recreated. Cost of temporarily running double capacity is acceptable. Which deployment approach should you recommend?",
+    "options": [
+      "Perform a MIG rolling update with maxSurge set to 100% and maxUnavailable set to 0 so all new instances are created before the old ones are removed",
+      "Perform a MIG canary update by adding the new instance template with a targetSize of 10%, then increase it to 100% once validated",
+      "Create a second MIG from the new instance template, attach it to a separate backend service, and use weighted traffic splitting in the URL map to move traffic between the two backend services",
+      "Use the MIG replace update type with minimal action RESTART so instances pick up the new version without being recreated"
+    ],
+    "answer": [2],
+    "explanation": "The requirement is atomic cutover plus an equally fast rollback, which is the definition of a blue/green deployment. Running two MIGs (blue = current, green = new) as separate backend services and shifting weights in the URL map of the global external Application Load Balancer moves traffic in seconds in either direction, because both fleets remain fully provisioned. Option A finishes with all old instances deleted, so a rollback requires another rolling update that recreates instances, which takes minutes. Option B is a canary, not a blue/green; it also ends by removing the old template instances, so rollback again needs instance recreation. Option D is incorrect because changing the instance template always requires instances to be replaced; a RESTART minimal action does not apply a new image. This is a reliability-pillar trade-off: paying for double capacity briefly in exchange for near-zero recovery time.",
+    "refs": [
+      "https://cloud.google.com/architecture/application-deployment-and-testing-strategies",
+      "https://cloud.google.com/load-balancing/docs/https/traffic-management-global"
+    ]
+  },
+  {
+    "id": "d4-tec-006",
+    "domain": 4,
+    "topic": "Artifact Registry",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company still pushes container images to gcr.io using Container Registry. Google has shut down Container Registry, and the team must move quickly without rewriting the many build scripts and Kubernetes manifests that reference gcr.io paths. They also want automatic vulnerability scanning of new images. What should you do?",
+    "options": [
+      "Export all images to a Cloud Storage bucket and configure GKE nodes to pull images from the bucket using a custom credential helper",
+      "Create Artifact Registry repositories with gcr.io domain support to keep the existing paths working, enable Artifact Analysis vulnerability scanning, and migrate the images",
+      "Create standard Artifact Registry repositories in pkg.dev, update every script and manifest to the new paths in one change, and disable scanning to reduce cost",
+      "Move the images to Docker Hub under a private organization and configure imagePullSecrets on all GKE workloads"
+    ],
+    "answer": [1],
+    "explanation": "Artifact Registry is the successor to Container Registry and provides gcr.io-domain-supported repositories that preserve the existing gcr.io hostnames, so builds and manifests keep working while the underlying storage moves to Artifact Registry; Artifact Analysis can then be enabled for automatic scanning on push. Option A is unsupported; Kubernetes pulls from OCI registries, not buckets. Option C works technically but forces a risky big-bang rewrite that the team wanted to avoid and disables the required scanning. Option D moves the supply chain outside Google Cloud, adds egress cost and credential management, and loses integration with Binary Authorization and Artifact Analysis. Keeping artifacts in a managed, scanned registry supports the security pillar of the Well-Architected Framework.",
+    "refs": [
+      "https://cloud.google.com/artifact-registry/docs/transition/transition-from-gcr",
+      "https://cloud.google.com/artifact-analysis/docs/container-scanning-overview"
+    ]
+  },
+  {
+    "id": "d4-tec-007",
+    "domain": 4,
+    "topic": "Cloud Build private pools",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A manufacturing company's Cloud Build pipeline must pull Maven dependencies from an on-premises Nexus server that is reachable only through the company's Cloud VPN, and must run integration tests against a Cloud SQL instance that has only a private IP. Corporate policy prohibits exposing either system to the internet. You need to make the builds work with the least operational overhead. What should you do? (Choose two.)",
+    "options": [
+      "Create a Cloud Build private pool and connect it to the company VPC through a private services access (VPC peering) connection",
+      "Enable export of custom routes on the private services access peering so the private pool can reach on-premises addresses through the Cloud VPN tunnel",
+      "Keep using the default Cloud Build pool and set the option --no-external-ip on each build step",
+      "Reserve a static external IP for the default Cloud Build pool and allowlist that address on the on-premises firewall",
+      "Replace Cloud Build with a self-managed Jenkins controller on a Compute Engine VM inside the VPC"
+    ],
+    "answer": [0, 1],
+    "explanation": "Private pools are the Google-recommended way to give Cloud Build workers access to resources in a VPC: the pool runs in a Google-managed producer network that is peered to your VPC through private services access, so it can reach the Cloud SQL private IP directly. Because VPC peering is not transitive, the pool cannot reach on-premises networks behind Cloud VPN unless you export custom routes on that peering connection; doing so advertises the VPN routes to the producer network. Option C is invalid; the default pool has no such option and is not connected to any customer VPC. Option D is impossible because default-pool workers use ephemeral Google IP ranges that you cannot reserve, and allowlisting would also violate the no-internet-exposure policy. Option E works but replaces a managed service with a VM the team has to patch, scale, and secure, contradicting the least-overhead requirement.",
+    "refs": [
+      "https://cloud.google.com/build/docs/private-pools/private-pools-overview",
+      "https://cloud.google.com/build/docs/private-pools/set-up-private-pool-to-use-on-premises-resources-with-static-ip"
+    ]
+  },
+  {
+    "id": "d4-tec-008",
+    "domain": 4,
+    "topic": "Binary Authorization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare SaaS provider runs workloads on GKE. A recent security review found that an engineer deployed a container image that had been built on a laptop and never scanned. The CISO requires that only images built by the company's Cloud Build pipeline and free of critical vulnerabilities can run in production clusters, enforced at deploy time rather than by policy documents. What should you do?",
+    "options": [
+      "Enable Binary Authorization on the production clusters with a policy that requires attestations from an attestor, and have the Cloud Build pipeline create the attestation only after vulnerability scanning passes",
+      "Configure an Artifact Registry repository with a naming convention for production images and instruct engineers to deploy only from that repository",
+      "Enable Artifact Analysis vulnerability scanning on the registry and create a Cloud Monitoring alert that notifies the security team when a critical CVE is found in a deployed image",
+      "Restrict kubectl access to the production clusters to a small group of senior engineers who are trained to verify image provenance before deploying"
+    ],
+    "answer": [0],
+    "explanation": "Binary Authorization is the deploy-time admission control for GKE and Cloud Run: a cluster policy can require that every image carry a signed attestation, and the pipeline creates that attestation (for example with the built-by-cloud-build attestor or a custom attestor after a vulnerability check step) so that unsigned laptop builds are rejected at admission. Option B relies on convention and is trivially bypassed by pushing an unscanned image into the 'production' repository. Option C is detective, not preventive; the vulnerable image would already be running when the alert fires. Option D is a people control that does not scale and does not technically prevent an unverified deployment. This is a supply-chain control under the security pillar and is part of Google's Software Delivery Shield guidance.",
+    "refs": [
+      "https://cloud.google.com/binary-authorization/docs/overview",
+      "https://cloud.google.com/binary-authorization/docs/cloud-build"
+    ]
+  },
+  {
+    "id": "d4-tec-009",
+    "domain": 4,
+    "topic": "GitOps with Config Sync",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global bank operates 40 GKE clusters across several regions. Platform engineers have found namespaces, RBAC bindings, and network policies that differ between clusters because changes were applied with kubectl during incidents and never recorded. The bank wants every cluster's baseline configuration to be defined in Git, applied consistently to all clusters, and automatically restored if someone changes it manually. Which approach should you recommend?",
+    "options": [
+      "Create a Cloud Build trigger that runs kubectl apply against all 40 clusters whenever the configuration repository changes",
+      "Store the manifests in Terraform using the Kubernetes provider and run terraform apply nightly from Cloud Scheduler",
+      "Use Cloud Deploy with a multi-target that fans out to all clusters and require an approval before each rollout",
+      "Enable Config Sync on every cluster, point it at a root repository that holds the cluster baseline, and enable drift prevention and self-healing so manual changes are reverted"
+    ],
+    "answer": [3],
+    "explanation": "The key requirement is continuous reconciliation, not just delivery: Config Sync is a GitOps agent that runs inside each cluster, continuously compares live state with the Git source of truth, and reverts out-of-band changes (self-healing); drift prevention can additionally block conflicting manual writes. It scales naturally to a fleet because each cluster pulls its own configuration. Option A is a push model that applies changes only when the repository changes; a kubectl edit made afterwards persists until the next commit. Option B has the same gap, with at most nightly correction and added state-file management. Option C is designed for progressive delivery of application releases, not for enforcing persistent baseline configuration, and would require a human approval to fix every drift. Config Sync is Google's recommended GitOps mechanism for GKE Enterprise fleets and supports the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview",
+      "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/how-to/prevent-config-drift"
+    ]
+  },
+  {
+    "id": "d4-tec-010",
+    "domain": 4,
+    "topic": "Trunk-based development and feature flags",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A gaming studio has 60 engineers working on a single backend service. Each feature is developed on a branch that lives for four to eight weeks, and integration at the end of each cycle takes days of conflict resolution and produces a large risky release. Leadership wants to deploy to production daily while making sure that half-finished features are never visible to players. Which combination of practices should you recommend?",
+    "options": [
+      "Keep the feature branches but require developers to rebase onto main every morning, and schedule a release train every two weeks with a code freeze",
+      "Adopt trunk-based development with branches living less than a day, merge incomplete work behind feature flags so it is dark in production, and decouple deployment from release by toggling flags",
+      "Create a long-lived release branch per environment (dev, staging, prod) and cherry-pick approved commits forward so production only contains finished features",
+      "Split the service into one repository per feature team and use Cloud Deploy to deploy each repository independently on its own schedule"
+    ],
+    "answer": [1],
+    "explanation": "DORA research identifies trunk-based development (short-lived branches, at least daily integration into main) as a key predictor of high delivery performance, and feature flags are the mechanism that allows incomplete code to be merged and deployed while remaining invisible until it is explicitly released; together they enable daily deployments with small, low-risk changes. Option A reduces but does not remove long-lived branches, and a biweekly release train with code freezes is the opposite of continuous deployment. Option C is the environment-branch anti-pattern that causes divergence and makes cherry-picks a manual, error-prone bottleneck. Option D reorganizes repositories but does not address branch lifetime or how unfinished features are hidden, and a monolithic service cannot be deployed per-repository without a real decomposition effort.",
+    "refs": [
+      "https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development",
+      "https://cloud.google.com/architecture/devops/devops-tech-continuous-delivery"
+    ]
+  },
+  {
+    "id": "d4-tec-011",
+    "domain": 4,
+    "topic": "Skaffold and Cloud Code",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Developers at an insurance company complain that the way they build and run microservices on their local minikube clusters differs from how the CI/CD pipeline builds and deploys to GKE, which leads to 'works on my machine' defects. The company already uses Cloud Deploy for production rollouts. You want to remove this inconsistency with minimal additional tooling. What should you do?",
+    "options": [
+      "Ask developers to run Cloud Build locally with cloud-build-local for every change so the same builder images are used",
+      "Give every developer a personal GKE Autopilot cluster and require them to deploy through Cloud Deploy instead of using minikube",
+      "Standardize on a single skaffold.yaml per service with profiles for local and CI, use Cloud Code for the local inner loop, and have Cloud Deploy render and deploy from the same skaffold.yaml",
+      "Replace minikube with Docker Compose files that developers maintain separately and add a CI check that both definitions reference the same image tags"
+    ],
+    "answer": [2],
+    "explanation": "Skaffold is the common denominator: Cloud Code (in VS Code, JetBrains, or Cloud Shell Editor) drives the developer inner loop from skaffold.yaml, and Cloud Deploy uses the same skaffold.yaml to render manifests and deploy, so build and deploy logic is defined once and parameterized with profiles rather than duplicated. Option A is not a maintained approach and only covers building, not deployment. Option B is expensive, slows the inner loop by forcing every change through a release pipeline, and still does not unify the build definition. Option D creates a second, parallel definition that must be kept in sync, which is precisely the source of drift you are trying to eliminate. Reducing toolchain divergence is an operational excellence practice.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/using-skaffold",
+      "https://cloud.google.com/code/docs"
+    ]
+  },
+  {
+    "id": "d4-tec-012",
+    "domain": 4,
+    "topic": "Cloud Deploy rollback",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription video service uses Cloud Deploy to promote releases from staging to a production GKE target. Ten minutes after the latest production rollout succeeded, the on-call engineer sees a spike in checkout errors clearly linked to the new release. The engineer needs to restore the previous working version as quickly as possible with a recorded, repeatable action. What should you do?",
+    "options": [
+      "Run gcloud deploy targets rollback for the production target so Cloud Deploy creates a new rollout of the previously deployed release",
+      "Run kubectl rollout undo on each affected Deployment in the production cluster",
+      "Revert the offending commit in Git, wait for CI to build a new image, and promote the new release through staging to production",
+      "Delete the failed release in Cloud Deploy so the target automatically reverts to the prior release"
+    ],
+    "answer": [0],
+    "explanation": "Cloud Deploy provides a first-class rollback: gcloud deploy targets rollback (or the console button) creates a new rollout of the last successfully deployed release to that target, using the already-rendered manifests, so recovery takes only as long as the deploy itself and is fully recorded in Cloud Deploy history and audit logs. Option B may work for a single Deployment but bypasses the delivery pipeline, leaves Cloud Deploy's view of the target out of sync, and does not cover ConfigMaps, Services, or other rendered resources. Option C is the correct long-term fix but is far slower and violates the 'as quickly as possible' constraint; it should follow the rollback, not replace it. Option D is wrong because deleting a release does not change what is running in the cluster. Fast, tested rollback capability is a core reliability-pillar recommendation.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/roll-back",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d4-tec-013",
+    "domain": 4,
+    "topic": "Artifact promotion",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A pharmaceutical company must prove to regulators that the exact binary validated in its QA environment is the binary that runs in production. Today each environment's pipeline rebuilds the container image from the same Git branch, and QA and production images occasionally differ because of upstream base-image and dependency updates. Which changes should you make to the delivery process? (Choose two.)",
+    "options": [
+      "Build the image once in CI, tag it with the Git commit SHA, and promote the same image digest through QA and production without rebuilding",
+      "Keep rebuilding per environment but pin the base image tag so the rebuilt images are more likely to be identical",
+      "Use Cloud Deploy releases, which render manifests once at release creation and pin image references by digest, so promotion between targets reuses the identical artifact",
+      "Tag every build as latest and configure each environment to pull the latest tag at deploy time",
+      "Maintain separate Artifact Registry repositories per environment and rebuild the image when copying it between them"
+    ],
+    "answer": [0, 2],
+    "explanation": "The regulatory requirement is artifact identity, which can only be guaranteed by building once and promoting an immutable artifact identified by its digest. Tagging with the commit SHA and promoting the digest ensures QA and production run byte-identical images; Cloud Deploy reinforces this because a release renders manifests once and resolves image tags to digests, so every target in the pipeline receives the same artifact. Option B still rebuilds, so transitive dependency resolution, timestamps, and base-image digests under a mutable tag can differ; 'more likely' is not evidence for an auditor. Option D uses a mutable tag that can point to different images at different times, destroying traceability. Option E deliberately reintroduces rebuilding; if images need to live in separate repositories, they should be copied (gcrane/Artifact Registry copy) by digest, never rebuilt. Immutable, promotable artifacts are central to the security pillar's supply-chain guidance.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/overview",
+      "https://cloud.google.com/architecture/devops/devops-tech-deployment-automation"
+    ]
+  },
+  {
+    "id": "d4-tec-014",
+    "domain": 4,
+    "topic": "Change failure rate",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional telecom deploys its customer portal to Cloud Run every two weeks in a single large release, and roughly one in three releases requires a hotfix or rollback. Management believes deploying less often would reduce risk. As the cloud architect, you are asked to recommend how to reduce the change failure rate in line with DORA research and Google-recommended practices. What should you recommend?",
+    "options": [
+      "Move to a monthly release cadence with a longer manual regression test phase before each release",
+      "Keep the biweekly cadence but add a mandatory change advisory board meeting to review every release",
+      "Require 100% unit-test coverage before any code can be merged and add a second code reviewer for every pull request",
+      "Deploy smaller changes more frequently, gate each deployment with automated tests in CI, and use progressive delivery so faults affect a fraction of users and are rolled back automatically"
+    ],
+    "answer": [3],
+    "explanation": "DORA data consistently shows that throughput and stability are not a trade-off: elite performers deploy many times per day with a lower change failure rate because small batches are easier to test, review, and diagnose, and progressive delivery (canary or traffic splitting on Cloud Run) limits blast radius and makes rollback quick. Option A increases batch size, which increases risk per release and lengthens time to restore. Option B adds an external approval step that DORA research links to lower performance without improving stability. Option C improves code quality signals but does not address batch size or blast radius; a 100% coverage mandate is a proxy metric that is easily gamed. Reducing batch size and automating quality gates are explicit operational excellence recommendations.",
+    "refs": [
+      "https://cloud.google.com/architecture/devops/devops-process-working-in-small-batches",
+      "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration"
+    ]
+  },
+  {
+    "id": "d4-tec-015",
+    "domain": 4,
+    "topic": "Cloud Build tag triggers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS vendor wants Cloud Build to run a release pipeline only when an engineer creates a semantic-version Git tag such as v2.14.0 on the main repository. Commits and other tags such as nightly-2025-06-01 must not start the release pipeline. The pipeline must push the image to Artifact Registry and create a Cloud Deploy release. How should you configure the trigger?",
+    "options": [
+      "Create a push trigger on the main branch and add a build step that exits early if the commit message does not contain a version number",
+      "Create a tag trigger with the regular expression ^v[0-9]+\\.[0-9]+\\.[0-9]+$ and a cloudbuild.yaml that builds, pushes, and runs gcloud deploy releases create",
+      "Create a manual trigger that release engineers run from the console, passing the version as a substitution variable",
+      "Create a pull-request trigger that fires when a pull request titled with a version number is merged"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Build triggers can match on branch or tag names using RE2 regular expressions; a tag trigger anchored to the semantic-version pattern fires only for tags like v2.14.0 and ignores branch pushes and nightly tags, and the same cloudbuild.yaml can push to Artifact Registry and call gcloud deploy releases create so the release enters the Cloud Deploy pipeline. Option A wastes build minutes on every push, relies on commit-message conventions, and still creates builds that show up as executed. Option C removes automation and introduces human error in typing versions, which is inconsistent with continuous delivery. Option D is not possible because pull-request triggers fire on PR events, not on tag creation, and PR titles are not a reliable release signal.",
+    "refs": [
+      "https://cloud.google.com/build/docs/automating-builds/create-manage-triggers",
+      "https://cloud.google.com/deploy/docs/integrating-ci"
+    ]
+  },
+  {
+    "id": "d4-tec-016",
+    "domain": 4,
+    "topic": "GKE rolling updates",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing platform runs a stateless API as a Kubernetes Deployment on GKE with 20 replicas. During recent releases, latency-sensitive customers noticed brief error bursts because pods began receiving traffic before their JVM had finished warming up, and capacity dipped while pods were replaced. You need to eliminate both problems during routine releases without adding new infrastructure. What should you do?",
+    "options": [
+      "Change the Deployment strategy to Recreate so old and new pods never overlap, and increase replicas to 30 to compensate",
+      "Keep RollingUpdate but set maxSurge to 0 and maxUnavailable to 50% so the update completes faster",
+      "Keep RollingUpdate with maxUnavailable set to 0 and maxSurge set to 25%, and add readiness (and startup) probes so pods receive traffic only after warm-up",
+      "Convert the Deployment to a StatefulSet so pods are updated one at a time in ordinal order"
+    ],
+    "answer": [2],
+    "explanation": "Two settings solve the two symptoms: maxUnavailable: 0 with a positive maxSurge guarantees that the Deployment never drops below the desired replica count during a rollout (new pods are added before old ones are removed), and readiness/startup probes ensure the Service only routes to pods that have finished warming up, which removes the error bursts. Option A introduces a full outage window between the old pods terminating and new pods becoming ready. Option B does the opposite of what is needed: removing half the replicas at once causes a large capacity dip. Option D is a misuse of StatefulSets, which exist for stable identity and storage; ordinal updates would make the rollout slower and would still not fix premature traffic without readiness probes. Graceful rollouts with health checks are a reliability-pillar best practice.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/deployment",
+      "https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-setting-up-health-checks-with-readiness-and-liveness-probes"
+    ]
+  },
+  {
+    "id": "d4-tec-017",
+    "domain": 4,
+    "topic": "Cloud Deploy multi-target",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial data provider runs the same service in three regional GKE clusters (us-east4, europe-west3, asia-northeast1) for latency and residency reasons. Releases must go to a staging cluster first and then to all three production clusters, and the release manager wants a single production rollout that can be approved once, observed as one unit, and rolled back as one unit. Which Cloud Deploy design should you recommend?",
+    "options": [
+      "Define one staging target and one production multi-target whose child targets are the three regional clusters, set requireApproval on the multi-target, and use a delivery pipeline with two stages",
+      "Define one staging target and three production targets in a four-stage pipeline so each region is promoted separately with its own approval",
+      "Define three separate delivery pipelines, one per region, each with staging and production targets, and create three releases from the same image",
+      "Define a single production target that points to a GKE fleet and rely on Multi Cluster Ingress to distribute the deployment to all member clusters"
+    ],
+    "answer": [0],
+    "explanation": "Cloud Deploy multi-targets exist precisely for this case: a multi-target groups several child targets so that a single rollout deploys to all of them in parallel, is approved once, shows aggregate status, and can be rolled back as one unit. Option B works but creates three sequential approvals and three independent rollouts, contradicting the 'approve once, observe and roll back as one unit' requirement. Option C triples the operational surface and again breaks the single-rollout requirement. Option D is technically incorrect: a Cloud Deploy target references a specific cluster or Cloud Run service, not a fleet, and Multi Cluster Ingress handles traffic distribution, not workload deployment. Parallel multi-target rollouts help both operational excellence (one pipeline) and reliability (consistent versions across regions).",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deploying-application-to-multiple-targets",
+      "https://cloud.google.com/deploy/docs/terminology"
+    ]
+  },
+  {
+    "id": "d4-tec-018",
+    "domain": 4,
+    "topic": "Cloud Build performance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A data analytics startup's Cloud Build pipeline for a Python service takes 35 minutes, most of it spent reinstalling unchanged dependencies and rebuilding identical container layers on every commit. Developers wait for CI feedback before merging, which is hurting lead time. You want to cut build time substantially while keeping the pipeline in Cloud Build. What should you do?",
+    "options": [
+      "Split the pipeline into parallel builds triggered by Pub/Sub, each rebuilding a subset of the image layers",
+      "Move dependency installation into a Cloud Run job that runs before the build and writes the virtual environment to a Cloud Storage bucket",
+      "Increase the build timeout to 60 minutes and switch to a private pool so builds do not queue",
+      "Use Kaniko (or BuildKit) layer caching with the cache stored in Artifact Registry, order the Dockerfile so dependency layers precede source code, and select a higher-vCPU machine type for the build"
+    ],
+    "answer": [3],
+    "explanation": "The waste is repeated work, so caching is the fix: Kaniko or Docker BuildKit can push intermediate layers to an Artifact Registry cache repository and reuse them across builds when layer inputs are unchanged, and ordering the Dockerfile so that the requirements install happens before copying application source keeps the expensive layer cache-hit on most commits. A larger machineType option further reduces wall-clock time for CPU-bound steps. Option A adds orchestration complexity and does not remove the redundant work. Option B builds a bespoke caching system around a Cloud Run job that must be kept in sync with Python versions and does not integrate with Docker layer caching. Option C addresses queueing and timeouts, not the duration of the build itself. Faster feedback loops directly improve lead time for changes, an operational excellence outcome.",
+    "refs": [
+      "https://cloud.google.com/build/docs/optimize-builds/speeding-up-builds",
+      "https://cloud.google.com/build/docs/optimize-builds/kaniko-cache"
+    ]
+  },
+  {
+    "id": "d4-tec-019",
+    "domain": 4,
+    "topic": "CI/CD least privilege",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A startup's single Cloud Build trigger uses one service account with the Project Editor role to build images, run tests, and deploy to both staging and production Cloud Run services. A new security lead wants to reduce the blast radius of a compromised pipeline while keeping deployments automated. What should you do first?",
+    "options": [
+      "Export the service account key, store it in Secret Manager, and rotate it every 30 days",
+      "Create separate build and deploy triggers, each with its own user-specified service account granted only the roles needed (for example Artifact Registry Writer for build, Cloud Run Developer scoped to the target service for deploy)",
+      "Replace the Editor role with the Owner role so the pipeline has consistent permissions across all environments",
+      "Move production deployments to a manual gcloud run deploy executed by the CTO from a laptop"
+    ],
+    "answer": [1],
+    "explanation": "Google recommends per-trigger user-specified service accounts with least-privilege roles, so a compromised build step can at most push an image, and only the deploy trigger's identity can change the production service. Splitting build and deploy stages also enables separation of duties and clearer audit trails. Option A introduces a long-lived key that Cloud Build does not need (it uses the attached service account directly), which increases risk rather than reducing it. Option C widens permissions. Option D removes automation and creates a single-person bottleneck without addressing the pipeline's excessive permissions. This is a security-pillar recommendation (least privilege, no service-account keys).",
+    "refs": [
+      "https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts",
+      "https://cloud.google.com/iam/docs/best-practices-service-accounts"
+    ]
+  },
+  {
+    "id": "d4-tec-020",
+    "domain": 4,
+    "topic": "Artifact Registry remote and virtual repositories",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An e-commerce company's builds pull base images from Docker Hub and packages from the public npm registry. Builds occasionally fail because of Docker Hub rate limits, and the security team wants a single, controllable entry point for third-party dependencies where internal packages take precedence over public ones with the same name. What should you do?",
+    "options": [
+      "Configure Cloud NAT with a larger IP pool so builds are less likely to hit Docker Hub rate limits, and add npm audit to every build",
+      "Mirror Docker Hub and npm nightly into a Cloud Storage bucket with a scheduled Dataflow job and configure builds to use the bucket",
+      "Create Artifact Registry remote repositories for Docker Hub and npmjs.org, a standard repository for internal packages, and a virtual repository that prioritizes the internal repository over the remotes; point builds at the virtual repository",
+      "Vendor all third-party dependencies into the application Git repositories so builds never contact external registries"
+    ],
+    "answer": [2],
+    "explanation": "Artifact Registry remote repositories cache upstream public registries (Docker Hub, npm, PyPI, Maven Central, and others) so repeated pulls are served from Google Cloud and do not consume upstream rate limits, and a virtual repository aggregates multiple upstreams behind one endpoint with explicit priorities, which lets internal packages shadow public ones and protects against dependency-confusion attacks. Option A treats the symptom and does not create a controlled entry point. Option B is a custom mirror that does not speak the Docker or npm protocols and is heavy to maintain. Option D bloats repositories, makes updates painful, and still does not centrally control what enters the supply chain. Centralized, cached, policy-controlled dependencies support both the security and operational excellence pillars.",
+    "refs": [
+      "https://cloud.google.com/artifact-registry/docs/repositories/remote-overview",
+      "https://cloud.google.com/artifact-registry/docs/repositories/virtual-repo"
+    ]
+  },
+  {
+    "id": "d4-tec-021",
+    "domain": 4,
+    "topic": "Automated canary analysis on GKE",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A food-delivery company deploys its order service to GKE with Cloud Deploy. It wants every production rollout to start as a 5% canary using the Gateway API, hold for ten minutes while the new pods' HTTP 5xx ratio is compared with the baseline, and be automatically rolled back if the ratio exceeds 1%; otherwise it should advance without a human. Which approach should you recommend?",
+    "options": [
+      "Configure a Cloud Deploy canary strategy with a Gateway API service mesh configuration, add a verify step that queries Cloud Monitoring for the canary's error ratio, and create a Cloud Deploy automation with a repair-rollout rule that rolls back when verification fails and an advance-rollout rule that promotes on success",
+      "Use a standard Kubernetes Deployment with two ReplicaSets and rely on the horizontal pod autoscaler to remove unhealthy canary pods",
+      "Deploy the canary as a separate GKE cluster behind a global external Application Load Balancer at 5% weight and have an SRE watch the dashboard for ten minutes",
+      "Enable GKE node auto-repair and pod disruption budgets so unhealthy canary pods are replaced automatically"
+    ],
+    "answer": [0],
+    "explanation": "Cloud Deploy's canary strategy for GKE can drive traffic percentages through the Gateway API (or Cloud Service Mesh), deploy verification runs an arbitrary container after each phase (here, a script that reads the canary's error ratio from Cloud Monitoring and exits non-zero above 1%), and Cloud Deploy automations add the hands-off behavior: a repair-rollout rule with a rollback action on failure and an advance-rollout rule on success. Option B confuses autoscaling with canary analysis; the HPA scales on resource or custom metrics and does not evaluate error ratios against a baseline or roll back. Option C is expensive and manual, violating the 'without a human' requirement. Option D addresses node and pod health, not release quality. Automated canary analysis with automatic rollback is a reliability-pillar practice for progressive delivery.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+      "https://cloud.google.com/deploy/docs/automation"
+    ]
+  },
+  {
+    "id": "d4-tec-022",
+    "domain": 4,
+    "topic": "Measuring DORA metrics",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A public-sector agency uses Cloud Build for CI and Cloud Deploy for delivery to Cloud Run. Its modernization office must report deployment frequency and lead time for changes per service every month, computed from actual system events rather than manual surveys, with dashboards analysts can query. Which approach should you recommend?",
+    "options": [
+      "Ask each team lead to fill in a monthly spreadsheet with the number of deployments and the average time from commit to production",
+      "Enable Cloud Audit Logs for Cloud Deploy and have analysts search the Logs Explorer each month for rollout succeeded entries",
+      "Install a third-party agile reporting tool in the Git provider and estimate lead time from pull-request open and merge timestamps",
+      "Publish Cloud Build and Cloud Deploy notifications to Pub/Sub, stream them with a Cloud Run service or Dataflow into BigQuery, join build commit timestamps with rollout success timestamps, and build the dashboards in Looker Studio"
+    ],
+    "answer": [3],
+    "explanation": "Both Cloud Build and Cloud Deploy emit lifecycle notifications to Pub/Sub; landing those events in BigQuery lets you compute deployment frequency (count of successful production rollouts per service per period) and lead time for changes (time from commit in the build event to the rollout-succeeded event) exactly as the open-source Four Keys reference implementation does, and Looker Studio provides the queryable dashboards. Option A is the manual survey approach the agency explicitly ruled out. Option B is possible for ad-hoc checks but does not scale to monthly per-service metrics and cannot easily compute lead time, which needs commit timestamps from the build side. Option C measures review time, not time to production, and so does not represent the DORA definition of lead time for changes. Event-driven measurement of delivery performance is an operational excellence recommendation.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/subscribe-deploy-notifications",
+      "https://cloud.google.com/build/docs/configuring-notifications/configure-pubsub"
+    ]
+  },
+  {
+    "id": "d4-tec-023",
+    "domain": 4,
+    "topic": "Secure CI pipeline design",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A B2B software company is redesigning the continuous integration pipeline for its container-based services on Google Cloud. The goals are to stop defects and vulnerable images from reaching the deployment stage and to produce verifiable evidence for downstream policy enforcement, while keeping developers' feedback loop fast. Which practices should you include in the Cloud Build pipeline? (Choose three.)",
+    "options": [
+      "Use a pull-request trigger that runs unit and integration tests and reports status back to the Git provider so merges are blocked on failure",
+      "Scan the built image with the On-Demand Scanning API in the build and fail the build when vulnerabilities at or above a defined severity are found",
+      "Tag every successful image as latest so deployment manifests never need to change",
+      "Sign the image and create a Binary Authorization attestation as the final build step when all previous steps succeed",
+      "Grant the build service account the Owner role so no step fails because of missing permissions",
+      "Run the full test suite only in a nightly build to keep pull-request builds under one minute"
+    ],
+    "answer": [0, 1, 3],
+    "explanation": "The three correct practices form Google's recommended secure CI flow: test on pull requests with status checks so broken code never merges; use Artifact Analysis On-Demand Scanning inside the build to block images with critical vulnerabilities before they are pushed or deployed; and, once all gates pass, sign the image and create an attestation that Binary Authorization on GKE or Cloud Run can require at deploy time, giving verifiable provenance. Option C uses a mutable tag that destroys traceability and makes rollbacks ambiguous. Option E grossly violates least privilege and expands the blast radius of any compromised build. Option F delays defect detection until after merge, increasing change failure rate; the right way to keep feedback fast is caching and parallel steps, not skipping tests. These practices sit at the intersection of the security and operational excellence pillars.",
+    "refs": [
+      "https://cloud.google.com/artifact-analysis/docs/ods-cloudbuild",
+      "https://cloud.google.com/software-supply-chain-security/docs/overview"
+    ]
+  }
+]

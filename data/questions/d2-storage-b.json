@@ -1,0 +1,532 @@
+[
+  {
+    "id": "d2-sto-026",
+    "domain": 2,
+    "topic": "Cloud SQL",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription-box company runs its order database on Cloud SQL for MySQL with a 500 GB SSD disk. Twice in the past year the instance ran out of disk space during promotional weekends, causing an outage until an engineer manually resized the disk. The team wants to prevent this with the least operational effort while keeping some control over cost. What should you do?",
+    "options": [
+      "Create a Cloud Monitoring alert on disk utilization at 80% and a runbook for the on-call engineer to resize the disk.",
+      "Enable automatic storage increases on the instance and set an automatic storage increase limit that caps growth at an approved size.",
+      "Provision a 5 TB disk now so that capacity will never be an issue.",
+      "Migrate the workload to Spanner, which scales storage automatically."
+    ],
+    "answer": [1],
+    "explanation": "Cloud SQL's automatic storage increase feature grows the disk in increments whenever free space falls below a threshold, with no downtime and no human action, and the optional increase limit caps the maximum size so costs remain bounded; note that disk size can be increased but never decreased. Option A keeps the manual, error-prone process in place and depends on someone being available during a spike. Option C avoids the outage but pays for 4.5 TB of unused SSD indefinitely, which contradicts cost control. Option D is a disproportionate re-platforming for a capacity setting. This is a straightforward reliability and operational-excellence improvement.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/mysql/instance-settings#automatic-storage-increase-2ndgen",
+      "https://cloud.google.com/sql/docs/mysql/instance-settings#storage-capacity-2ndgen"
+    ]
+  },
+  {
+    "id": "d2-sto-027",
+    "domain": 2,
+    "topic": "Cloud SQL backups",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing company's Cloud SQL for PostgreSQL instance holds bookings that change every second. A developer accidentally ran a DELETE without a WHERE clause at 14:32. Automated daily backups run at 03:00. Management now requires the ability to restore the database to any point within the previous seven days with a recovery point objective of one minute. What should you do?",
+    "options": [
+      "Increase the automated backup frequency to hourly and retain 168 backups.",
+      "Create a read replica in another zone and promote it when data corruption is detected.",
+      "Export the database to Cloud Storage every minute using a Cloud Scheduler job and pg_dump.",
+      "Keep automated backups enabled and enable point-in-time recovery (write-ahead log archiving) on the instance with a seven-day transaction log retention."
+    ],
+    "answer": [3],
+    "explanation": "Point-in-time recovery (PITR) in Cloud SQL combines the most recent automated backup with archived write-ahead logs (binary logs for MySQL), allowing you to clone the instance to any second within the log retention window (configurable up to 7 days on Enterprise and 35 days on Enterprise Plus), which satisfies a one-minute RPO for logical errors. Option A is not possible because Cloud SQL automated backups run once per day, and even hourly backups would give an RPO of up to an hour. Option B does not help: a replica faithfully replays the erroneous DELETE within seconds. Option C would impose a heavy, continuous load on the database, is operationally fragile, and pg_dump cannot capture a transactionally consistent snapshot every minute at scale. PITR is the reliability-pillar answer for logical data loss.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/postgres/backup-recovery/pitr",
+      "https://cloud.google.com/sql/docs/postgres/backup-recovery/backups"
+    ]
+  },
+  {
+    "id": "d2-sto-028",
+    "domain": 2,
+    "topic": "Cloud SQL backups",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank runs Cloud SQL for MySQL in europe-west1. Its disaster recovery plan requires that backups survive the complete loss of that region and remain within the European Union for data-residency reasons, so that the database can be restored in another EU region. Automated backups are currently stored in the default location. What should you do?",
+    "options": [
+      "Configure the instance's automated backup location to a custom location such as the eu multi-region or a different EU region like europe-west4.",
+      "Leave backups in the default location, because Cloud SQL automated backups are always replicated to two continents.",
+      "Configure the backup location to the us multi-region for maximum geographic separation.",
+      "Disable automated backups and instead schedule daily exports to a Cloud Storage bucket in europe-west1."
+    ],
+    "answer": [0],
+    "explanation": "By default, Cloud SQL stores automated and on-demand backups in the multi-region geographically closest to the instance, but you can set a custom backup location to any region or multi-region; choosing the eu multi-region or another EU region ensures backups survive a europe-west1 outage while staying inside the EU, and a backup can be restored to a new instance in a different region. Option B is factually wrong; default placement is a nearby multi-region, not two continents, and it gives no residency guarantee. Option C violates the EU data-residency requirement. Option D removes PITR capability and stores the exports in the very region that might be lost. This decision reflects both the reliability and compliance pillars.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/mysql/backup-recovery/backing-up#locationbackups",
+      "https://cloud.google.com/sql/docs/mysql/backup-recovery/restoring#projectid"
+    ]
+  },
+  {
+    "id": "d2-sto-029",
+    "domain": 2,
+    "topic": "Spanner",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ride-sharing startup uses a regional Spanner instance provisioned with 1 node (1,000 processing units). Traffic is highly seasonal: weekday peaks push high-priority CPU utilization to 80%, while overnight utilization is under 10%. The company wants to maintain Google's recommended CPU headroom and latency at peak while minimizing cost during quiet hours, without writing custom scaling code. What should you do?",
+    "options": [
+      "Resize the instance to 3 nodes permanently to guarantee headroom during peaks.",
+      "Migrate to a multi-region Spanner configuration, which distributes load and lowers per-node utilization.",
+      "Enable Spanner's managed autoscaler on the instance with a high-priority CPU target of about 65%, a minimum of a few hundred processing units, and a maximum sized for peak load.",
+      "Reduce the instance to 500 processing units and enable Spanner's request priority feature so peak traffic is queued."
+    ],
+    "answer": [2],
+    "explanation": "Google recommends keeping high-priority CPU utilization below 65% for regional instances (45% for multi-region) to preserve low latency. Spanner's managed autoscaler adjusts compute capacity between a configured minimum and maximum based on CPU utilization and storage, in processing-unit granularity, so the instance can shrink to a few hundred processing units overnight and grow for weekday peaks with no custom code. Option A meets headroom but wastes money overnight. Option B is a much more expensive topology change intended for geographic availability, and its lower recommended CPU target would actually require more compute. Option D reduces capacity below what peaks require; request priorities influence scheduling of background versus user work but do not queue or shed user traffic gracefully. This balances the cost-optimization and performance pillars.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/managed-autoscaler",
+      "https://cloud.google.com/spanner/docs/cpu-utilization#recommended-max"
+    ]
+  },
+  {
+    "id": "d2-sto-030",
+    "domain": 2,
+    "topic": "Spanner backups",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payments provider keeps its ledger in a regional Spanner instance in us-east1. Compliance requires a transactionally consistent backup taken every night, retained for 90 days, with a copy stored in a different region so the ledger can be restored even if us-east1 is unavailable. The team wants to use native Spanner features. What should you do?",
+    "options": [
+      "Use Dataflow nightly to export the database to Avro files in a dual-region Cloud Storage bucket, which is the only way to obtain a consistent Spanner backup.",
+      "Create a Spanner backup schedule on the database with 90-day retention, and copy each backup to a Spanner instance in another region using the backup copy feature.",
+      "Enable Spanner point-in-time recovery with a 90-day version retention period so any past state can be restored in another region.",
+      "Create a nightly backup with 90-day retention and rely on Spanner's automatic cross-region replication of backups."
+    ],
+    "answer": [1],
+    "explanation": "Spanner backups are transactionally consistent snapshots that can be created on a schedule with retention up to one year, and the backup copy operation lets you copy a backup to an instance in a different region or project, which is the documented pattern for surviving a regional outage. Option A is incorrect because native backups are consistent; Dataflow exports are useful for portability but are slower to restore and more complex. Option C is wrong because the version retention period for point-in-time recovery has a maximum of 7 days and is not a substitute for backups. Option D is wrong because a backup lives in the same instance configuration as its database and is not automatically replicated elsewhere for regional instances. This satisfies the reliability pillar's cross-region recovery requirement.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/backup",
+      "https://cloud.google.com/spanner/docs/backup/copy-backup"
+    ]
+  },
+  {
+    "id": "d2-sto-031",
+    "domain": 2,
+    "topic": "Bigtable",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An IoT platform ingests telemetry into a Bigtable instance with 6 SSD nodes. Latency spikes occur every evening, the Key Visualizer shows a single hot tablet, and the row keys are formatted as <timestamp>#<device_id>. Operations also manually adds nodes before known peaks and forgets to remove them afterwards. Which two changes should you make? (Choose two.)",
+    "options": [
+      "Redesign the row key to lead with a high-cardinality, non-sequential field such as <device_id>#<reverse_timestamp> so writes are distributed across tablets.",
+      "Switch the cluster from SSD to HDD storage to obtain more nodes for the same price.",
+      "Enable replication to a second cluster and route all writes to the new cluster.",
+      "Enable Bigtable autoscaling on the cluster with a CPU utilization target and minimum and maximum node counts.",
+      "Increase the garbage-collection policy to retain more cell versions so reads hit fewer tablets."
+    ],
+    "answer": [0, 3],
+    "explanation": "Row keys that begin with a timestamp cause all concurrent writes to land in the same tablet (hotspotting), which no amount of nodes fixes; leading with a well-distributed field such as device ID (optionally with a reversed timestamp for time-range scans per device) spreads load across the key space. Bigtable autoscaling adjusts node count automatically between configured bounds based on CPU and storage utilization, removing the manual add-and-forget cycle and its cost. Option B trades latency for capacity, which makes evening latency worse. Option C adds a second cluster that would inherit the same hotspot because the key design is unchanged. Option E affects storage and read amplification but does nothing for a write hotspot. Schema design plus autoscaling addresses performance and cost optimization together.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/schema-design",
+      "https://cloud.google.com/bigtable/docs/autoscaling"
+    ]
+  },
+  {
+    "id": "d2-sto-032",
+    "domain": 2,
+    "topic": "Bigtable backups",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fraud-detection team stores feature vectors in a Bigtable table in a single-cluster instance in asia-northeast1. They need a daily backup that can be restored quickly, kept for 60 days, and that also exists in a second region in case asia-northeast1 is lost. They want to avoid building export pipelines. What should you do?",
+    "options": [
+      "Export the table daily to SequenceFiles in Cloud Storage with a Dataflow template and store them in a multi-region bucket.",
+      "Add a replicated cluster in another region and treat replication as the backup.",
+      "Create daily Bigtable backups of the table with a 60-day expiration and copy each backup to a cluster in a different region using the backup copy feature.",
+      "Enable Bigtable point-in-time recovery with 60-day retention."
+    ],
+    "answer": [2],
+    "explanation": "Bigtable backups are native, incremental snapshots of a table that can be created on demand or automated, retained for up to 90 days, restored to a new table quickly, and copied to a cluster in another region, project, or instance for disaster recovery, all without Dataflow. Option A works but requires operating an export pipeline and restores are slower because data must be re-imported. Option B is not a backup: replication propagates deletions and corruption to every cluster within seconds. Option D describes a feature Bigtable does not offer; Bigtable has no point-in-time recovery beyond its backup mechanism. This meets the reliability requirement with the least operational overhead.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/backups",
+      "https://cloud.google.com/bigtable/docs/managing-backups#copy-backup"
+    ]
+  },
+  {
+    "id": "d2-sto-033",
+    "domain": 2,
+    "topic": "BigQuery",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail analytics team queries a 40 TB BigQuery table of sales events. Most queries filter on a date range of a few days and on store_id, yet every query scans the full table and on-demand costs are rising. Without changing the query tool, how should you reduce the amount of data scanned?",
+    "options": [
+      "Recreate the table partitioned by the event date column and clustered by store_id, and require a partition filter on queries.",
+      "Split the table into 40 separate 1 TB tables and instruct analysts to query the correct one.",
+      "Enable BigQuery BI Engine on the dataset so that queries are served from memory.",
+      "Convert the table to an external table over Parquet files in Cloud Storage to benefit from columnar pruning."
+    ],
+    "answer": [0],
+    "explanation": "Partitioning by date lets BigQuery read only the partitions that match the date filter, and clustering by store_id further prunes storage blocks within those partitions, so a query for a few days at a few stores scans a small fraction of 40 TB; requiring a partition filter prevents accidental full scans. Option B is manual sharding that BigQuery explicitly discourages and does not prune within tables. Option C accelerates dashboard queries but is capacity-limited and does not reduce bytes billed for general queries. Option D typically performs worse than native storage and external tables do not support partition-level cost guarantees in the same way. Partitioning and clustering are the primary cost-optimization levers for BigQuery storage design.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/partitioned-tables",
+      "https://cloud.google.com/bigquery/docs/clustered-tables"
+    ]
+  },
+  {
+    "id": "d2-sto-034",
+    "domain": 2,
+    "topic": "BigQuery capacity",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecommunications company runs two kinds of BigQuery workloads in one project: a steady 24x7 ELT pipeline that consistently consumes about 1,500 slots, and a finance close process that needs up to 6,000 slots for the last three days of every month but is otherwise idle. On-demand billing has become unpredictable and expensive, and the company wants a predictable bill with discounts for the steady portion. What should you do?",
+    "options": [
+      "Stay on on-demand pricing and request a quota increase so the finance workload is not throttled at the default slot cap.",
+      "Purchase a 6,000-slot one-year commitment so both workloads always have enough capacity.",
+      "Create a Standard edition reservation with 6,000 baseline slots and assign both workloads to it.",
+      "Create an Enterprise edition reservation with a 1,500-slot baseline backed by a one- or three-year slot commitment and autoscaling up to 6,000 slots, and assign the project to the reservation."
+    ],
+    "answer": [3],
+    "explanation": "BigQuery editions let you combine a committed baseline (discounted with one- or three-year commitments) for steady demand with autoscaling slots that are added in increments only while needed and billed per second, so the ELT pipeline gets a predictable, discounted price and the month-end finance close scales up temporarily without a permanent purchase. Option A keeps unpredictable per-byte charges and quota increases do not address cost. Option B overpays for 4,500 slots that sit idle 90% of the month. Option C is doubly wrong: Standard edition does not support commitments or baseline-plus-autoscale beyond its limits and paying for 6,000 baseline slots all month is the most expensive path. Right-sizing reservations is a core cost-optimization practice for analytics platforms.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/editions-intro",
+      "https://cloud.google.com/bigquery/docs/slots-autoscaling-intro"
+    ]
+  },
+  {
+    "id": "d2-sto-035",
+    "domain": 2,
+    "topic": "BigQuery data protection",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An analyst accidentally dropped a critical BigQuery table three days ago in a dataset that uses the default time-travel window. Separately, the data governance team wants to be able to restore any table in the dataset to its state at each month-end for the next two years. What should you do?",
+    "options": [
+      "Recover the dropped table from the dataset's fail-safe storage and enable object versioning on the dataset for month-end retention.",
+      "Restore the dropped table using time travel (for example, bq cp with a @timestamp decorator or UNDROP TABLE), and create monthly BigQuery table snapshots with a two-year expiration for month-end retention.",
+      "Ask Google Cloud Support to restore the table from backups, and schedule monthly exports to Cloud Storage in Avro format.",
+      "Increase the dataset's time-travel window to two years so both requirements are satisfied."
+    ],
+    "answer": [1],
+    "explanation": "BigQuery time travel lets you access or restore a table's data from any point within the window (default seven days, configurable from two to seven days), including undeleting tables with UNDROP TABLE or copying from a @timestamp decorator, so a table dropped three days ago is recoverable. For retention far beyond seven days, table snapshots are lightweight, point-in-time copies that store only changed data and can carry an expiration, making monthly snapshots the right long-term mechanism. Option A misunderstands fail-safe, which is an additional seven days that only Google Cloud Support can use for emergency recovery, and BigQuery has no object versioning. Option C escalates unnecessarily and exports lose table metadata and are slower to restore. Option D is impossible because the time-travel window maximum is seven days. This applies the reliability pillar's data-protection guidance.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/time-travel",
+      "https://cloud.google.com/bigquery/docs/table-snapshots-intro"
+    ]
+  },
+  {
+    "id": "d2-sto-036",
+    "domain": 2,
+    "topic": "Persistent Disk snapshots",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company runs 120 Compute Engine VMs with Persistent Disk boot and data volumes. Its policy requires a daily backup of every disk retained for 14 days, and the operations team wants the process to be automatic and to apply to new disks with minimal manual steps. What should you do?",
+    "options": [
+      "Write a Cloud Run function triggered by Cloud Scheduler that iterates over all disks and calls the snapshot API, then deletes snapshots older than 14 days.",
+      "Create a machine image of each VM every day and delete images older than 14 days.",
+      "Create a snapshot schedule (resource policy) with a daily frequency and 14-day retention, and attach it to the disks; use the schedule as the default for new disks in the region.",
+      "Enable Backup for GKE on the project so that all disks are backed up daily."
+    ],
+    "answer": [2],
+    "explanation": "Snapshot schedules are Compute Engine resource policies that automatically create incremental snapshots on a defined cadence and delete them after a retention period, with no code to maintain; a schedule can be attached to many disks and can be specified as the default snapshot schedule so newly created disks in that region adopt it automatically. Option A reinvents a managed feature and must be operated and monitored. Option B captures VM configuration and disks together, but machine images are heavier, not intended for daily per-disk backup rotation, and lack retention automation. Option D is unrelated: Backup for GKE protects Kubernetes workloads and their persistent volumes, not arbitrary VMs. This is the operational-excellence way to implement disk protection.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/scheduled-snapshots",
+      "https://cloud.google.com/compute/docs/disks/snapshots"
+    ]
+  },
+  {
+    "id": "d2-sto-037",
+    "domain": 2,
+    "topic": "Persistent Disk snapshots",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A hospital runs a self-managed PostgreSQL database on a Compute Engine VM with a Persistent Disk data volume. Nightly snapshots are taken by a snapshot schedule, but a recent test restore produced a corrupted database because the snapshot captured writes mid-transaction. The DBA also wants restores to be possible in a different region. Which two changes should you make to the snapshot configuration? (Choose two.)",
+    "options": [
+      "Enable application-consistent (guest flush) snapshots in the schedule and install pre- and post-snapshot scripts on the VM that quiesce PostgreSQL.",
+      "Switch the schedule to create snapshots every 15 minutes so that a consistent one is more likely to exist.",
+      "Set the snapshot storage location to a multi-region or to a region different from the VM's region.",
+      "Detach the disk from the VM before each snapshot using a Cloud Scheduler job.",
+      "Replace snapshots with disk clones, which are always consistent."
+    ],
+    "answer": [0, 2],
+    "explanation": "Compute Engine supports application-consistent snapshots: with the guest flush option, the guest environment runs pre-snapshot and post-snapshot scripts (or VSS on Windows) so the database can flush and freeze I/O for an instant, producing a snapshot that restores cleanly. Snapshots are stored in a location you choose; selecting a multi-region or another region ensures they survive a regional outage and can be used to create disks in other regions. Option B does not solve consistency; frequency has nothing to do with whether a snapshot is mid-transaction. Option D would cause downtime every night and is unnecessary. Option E is wrong because disk clones are crash-consistent copies in the same region, not application-consistent backups. Together these changes address the reliability pillar's backup integrity and geographic separation requirements.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/creating-linux-application-consistent-pd-snapshots",
+      "https://cloud.google.com/compute/docs/disks/snapshots#selecting_a_storage_location"
+    ]
+  },
+  {
+    "id": "d2-sto-038",
+    "domain": 2,
+    "topic": "Backup and DR Service",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing conglomerate has migrated a mixed estate to Google Cloud: hundreds of Compute Engine VMs across 30 projects, Oracle and SQL Server databases running on VMs, and workloads on Google Cloud VMware Engine. The backup team must apply centrally defined backup policies to all of these from one console, obtain application-consistent database backups, and report on compliance, without scripting per-workload solutions. What should you do?",
+    "options": [
+      "Use per-project Persistent Disk snapshot schedules for VMs and native RMAN and SQL Server Agent jobs to Cloud Storage for the databases.",
+      "Deploy the Backup and DR Service with a management console, create backup plans and backup vaults, and protect the Compute Engine VMs, VMware Engine VMs, and Oracle and SQL Server databases through the service's agents and integrations.",
+      "Use Backup for GKE to protect the databases and Migration Center to inventory the VMs for snapshot coverage.",
+      "Configure Cloud SQL automated backups after migrating all Oracle and SQL Server databases to Cloud SQL, and use machine images for VMware Engine workloads."
+    ],
+    "answer": [1],
+    "explanation": "Backup and DR Service is Google Cloud's centralized, managed backup solution that covers Compute Engine VMs, Google Cloud VMware Engine VMs, and databases such as Oracle, SQL Server, and SAP HANA with application-consistent backups, applying policy templates (backup plans) across projects and storing data in backup vaults, with built-in reporting and compliance views. Option A is a fragmented mix of tools with no central policy or reporting and requires scripting for databases. Option C misapplies Backup for GKE (Kubernetes only) and Migration Center (discovery and assessment, not backup). Option D forces a database migration to Cloud SQL, which is out of scope and not possible for Oracle, and machine images are not a policy-driven backup service. Centralized, policy-based protection reflects the operational-excellence and reliability pillars.",
+    "refs": [
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-dr",
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-vault"
+    ]
+  },
+  {
+    "id": "d2-sto-039",
+    "domain": 2,
+    "topic": "Backup and DR Service",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "After a ransomware incident at a peer company, a logistics firm's board requires that backups of its Compute Engine workloads be immutable and indelible for at least 30 days, even if an attacker gains project owner permissions in the workload projects, and that backups be logically isolated from the production environment. What should you do?",
+    "options": [
+      "Continue using snapshot schedules and grant the Compute Storage Admin role only to the backup team.",
+      "Copy Persistent Disk snapshots to a Cloud Storage bucket in the same project with a 30-day retention policy.",
+      "Enable soft delete on the snapshots and set the project's default retention to 30 days.",
+      "Use the Backup and DR Service with a backup vault created in a separate, tightly controlled project and configure a minimum enforced retention of at least 30 days on the vault."
+    ],
+    "answer": [3],
+    "explanation": "Backup and DR Service backup vaults store backups in a Google-managed project that is isolated from the source workload project; the vault's minimum enforced retention makes backups immutable and indelible for the configured period, so even a compromised project owner cannot delete or shorten them, and placing the vault in a separate administrative project enforces logical separation. Option A relies on IAM alone; an attacker with owner permissions in the workload project can still delete snapshots. Option B is not possible as described (snapshots are not files you copy into a bucket) and a bucket in the same project remains within the attacker's reach. Option C is incorrect because soft delete applies to Cloud Storage objects, not Compute Engine snapshots, and it is a recovery window rather than an immutability guarantee. This is a security- and reliability-pillar control against ransomware.",
+    "refs": [
+      "https://cloud.google.com/backup-disaster-recovery/docs/concepts/backup-vault",
+      "https://cloud.google.com/backup-disaster-recovery/docs/backup-vault/create-backup-vault"
+    ]
+  },
+  {
+    "id": "d2-sto-040",
+    "domain": 2,
+    "topic": "Firestore",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile banking app stores customer profiles in Firestore in Native mode. A faulty release corrupted thousands of documents over a two-hour period yesterday. The engineering lead wants to be able to read the data as it existed at any minute during the past week, and to restore the entire database to a moment just before the bad release, using native Firestore capabilities. What should you do?",
+    "options": [
+      "Enable point-in-time recovery (PITR) on the database; use stale reads with a read timestamp to inspect past data, and restore the database to a timestamp before the release into a new database.",
+      "Enable daily managed exports to Cloud Storage and import yesterday's export over the live database.",
+      "Turn on Firestore multi-region replication so a healthy replica can be promoted.",
+      "Use the Firestore emulator to replay the last week of Cloud Audit Logs and reconstruct the documents."
+    ],
+    "answer": [0],
+    "explanation": "Firestore point-in-time recovery retains document versions for seven days at one-minute granularity; with PITR enabled you can perform stale reads at any past minute to inspect or selectively recover data, and you can restore the database to a chosen timestamp into a new database. Option B provides only daily granularity, so up to a day of legitimate changes would be lost, and importing over a live database merges rather than replaces documents. Option C is wrong because replication propagates corruption immediately and Firestore does not offer promotable replicas. Option D is not a supported recovery method; audit logs do not contain document contents. PITR is the reliability-pillar feature designed for exactly this logical-corruption scenario.",
+    "refs": [
+      "https://cloud.google.com/firestore/docs/pitr",
+      "https://cloud.google.com/firestore/docs/use-pitr"
+    ]
+  },
+  {
+    "id": "d2-sto-041",
+    "domain": 2,
+    "topic": "Firestore backups",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regulated insurer uses Firestore for policy documents. Auditors require weekly database backups that are retained for 14 weeks and can be restored into a separate database for review, plus a quarterly copy in Cloud Storage that can be loaded into BigQuery for analysis. The team wants the least custom code. What should you do?",
+    "options": [
+      "Enable point-in-time recovery, which retains data for 14 weeks, and query it directly from BigQuery.",
+      "Write a Cloud Run job that reads every collection weekly and writes JSON files to Cloud Storage with a lifecycle rule of 98 days.",
+      "Create a Firestore scheduled backup with a weekly recurrence and 14-week retention, and use Cloud Scheduler to trigger a quarterly managed export to Cloud Storage, which BigQuery can load.",
+      "Enable Firestore multi-region and use Datastream to replicate Firestore into BigQuery continuously."
+    ],
+    "answer": [2],
+    "explanation": "Firestore scheduled backups are a native feature that creates daily or weekly backups with retention up to 14 weeks, and a backup can be restored into a new database for review, satisfying the audit requirement without code. The managed export service writes a database or selected collections to Cloud Storage in a format BigQuery can load directly, and triggering it quarterly with Cloud Scheduler (via the exportDocuments API) needs no custom data-handling code. Option A is wrong because PITR retention is seven days, not 14 weeks, and PITR data cannot be queried from BigQuery. Option B is custom code that must be maintained and does not produce restorable Firestore backups. Option D does not create backups, and Datastream does not support Firestore as a source. Native backups and exports minimize operational overhead.",
+    "refs": [
+      "https://cloud.google.com/firestore/docs/backups",
+      "https://cloud.google.com/firestore/docs/manage-data/export-import"
+    ]
+  },
+  {
+    "id": "d2-sto-042",
+    "domain": 2,
+    "topic": "Cloud SQL availability",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A SaaS HR platform runs Cloud SQL for PostgreSQL in us-central1. Its service level objectives require automatic failover within about a minute if a zone fails, and the ability to resume service in another region within one hour if the entire region is unavailable, with minimal data loss. Which two configurations should you implement? (Choose two.)",
+    "options": [
+      "Enable automated backups with point-in-time recovery and rely on restoring from backup in the event of any failure.",
+      "Configure the instance for high availability (regional) so that a synchronous standby in a second zone takes over automatically.",
+      "Create a cross-region read replica in another region that can be promoted to a standalone primary during a regional outage.",
+      "Create a second independent Cloud SQL instance in another region and dual-write from the application to both.",
+      "Place the instance's disk on a Regional Persistent Disk and mount it from a standby VM in another region."
+    ],
+    "answer": [1, 2],
+    "explanation": "Cloud SQL high availability uses a synchronously replicated standby in a different zone of the same region with automatic failover typically completing in about 60 seconds, addressing the zonal requirement. A cross-region read replica continuously receives asynchronous replication and can be promoted to a writable primary, meeting the one-hour regional recovery objective with only seconds of potential data loss. Option A satisfies durability but restoring from backup takes longer than the objectives and loses data up to the last log flush; it complements but cannot replace HA and replicas. Option D introduces application complexity and consistency risks that managed replication avoids. Option E is not possible: Cloud SQL manages its own storage and Regional Persistent Disks do not span regions. This is the standard reliability-pillar design for Cloud SQL.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/postgres/high-availability",
+      "https://cloud.google.com/sql/docs/postgres/replication/cross-region-replicas"
+    ]
+  },
+  {
+    "id": "d2-sto-043",
+    "domain": 2,
+    "topic": "Persistent Disk",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media archive application on a Linux Compute Engine VM stores files on a 2 TB Balanced Persistent Disk that is 95% full. The application cannot tolerate downtime, and the team also wants better IOPS, which are currently limited by disk size. What should you do?",
+    "options": [
+      "Stop the VM, create a new 4 TB disk, copy the data with rsync, and swap the disks.",
+      "Resize the existing disk to 4 TB while the VM is running, then extend the partition and file system online; performance increases with the new size.",
+      "Attach a second 2 TB disk and configure the application to write new files there.",
+      "Take a snapshot, restore it to a 4 TB disk, and reboot the VM onto the new disk during a maintenance window."
+    ],
+    "answer": [1],
+    "explanation": "Persistent Disks (and Hyperdisks) can be resized while attached to a running VM with no downtime; after growing the disk, you extend the partition and file system online (for example, with growpart and resize2fs or xfs_growfs). Because Persistent Disk IOPS and throughput scale with provisioned size, doubling the disk also raises the performance limits. Disks can never be shrunk, so planning growth in reasonable increments is important. Options A and D introduce downtime and data-copy windows that the requirement forbids. Option C avoids downtime but splits the data set across two volumes, complicating the application and backups, and does not improve the original disk's performance. This is a performance and operational-excellence decision.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/disks/resize-persistent-disk",
+      "https://cloud.google.com/compute/docs/disks/performance"
+    ]
+  },
+  {
+    "id": "d2-sto-044",
+    "domain": 2,
+    "topic": "Spanner",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A gaming company's regional Spanner instance has 3 nodes and stores 27 TB of data. High-priority CPU utilization averages only 20%. A new game launch is expected to add roughly 6 TB of data over the next month. The operations team asks whether any action is needed. What should you recommend?",
+    "options": [
+      "No action is required, because Spanner storage is unlimited per node and CPU utilization is low.",
+      "Reduce the instance to 2 nodes to save cost, because CPU utilization is well below the recommended maximum.",
+      "Migrate the data to Bigtable, which is better suited for large storage volumes.",
+      "Add nodes (or processing units) before the launch, because each node supports a limited amount of storage and the instance is approaching its storage limit."
+    ],
+    "answer": [3],
+    "explanation": "Spanner enforces a storage limit per node (10 TB per node, or 1 TB per 100 processing units); with 3 nodes the instance can hold 30 TB, so adding 6 TB would exceed the limit and cause writes to fail even though CPU is idle. Capacity must be increased ahead of the growth, and enabling the managed autoscaler with storage-based scaling would handle this automatically. Option A is factually incorrect about storage being unlimited. Option B would immediately breach the limit at 20 TB capacity. Option C is a disruptive migration for a routine capacity adjustment and Bigtable has different consistency and query semantics. Growth planning must consider both compute and storage dimensions, a reliability-pillar practice.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/compute-capacity#storage-limits",
+      "https://cloud.google.com/spanner/docs/managed-autoscaler#storage"
+    ]
+  },
+  {
+    "id": "d2-sto-045",
+    "domain": 2,
+    "topic": "Bigtable",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An ad-tech company is provisioning a Bigtable instance for real-time bidding. The application requires single-digit-millisecond read latency at the 99th percentile for point lookups, and data volume will start at 2 TB and grow steadily. Cost is secondary to latency. Which storage type should you choose for the cluster?",
+    "options": [
+      "SSD storage, which provides low, predictable latency for point reads and supports more storage-driven throughput per node.",
+      "HDD storage, which is cheaper and adequate for point lookups.",
+      "HDD storage for the first cluster and SSD for a replica cluster, switching storage type later as latency requires.",
+      "SSD storage initially, migrating to HDD once data exceeds 10 TB to save cost."
+    ],
+    "answer": [0],
+    "explanation": "Bigtable SSD storage delivers single-digit-millisecond latency for point reads and significantly higher per-node read throughput, which is what a latency-critical bidding system needs; HDD is intended for large, infrequently accessed, scan-oriented datasets where reads are typically tens of milliseconds. Option B fails the latency requirement. Options C and D are not feasible because the storage type is set at instance creation and applies to all clusters in the instance; it cannot be changed later without creating a new instance and migrating data. Choosing SSD reflects the performance-optimization pillar with the stated priority on latency over cost.",
+    "refs": [
+      "https://cloud.google.com/bigtable/docs/choosing-ssd-hdd",
+      "https://cloud.google.com/bigtable/docs/performance"
+    ]
+  },
+  {
+    "id": "d2-sto-046",
+    "domain": 2,
+    "topic": "BigQuery storage",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A log analytics company stores 5 PB of highly repetitive JSON-derived event data in BigQuery. Its finance team notes that storage now costs more than compute. Analysis shows that the compressed physical size is about 8x smaller than the logical size, most tables have not been modified in over 90 days, and nobody queries partitions older than 18 months. Which combination of changes will most reduce storage cost?",
+    "options": [
+      "Export data older than 90 days to Cloud Storage Coldline and delete it from BigQuery.",
+      "Enable Autoclass on the BigQuery datasets so cold partitions move to Archive storage.",
+      "Switch the datasets' storage billing model to physical (compressed) bytes, set a partition expiration of 18 months on the tables, and leave unmodified tables to benefit from long-term storage pricing automatically.",
+      "Convert the tables to external tables over Parquet files in Cloud Storage to stop paying for BigQuery storage."
+    ],
+    "answer": [2],
+    "explanation": "BigQuery lets you choose per dataset between logical and physical storage billing; when data compresses very well (here 8x), physical billing is dramatically cheaper even though its per-GB rate is higher, and BigQuery offers a forecast to compare. Partition expiration automatically deletes partitions past 18 months, removing data nobody queries. Tables and partitions untouched for 90 consecutive days are automatically billed at the long-term storage rate (about 50% lower) with no action required. Option A adds pipeline complexity and loses queryability without necessarily beating physical billing plus long-term pricing. Option B is invalid because Autoclass is a Cloud Storage feature. Option D typically increases query cost and latency and forfeits BigQuery storage optimizations while still paying for Cloud Storage. This is a cost-optimization decision grounded in BigQuery's billing model.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/datasets-intro#dataset_storage_billing_models",
+      "https://cloud.google.com/bigquery/docs/managing-partitioned-tables#partition-expiration"
+    ]
+  },
+  {
+    "id": "d2-sto-047",
+    "domain": 2,
+    "topic": "Filestore backups",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A design agency stores project files on a Filestore Zonal instance in us-west1-b that is mounted by Compute Engine render nodes. The agency needs daily backups retained for 30 days that can be restored to a new instance in a different zone if us-west1-b becomes unavailable, using managed features and minimal scripting. What should you do?",
+    "options": [
+      "Take Persistent Disk snapshots of the render nodes, which include the mounted Filestore data.",
+      "Create a Filestore backup schedule (or trigger backups via Cloud Scheduler) with 30-day retention; Filestore backups are stored regionally and can be restored to a new instance in any zone of the region.",
+      "Use gcloud storage rsync from a render node to a Cloud Storage bucket every night and rely on the bucket for restore.",
+      "Enable Filestore snapshots on the instance, which are automatically replicated to other zones."
+    ],
+    "answer": [1],
+    "explanation": "Filestore backups are incremental, managed copies of a file share stored in regional Cloud Storage-backed infrastructure, so they survive a zonal outage and can be restored to a new Filestore instance in any zone of the same region (and to other regions for some tiers); backup schedules or a Cloud Scheduler trigger automate creation and expiration. Option A is wrong because NFS-mounted data is not part of a client VM's disk and is not captured by its snapshots. Option C is a self-managed process that loses NFS metadata fidelity and does not provide a native Filestore restore path. Option D confuses snapshots with backups: Filestore snapshots live on the same instance for quick file-level recovery and offer no protection against zonal failure. This follows the reliability pillar for file storage protection.",
+    "refs": [
+      "https://cloud.google.com/filestore/docs/backups",
+      "https://cloud.google.com/filestore/docs/snapshots"
+    ]
+  },
+  {
+    "id": "d2-sto-048",
+    "domain": 2,
+    "topic": "Backup for GKE",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A fintech runs a stateful PostgreSQL operator and several microservices on GKE with Persistent Disk-backed PersistentVolumes. The platform team needs scheduled backups that capture both Kubernetes resources (Deployments, Secrets, ConfigMaps, CRDs) and the volume data consistently, and must be able to restore an entire namespace into a cluster in another region. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enable the Backup for GKE add-on on the cluster and create a backup plan with a schedule, volume data backup enabled, and application-consistent hooks for the database Pods.",
+      "Create Persistent Disk snapshot schedules on the underlying disks and export the Kubernetes manifests with kubectl get -o yaml nightly.",
+      "Create a restore plan targeting a GKE cluster in the destination region, with the backup plan's backups stored in a multi-region or the destination region.",
+      "Use Velero installed via Helm with Cloud Storage as the object store because Google Cloud offers no native GKE backup service.",
+      "Rely on the PostgreSQL operator's built-in replication to a second cluster and skip volume backups."
+    ],
+    "answer": [0, 2],
+    "explanation": "Backup for GKE is Google's managed service for protecting GKE workloads: a backup plan captures cluster-state (all Kubernetes resources including Secrets and CRDs) and, optionally, volume data from Persistent Disk-backed PVs, with pre- and post-backup hooks (ProtectedApplication) for application consistency. A restore plan can target a different cluster, including one in another region when the backups' storage location allows, enabling namespace-level cross-region recovery. Option B splits resources from data, offers no consistency between them, and requires custom restore procedures. Option D is factually wrong; Backup for GKE exists and is the recommended approach. Option E protects against some failures but not against logical corruption or accidental deletion, which propagate through replication. This is a reliability-pillar design for stateful Kubernetes workloads.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/concepts/backup-for-gke",
+      "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/how-to/restore-plan"
+    ]
+  },
+  {
+    "id": "d2-sto-049",
+    "domain": 2,
+    "topic": "Compute Engine data protection",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An engineering firm runs a licensed simulation server on a Compute Engine VM with one boot disk and three data disks, custom metadata, and specific network tags. It needs to be able to re-create the complete VM, including all disks and configuration, in a different region during disaster recovery, and separately needs a fast rollback point immediately before risky software upgrades on the same VM. Which two features should you use? (Choose two.)",
+    "options": [
+      "Create a machine image of the VM, stored in a multi-region location, for full VM recovery including all disks and instance properties.",
+      "Create a custom image from the boot disk only, since data disks can be recreated empty.",
+      "Take instant snapshots of the disks immediately before each upgrade for near-instant in-place rollback.",
+      "Enable Live Migration so the VM moves to another region automatically during a disaster.",
+      "Use Cloud Storage object versioning on the VM's disks to keep historical copies."
+    ],
+    "answer": [0, 2],
+    "explanation": "A machine image captures the VM's configuration (machine type, metadata, labels, network tags) together with the contents of all attached disks in a single, differentially stored resource that can be used to create an identical VM in another zone or region, making it the right primary for full-VM disaster recovery. Instant snapshots are stored in the same zone or region as the disk and are created and restored in seconds, which is ideal as a short-lived rollback point before an upgrade (they are not a substitute for geographically separated backups). Option B loses the data disks and configuration. Option D is wrong because live migration moves VMs between hosts within a zone during maintenance, not across regions. Option E is not possible; Persistent Disks are not Cloud Storage objects. Matching each feature to its recovery scenario reflects the reliability pillar.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/machine-images",
+      "https://cloud.google.com/compute/docs/disks/instant-snapshots"
+    ]
+  },
+  {
+    "id": "d2-sto-050",
+    "domain": 2,
+    "topic": "Spanner data protection",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketplace stores order data in Spanner. A deployment at 09:15 today ran a migration that incorrectly updated the status column of about 2% of orders across many tables, and the error was noticed at 13:40. The business needs to correct only the affected rows without losing the legitimate orders written after 09:15, and it wants to be prepared for similar incidents for up to a few days after they occur. What should you do?",
+    "options": [
+      "Extend the database's version_retention_period (point-in-time recovery window) to several days; for this incident, perform stale reads at a timestamp just before 09:15 to retrieve the correct status values and write them back to the affected rows, or back up at that timestamp and restore selectively.",
+      "Restore last night's Spanner backup over the production database and ask customers to resubmit any orders placed today.",
+      "Enable Spanner multi-region replication so a replica that has not yet applied the migration can be promoted.",
+      "Increase the backup schedule frequency to every 15 minutes so future incidents can be restored with minimal loss."
+    ],
+    "answer": [0],
+    "explanation": "Spanner point-in-time recovery is enabled by setting the database's version_retention_period (from the default one hour up to seven days); within that window you can run stale reads at any past timestamp to retrieve prior row values and apply targeted fixes, or create a backup at that timestamp and restore it to a new database to copy data across, all without discarding writes made after the incident. Because the retention period must already be in effect at the time of the incident, raising it now is the preparedness step for future events. Option B destroys four hours of valid orders, which the business rejects. Option C is wrong because replicas apply all commits synchronously; there is no lagging replica to promote. Option D cannot achieve row-level surgical recovery and Spanner backups are not designed for 15-minute cadences. This is a reliability-pillar recovery approach for logical errors.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/pitr",
+      "https://cloud.google.com/spanner/docs/use-pitr"
+    ]
+  }
+]

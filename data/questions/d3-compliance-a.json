@@ -1,0 +1,534 @@
+[
+  {
+    "id": "d3-cmp-001",
+    "domain": 3,
+    "topic": "HIPAA and BAA",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A digital health startup is about to launch a telemedicine platform on Google Cloud that will store protected health information (PHI) for patients in the United States. The compliance officer says that no PHI may be uploaded until the company's HIPAA obligations with Google are formally in place. You want to follow Google-recommended practices. What should you do first?",
+    "options": [
+      "Open a support case asking Google to certify the telemedicine application as HIPAA compliant before go-live.",
+      "Enable Assured Workloads with the FedRAMP High control package, because it is a superset of HIPAA.",
+      "Review and accept the Google Cloud Business Associate Agreement (BAA) in the Cloud Console as an account administrator, and restrict the workload to services covered by the BAA.",
+      "Sign a separate BAA for each project by emailing the Google Cloud legal team a signed copy of your internal BAA template."
+    ],
+    "answer": [2],
+    "explanation": "Under HIPAA, Google acts as a business associate, and the BAA must be in place before PHI is processed; Google offers a standard BAA that an account administrator accepts directly in the Cloud Console, and it covers the whole account rather than individual projects. After accepting it, you must restrict the workload to the services listed as covered under the BAA. Option A is wrong because Google does not certify customer applications; HIPAA has no certification body and compliance is a shared responsibility. Option B is wrong because FedRAMP is a US federal government framework, not a substitute for a BAA. Option D is wrong because Google uses its own standard BAA at the account level, not per-project custom agreements sent by email.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/hipaa",
+      "https://cloud.google.com/security/compliance/hipaa-compliance"
+    ]
+  },
+  {
+    "id": "d3-cmp-002",
+    "domain": 3,
+    "topic": "Assured Workloads",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional hospital network has accepted the Google Cloud BAA and is building a clinical analytics platform. Internal audit requires technical guardrails so that developers can only create resources in US regions and can only enable services that are covered by the BAA, and requires that the guardrails be monitored continuously with the least amount of operational overhead. What should you recommend?",
+    "options": [
+      "Create an Assured Workloads folder with the Healthcare and Life Sciences Controls package and deploy all clinical projects under it.",
+      "Write a Cloud Run function triggered by Cloud Asset Inventory feeds that deletes any resource created outside US regions or in a non-covered service.",
+      "Apply a custom organization policy on the organization node that lists every BAA-covered API, and review it manually each quarter.",
+      "Use VPC Service Controls to create a perimeter that only includes BAA-covered services and US regions."
+    ],
+    "answer": [0],
+    "explanation": "Assured Workloads control packages such as the Healthcare and Life Sciences Controls automatically apply resource-location and restricted-service organization policies to a folder and continuously monitor for violations in the Assured Workloads dashboard, which meets the guardrail and monitoring requirements with minimal operational effort. Option B is a reactive, custom-built control that deletes resources after the fact and requires ongoing maintenance. Option C requires you to hand-maintain the allowed service list and lacks built-in violation monitoring. Option D is wrong because VPC Service Controls governs data exfiltration between perimeters and cannot restrict where resources are created or which APIs can be enabled.",
+    "refs": [
+      "https://cloud.google.com/assured-workloads/docs/control-packages",
+      "https://cloud.google.com/assured-workloads/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-cmp-003",
+    "domain": 3,
+    "topic": "GDPR right to erasure",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A European e-commerce company stores order history in BigQuery and keeps seven years of immutable transaction archives in Cloud Storage buckets that have a retention policy locked for legal reasons. Under GDPR, customers exercise the right to erasure several times a day, and the data protection officer insists that erased customers' personal data must become unrecoverable even in the locked archives. You need a design that satisfies both the legal retention and the erasure requirement. What should you do?",
+    "options": [
+      "Ask Google Cloud support to remove the retention lock on the affected objects so that individual archive files can be deleted on request.",
+      "Copy the archives into a new bucket without a retention policy, delete the affected records, and delete the original bucket.",
+      "Store the archives with a shorter retention period and rely on object lifecycle rules to delete personal data after 30 days.",
+      "Encrypt each customer's personal data with a per-customer data encryption key before archiving, keep the keys in a separate store, and destroy the customer's key when an erasure request is received."
+    ],
+    "answer": [3],
+    "explanation": "Crypto-shredding is the recognized pattern for reconciling immutable retention with erasure: personal fields are encrypted with a per-data-subject key (wrapped by Cloud KMS), and destroying that key renders the archived data permanently unreadable without modifying the locked objects. Option A is wrong because a locked retention policy cannot be removed by anyone, including Google, which is precisely what makes it defensible for legal hold. Option B defeats the purpose of the legal retention control and would breach the retention obligation. Option C ignores the seven-year legal retention requirement. This solution reflects the security, privacy and compliance pillar of the Well-Architected Framework by separating key management from data storage.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/bucket-lock",
+      "https://cloud.google.com/privacy/gdpr",
+      "https://cloud.google.com/kms/docs/key-management-service"
+    ]
+  },
+  {
+    "id": "d3-cmp-004",
+    "domain": 3,
+    "topic": "Data residency",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS startup is signing its first enterprise customers in the European Union. The contracts require that all customer data be stored only in EU locations. The startup has a single organization with a folder for each environment and wants a preventive control that stops engineers from accidentally creating storage or database resources outside the EU, with minimal ongoing maintenance. What should you do?",
+    "options": [
+      "Create a Cloud Monitoring alert on the location field of new resources and page the on-call engineer when a non-EU region is used.",
+      "Set the organization policy constraint constraints/gcp.resourceLocations on the folders with the allowed value in:eu-locations.",
+      "Configure IAM Conditions on every project so that roles are granted only when the request originates from an EU IP address.",
+      "Write a Terraform validation rule in the CI pipeline that fails the build if a non-EU region string appears in the configuration."
+    ],
+    "answer": [1],
+    "explanation": "The resource locations organization policy is a preventive, inherited control: setting it with the in:eu-locations value group blocks creation of location-bound resources outside EU locations, and Google maintains the value group as new EU regions launch, so it requires no ongoing maintenance. Option A is detective rather than preventive, so data could already have been written outside the EU. Option C controls where the requester is, not where the data lives, and would block legitimate global staff. Option D only covers resources created through that pipeline and misses console, gcloud and API changes.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/privacy/gdpr"
+    ]
+  },
+  {
+    "id": "d3-cmp-005",
+    "domain": 3,
+    "topic": "COPPA children's privacy",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mobile gaming studio is launching a title aimed at children under 13 in the United States, which brings it under the Children's Online Privacy Protection Act (COPPA). The game includes free-text chat and player profiles that are stored in Firestore and analyzed in BigQuery. Legal counsel requires that personal information from children be minimized and that any personal data typed into chat not be retained. Which approach should you recommend?",
+    "options": [
+      "Store all chat messages in a Cloud Storage bucket with a 24-hour lifecycle deletion rule so that personal data ages out quickly.",
+      "Encrypt chat messages with a customer-managed key in Cloud KMS so that personal data is protected at rest.",
+      "Run inbound chat through the Sensitive Data Protection de-identification API to redact PII before storage, collect only the minimum profile fields needed, and gate collection behind a verifiable parental consent flow.",
+      "Route the chat feature through Apigee and enable rate limiting so that children cannot post large volumes of personal information."
+    ],
+    "answer": [2],
+    "explanation": "COPPA requires verifiable parental consent before collecting personal information from children under 13 and encourages data minimization; redacting PII in real time with Sensitive Data Protection before the message is persisted ensures the personal data is never retained, and collecting only necessary profile fields reduces regulatory scope. Option A still stores the personal data, even if briefly, and does not address consent. Option B protects confidentiality but the personal data is still collected and retained, which is the compliance problem. Option D addresses volume, not the collection of personal information, and does not satisfy the consent requirement.",
+    "refs": [
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data",
+      "https://cloud.google.com/security/compliance/coppa"
+    ]
+  },
+  {
+    "id": "d3-cmp-006",
+    "domain": 3,
+    "topic": "FedRAMP",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A systems integrator has won a contract with a US federal agency that requires the hosting environment to meet FedRAMP High. The integrator's cloud team is small and wants Google Cloud to enforce and monitor the required data location, service restriction, and support personnel controls rather than building them by hand. What should you do?",
+    "options": [
+      "Create an Assured Workloads folder with the FedRAMP High control package and deploy the agency workload inside it.",
+      "Deploy the workload in any US region and attach the Google Cloud FedRAMP authorization letter to the agency's security package.",
+      "Enable Security Command Center Premium and select the FedRAMP High compliance standard in the compliance dashboard.",
+      "Create a VPC Service Controls perimeter around the project and restrict ingress to US-based access levels."
+    ],
+    "answer": [0],
+    "explanation": "Assured Workloads FedRAMP High applies the required organization policies for US data locations and in-scope services, ensures support is handled by US persons, and monitors the folder for configuration drift, which offloads the enforcement work to Google. Option B is insufficient because Google's authorization covers the platform, but the customer must still configure the environment correctly under the shared responsibility model. Option C provides detective reporting of findings against a standard but does not enforce residency or personnel controls. Option D reduces data exfiltration risk but does not address location, service scope or support personnel requirements.",
+    "refs": [
+      "https://cloud.google.com/assured-workloads/docs/control-packages",
+      "https://cloud.google.com/security/compliance/fedramp"
+    ]
+  },
+  {
+    "id": "d3-cmp-007",
+    "domain": 3,
+    "topic": "CJIS",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A state police department is moving its records management system, which contains criminal justice information (CJI), to Google Cloud. The CJIS Security Policy requires that only personnel who have passed a state background check can have access to unencrypted CJI, including cloud provider staff performing support. The department also wants to approve any Google access to its content in advance. Which approach should you recommend?",
+    "options": [
+      "Deploy the workload in a US region, enable Cloud Audit Logs, and review Access Transparency logs monthly for provider access.",
+      "Use Google Distributed Cloud connected racks in the department's data center so that no Google employee can access the data.",
+      "Enable customer-supplied encryption keys for all persistent disks so that Google support staff can never decrypt the data.",
+      "Create an Assured Workloads folder with the CJIS control package, and enable Access Approval so that Google support access to customer content requires the department's explicit approval."
+    ],
+    "answer": [3],
+    "explanation": "The CJIS control package in Assured Workloads restricts data to US regions and routes support to CJIS-screened US personnel, which addresses the background-check requirement for provider staff, while Access Approval adds an explicit customer approval step before Google can access customer content. Option A is only detective: Access Transparency records access after it happens and does not constrain who performs it. Option B is a disproportionate architectural change and Google Distributed Cloud connected is still managed by Google, so it does not by itself satisfy personnel screening. Option C protects disks but does not cover other services, complicates operations, and still does not meet the personnel screening or advance-approval requirements.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/cjis",
+      "https://cloud.google.com/assured-workloads/access-approval/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-cmp-008",
+    "domain": 3,
+    "topic": "ITAR",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An aerospace manufacturer stores technical drawings that are export-controlled under the International Traffic in Arms Regulations (ITAR). The engineering team plans to migrate the drawing repository and its CAD rendering pipeline to Google Cloud. The export compliance team requires that the data never leave the United States, that it be encrypted with keys the company controls, and that only US persons can access it, including for provider support. The team already restricts resource locations with an organization policy. What additional measure is required?",
+    "options": [
+      "Nothing further is needed, because the resource locations organization policy already guarantees that data and support remain in the United States.",
+      "Create an Assured Workloads folder with the ITAR control package, migrate the projects into it, and configure customer-managed encryption keys in Cloud KMS located in a US region.",
+      "Enable Cloud Storage Turbo replication to a second US region and configure Access Transparency logging on the projects.",
+      "Move the repository to a Google Workspace shared drive with data regions set to the United States and restrict sharing to internal users."
+    ],
+    "answer": [1],
+    "explanation": "A resource locations policy controls where resources are created, but ITAR also requires controls over who can access the data, including support personnel, and over encryption key ownership; the ITAR control package in Assured Workloads adds US-persons support, restricts in-scope services, and works with US-located CMEK so that the company controls the keys. Option A misunderstands the scope of the resource locations constraint, which says nothing about personnel or support. Option C improves durability and visibility but does not restrict who accesses data. Option D moves the data to a collaboration tool that is not designed for the rendering pipeline and does not address ITAR support-personnel requirements.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/itar",
+      "https://cloud.google.com/assured-workloads/docs/control-packages"
+    ]
+  },
+  {
+    "id": "d3-cmp-009",
+    "domain": 3,
+    "topic": "Digital sovereignty",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A German retail bank must demonstrate to its regulator that customer data hosted on Google Cloud is stored and processed only in the EU, that support is performed only by EU-based personnel, and that Google cannot decrypt the data without the bank's knowledge and a valid, reviewable justification. Which two actions should you take to meet these requirements? (Choose two.)",
+    "options": [
+      "Configure Cloud Storage buckets in the EU multi-region and rely on default Google-managed encryption.",
+      "Create an Assured Workloads folder using the EU Regions and Support control package (Sovereign Controls) and deploy the banking projects inside it.",
+      "Enable Access Transparency logs and export them to a BigQuery dataset in Frankfurt for quarterly review.",
+      "Encrypt the data with Cloud External Key Manager (Cloud EKM) keys hosted outside Google and enable Key Access Justifications so each key use carries a justification code the bank can approve or deny.",
+      "Deploy the workload in a Google Distributed Cloud air-gapped environment in the bank's data center."
+    ],
+    "answer": [1, 3],
+    "explanation": "The EU Regions and Support control package in Assured Workloads enforces EU data location and EU-based support personnel, and Cloud EKM with Key Access Justifications keeps the encryption keys outside Google and attaches a justification to every decryption request that the bank can automatically allow or deny, so Google cannot access plaintext without the bank's knowledge. Option A provides EU storage but Google still holds the keys and support personnel are not restricted. Option C is a useful detective control but does not prevent access or restrict personnel. Option E goes far beyond the requirement and would sacrifice most managed services; it is designed for disconnected, classified environments rather than a regulated bank that can use public cloud.",
+    "refs": [
+      "https://cloud.google.com/assured-workloads/docs/control-packages",
+      "https://cloud.google.com/assured-workloads/key-access-justifications/docs/overview",
+      "https://cloud.google.com/kms/docs/ekm"
+    ]
+  },
+  {
+    "id": "d3-cmp-010",
+    "domain": 3,
+    "topic": "Organization policy - resource locations",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A Canadian insurance company has a folder named prod-canada that contains projects handling policyholder data. A recent audit found a Cloud SQL instance created in us-central1. The security team wants to prevent this from happening again for all current and future projects in that folder, without affecting the company's other folders that host global marketing sites. What should you do?",
+    "options": [
+      "Set the constraints/gcp.resourceLocations organization policy on the prod-canada folder with allowed values limited to Canadian regions, and remediate the existing instance separately.",
+      "Set the constraints/gcp.resourceLocations organization policy on the organization node with allowed values limited to Canadian regions.",
+      "Remove the roles/cloudsql.admin role from all engineers and require infrastructure changes to be submitted through a ticketing system.",
+      "Create a Cloud Asset Inventory saved query that lists resources outside Canada and email it to the team every Friday."
+    ],
+    "answer": [0],
+    "explanation": "Organization policies are inherited down the resource hierarchy, so applying the resource locations constraint on the prod-canada folder restricts every current and future project in that folder while leaving other folders untouched; note that the constraint blocks new resource creation but does not move or delete the existing non-compliant instance, which must be migrated manually. Option B would break the global marketing workloads in other folders. Option C introduces heavy process overhead and does not technically prevent the misconfiguration. Option D is detective only and would not prevent recurrence.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
+    ]
+  },
+  {
+    "id": "d3-cmp-011",
+    "domain": 3,
+    "topic": "BigQuery data residency",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A UK fintech's data team created its main BigQuery dataset in the US multi-region two years ago. A new regulatory interpretation requires all customer transaction data to be located in the United Kingdom by the end of the quarter. The dataset is about 40 TB with dozens of tables, and downstream Looker dashboards reference the dataset by name. You want the least disruptive migration. What should you do?",
+    "options": [
+      "Change the location property of the existing dataset to europe-west2 using the bq update command.",
+      "Export each table to Cloud Storage in the US, transfer the files to a UK bucket with Storage Transfer Service, and load them into a new dataset.",
+      "Create a scheduled query in europe-west2 that selects from the US dataset and writes into new tables in the UK.",
+      "Create a new dataset in europe-west2, use the BigQuery Data Transfer Service cross-region dataset copy to move the tables, then repoint Looker and delete the US dataset."
+    ],
+    "answer": [3],
+    "explanation": "A BigQuery dataset's location is immutable, so the data must be copied into a new dataset in the target region; the Data Transfer Service dataset copy feature handles cross-region copying of all tables in a dataset, including incremental re-runs, with no export or load pipeline to manage. Option A is impossible because the location cannot be changed after creation. Option B works but is a multi-step manual pipeline that is more error prone and slower for 40 TB. Option C fails because a query cannot read from one location and write to a different location in a single job.",
+    "refs": [
+      "https://cloud.google.com/bigquery/docs/copying-datasets",
+      "https://cloud.google.com/bigquery/docs/locations"
+    ]
+  },
+  {
+    "id": "d3-cmp-012",
+    "domain": 3,
+    "topic": "Cloud Storage data residency",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A Canadian provincial health authority is storing diagnostic imaging archives in Cloud Storage. Regulation requires the data to remain within Canada, and the business continuity plan requires the data to survive the loss of a single region with an RPO under 15 minutes. Which bucket configuration should you choose?",
+    "options": [
+      "A single-region bucket in northamerica-northeast1 with Object Versioning and a daily Storage Transfer Service job to northamerica-northeast2.",
+      "A dual-region bucket spanning northamerica-northeast1 and northamerica-northeast2 with turbo replication enabled.",
+      "A multi-region bucket in the US location, because it offers the highest durability and includes Canadian regions.",
+      "A dual-region bucket spanning northamerica-northeast1 and us-east4 to ensure geographic diversity."
+    ],
+    "answer": [1],
+    "explanation": "A dual-region bucket across Montréal and Toronto keeps all data inside Canada while replicating across regions; turbo replication provides an RPO target of 15 minutes for newly written objects, which satisfies the continuity requirement. Option A uses a daily transfer job, so the RPO would be up to 24 hours. Option C is wrong because the US multi-region does not include Canadian regions and would violate residency. Option D places a copy of the data in the United States, which breaches the Canadian residency rule.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/locations",
+      "https://cloud.google.com/storage/docs/availability-durability#turbo-replication"
+    ]
+  },
+  {
+    "id": "d3-cmp-013",
+    "domain": 3,
+    "topic": "Spanner data residency",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pan-European payments processor is designing its ledger on Spanner. It needs 99.999% availability with automatic failover across regions, but its regulator requires that all replicas, including witness replicas, reside within the European Union. Which instance configuration should you choose?",
+    "options": [
+      "A regional configuration in europe-west3 with a second regional instance in europe-west1 kept in sync by Dataflow.",
+      "The nam-eur-asia1 multi-region configuration, because it includes European read-write replicas.",
+      "The eur6 multi-region configuration (Netherlands and Frankfurt with an EU witness), which keeps every replica within the EU.",
+      "The eur5 multi-region configuration, which spans London and Belgium."
+    ],
+    "answer": [2],
+    "explanation": "Spanner multi-region configurations deliver the 99.999% SLA with synchronous cross-region replication, and eur6 (europe-west4 and europe-west3 plus a witness in an EU region) keeps every replica inside the European Union. Option A is a regional configuration, which offers 99.99% and requires custom replication that is not transactionally consistent. Option B is a three-continent configuration whose read-only and witness replicas are outside the EU. Option D is wrong because eur5 includes London, and the United Kingdom is no longer an EU member, which would violate the stated regulatory scope.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/instance-configurations",
+      "https://cloud.google.com/spanner/docs/instances"
+    ]
+  },
+  {
+    "id": "d3-cmp-014",
+    "domain": 3,
+    "topic": "HIPAA architecture",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A pharmaceutical company is building a patient-support application on Google Cloud that will process PHI from US patients. The security architect has been asked to define the HIPAA readiness checklist for the platform team. Which three actions should be included? (Choose three.)",
+    "options": [
+      "Review and accept the Google Cloud BAA for the company's Google Cloud account before any PHI is ingested.",
+      "Ask Google Cloud support to issue a HIPAA compliance certificate for the application.",
+      "Enable Data Access audit logs for every service that stores or processes PHI and retain them according to the company's policy.",
+      "Use only the Cloud Healthcare API, because it is the only Google Cloud service covered by the BAA.",
+      "Limit the platform to services listed as covered under the BAA and use de-identified data in development and test environments.",
+      "Disable Cloud Audit Logs on production projects to avoid PHI accidentally appearing in log entries."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "HIPAA readiness on Google Cloud starts with the BAA, continues with limiting the workload to BAA-covered services (and using de-identified data outside production to reduce scope), and requires auditability, which Data Access audit logs provide for the services handling PHI. Option B is wrong because there is no HIPAA certification; Google supports compliance but cannot certify a customer's application. Option D is wrong because dozens of services, including Compute Engine, BigQuery, Cloud Storage and GKE, are covered by the BAA. Option F is the opposite of best practice; audit logging is a HIPAA requirement, and PHI should be kept out of application log payloads by design rather than by disabling audit trails.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/hipaa-compliance",
+      "https://cloud.google.com/logging/docs/audit"
+    ]
+  },
+  {
+    "id": "d3-cmp-015",
+    "domain": 3,
+    "topic": "Data sovereignty controls",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An Australian government agency already keeps all its Google Cloud resources in Australian regions using an organization policy. Its security assessor now distinguishes between data residency, which is satisfied, and data sovereignty, which requires visibility into and control over any access to the agency's data by the cloud provider's personnel. What should you add to address the sovereignty requirement?",
+    "options": [
+      "Enable Cloud Storage Object Versioning and a bucket retention policy to prove that data has not been modified by Google personnel.",
+      "Enable Access Transparency to log Google administrator actions and Access Approval to require the agency's explicit approval before Google support can access its content.",
+      "Enable VPC Service Controls around all projects so that Google engineers cannot reach the agency's data from outside the perimeter.",
+      "Move all data to customer-supplied encryption keys so that Google personnel can never read it, and disable audit logging to reduce noise."
+    ],
+    "answer": [1],
+    "explanation": "Data sovereignty concerns who can access data and under what jurisdiction, not just where it is stored; Access Transparency provides near-real-time logs of actions Google staff take on customer content, and Access Approval lets the customer approve or deny such access in advance, which together give the required visibility and control. Option A proves integrity but says nothing about provider access. Option C is wrong because VPC Service Controls governs API calls from customer identities and networks, not Google's internal support access paths. Option D is impractical across managed services and disabling audit logging contradicts the sovereignty and accountability goal.",
+    "refs": [
+      "https://cloud.google.com/assured-workloads/access-transparency/docs/overview",
+      "https://cloud.google.com/assured-workloads/access-approval/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-cmp-016",
+    "domain": 3,
+    "topic": "GDPR processor obligations",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The legal team of a Dutch HR software vendor is completing a GDPR Article 28 assessment of Google Cloud as a data processor. They ask you for the contractual document that defines Google's processing obligations, the list of Google subprocessors, and the mechanism for international transfers. What should you provide?",
+    "options": [
+      "The SOC 2 Type II report downloaded from Compliance Reports Manager, because it lists all subprocessors.",
+      "A custom data processing agreement drafted by the vendor's counsel for Google to sign per project.",
+      "The Google Cloud Business Associate Agreement, which covers all personal data processing.",
+      "The Cloud Data Processing Addendum (CDPA), together with Google's published list of subprocessors and the Standard Contractual Clauses incorporated in it."
+    ],
+    "answer": [3],
+    "explanation": "The Cloud Data Processing Addendum is Google Cloud's standard GDPR-aligned processor agreement; it incorporates the EU Standard Contractual Clauses for international transfers and references the public subprocessor list, which is exactly what an Article 28 assessment needs. Option A is an independent audit report about controls, not a contractual document, and it does not enumerate subprocessors. Option B is not how Google contracts at scale; the CDPA is the standard mechanism and is already incorporated into the terms. Option C is a HIPAA-specific agreement for PHI in the US and is not a GDPR processor agreement.",
+    "refs": [
+      "https://cloud.google.com/terms/data-processing-addendum",
+      "https://cloud.google.com/privacy/gdpr"
+    ]
+  },
+  {
+    "id": "d3-cmp-017",
+    "domain": 3,
+    "topic": "Healthcare de-identification",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university hospital wants to share a large collection of DICOM imaging studies and FHIR records with an external research partner. HIPAA permits sharing only if the dataset is de-identified, including burned-in text on images and identifiers inside DICOM metadata. The hospital already stores the data in the Cloud Healthcare API and wants the least custom code. What should you do?",
+    "options": [
+      "Export the studies to Cloud Storage and run a Dataflow pipeline that uses a custom OCR model to find and blur burned-in text.",
+      "Grant the research partner the roles/healthcare.datasetViewer role and ask them to sign a data-use agreement instead of de-identifying.",
+      "Use the Cloud Healthcare API de-identify operation to create a new de-identified dataset, configuring DICOM tag and FHIR field transformations and text redaction for burned-in annotations, then share only the new dataset.",
+      "Use Sensitive Data Protection to inspect the DICOM files as binary objects and delete any file where PII is found."
+    ],
+    "answer": [2],
+    "explanation": "The Cloud Healthcare API includes a managed de-identification operation that handles both DICOM metadata tags and FHIR resource fields and can redact burned-in text in images, writing the results to a separate dataset so that the original PHI never leaves the hospital's control. Option A requires building and maintaining a custom OCR and redaction pipeline, which contradicts the least-code requirement. Option B still discloses PHI to a third party, which requires much more than a data-use agreement under HIPAA. Option D treats images as opaque blobs and would discard rather than de-identify useful studies; Sensitive Data Protection is not the right tool for DICOM-aware transformations.",
+    "refs": [
+      "https://cloud.google.com/healthcare-api/docs/concepts/de-identification",
+      "https://cloud.google.com/healthcare-api/docs/how-tos/dicom-deidentify"
+    ]
+  },
+  {
+    "id": "d3-cmp-018",
+    "domain": 3,
+    "topic": "GDPR cross-border access",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global travel company keeps EU customer data in BigQuery datasets located in europe-west1. Its data science team is based in the United States and needs to build churn models on this data. The data protection officer prohibits copying personal data outside the EU and requires that only approved analysts can query it from managed corporate devices. What should you recommend?",
+    "options": [
+      "Keep the datasets in the EU, place the project in a VPC Service Controls perimeter with an access level that allows only the approved analysts from managed devices, and have the analysts query in place with BigQuery and train models with Vertex AI in an EU region.",
+      "Replicate the datasets nightly to a US region with the BigQuery Data Transfer Service and restrict the US copy with IAM so that only the data science group can read it.",
+      "Export a pseudonymized extract to Cloud Storage in the US each week and train models locally on analysts' laptops.",
+      "Grant the analysts the BigQuery Data Viewer role on the EU datasets and require them to connect through the corporate VPN."
+    ],
+    "answer": [0],
+    "explanation": "Processing the data in place in an EU location avoids any cross-border copy, and a VPC Service Controls perimeter with a context-aware access level enforces both the identity and the managed-device condition on every API call, so approved US analysts can query without the data leaving the EU. Option B creates a copy of personal data in the US, which the DPO explicitly prohibited. Option C moves data outside the EU and onto endpoints that are hard to govern; pseudonymized data is still personal data under GDPR. Option D provides no device control and a VPN does not restrict where data can be copied.",
+    "refs": [
+      "https://cloud.google.com/vpc-service-controls/docs/overview",
+      "https://cloud.google.com/privacy/gdpr",
+      "https://cloud.google.com/bigquery/docs/locations"
+    ]
+  },
+  {
+    "id": "d3-cmp-019",
+    "domain": 3,
+    "topic": "Logging data residency",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A French energy utility has confirmed that all its workloads run in europe-west9, but an internal audit flagged that Cloud Logging stores its audit logs in the global _Default bucket. The auditor requires that log data, which may contain personal data, be stored in France or at least in the EU, for all existing and future projects. What should you do?",
+    "options": [
+      "Enable Log Analytics on the _Default bucket and filter out any log entries containing personal data.",
+      "Set the organization policy constraint constraints/gcp.resourceLocations to EU locations so that new _Default buckets are regional, and for existing projects create regional log buckets in europe-west9 and update the _Default sink to route logs to them.",
+      "Create a Cloud Storage sink to a bucket in europe-west9 and disable the _Default log bucket.",
+      "Change the location of the existing _Default bucket from global to europe-west9 with the gcloud logging buckets update command."
+    ],
+    "answer": [1],
+    "explanation": "Log bucket locations are immutable, so existing projects need new regional buckets with the _Default sink redirected to them, and the resource locations organization policy also governs the location of the _Default and _Required buckets created for new projects, ensuring future compliance automatically. Option A does not change where data is stored. Option C exports to a compliant location but disabling the _Default bucket loses interactive Logs Explorer analysis and does not address the _Required bucket. Option D is impossible because a log bucket's location cannot be changed after creation.",
+    "refs": [
+      "https://cloud.google.com/logging/docs/region-support",
+      "https://cloud.google.com/logging/docs/routing/overview"
+    ]
+  },
+  {
+    "id": "d3-cmp-020",
+    "domain": 3,
+    "topic": "Assured Workloads monitoring",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A defense contractor runs its projects inside an Assured Workloads folder with the IL4 control package. A project owner recently overrode an inherited organization policy on one project to enable a service that is not in scope for the package. The compliance team wants to be alerted when such deviations happen and be able to remediate them quickly. What should you do?",
+    "options": [
+      "Export Cloud Audit Logs to BigQuery and schedule a daily query that looks for SetOrgPolicy events on projects in the folder.",
+      "Use Cloud Asset Inventory to take a daily snapshot of organization policies and diff it against the previous day.",
+      "Enable Security Command Center Standard and rely on the misconfiguration findings for organization policies.",
+      "Use the Assured Workloads monitoring dashboard, which surfaces organization policy violations for the folder, and configure notifications for new violations so the team can restore the required policy."
+    ],
+    "answer": [3],
+    "explanation": "Assured Workloads continuously monitors folders for deviations from the control package's required organization policies and lists them as violations with remediation guidance; notifications can be configured so the compliance team learns about a violation promptly, which is the purpose-built, lowest-effort control. Option A is a custom detective pipeline with up to a day of delay. Option B also introduces delay and requires custom diffing logic. Option C is wrong because Security Command Center Standard does not evaluate compliance against Assured Workloads control packages.",
+    "refs": [
+      "https://cloud.google.com/assured-workloads/docs/monitor-folder",
+      "https://cloud.google.com/assured-workloads/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-cmp-021",
+    "domain": 3,
+    "topic": "Generative AI data residency",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An Italian insurer wants to summarize customer claim documents with Gemini models on Vertex AI. The data protection officer approves the use case only if the claim data is stored and processed at rest and during inference within the EU, and if customer prompts are not used to train Google models. Which approach should you recommend?",
+    "options": [
+      "Call the Gemini API through Google AI Studio with an API key, because AI Studio does not retain prompts.",
+      "Use Vertex AI with the global endpoint for lowest latency, and encrypt prompts client-side before sending them.",
+      "Use Vertex AI with a regional endpoint in an EU location that offers data residency for Gemini, keep the documents in EU buckets, and rely on Google Cloud's terms that customer data is not used to train foundation models.",
+      "Deploy an open model from Model Garden on GKE in europe-west8 because Gemini models are not available with EU data residency."
+    ],
+    "answer": [2],
+    "explanation": "Vertex AI supports data residency commitments for Gemini when you call a regional endpoint in a supported EU location, keeping data at rest and ML processing within that region, and Google Cloud's enterprise terms state that customer data is not used to train Google foundation models without permission. Option A uses a consumer-oriented developer tool that does not carry enterprise data residency commitments. Option B uses the global endpoint, which does not guarantee EU processing, and client-side encryption would make summarization impossible. Option D is unnecessarily complex and based on a false premise, since Gemini models are available with EU regional endpoints.",
+    "refs": [
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/learn/data-residency",
+      "https://cloud.google.com/vertex-ai/generative-ai/docs/data-governance"
+    ]
+  },
+  {
+    "id": "d3-cmp-022",
+    "domain": 3,
+    "topic": "Children's privacy and analytics",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An edtech company provides a reading app used by elementary schools in the US and is subject to COPPA and state student-privacy laws. The product team wants engagement analytics in BigQuery to improve the curriculum. The privacy officer requires that analytics not include persistent identifiers that could track children across services and that raw event data be deleted after 90 days. Which design should you recommend?",
+    "options": [
+      "Generate an app-scoped pseudonymous student ID unrelated to device or advertising identifiers, collect only the events needed for curriculum analysis, and set a 90-day table expiration on the raw event tables while keeping only aggregated results long term.",
+      "Collect the mobile advertising ID so that engagement can be joined with marketing data, and store it in a BigQuery table with column-level security.",
+      "Store raw events indefinitely in Cloud Storage Archive class because it is inexpensive, and only expose aggregated views to the product team.",
+      "Send analytics events to a third-party analytics SaaS that offers a COPPA-compliant plan and disable BigQuery altogether."
+    ],
+    "answer": [0],
+    "explanation": "COPPA treats persistent identifiers that can track a child across sites or services as personal information, so using an app-scoped pseudonymous ID and minimizing collected events keeps the data out of scope as far as possible, and BigQuery partition or table expiration enforces the 90-day retention automatically. Option B collects an advertising identifier, which is exactly the kind of cross-service tracking identifier the law targets. Option C violates the 90-day deletion requirement regardless of storage class. Option D outsources the problem without ensuring the identifiers and retention requirements are met, and removes the analytics capability the team needs.",
+    "refs": [
+      "https://cloud.google.com/security/compliance/coppa",
+      "https://cloud.google.com/bigquery/docs/managing-partitioned-tables#partition-expiration"
+    ]
+  },
+  {
+    "id": "d3-cmp-023",
+    "domain": 3,
+    "topic": "Shared responsibility for HIPAA",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A behavioral health provider has accepted the Google Cloud BAA and deployed its patient portal on Cloud Run with Cloud SQL. During a HIPAA risk assessment, the CIO asks which safeguards Google handles and which remain the provider's responsibility. Which statement correctly describes the shared responsibility model in this scenario?",
+    "options": [
+      "Because the BAA is signed, Google is responsible for all HIPAA administrative, physical and technical safeguards for the patient portal.",
+      "Google is responsible for the security of the underlying infrastructure and covered services, while the provider is responsible for configuring IAM, encryption choices, audit logging, application security and access controls for PHI.",
+      "The provider is responsible for physical data center security audits, while Google is responsible for configuring IAM roles for the provider's staff.",
+      "Responsibility is determined per service by Cloud Support at the time of an incident."
+    ],
+    "answer": [1],
+    "explanation": "Under the shared responsibility model, Google secures the infrastructure, physical facilities and the operation of covered services, and the BAA covers Google's obligations as a business associate, but the customer remains responsible for how it configures and uses the platform: identity and access, key management choices, audit logging, application-level security and PHI handling. Option A overstates Google's role; the BAA does not transfer the customer's safeguards to Google. Option C reverses the responsibilities. Option D is wrong because responsibilities are defined up front in the terms and documentation, not decided during incidents.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/security/shared-responsibility-shared-fate",
+      "https://cloud.google.com/security/compliance/hipaa-compliance"
+    ]
+  },
+  {
+    "id": "d3-cmp-024",
+    "domain": 3,
+    "topic": "LGPD data residency",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A Brazilian bank is deploying a new lending platform on Google Cloud. To satisfy the central bank's outsourcing rules and the LGPD, the architecture board requires that all personal data be stored in Brazil, that the requirement be enforced technically rather than by policy documents, and that any Google support access to the data be visible to the bank. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Apply the constraints/gcp.resourceLocations organization policy to the lending folder allowing only southamerica-east1 and any other Brazilian locations.",
+      "Deploy Cloud Storage buckets in the US multi-region with a bucket label of country=brazil for reporting.",
+      "Enable Access Transparency on the organization so that Google administrator actions on the bank's content are logged.",
+      "Use the Premium network tier so that traffic between Brazilian users and the platform stays on Google's network.",
+      "Configure Cloud CDN with a cache key restricted to Brazilian points of presence."
+    ],
+    "answer": [0, 2],
+    "explanation": "The resource locations constraint on the folder is the technical preventive control that keeps location-bound resources in Brazilian regions, and Access Transparency gives the bank logged visibility into any Google personnel access to its content, which addresses the outsourcing oversight requirement. Option B stores data in the US, and labels are metadata that enforce nothing. Option D affects routing performance, not data storage location or provider access. Option E is about content delivery caching and is unrelated to where personal data is stored or who can access it.",
+    "refs": [
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
+      "https://cloud.google.com/assured-workloads/access-transparency/docs/overview"
+    ]
+  },
+  {
+    "id": "d3-cmp-025",
+    "domain": 3,
+    "topic": "Sovereign cloud options",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A national intelligence agency wants to modernize its analytics platform using Google Cloud technology, but its classification rules prohibit any connection to the public internet or to Google-operated infrastructure, and require that the agency's own cleared staff operate the platform end to end. Which offering should you recommend?",
+    "options": [
+      "Assured Workloads with the IL5 control package in a US region, combined with VPC Service Controls and Private Google Access.",
+      "Google Distributed Cloud connected racks in the agency's facility, managed remotely by Google over a dedicated interconnect.",
+      "Sovereign Controls by Partners, where a local trusted partner operates the key management and support functions.",
+      "Google Distributed Cloud air-gapped, deployed in the agency's own facility and operated by the agency's cleared personnel with no connectivity to Google Cloud."
+    ],
+    "answer": [3],
+    "explanation": "Google Distributed Cloud air-gapped is designed for the strictest sovereignty and classification requirements: it runs Google Cloud services in a fully disconnected environment that the customer or its partner operates, with no connection to Google. Option A still runs on Google-operated public cloud infrastructure, which the classification rules prohibit. Option B is wrong because Google Distributed Cloud connected requires connectivity to Google Cloud for management and is operated by Google. Option C keeps workloads on Google Cloud regions with partner-controlled keys and support, which still involves Google infrastructure and connectivity.",
+    "refs": [
+      "https://cloud.google.com/distributed-cloud/hosted/docs/latest/gdch/overview",
+      "https://cloud.google.com/distributed-cloud"
+    ]
+  }
+]

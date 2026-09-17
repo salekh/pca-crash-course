@@ -1,0 +1,422 @@
+[
+  {
+    "id": "d4-bus-061",
+    "domain": 4,
+    "topic": "FinOps culture",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription streaming company's Google Cloud bill has tripled in 18 months while subscribers grew by 40%. Engineers say cost is 'finance's problem', finance receives one consolidated invoice it cannot interpret, and nobody can say what it costs to serve one subscriber. The CFO and CTO jointly ask you to fix the situation. What should you recommend?",
+    "options": [
+      "Establish a FinOps practice: give engineering teams visibility of their own spend through billing export dashboards, define unit economics such as cost per subscriber, make cost a non-functional requirement in design reviews, and hold regular joint engineering-finance reviews of optimization opportunities.",
+      "Have finance approve every new resource request before it is provisioned so that spend is controlled centrally.",
+      "Ask Google for a larger enterprise discount so that the bill returns to the previous level.",
+      "Freeze all new cloud projects until the bill decreases."
+    ],
+    "answer": [0],
+    "explanation": "The problem is cultural and organizational: cost is invisible to the people who create it and not connected to business value; FinOps addresses this by combining visibility (showback), accountability, unit economics and continuous optimization, which the Well-Architected Framework's cost optimization pillar describes as fostering a culture of cost awareness and aligning spend with business value. Option B introduces a central approval bottleneck that slows engineering without building awareness. Option C addresses price, not the efficiency and accountability gaps that caused spend to outpace growth. Option D halts business value creation and does nothing about existing waste.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/cost-optimization",
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery"
+    ]
+  },
+  {
+    "id": "d4-bus-062",
+    "domain": 4,
+    "topic": "Showback vs chargeback",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital group's IT department currently absorbs all Google Cloud costs centrally. The CIO wants clinical and administrative departments to become accountable for their consumption, but department heads are wary of surprise internal bills and the labeling of resources is not yet reliable. How should the CIO introduce cost accountability?",
+    "options": [
+      "Implement full chargeback immediately by invoicing each department for its share of the bill from next month.",
+      "Keep absorbing costs centrally and rely on IT to optimize on behalf of departments.",
+      "Start with showback, providing each department with regular reports of its attributed spend and trends while the labeling standard matures, and move to chargeback once attribution is trusted and departments have had time to adjust budgets.",
+      "Split the organization into a separate billing account per department so that each receives a separate invoice from Google."
+    ],
+    "answer": [2],
+    "explanation": "Showback creates cost awareness and accountability without financial transfers, which is the right first step when attribution data is still imperfect and stakeholders need time to adapt; chargeback should follow once labels and allocation rules are reliable enough to be defensible. Option A introduces internal billing based on unreliable data, which will generate disputes and resistance. Option B leaves the incentive problem unsolved. Option D is an organizational restructuring that fragments billing and discount sharing to solve what is a reporting and change-management problem.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/cost-optimization",
+      "https://cloud.google.com/billing/docs/how-to/visualize-data"
+    ]
+  },
+  {
+    "id": "d4-bus-063",
+    "domain": 4,
+    "topic": "Cloud Billing hierarchy",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A holding company owns four legally separate subsidiaries that all use Google Cloud under a single organization resource. Each subsidiary's finance department must receive its own invoice in its own currency and legal entity name, but the group CTO wants central visibility and governance across all subsidiaries. How should you structure billing?",
+    "options": [
+      "Use a single billing account for the organization and allocate costs to subsidiaries with labels and BigQuery reports.",
+      "Create a separate organization resource for each subsidiary, each with its own billing account.",
+      "Use one billing account with a Cloud Billing subaccount per subsidiary.",
+      "Keep the single organization for central governance and create a separate (invoiced) Cloud Billing account per subsidiary linked to that subsidiary's projects, granting group finance the Billing Account Viewer role on all of them."
+    ],
+    "answer": [3],
+    "explanation": "Invoices are generated per Cloud Billing account, and each billing account has its own legal entity, currency and payment terms, so legally separate invoicing requires separate billing accounts; because billing accounts are independent of the resource hierarchy, all four can be used under one organization, preserving central IAM, Organization Policy and visibility. Option A produces one invoice to one legal entity, which fails the requirement. Option B fragments governance and identity across four organizations unnecessarily. Option C is wrong because subaccounts are intended for resellers and roll up into the parent account's invoice, so they do not produce separate legal invoices.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/concepts",
+      "https://cloud.google.com/billing/docs/how-to/manage-billing-account"
+    ]
+  },
+  {
+    "id": "d4-bus-064",
+    "domain": 4,
+    "topic": "Billing IAM roles",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial analyst at a retail company needs to review Google Cloud spend, cost trends and invoices across all projects linked to the company's billing account. Following the principle of least privilege, the analyst must not be able to change billing settings, link projects, or modify any cloud resources. Which role should you grant?",
+    "options": [
+      "Billing Account Administrator on the billing account.",
+      "Billing Account Viewer on the billing account.",
+      "Project Owner on every project linked to the billing account.",
+      "Billing Account User on the billing account."
+    ],
+    "answer": [1],
+    "explanation": "Billing Account Viewer grants read-only access to cost information, transactions and reports for the billing account, which is exactly what a finance analyst needs and nothing more. Option A allows managing payment settings, users and project links, which violates least privilege. Option C grants full control of resources in every project and does not even provide billing-account-level cost views. Option D allows linking projects to the billing account, which is a permission for project creators, not analysts.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/billing-access"
+    ]
+  },
+  {
+    "id": "d4-bus-065",
+    "domain": 4,
+    "topic": "Cost of DR tiers",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank's online banking application runs on GKE with Cloud SQL for PostgreSQL in one region. Its business impact analysis set an RTO of 1 hour and an RPO of 5 minutes. The architecture team proposed a fully active-active deployment across two regions with a globally distributed database, and the CFO has rejected the cost. Which DR pattern meets the targets at the lowest ongoing cost?",
+    "options": [
+      "A warm standby: a Cloud SQL cross-region read replica that can be promoted, a minimal GKE cluster in the secondary region kept at low capacity, infrastructure defined in Terraform, and a rehearsed failover runbook that scales up the cluster and switches traffic.",
+      "A cold pattern: nightly Cloud SQL backups exported to a multi-region Cloud Storage bucket and full infrastructure rebuild in the secondary region on demand.",
+      "The proposed active-active design, because only a multi-region database can achieve a 5-minute RPO.",
+      "A single-region high-availability design with a Cloud SQL standby in a second zone and a regional GKE cluster."
+    ],
+    "answer": [0],
+    "explanation": "An RTO of one hour and RPO of five minutes rule out cold recovery but do not require continuous active-active operation; asynchronous cross-region replication keeps data loss within minutes, and a small pre-provisioned standby footprint that scales on failover fits within an hour, at a fraction of the cost of a second full production stack. Option B has an RPO of up to 24 hours and a rebuild time that typically exceeds one hour. Option C is wrong because a cross-region replica achieves a 5-minute RPO without a globally distributed database, so the extra cost is not justified by the targets. Option D protects against zonal failure only and provides no recovery from a regional outage.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-for-applications",
+      "https://cloud.google.com/sql/docs/postgres/replication/cross-region-replicas"
+    ]
+  },
+  {
+    "id": "d4-bus-066",
+    "domain": 4,
+    "topic": "Quotas as governance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A research institute gives each lab its own Google Cloud project. Last month one lab accidentally launched dozens of A3 GPU VMs and consumed most of the institute's quarterly cloud budget in a week. The institute wants to prevent any single lab from provisioning more than a small, agreed amount of GPU capacity unless it requests more, without relying on after-the-fact alerts. What should you do?",
+    "options": [
+      "Configure a Cloud Billing budget per lab project with alerts at 50%, 90% and 100%.",
+      "Remove the Compute Admin role from all lab members and require the central IT team to create every VM.",
+      "Use Cloud Quotas to set lower consumer quota overrides for GPU quotas on each lab project, and document a request process for temporary increases.",
+      "Apply an Organization Policy constraint that restricts which regions lab projects can use."
+    ],
+    "answer": [2],
+    "explanation": "Quotas are preventive limits enforced at provisioning time; lowering the GPU quota on each lab project through quota overrides makes it impossible to exceed the agreed capacity without an explicit increase request, which is the direct control for this failure mode. Option A only notifies after spend has occurred and does not stop provisioning. Option B eliminates self-service for all labs and creates a bottleneck in central IT. Option D limits regions but does not restrict how many GPUs can be created in the allowed regions.",
+    "refs": [
+      "https://cloud.google.com/docs/quotas/overview",
+      "https://cloud.google.com/docs/quotas/view-manage"
+    ]
+  },
+  {
+    "id": "d4-bus-067",
+    "domain": 4,
+    "topic": "Active Assist at scale",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A multinational retailer has 900 Google Cloud projects. The central FinOps team knows that Active Assist generates cost recommendations, but reviewing them project by project in the console is impractical, and the team wants to prioritize the largest savings across the organization and track whether teams act on them. What should you do?",
+    "options": [
+      "Ask each project owner to check the Recommendation Hub monthly and report savings in a shared document.",
+      "Enable organization-level export of recommendations and insights to BigQuery through the Recommender service, build a Looker Studio dashboard ranking recommendations by estimated savings and owner, and review it in the FinOps cadence.",
+      "Grant the FinOps team the Owner role on all 900 projects so they can apply recommendations directly.",
+      "Write a script that applies every cost recommendation automatically across all projects."
+    ],
+    "answer": [1],
+    "explanation": "The Recommender service supports exporting recommendations and insights for the whole organization to BigQuery, which lets a central team aggregate, rank by estimated savings, attribute to owners and track status over time; this converts scattered per-project hints into a managed optimization backlog. Option A depends on 900 individuals and produces inconsistent, unverifiable data. Option C grants excessive privilege and makes the central team responsible for changes in systems they do not operate. Option D applies changes such as VM resizing or deletion without owner review, which risks outages and is not a recommended practice.",
+    "refs": [
+      "https://cloud.google.com/recommender/docs/bq-export/export-recommendations-to-bq",
+      "https://cloud.google.com/recommender/docs/overview"
+    ]
+  },
+  {
+    "id": "d4-bus-068",
+    "domain": 4,
+    "topic": "FinOps Hub and Gemini Cloud Assist",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A newly hired FinOps lead at a logistics company needs to quickly understand where the organization stands on cost optimization, which optimization opportunities are being ignored, and why last month's Compute Engine cost rose sharply, without first building custom BigQuery pipelines. Which built-in Google Cloud capability should she start with?",
+    "options": [
+      "Cloud Asset Inventory, to list every resource and compare monthly snapshots.",
+      "Cloud Monitoring dashboards, to chart CPU utilization across projects.",
+      "The monthly PDF invoice, to compare service totals with the previous month.",
+      "The FinOps Hub in the Cloud Billing console, which shows a FinOps score and aggregated optimization opportunities, together with Gemini Cloud Assist cost insights to explain cost changes in natural language."
+    ],
+    "answer": [3],
+    "explanation": "FinOps Hub is the built-in starting point for a cost optimization program: it aggregates Active Assist savings opportunities across the billing account, tracks a FinOps score for how well recommendations are being adopted, and Gemini Cloud Assist can explain cost anomalies and trends without writing SQL. Option A inventories resources but does not explain cost or rank optimizations. Option B shows utilization, not spend or optimization adoption. Option C is too coarse to explain the cause of a cost increase or reveal ignored opportunities.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/finops-hub",
+      "https://cloud.google.com/gemini/docs/cloud-assist/overview"
+    ]
+  },
+  {
+    "id": "d4-bus-069",
+    "domain": 4,
+    "topic": "Committed use discount pitfalls",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "Two years ago, one product team at a retailer bought three-year resource-based committed use discounts for N1 vCPUs and memory in us-west1 in its own project. The team has since modernized onto Cloud Run and the commitment is now largely unused, but the company still pays for it, while other teams in the same billing account run N1 VMs on demand in us-west1. The FinOps lead asks how to reduce the waste now and avoid repeating it. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enable committed use discount sharing on the billing account so that the unused N1 commitment in us-west1 is applied to matching usage in the other teams' projects.",
+      "Cancel the remaining commitment through the console to stop the charges.",
+      "Move the other teams' workloads to E2 machine types so they benefit from the commitment.",
+      "For future purchases, use the committed use discount recommender and centralize commitment decisions in the FinOps process, preferring spend-based flexible commitments where the machine family or region may change.",
+      "Open a support case asking Google to refund the unused portion of the commitment."
+    ],
+    "answer": [0, 3],
+    "explanation": "Resource-based commitments cannot be cancelled or refunded, but enabling CUD sharing at the billing account level lets the commitment apply to matching resources (same machine family and region) in any project under the account, which immediately reduces the waste; preventing recurrence requires data-driven, centrally governed purchasing using the recommender and flexible commitments when future usage is uncertain. Option B and option E are not possible: commitments are binding for their term. Option C is wrong because a resource-based N1 commitment applies only to N1 resources, so moving workloads to E2 would not consume it.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/committed-use-discounts-overview",
+      "https://cloud.google.com/docs/cuds"
+    ]
+  },
+  {
+    "id": "d4-bus-070",
+    "domain": 4,
+    "topic": "Network Service Tiers",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional online marketplace serves customers only in one country from a single Google Cloud region. It uses a regional external load balancer, does not use Cloud CDN, and does not require Google's global network for ingress. Internet egress is a significant cost. Which option would reduce egress cost without changing the application architecture?",
+    "options": [
+      "Migrate to a global external Application Load Balancer to benefit from global routing discounts.",
+      "Switch the project's network service tier from Premium Tier to Standard Tier so that egress is billed at Standard Tier rates.",
+      "Purchase committed use discounts for network egress.",
+      "Enable Private Google Access on the subnets to make traffic free."
+    ],
+    "answer": [1],
+    "explanation": "Standard Tier delivers traffic over the public internet rather than Google's premium global backbone and is billed at lower egress rates; it is appropriate for regional workloads that use regional load balancing and do not need global anycast or Cloud CDN, which is exactly this marketplace's profile. Option A moves in the opposite direction, requiring Premium Tier. Option C describes a discount type that does not exist for internet egress. Option D affects how VMs without external IPs reach Google APIs and has nothing to do with serving customers on the internet.",
+    "refs": [
+      "https://cloud.google.com/network-tiers/docs/overview",
+      "https://cloud.google.com/vpc/network-pricing"
+    ]
+  },
+  {
+    "id": "d4-bus-071",
+    "domain": 4,
+    "topic": "Migration cutover strategy",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional retailer's data center lease expires in nine months, and the COO wants to migrate all 150 applications to Google Cloud in a single weekend cutover to 'get it over with' and avoid running two environments. The applications share databases and message queues, and the operations team has never run a large cutover. Which approach should you recommend to the COO?",
+    "options": [
+      "Agree to the single weekend cutover but rehearse it once in a test environment beforehand.",
+      "Postpone the migration and renew the lease for another year so that the team has more time to prepare.",
+      "Migrate only the databases in the first weekend and all applications the following weekend.",
+      "Plan phased migration waves based on dependency groups with defined entry and exit criteria and rollback plans per wave, run a pilot wave early, and use temporary hybrid connectivity so that cross-environment dependencies work during the transition; align the final wave with the lease expiry date."
+    ],
+    "answer": [3],
+    "explanation": "A big-bang cutover of 150 interdependent applications by an inexperienced team concentrates all risk in one window with no opportunity to learn or roll back selectively; phased waves grouped by dependencies, each with go/no-go criteria and rollback, reduce risk while still meeting the fixed deadline, and hybrid connectivity mitigates the dual-environment concern. Option A retains the concentrated risk; one rehearsal cannot surface the issues that a nine-month program of waves would. Option B incurs large cost and delays value without addressing the approach. Option C splits data from the applications that use it, introducing cross-environment latency for every application for a week and still leaving a massive single cutover.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-deploying-your-workloads"
+    ]
+  },
+  {
+    "id": "d4-bus-072",
+    "domain": 4,
+    "topic": "Stakeholder identification",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Two weeks before the production go-live of a new customer data platform on Google Cloud, the company's general counsel learns of the project and states that certain customer records may not leave the country, which the multi-region design does not guarantee. The go-live is now at risk. Beyond fixing the immediate design, what process change should you recommend so that this does not recur on future projects?",
+    "options": [
+      "Introduce a stakeholder analysis at project initiation that identifies all parties with requirements or veto power (including legal, compliance, security, finance and business owners), and maintain a requirements traceability matrix with formal sign-off from each before design is finalized.",
+      "Require the architecture team to obtain legal approval for every individual resource before it is created.",
+      "Add the general counsel to the daily engineering stand-up for all future projects.",
+      "Default all future projects to single-region deployments so that residency issues cannot arise."
+    ],
+    "answer": [0],
+    "explanation": "The failure is one of stakeholder management: a stakeholder with binding requirements was never identified or consulted, so the fix is a systematic stakeholder analysis at initiation and traceable, signed-off requirements before design decisions are locked in. Option B is disproportionate and unworkable at resource granularity. Option C consumes the counsel's time on operational detail rather than engaging them at the requirements stage where their input matters. Option D is an architectural constraint imposed to avoid a process problem and would harm availability for workloads that have no residency restriction.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d4-bus-073",
+    "domain": 4,
+    "topic": "Skills sourcing decisions",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank must stand up a secure Google Cloud landing zone (organization hierarchy, Shared VPC, hybrid connectivity, centralized logging and Organization Policy guardrails) within six weeks to meet a regulatory commitment. Its four infrastructure engineers are capable but have never built a landing zone and are also responsible for daily operations. Leadership is weighing upskilling, hiring, and partner engagement. What should you recommend?",
+    "options": [
+      "Send the four engineers on a four-week training course and have them build the landing zone in the remaining two weeks.",
+      "Post job openings for two senior cloud engineers and start the build when they are hired.",
+      "Engage a Google Cloud partner to deliver the landing zone using Google's landing zone blueprints and Terraform modules within the deadline, with the four engineers embedded in the delivery for knowledge transfer so they can own and extend it afterwards.",
+      "Have the four engineers build the landing zone by following the documentation, deferring daily operations for six weeks."
+    ],
+    "answer": [2],
+    "explanation": "With a hard six-week deadline, no prior experience and no spare capacity, upskilling alone or hiring cannot deliver in time; a specialized partner using proven blueprints de-risks the deadline, and embedding the internal team ensures the bank can operate the foundation afterwards rather than remaining dependent. Option A leaves two weeks for an unfamiliar, security-critical build. Option B is unpredictable in timing and senior hiring routinely takes longer than six weeks. Option D ignores that operations cannot be deferred and that first-time landing zone builds without guidance frequently need rework.",
+    "refs": [
+      "https://cloud.google.com/architecture/landing-zones",
+      "https://cloud.google.com/find-a-partner"
+    ]
+  },
+  {
+    "id": "d4-bus-074",
+    "domain": 4,
+    "topic": "Business continuity testing",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A credit union's regulator requires evidence that its business continuity plan has been exercised annually, including the decision-making and communication procedures, not only the technical recovery. The operations manager is worried that a full failover of production would be too disruptive. What should you recommend?",
+    "options": [
+      "Skip the exercise this year and provide the written plan as evidence.",
+      "Run a tabletop exercise in which the crisis team walks through a realistic scenario end to end, combined with technical recovery tests (game days) in a non-production or isolated environment, and document decisions, gaps and remediation actions.",
+      "Trigger an unannounced full production failover to prove the plan works under real conditions.",
+      "Ask Google Cloud support to certify that the plan is adequate."
+    ],
+    "answer": [1],
+    "explanation": "Tabletop exercises validate the people and process elements of a BCP (roles, decisions, communication) without touching production, and technical recovery can be exercised safely in a non-production environment; documenting outcomes provides the audit evidence regulators expect. Option A does not satisfy the requirement to exercise the plan. Option C exposes members to unnecessary risk when the objective can be met more safely, and unannounced full failovers should only be considered once lower-risk tests are routine. Option D misunderstands the shared responsibility model: Google does not certify a customer's continuity plan.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
+    ]
+  },
+  {
+    "id": "d4-bus-075",
+    "domain": 4,
+    "topic": "Workforce continuity",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A claims-processing company updated its business continuity plan after a storm closed its main office for a week. During the closure, its systems on Google Cloud were fully available, but employees could not work because access to internal applications was restricted to the office network via VPN appliances that were also in the office, and no one could reach the on-premises source-code repositories. Which change best addresses this continuity gap?",
+    "options": [
+      "Deploy a second VPN appliance at a backup office so that employees can travel there during a disruption.",
+      "Move the on-premises source repositories to a second data center in another city.",
+      "Publish printed copies of the runbooks so that staff can work manually while the office is closed.",
+      "Adopt a zero-trust access model using Identity-Aware Proxy and Chrome Enterprise Premium so that employees can securely reach internal applications from any location and device that meets policy, and move developer environments to Cloud Workstations and cloud-hosted repositories."
+    ],
+    "answer": [3],
+    "explanation": "The gap is workforce continuity, not system availability: access depended on a physical location. Context-aware, identity-based access removes the office as a single point of failure for people, and cloud-hosted developer environments and repositories remove the remaining on-premises dependency, so the company can operate from anywhere. Option A moves the single point of failure to another building and assumes staff can travel during a regional event. Option B addresses only the repositories and still requires network access. Option C does not enable claims processing, which depends on the applications.",
+    "refs": [
+      "https://cloud.google.com/security/products/chrome-enterprise-premium",
+      "https://cloud.google.com/workstations/docs/overview"
+    ]
+  },
+  {
+    "id": "d4-bus-076",
+    "domain": 4,
+    "topic": "Decision governance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A software company's architecture review board meets every two weeks and must approve every technical decision, from choosing a database engine to changing an autoscaler setting. Teams complain that trivial changes wait weeks, while the board complains it has no time to examine genuinely important decisions. How should you redesign the decision-making process?",
+    "options": [
+      "Introduce a tiered decision process: classify decisions by reversibility and blast radius, let teams make easily reversible, low-impact decisions themselves within published guardrails and record them in ADRs, and reserve the review board for hard-to-reverse, high-impact decisions such as data platform choices or cross-team contracts.",
+      "Increase the board's meeting frequency to twice a week so that the queue clears faster.",
+      "Abolish the architecture review board and let every team decide everything independently.",
+      "Delegate all decisions to the CTO to remove the committee bottleneck."
+    ],
+    "answer": [0],
+    "explanation": "Effective decision-making processes match the weight of governance to the consequences of the decision: reversible, contained decisions should be made quickly by the people closest to the work, while irreversible or broad-impact decisions merit deliberate review; guardrails and ADRs keep the delegated decisions consistent and auditable. Option B scales the bottleneck instead of removing unnecessary work from it. Option C removes governance for the decisions that genuinely need it and invites divergence. Option D moves the bottleneck to one person.",
+    "refs": [
+      "https://cloud.google.com/architecture/architecture-decision-records",
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "d4-bus-077",
+    "domain": 4,
+    "topic": "Shared cost allocation",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An enterprise runs a Shared VPC host project, a Dedicated Interconnect, a centralized logging project and a GKE Enterprise fleet management plane that serve all business units. These shared platform costs are 20% of the bill and currently sit in a 'platform' cost center that business units do not see, which undermines the chargeback model. Which two practices should you adopt to allocate shared costs fairly? (Choose two.)",
+    "options": [
+      "Leave shared costs in the platform cost center permanently, since they cannot be attributed to any business unit.",
+      "Label shared platform projects and resources with a designated shared-services identifier so their costs are cleanly separated in the billing export.",
+      "Agree an allocation key with finance and business unit leaders (for example proportional to each unit's direct cloud spend or measured consumption such as log volume) and apply it in the BigQuery chargeback queries to distribute shared costs.",
+      "Split the Interconnect into one dedicated connection per business unit so that each pays its own.",
+      "Charge shared costs entirely to the business unit with the highest revenue."
+    ],
+    "answer": [1, 2],
+    "explanation": "FinOps practice for shared costs is to first isolate them clearly (labeling shared services so their totals are precise) and then distribute them with a transparent allocation key that stakeholders have agreed in advance, implemented in the billing data pipeline so that every chargeback report is consistent. Option A hides a fifth of the bill from the people whose consumption drives it. Option D duplicates infrastructure and increases total cost merely to simplify accounting. Option E is arbitrary and will be rejected by the affected business unit.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d4-bus-078",
+    "domain": 4,
+    "topic": "Operational reviews",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company went live on Google Cloud three months ago with Premium Support. The platform is stable, but the CIO feels the company is 'flying blind': there is no regular conversation about whether the platform meets business expectations, what risks are emerging, or how Google's roadmap affects their plans. What should you set up?",
+    "options": [
+      "Open a P3 support case each month asking Google to summarize the account status.",
+      "Subscribe the CIO to the Google Cloud release notes feed and the status dashboard.",
+      "Establish a recurring operational and business review cadence with the Technical Account Manager covering SLO attainment against business KPIs, open risks and incidents, cost trends, upcoming changes and roadmap items, with actions tracked to closure.",
+      "Downgrade to Standard Support because the platform is stable and the money is better spent elsewhere."
+    ],
+    "answer": [2],
+    "explanation": "Customer success management after go-live is a structured, recurring feedback loop that connects operational data (SLOs, incidents, cost) to business outcomes and forward planning; Premium Support's Technical Account Manager exists to facilitate exactly these operational health and business reviews. Option A misuses the case process for account management. Option B provides information but no dialogue, prioritization or accountability. Option D removes the very capability the CIO needs and reduces incident response guarantees for a production platform.",
+    "refs": [
+      "https://cloud.google.com/support",
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "d4-bus-079",
+    "domain": 4,
+    "topic": "Storage class pitfalls",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "To cut costs, a media archive team moved 500 TB of video masters from Standard to Archive storage in Cloud Storage. The following month the bill went up, not down, because editors regularly pull older masters for reissues and several datasets were deleted and re-uploaded after re-encoding. The team asks you what went wrong and what to do instead. What should you recommend?",
+    "options": [
+      "Move everything back to Standard storage; storage class optimization is not worthwhile for media workloads.",
+      "Keep Archive storage and instruct editors to request masters only once per quarter.",
+      "Move the data to Coldline storage instead, which has no retrieval fees.",
+      "Analyze actual access patterns using Cloud Storage usage logs or insights, keep frequently reissued masters in Standard or Nearline, place truly dormant content in Archive, and use Autoclass for buckets whose access is unpredictable, because Archive charges retrieval fees and a 365-day minimum storage duration that penalize reads and early deletion."
+    ],
+    "answer": [3],
+    "explanation": "Colder storage classes trade a lower per-GB price for retrieval fees and minimum storage durations (30 days Nearline, 90 days Coldline, 365 days Archive), so data that is read regularly or deleted early can cost more in Archive than in Standard; the right approach is to classify data by measured access frequency and use Autoclass where the pattern is unknown. Option A overcorrects and forgoes real savings on dormant content. Option B changes the business process to fit a storage decision and still incurs retrieval and early deletion charges. Option C is wrong because Coldline also charges retrieval fees and has a 90-day minimum.",
+    "refs": [
+      "https://cloud.google.com/storage/docs/storage-classes",
+      "https://cloud.google.com/storage/pricing"
+    ]
+  },
+  {
+    "id": "d4-bus-080",
+    "domain": 4,
+    "topic": "Support plan selection",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional accounting firm runs a business-hours-only document processing application on Google Cloud with no paid support plan. During a recent issue, staff could only post in community forums and the problem took three days to resolve. The firm wants to be able to open technical support cases with Google during business hours at the lowest cost, and does not need 24/7 coverage. Which support offering should you recommend?",
+    "options": [
+      "Continue with Basic Support and rely on documentation and community forums.",
+      "Standard Support, which provides unlimited technical support cases during business hours with a four-hour response target for high-impact issues.",
+      "Enhanced Support, which provides 24/7 coverage with a one-hour response target for critical issues.",
+      "Premium Support, which includes a named Technical Account Manager."
+    ],
+    "answer": [1],
+    "explanation": "Standard Support is the entry-level paid tier that allows technical support cases with Google during business hours and a four-hour target response for P2 high-impact issues, which matches a business-hours workload at the lowest cost. Option A does not include technical case support, which is the capability that was missing. Option C and option D provide 24/7 coverage, faster responses and account management the firm explicitly does not need, at higher cost. Matching the support tier to business criticality is part of aligning spend with business value.",
+    "refs": [
+      "https://cloud.google.com/support"
+    ]
+  }
+]

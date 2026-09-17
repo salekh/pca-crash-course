@@ -1,0 +1,535 @@
+[
+  {
+    "id": "d1-bus-051",
+    "domain": 1,
+    "topic": "Migration Center discovery",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional retailer with about 350 VMware VMs has decided to migrate to Google Cloud. Nobody in the company has an accurate inventory, and the VM operators refuse to install software on every VM. The migration lead wants a trustworthy inventory with performance data to size the target environment. What should you do first?",
+    "options": [
+      "Ask each application owner to fill in a spreadsheet with the VMs they believe they own and their estimated CPU needs.",
+      "Deploy the Migration Center discovery client on-premises, connect it to vCenter for agentless discovery, and let it collect inventory and utilization data for several weeks.",
+      "Start replicating all VMs with Migrate to Virtual Machines immediately and size them once they are running in Google Cloud.",
+      "Purchase a third-party CMDB product and populate it manually before contacting Google."
+    ],
+    "answer": [1],
+    "explanation": "The assessment phase begins with discovery. Migration Center's discovery client connects to vCenter and collects inventory and performance metrics without installing agents on individual VMs, which addresses the operators' objection, and multiple weeks of utilization data enable accurate rightsizing and TCO reports. Option A relies on memory and guesswork and misses the utilization data needed for sizing. Option C skips assessment entirely, causing over-provisioning and missed dependencies; sizing after the fact is expensive. Option D adds cost and manual effort when Migration Center provides discovery at no charge.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/discovery-client-overview",
+      "https://cloud.google.com/migration-center/docs/migration-center-overview"
+    ]
+  },
+  {
+    "id": "d1-bus-052",
+    "domain": 1,
+    "topic": "Rightsizing with Migration Center",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "After six weeks of data collection, Migration Center shows that most of a hospital's 120 application servers were provisioned with 8 vCPUs and 32 GB of RAM but average 6% CPU utilization with 12% peaks. The finance team wants the lowest realistic monthly estimate for the business case, while the application team fears that undersized VMs will cause incidents. How should you generate the cost estimate?",
+    "options": [
+      "Estimate every VM at its currently allocated size using on-demand pricing to be conservative.",
+      "Estimate every VM at one quarter of its current size because utilization is below 25%.",
+      "Exclude the application servers from the estimate and only price the databases, since compute is cheap.",
+      "Generate a Migration Center cost report using a sizing preference based on observed utilization with headroom (for example, 95th percentile plus a margin), select an appropriate machine series, and apply committed use discounts, then review outliers with the application team."
+    ],
+    "answer": [3],
+    "explanation": "Migration Center's cost estimation lets you choose a sizing preference that uses collected utilization data (rather than allocated capacity) with configurable headroom, choose the machine series and apply committed use discounts, producing a realistic yet safe estimate; reviewing outliers with the application team addresses their incident concern. Option A prices idle capacity and inflates the estimate, weakening the business case. Option B is an arbitrary rule that ignores peaks, memory and workload-specific behavior and could indeed cause incidents. Option C omits the majority of the estate and produces an unusable estimate.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/cost-estimation-overview",
+      "https://cloud.google.com/migration-center/docs/migration-center-overview"
+    ]
+  },
+  {
+    "id": "d1-bus-053",
+    "domain": 1,
+    "topic": "Choosing rehost for vendor-constrained software",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company runs a commercial manufacturing execution system (MES) on four Linux VMs. The vendor supports the product only on a specific operating system image and does not support containers or managed databases. The product roadmap says the vendor will release a SaaS edition in about three years. The company needs to leave its data center within a year. Which migration strategy should you choose for the MES?",
+    "options": [
+      "Rehost the four VMs to Compute Engine with Migrate to Virtual Machines, keeping the supported OS image, and plan to replace with the SaaS edition when it becomes available.",
+      "Refactor the MES into microservices on GKE so that it is cloud-native by the time the data center closes.",
+      "Replatform the MES database to Cloud SQL now to reduce operational overhead, keeping the application on VMs.",
+      "Retain the MES on-premises in a small colocation cage until the SaaS edition ships."
+    ],
+    "answer": [0],
+    "explanation": "The vendor support constraint eliminates any strategy that changes the platform (containers, managed database), and the one-year deadline plus the coming SaaS edition make investment in modernization wasteful. Rehosting preserves vendor supportability, meets the exit deadline, and positions the company for a 'replace' disposition later. Option B breaks vendor support and requires access to source code the company does not own. Option C is unsupported by the vendor and risks the production system. Option D incurs colocation costs and does not achieve the business goal of exiting the data center within a year.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/migrate/virtual-machines/docs"
+    ]
+  },
+  {
+    "id": "d1-bus-054",
+    "domain": 1,
+    "topic": "Replatforming to managed services",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media startup runs a PHP web application and a self-managed MySQL 8 database on two on-premises VMs. It is migrating to Google Cloud and wants to reduce the time its two engineers spend on database patching, backups and failover, but it does not have time to change application code before the migration. Which strategy should you recommend for the database tier?",
+    "options": [
+      "Rehost the MySQL VM to Compute Engine as-is so nothing changes.",
+      "Rebuild the data layer on Firestore to become fully serverless.",
+      "Replatform the database to Cloud SQL for MySQL using Database Migration Service, keeping the same MySQL version so the application connection string is the only change.",
+      "Refactor the schema for Spanner to gain global scalability."
+    ],
+    "answer": [2],
+    "explanation": "Replatforming ('move and improve') moves a workload to a managed equivalent without changing application logic. Cloud SQL for MySQL is protocol-compatible with the self-managed database, so the application needs only a new connection string, while Google takes over patching, backups and high availability; Database Migration Service performs the move with minimal downtime. Option A meets the deadline but leaves all operational burden with the two engineers. Option B requires rewriting the data access layer for a different data model, violating the no-code-change constraint. Option D likewise demands schema and code changes and adds cost for scalability the startup does not need.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/mysql",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-055",
+    "domain": 1,
+    "topic": "Dependency planning",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A financial services firm is planning migration waves for 90 applications. During a pilot, a migrated application failed because it depended on an authentication service and a shared file server that were still on-premises and were reachable only with high latency. The program manager wants to prevent this class of failure across the remaining waves. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Use Migration Center discovery data (including network connection data) and application owner interviews to build a dependency map, and group tightly coupled applications and their shared services into the same wave.",
+      "Migrate all applications in alphabetical order so that progress is easy to report.",
+      "Identify shared foundational services such as identity, DNS, file shares and message brokers and migrate or replicate them in an early wave, or establish low-latency hybrid connectivity, before dependent applications move.",
+      "Migrate the databases of all applications in the first wave to simplify later waves.",
+      "Increase the size of the migrated VMs so they can tolerate latency to on-premises dependencies."
+    ],
+    "answer": [0, 2],
+    "explanation": "Dependency planning is a core migration planning activity: discovery tools capture the network flows between servers, which, combined with owner knowledge, produce a dependency map used to define move groups so that chatty components migrate together. Shared services that many applications rely on must be addressed first, either by migrating them early, replicating them (for example, extending Active Directory or using Managed Microsoft AD), or ensuring low-latency connectivity via Cloud Interconnect. Option B ignores dependencies entirely. Option D splits every application from its database across a WAN, which is the worst pattern for latency-sensitive tiers. Option E does not address latency; more CPU cannot reduce network round-trip time.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads",
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-056",
+    "domain": 1,
+    "topic": "Migrate to Virtual Machines test clones",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A pharmaceutical company is rehosting 60 VMware VMs to Compute Engine with Migrate to Virtual Machines. Its change-management policy requires that every migrated system be validated by the application team in Google Cloud before production is cut over, and that production on-premises systems continue to run unchanged during validation. How should you satisfy the policy?",
+    "options": [
+      "Cut over each VM to Google Cloud, let the application team test it, and migrate it back with Migrate to Virtual Machines if problems are found.",
+      "Start replication for each VM, create a test clone in an isolated VPC network in Google Cloud from the latest replicated snapshot, have the application team validate it while the source VM keeps running, then schedule the cutover.",
+      "Export each VM as an OVA file, import it as a custom image, and ask the application team to test the image.",
+      "Take VMware snapshots on-premises and have the team test in the on-premises environment before migrating."
+    ],
+    "answer": [1],
+    "explanation": "Migrate to Virtual Machines replicates source VMs continuously and offers a test-clone operation that launches a VM in Google Cloud from a replicated snapshot without stopping the source, which is designed for exactly this validation step; when tests pass, the final cutover synchronizes the last changes and starts the production VM. Option A causes production downtime and risky reverse migrations. Option C is a manual, one-off image process with no continuous replication, so the tested image quickly becomes stale before cutover. Option D tests the wrong environment; the policy requires validation in Google Cloud.",
+    "refs": [
+      "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/test-clone",
+      "https://cloud.google.com/migrate/virtual-machines/docs"
+    ]
+  },
+  {
+    "id": "d1-bus-057",
+    "domain": 1,
+    "topic": "Migrate to Containers candidates",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A university IT department is migrating 80 Linux VMs and wants to containerize as many as possible onto GKE Autopilot to reduce VM management. The VMs include Tomcat application servers, an Oracle RAC database cluster, VMs that load custom kernel modules for lab hardware, and several stateless Apache web servers. The team wants an objective way to decide which VMs to containerize and to avoid rewriting applications. What should you do?",
+    "options": [
+      "Containerize all 80 VMs with Migrate to Containers, since it supports any Linux VM.",
+      "Rewrite the Tomcat applications as microservices and rehost everything else to Compute Engine.",
+      "Rehost all 80 VMs to Compute Engine and revisit containers in two years.",
+      "Run the Migrate to Containers fit assessment on the VMs to score their suitability, containerize the Tomcat and Apache workloads it rates as good fits, and rehost the Oracle RAC and kernel-module VMs to Compute Engine."
+    ],
+    "answer": [3],
+    "explanation": "Migrate to Containers includes a fit assessment tool that analyzes each VM and rates how well it can be containerized; stateless web and Java application servers such as Apache and Tomcat are typical good fits and can be converted to container images and Kubernetes manifests without rewriting code, whereas clustered databases and VMs relying on custom kernel modules are poor fits and should stay on VMs. Option A is wrong because Migrate to Containers does not suit databases like Oracle RAC or workloads with kernel dependencies. Option B rewrites code unnecessarily and leaves easy container candidates on VMs. Option C forgoes the immediate operational savings that the assessment would identify.",
+    "refs": [
+      "https://cloud.google.com/migrate/containers/docs/fit-assessment",
+      "https://cloud.google.com/migrate/containers/docs"
+    ]
+  },
+  {
+    "id": "d1-bus-058",
+    "domain": 1,
+    "topic": "Migrating VMs from another cloud",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A SaaS company is consolidating onto Google Cloud and needs to move 150 EC2 instances from AWS. The instances run stateful workloads with large EBS volumes that change constantly. The business demands a per-instance downtime of less than 30 minutes, the ability to validate each instance in Google Cloud before switching traffic, and no manual image conversion. Which approach should you recommend?",
+    "options": [
+      "Use Migrate to Virtual Machines with an AWS source: it replicates the instances continuously, allows test clones, and performs a final incremental sync at cutover.",
+      "Export each EC2 instance as an AMI, convert it to a VMDK, import it with the Compute Engine image import tool, and cut over.",
+      "Rebuild each instance from scratch in Google Cloud with Terraform and copy the data with gcloud storage rsync at cutover.",
+      "Use Storage Transfer Service to copy the EBS snapshots into Cloud Storage and boot VMs from them."
+    ],
+    "answer": [0],
+    "explanation": "Migrate to Virtual Machines supports AWS (and Azure) as sources in addition to VMware. It continuously replicates instance disks into Google Cloud, supports test clones for validation while the source keeps running, and performs a final delta synchronization at cutover, so downtime is limited to the last sync and boot, well within 30 minutes. Option B is a manual, one-time conversion per instance; with constantly changing volumes the imported image is stale, and the process is slow and error prone at scale. Option C requires rebuilding 150 stateful systems by hand and a lengthy data copy during cutover. Option D is not a supported way to create bootable Compute Engine VMs; Storage Transfer Service moves object data, not EBS snapshots.",
+    "refs": [
+      "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/aws-migration-overview",
+      "https://cloud.google.com/architecture/migrate-aws-to-gcp"
+    ]
+  },
+  {
+    "id": "d1-bus-059",
+    "domain": 1,
+    "topic": "Network planning: IP addressing",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "During migration planning, a retailer discovers that its on-premises data center uses 10.0.0.0/16 and that the pilot project team already created a Google Cloud VPC subnet with the same 10.0.0.0/16 range. Applications will run in a hybrid mode for at least 18 months, with cloud workloads calling on-premises services over Cloud Interconnect. What should you do?",
+    "options": [
+      "Keep both ranges identical and rely on Cloud NAT to translate traffic between the environments.",
+      "Continue with the existing subnet and add static routes on the on-premises routers to direct traffic to Google Cloud.",
+      "Define an enterprise IP address plan now that allocates non-overlapping CIDR blocks to Google Cloud (for example, a dedicated /12 divided per region and environment), recreate the pilot subnet accordingly, and advertise the ranges over Cloud Router before the first production wave.",
+      "Use a separate VPC for every application so that overlapping ranges do not matter."
+    ],
+    "answer": [2],
+    "explanation": "Overlapping IP ranges between on-premises and Google Cloud break hybrid routing; Cloud Router cannot advertise or learn overlapping routes meaningfully, and the situation only gets harder to fix as more workloads land. Google-recommended practice is to design a non-overlapping IP plan during the foundation phase, reserving contiguous blocks for growth and per-region and per-environment allocation, and to fix the pilot subnet before production traffic depends on it. Option A misuses Cloud NAT, which provides outbound internet or Private Google Access NAT for VM egress, not bidirectional overlap translation with on-premises. Option B cannot resolve overlapping destinations. Option D multiplies management complexity and still leaves each VPC overlapping with on-premises.",
+    "refs": [
+      "https://cloud.google.com/architecture/best-practices-vpc-design",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-building-your-foundation"
+    ]
+  },
+  {
+    "id": "d1-bus-060",
+    "domain": 1,
+    "topic": "Workload testing plan",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An airline is about to migrate its crew-scheduling application, which has strict end-of-month batch deadlines, from on-premises to Compute Engine and Cloud SQL. The program board asks for a testing plan that will give confidence that the migrated system behaves and performs at least as well as before cutover. Which testing plan should you propose?",
+    "options": [
+      "Run the existing unit test suite in Cloud Build against the migrated code and approve cutover if it passes.",
+      "Capture baseline performance metrics on-premises, then in the target environment run functional regression tests, a load test replaying production-like volumes (including the end-of-month batch) against the same-sized data, failover and backup restore tests, and compare results with the baseline before approving cutover.",
+      "Cut over on a quiet weekday and monitor Cloud Monitoring dashboards closely for a week.",
+      "Ask the application vendor for a certificate stating that the product is supported on Google Cloud."
+    ],
+    "answer": [1],
+    "explanation": "Workload testing in a migration plan must cover functional correctness, performance against a measured baseline under realistic volumes (especially known peaks such as the month-end batch), and operational resilience (failover, backup and restore), all in the target environment before cutover. Only a baseline comparison can prove 'at least as well as before'. Option A verifies code, not the migrated infrastructure, data or performance. Option C treats production users as testers and risks missing a hard business deadline. Option D is a supportability statement, not evidence that this specific deployment performs correctly.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-bus-061",
+    "domain": 1,
+    "topic": "Migration wave planning",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A telecommunications provider has completed discovery of 200 applications and must sequence them into migration waves for its move to Google Cloud. The migration team is new to Google Cloud, and the executive sponsor wants early visible wins with low risk while avoiding failed cutovers. Which two principles should guide the wave planning? (Choose two.)",
+    "options": [
+      "Place the most business-critical, complex applications in the first wave so the team focuses its energy on them while it is fresh.",
+      "Start with low-complexity, low-risk, well-understood workloads (for example, internal tools and dev/test environments) to build the team's skills and validate the landing zone and processes.",
+      "Migrate applications strictly in order of the number of VMs, largest first, to reduce the on-premises footprint fastest.",
+      "Group applications that communicate heavily with each other into the same wave so they do not end up split across a WAN link.",
+      "Randomize the order to avoid bias from application owners."
+    ],
+    "answer": [1, 3],
+    "explanation": "Google's migration guidance recommends beginning with simple, low-risk workloads: they produce early wins, exercise the landing zone, tooling and runbooks, and let the team learn before facing critical systems. Waves should also respect dependencies, keeping tightly coupled components together to avoid latency and partial-failure problems. Option A maximizes risk at the point of least experience. Option C ignores risk and dependencies in favor of a footprint metric. Option E discards the dependency and risk information gathered during discovery, which is precisely what wave planning should use.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads"
+    ]
+  },
+  {
+    "id": "d1-bus-062",
+    "domain": 1,
+    "topic": "Landing zone before migration",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mid-sized law firm is eager to begin migrating its document management VMs to Google Cloud. The IT manager proposes creating a single project, giving the migration team Owner role, and starting Migrate to Virtual Machines replication this week. As the architect, what should you recommend doing before the first migration wave?",
+    "options": [
+      "Build the landing zone foundation first: organization and folder hierarchy, IAM groups with least-privilege roles, a shared VPC with a non-overlapping IP plan and hybrid connectivity, centralized logging and monitoring, billing structure and organization policies.",
+      "Proceed as proposed, since the foundation can be restructured after the VMs are running.",
+      "Migrate the VMs into the default VPC to save time and move them to a shared VPC later.",
+      "Delay the migration until every application has been refactored for containers."
+    ],
+    "answer": [0],
+    "explanation": "Google's migration framework places 'plan and build the foundation' before deployment for a reason: the resource hierarchy, IAM model, network design, connectivity, logging and policy guardrails are hard to retrofit once workloads are running, and moving VMs between projects and networks later causes downtime and rework. A well-designed landing zone also satisfies the security and operational excellence pillars from day one. Option B and C accumulate technical debt and security risk (broad Owner grants, default network) that is expensive to unwind. Option D confuses the foundation with application modernization and would delay the business unnecessarily.",
+    "refs": [
+      "https://cloud.google.com/architecture/landing-zones",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-building-your-foundation"
+    ]
+  },
+  {
+    "id": "d1-bus-063",
+    "domain": 1,
+    "topic": "Choosing between replatform and refactor",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank runs a Java Spring Boot monolith for its loan origination portal on two on-premises VMs behind a load balancer. The application is stateless (sessions are stored in a database), is built with Maven, and is being migrated to Google Cloud. The team has no Kubernetes experience, the bank wants to eliminate VM patching and to scale automatically for month-end peaks, and the budget for the migration allows only minor code changes. Which approach should you recommend?",
+    "options": [
+      "Rehost the two VMs to Compute Engine in a managed instance group with autoscaling and continue patching the OS.",
+      "Refactor the monolith into microservices on GKE Standard to achieve independent scaling of each component.",
+      "Rebuild the portal as event-driven Cloud Run functions to eliminate all servers.",
+      "Containerize the existing monolith with minimal changes (for example, using Jib or a Dockerfile in Cloud Build), deploy it to Cloud Run with autoscaling, and defer any decomposition into services to a later phase."
+    ],
+    "answer": [3],
+    "explanation": "The constraints are no Kubernetes skills, minor code changes only, elimination of VM patching, and automatic scaling. A stateless Java monolith is an ideal Cloud Run candidate: containerizing it is a packaging change, not a rewrite, Cloud Run removes OS management entirely and scales with request load, and the team avoids learning Kubernetes. This is a replatform (move and improve) that keeps the door open to refactoring later. Option A meets scaling but keeps patching, which the bank wants to eliminate. Option B requires a large rewrite and Kubernetes skills the team lacks. Option C is a full rebuild that exceeds the budget and is a poor fit for a request-driven web portal.",
+    "refs": [
+      "https://cloud.google.com/run/docs/overview/what-is-cloud-run",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/java/getting-started/jib"
+    ]
+  },
+  {
+    "id": "d1-bus-064",
+    "domain": 1,
+    "topic": "OS end-of-support during migration",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An accounting firm is rehosting 40 Windows Server 2012 R2 VMs from VMware to Compute Engine. Windows Server 2012 R2 is out of extended support, and the firm's security policy forbids running unsupported operating systems in Google Cloud. The applications are compatible with newer Windows versions, and the firm wants to avoid building each server again by hand. What should you do?",
+    "options": [
+      "Rehost the VMs as-is and purchase Extended Security Updates indefinitely to satisfy the policy.",
+      "Rebuild all 40 servers manually on Windows Server 2022 images in Compute Engine and reinstall the applications.",
+      "Use Migrate to Virtual Machines and enable its in-place operating system upgrade feature to upgrade the servers to a supported Windows Server version as part of the migration, then validate with test clones before cutover.",
+      "Convert the VMs to Linux containers with Migrate to Containers to eliminate the Windows licensing problem."
+    ],
+    "answer": [2],
+    "explanation": "Migrate to Virtual Machines can perform an in-place Windows Server OS upgrade during migration (for example, from 2012 R2 to a supported version), which avoids manual rebuilds while satisfying the policy against unsupported operating systems; test clones let the team validate application compatibility first. Option A knowingly runs an unsupported OS with an escalating cost and still violates the spirit of the policy. Option B satisfies the policy but at the cost of weeks of manual work the firm wants to avoid. Option D is not feasible because Windows applications cannot be converted into Linux containers.",
+    "refs": [
+      "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/os-upgrade",
+      "https://cloud.google.com/compute/docs/instances/windows"
+    ]
+  },
+  {
+    "id": "d1-bus-065",
+    "domain": 1,
+    "topic": "Google Cloud VMware Engine as a migration path",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company operates 900 VMs on VMware vSphere with NSX micro-segmentation and heavy use of vSphere HA and vMotion, managed by a team of VMware specialists. The data center contract ends in ten months. Leadership wants to exit the data center on time, retain the team's existing operational tooling and skills, and avoid re-architecting applications now, while keeping the option to modernize individual workloads later. Which migration approach should you recommend?",
+    "options": [
+      "Convert every VM into containers with Migrate to Containers and run them on GKE Enterprise.",
+      "Migrate the environment to Google Cloud VMware Engine using HCX, preserving the vSphere and NSX operating model, and modernize selected workloads to native Google Cloud services over time.",
+      "Rehost all 900 VMs to Compute Engine with Migrate to Virtual Machines and retrain the VMware team on Google Cloud networking.",
+      "Extend the data center contract by two years to allow a full refactoring program."
+    ],
+    "answer": [1],
+    "explanation": "Google Cloud VMware Engine provides a managed, dedicated vSphere, vSAN and NSX environment inside Google Cloud, so a large VMware estate can be moved with HCX using bulk or live migration while the team keeps its tools, skills and network policies, which is the fastest and least risky path for a fixed deadline. Its private connection to the VPC enables gradual modernization of individual workloads to Compute Engine, GKE, Cloud SQL and other services. Option A is not feasible for 900 heterogeneous VMs in ten months and ignores workloads unsuitable for containers. Option C is viable but discards the team's operational tooling and requires re-creating NSX policies natively, increasing risk against the deadline. Option D does not meet the business goal of exiting on time.",
+    "refs": [
+      "https://cloud.google.com/vmware-engine/docs/overview",
+      "https://cloud.google.com/vmware-engine/docs/workloads/howto-migrate-vms-using-hcx"
+    ]
+  },
+  {
+    "id": "d1-bus-066",
+    "domain": 1,
+    "topic": "Cutover and rollback planning",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retailer is planning the production cutover of its order management system from on-premises to Google Cloud. The business has stated that if serious problems appear within the first 48 hours after cutover, the company must be able to return to the on-premises system without losing orders taken in the cloud. Which element must the migration plan include to meet this requirement?",
+    "options": [
+      "A rollback plan with explicit go/no-go criteria, a mechanism to keep the on-premises database synchronized from the cloud during the 48-hour window (for example, reverse replication), and a rehearsed procedure to switch traffic back.",
+      "A statement that rollback is not possible after cutover because data will have diverged.",
+      "A full backup of the on-premises database taken immediately before cutover so it can be restored if needed.",
+      "An extended maintenance window of 48 hours during which no orders are accepted, so nothing needs to be synchronized."
+    ],
+    "answer": [0],
+    "explanation": "Migration plans must define how and when to roll back. Because the requirement forbids losing orders captured in the cloud, the plan needs reverse data synchronization (or dual-write or event replay) back to the on-premises database during the observation window, together with objective go/no-go criteria and a rehearsed traffic switch. Option B fails the stated business requirement. Option C protects only the pre-cutover state; restoring it would discard all cloud-side orders. Option D would halt sales for two days, which is commercially unacceptable and does not constitute a rollback capability.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/architecture/database-migration-concepts-principles-part-2"
+    ]
+  },
+  {
+    "id": "d1-bus-067",
+    "domain": 1,
+    "topic": "Migration plan documentation",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "You are the lead architect for a national insurer's migration of 120 applications to Google Cloud. The steering committee has asked for a migration plan document and architecture diagrams that will be used to approve funding and to coordinate application, network, security and operations teams. Which three items are essential to include in the migration plan? (Choose three.)",
+    "options": [
+      "A dependency map and wave schedule showing which applications move together, in what order, and the prerequisites for each wave.",
+      "The final Terraform source code for every workload, since the plan should be executable.",
+      "The target-state architecture diagrams (landing zone, network connectivity, per-workload target design) and the migration strategy chosen per application (rehost, replatform, refactor, replace, retain, retire) with rationale.",
+      "A complete list of all IAM permissions granted to each engineer.",
+      "Success criteria and risks: per-application test and acceptance criteria, cutover and rollback procedures, communication plan, and KPIs to measure the migration's business outcomes.",
+      "The hostnames of every on-premises server, in alphabetical order, with no additional context."
+    ],
+    "answer": [0, 2, 4],
+    "explanation": "A migration plan is a decision and coordination document: it needs the sequencing and dependencies (wave plan), the destination and the how (target architecture diagrams and per-workload strategy with rationale), and the governance elements that make execution safe and measurable (acceptance criteria, cutover and rollback runbooks, communications, and business KPIs). Option B is implementation output that comes later and changes constantly; it does not belong in an approval document. Option D is an operational security artifact, not a planning element. Option F is raw inventory without analysis; inventory is an input to the plan but is meaningful only when tied to applications, dependencies and dispositions.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads"
+    ]
+  },
+  {
+    "id": "d1-bus-068",
+    "domain": 1,
+    "topic": "Performance baselining",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Two weeks after a hospital migrated its radiology image viewer to Google Cloud, clinicians complain that images 'feel slower' than before. The migration team has no on-premises measurements to compare against and cannot tell whether the complaint is real, a network path issue, or perception. For the remaining 30 applications still to be migrated, what should you add to the migration plan to avoid this situation?",
+    "options": [
+      "Migrate the remaining applications to larger machine types so that performance can never be worse.",
+      "Add a user survey after each migration to collect perceived performance.",
+      "Ask clinicians to accept that cloud applications may be slower because of the distance to the region.",
+      "Capture a pre-migration performance baseline for each application (response times at percentiles, throughput, key transaction timings) using the same measurement method that will be used in Google Cloud, and define acceptance thresholds relative to that baseline as part of workload testing."
+    ],
+    "answer": [3],
+    "explanation": "Workload testing requires an objective baseline. Measuring key transactions before migration with the same instrumentation (for example, synthetic checks or application metrics later collected by Cloud Monitoring) provides a like-for-like comparison and lets you set acceptance criteria before cutover, so complaints can be verified and diagnosed (network latency, storage, sizing) with data. Option A increases cost and does not address network or design causes of latency. Option B collects perception, not evidence, and cannot pinpoint causes. Option C dismisses a possibly real problem; with proper region selection and design, cloud performance should meet or exceed on-premises.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/architecture/framework/performance-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-069",
+    "domain": 1,
+    "topic": "Migration Center data import",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government department wants an assessment of its 500 on-premises servers for a Google Cloud migration business case, but security rules prohibit deploying any new collection software or opening network connections from the data center to the internet. The department already has recent RVTools exports from vCenter and a CMDB export containing server specifications and utilization statistics. How should you produce the assessment?",
+    "options": [
+      "Explain that no assessment is possible without deploying the discovery client, and request a policy exception.",
+      "Import the RVTools and CMDB exports into Migration Center using its file-import capability, group the assets by application, and generate TCO and cost estimate reports from the imported data.",
+      "Manually price each server in the Google Cloud pricing calculator and combine the results in a spreadsheet.",
+      "Migrate a representative sample of 20 servers first and extrapolate the cost to the remaining 480."
+    ],
+    "answer": [1],
+    "explanation": "Migration Center supports importing inventory and performance data from files, including RVTools exports and CSV templates, precisely for environments where the discovery client cannot be deployed; the imported assets can then be grouped and used for cost estimates and TCO reports. Option A is unnecessary since a supported offline path exists. Option C is laborious, error-prone for 500 servers and lacks utilization-based rightsizing. Option D requires actually migrating servers before the business case is approved and produces an inaccurate extrapolation.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/import-data-overview",
+      "https://cloud.google.com/migration-center/docs/migration-center-overview"
+    ]
+  },
+  {
+    "id": "d1-bus-070",
+    "domain": 1,
+    "topic": "Agentless VM migration",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospitality company wants to rehost 120 vSphere VMs to Compute Engine. Its security team will not permit installing migration agents inside the guest operating systems, and the operations team wants to run a migration in batches with minimal downtime. Which tool meets these requirements?",
+    "options": [
+      "The Compute Engine virtual disk import tool, running an agent inside each VM to upload its disks.",
+      "A custom script that uses gcloud storage to upload VMDK files exported from each VM.",
+      "Migrate to Virtual Machines with a Migrate Connector appliance deployed in vSphere, which replicates VMs agentlessly and supports batch migration groups.",
+      "Migrate to Containers, which converts the VMs without touching the guest OS."
+    ],
+    "answer": [2],
+    "explanation": "Migrate to Virtual Machines uses a connector appliance deployed in the vSphere environment to replicate VM disks at the hypervisor level, so no agent is installed in the guest, and it supports grouping VMs into migration groups for batched cutovers with continuous replication that keeps downtime short. Option A describes a manual, per-VM import path and misstates the agent requirement; it is not designed for batch, low-downtime migrations. Option B is manual, one-shot and requires VM downtime to export consistent disks. Option D produces containers, not VMs, and is unsuitable for a general rehost of 120 mixed VMs.",
+    "refs": [
+      "https://cloud.google.com/migrate/virtual-machines/docs/5.0/get-started/how-migrate-vms-works",
+      "https://cloud.google.com/migrate/virtual-machines/docs"
+    ]
+  },
+  {
+    "id": "d1-bus-071",
+    "domain": 1,
+    "topic": "Hybrid connectivity planning for migration",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bank's migration plan will move application tiers to Google Cloud over 18 months while several core databases remain on-premises until the last wave. Traffic between migrated applications and on-premises databases is expected to average 4 Gbps with latency-sensitive queries. The current connectivity is a single Cloud VPN tunnel used for the pilot. Which connectivity should be in place before the first production wave?",
+    "options": [
+      "Redundant Dedicated Interconnect connections (or Partner Interconnect at the required capacity) in two edge availability domains with Cloud Router, sized for the 4 Gbps average plus growth, established and tested before the first production wave.",
+      "Keep the single Cloud VPN tunnel and add a second one only if users report problems.",
+      "Use Private Service Connect to expose the on-premises databases to the cloud applications.",
+      "Route database traffic over the public internet with TLS to avoid the cost of dedicated circuits."
+    ],
+    "answer": [0],
+    "explanation": "Network planning is a required migration planning activity. A single VPN tunnel is capped well below the sustained 4 Gbps need, adds encryption overhead and latency variance, and is a single point of failure; Dedicated or Partner Interconnect provides high bandwidth, consistent low latency and, when deployed redundantly across edge availability domains, a 99.99% SLA. Circuits take weeks to provision, so they must be ordered and validated before the first wave. Option B reacts to failures instead of planning for them. Option C is incorrect because Private Service Connect publishes services within Google Cloud; it does not replace the physical connectivity to on-premises. Option D exposes database traffic to internet latency and variability and conflicts with a bank's security posture.",
+    "refs": [
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/overview",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/dedicated-creating-9999-availability"
+    ]
+  },
+  {
+    "id": "d1-bus-072",
+    "domain": 1,
+    "topic": "Splitting tiers across environments",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing company's discovery data shows that its web application makes about 40 sequential SQL queries per page view against a PostgreSQL database, with a current round-trip time of 0.3 ms inside the data center. The network team measured 12 ms round-trip time between the data center and the chosen Google Cloud region over Interconnect. The migration team proposes moving the database to Cloud SQL in wave 1 and the web tier in wave 3, two months later. What should you recommend?",
+    "options": [
+      "Approve the plan, because Cloud SQL will process queries faster and compensate for the network latency.",
+      "Move the web tier in wave 1 and the database in wave 3 instead, since web servers are easier to migrate.",
+      "Add a Memorystore cache in front of Cloud SQL to hide the latency during the two-month gap.",
+      "Migrate the web tier and the database together in the same wave, because splitting a chatty application across a 12 ms link would add roughly half a second per page view for two months."
+    ],
+    "answer": [3],
+    "explanation": "Dependency planning must account for network round-trip time: 40 sequential queries at 12 ms each adds about 480 ms per page view compared with 12 ms today, which would visibly degrade the user experience for the entire gap between waves. Tightly coupled, chatty tiers should be migrated in the same wave so they stay co-located. Option A misunderstands the issue; query execution time is not the bottleneck, network round trips are. Option B creates the same latency problem in the opposite direction. Option C requires application changes to use a cache, does not help writes or uncached reads, and adds complexity for a temporary situation.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-073",
+    "domain": 1,
+    "topic": "Migrate to Containers workload suitability",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A software vendor wants to use Migrate to Containers to move suitable VM-based workloads to GKE and Cloud Run as part of its Google Cloud migration, minimizing manual re-packaging. Its inventory includes the workloads listed below. Which two workloads are appropriate candidates for Migrate to Containers? (Choose two.)",
+    "options": [
+      "A Java web application running on Apache Tomcat on a Linux VM.",
+      "An ASP.NET web application hosted on IIS on a Windows Server VM.",
+      "An Oracle Real Application Clusters database spanning three VMs.",
+      "A Linux VM that loads a proprietary kernel module to drive a hardware security appliance.",
+      "An SAP HANA in-memory database on a 4 TB certified VM."
+    ],
+    "answer": [0, 1],
+    "explanation": "Migrate to Containers provides workload-specific plugins for Linux applications, Apache Tomcat, JBoss, WebSphere traditional and Windows IIS ASP.NET applications, generating container images, Kubernetes manifests and deployment configuration that can target GKE or Cloud Run, so the Tomcat and IIS workloads are good candidates. Clustered relational databases such as Oracle RAC, VMs with kernel-level dependencies, and SAP HANA are explicitly poor fits: they depend on specific kernels, drivers, clustering or certified hardware sizing that containers do not provide, and they should instead run on Compute Engine (or Bare Metal Solution for Oracle) or on certified SAP machine types.",
+    "refs": [
+      "https://cloud.google.com/migrate/containers/docs",
+      "https://cloud.google.com/migrate/containers/docs/fit-assessment"
+    ]
+  },
+  {
+    "id": "d1-bus-074",
+    "domain": 1,
+    "topic": "Progressive cutover",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A news publisher is migrating its stateless web front end from on-premises to Cloud Run. The content database has already been migrated to Cloud SQL and is accessible from both environments. Editors are nervous about a 'big bang' switch during a major election week. The publisher wants to validate the cloud front end with real traffic while retaining the ability to shift traffic back instantly. Which cutover approach should you recommend?",
+    "options": [
+      "Switch the DNS record to the Cloud Run URL at midnight and keep the on-premises servers powered on for a week.",
+      "Announce a maintenance window, stop the on-premises servers, and start Cloud Run.",
+      "Place both the on-premises front end (via a hybrid connectivity NEG) and the Cloud Run service behind a global external Application Load Balancer, use weighted traffic splitting to shift a small percentage of users to Cloud Run, increase the weight as metrics stay healthy, and keep the ability to set the cloud weight back to zero.",
+      "Run the two environments in parallel and ask a group of editors to test the Cloud Run version manually before switching everyone."
+    ],
+    "answer": [2],
+    "explanation": "A progressive (canary) cutover reduces migration risk. A global external Application Load Balancer can route to on-premises backends through hybrid connectivity network endpoint groups and to Cloud Run through serverless NEGs, and weighted traffic splitting lets the team move 5%, 25%, 50% and eventually 100% of real traffic while watching SLIs, with instant rollback by changing weights. Option A is a hard DNS switch whose rollback is delayed by DNS caching. Option B is a big bang with downtime, the opposite of what the editors want. Option D validates with a handful of users rather than real production traffic patterns and still ends with an abrupt switch.",
+    "refs": [
+      "https://cloud.google.com/load-balancing/docs/negs/hybrid-neg-concepts",
+      "https://cloud.google.com/load-balancing/docs/https/traffic-management-global",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-075",
+    "domain": 1,
+    "topic": "Choosing an assessment tool",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The CIO of a consumer electronics retailer has asked for a data-driven migration assessment of the company's on-premises estate within eight weeks, including an inventory, a total cost of ownership comparison and a first-pass recommendation of which workloads fit Compute Engine, GKE or managed databases. The CIO does not want to pay for consulting or third-party licenses at this stage. Which tool should you use?",
+    "options": [
+      "Cloud Asset Inventory, which lists all assets and their configuration.",
+      "Gemini Cloud Assist, which can generate a migration report from a natural-language description of the estate.",
+      "Google Cloud Migration Center, which provides discovery, grouping, TCO and cost estimate reports, and fit assessments for Google Cloud targets at no additional cost.",
+      "Recommender, which analyzes workloads and suggests optimal machine types."
+    ],
+    "answer": [2],
+    "explanation": "Migration Center is Google Cloud's unified, no-cost migration assessment platform: it discovers on-premises and other-cloud assets, groups them into applications, generates TCO comparisons and cost estimates, and provides fit assessments for targets such as Compute Engine, GKE and managed databases, which is exactly the requested deliverable. Option A inventories resources that already exist in Google Cloud, not on-premises estates. Option B is an AI assistant that helps with design and operations questions but does not perform discovery of an on-premises environment. Option D produces rightsizing and cost recommendations for resources already running in Google Cloud.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/migration-center/docs/tco-report-overview"
+    ]
+  }
+]

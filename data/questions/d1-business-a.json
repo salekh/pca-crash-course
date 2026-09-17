@@ -1,0 +1,539 @@
+[
+  {
+    "id": "d1-bus-001",
+    "domain": 1,
+    "topic": "Functional vs non-functional requirements",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional grocery chain is documenting requirements for a new online ordering platform on Google Cloud. During a stakeholder workshop, the product owner lists several statements. You need to separate the non-functional requirements, which will drive your infrastructure design, from the functional ones. Which statement is a non-functional requirement?",
+    "options": [
+      "Customers must be able to filter products by dietary preference and brand.",
+      "Store managers must receive a daily email summarizing unfulfilled orders.",
+      "The checkout API must respond within 300 ms at the 95th percentile during peak traffic.",
+      "Loyalty points must be applied automatically when a customer enters a membership number."
+    ],
+    "answer": [2],
+    "explanation": "Non-functional requirements describe how a system must behave (performance, availability, security, scalability, cost), while functional requirements describe what it must do. A latency target at a percentile under peak load is a classic non-functional requirement that directly influences architecture choices such as load balancer type, caching with Cloud CDN or Memorystore, and regional placement. Options A, B and D each describe a feature or business behavior the application must implement (filtering, notifications, loyalty logic), so they are functional requirements. Correctly identifying NFRs early is the first step in applying the Well-Architected Framework performance and reliability pillars.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/architecture/framework/performance-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-002",
+    "domain": 1,
+    "topic": "KPIs and success measurement",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The CIO of a mid-sized insurance company has sponsored a migration of the claims-processing platform to Google Cloud. The stated business goal is to launch new insurance products faster than competitors. The migration team proposes tracking the number of VMs migrated per week as the primary success metric. You are asked to recommend a key performance indicator that better reflects the business objective. Which KPI should you recommend?",
+    "options": [
+      "Lead time from an approved product idea to production release, measured before and after migration.",
+      "Percentage of on-premises servers decommissioned by the end of each quarter.",
+      "Average CPU utilization of Compute Engine instances in the claims project.",
+      "Total number of Cloud Build pipeline executions per month."
+    ],
+    "answer": [0],
+    "explanation": "A KPI must be tied to the business outcome the sponsor cares about; here that is speed to market for new products, so lead time from idea to production release (a DORA-style delivery metric) directly measures whether the migration delivers the promised agility, and establishing a pre-migration baseline lets you demonstrate improvement. Option B measures migration progress, not business value, and can be complete while the business gains nothing. Option C is a technical efficiency metric that is useful for cost optimization but says nothing about product velocity. Option D counts activity rather than outcomes; more pipeline runs do not mean faster launches. Choosing outcome-oriented KPIs is part of the operational excellence pillar of the Well-Architected Framework.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/operational-excellence",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-003",
+    "domain": 1,
+    "topic": "TCO analysis",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A manufacturing company is evaluating whether to migrate 300 on-premises VMs to Google Cloud. The finance team built a spreadsheet comparing the annual hardware depreciation of the existing servers against the list price of equivalent Compute Engine instances and concluded that staying on-premises is 40% cheaper. You have been asked to review the analysis before it is presented to the board. What should you do?",
+    "options": [
+      "Accept the analysis because hardware depreciation is the only cost that changes when moving to the cloud.",
+      "Recommend delaying the decision until the next hardware refresh so the comparison can be repeated with newer servers.",
+      "Replace the spreadsheet with a simple comparison of monthly on-premises power bills against the Google Cloud pricing calculator estimate.",
+      "Rebuild the comparison as a full TCO model that adds facilities, power and cooling, staff time, software licensing, hardware refresh and support, and that applies rightsizing and committed use discounts to the cloud side using Migration Center data."
+    ],
+    "answer": [3],
+    "explanation": "A credible TCO comparison must include all direct and indirect costs of running on-premises (data center space, power, cooling, network, hardware refresh cycles, support contracts, operations staff, licensing) and must model the cloud side realistically: rightsized machine types based on observed utilization, committed use discounts, and the ability to turn off idle environments. Migration Center collects utilization data and generates a TCO report that automates much of this. Option A ignores the majority of on-premises costs and inflates cloud costs by using list price for oversized instances. Option B just defers the decision and does not fix the flawed methodology. Option C swaps one incomplete comparison for another by ignoring staff, licensing and refresh costs. This aligns with the cost optimization pillar of the Well-Architected Framework.",
+    "refs": [
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-004",
+    "domain": 1,
+    "topic": "CapEx vs OpEx",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company has run its core routing application on Compute Engine for 18 months. Utilization data shows a stable baseline of 60 vCPUs and 240 GB of memory in us-central1 around the clock, with occasional spikes during holiday seasons. The CFO wants predictable monthly spending and the lowest possible cost without changing the application. What should you recommend?",
+    "options": [
+      "Purchase reserved capacity by paying for the servers up front as a capital expense and depreciate them over three years.",
+      "Purchase a 3-year resource-based committed use discount covering the baseline vCPU and memory, and rely on on-demand instances for the seasonal spikes.",
+      "Convert all instances to Spot VMs to obtain the largest available discount and accept occasional preemption.",
+      "Move the application to sole-tenant nodes so that the company controls the physical hardware and can amortize it."
+    ],
+    "answer": [1],
+    "explanation": "In the cloud, compute is an operating expense; the way to obtain predictable, discounted pricing for a steady-state workload is a committed use discount (CUD). A resource-based CUD for the observed baseline delivers up to 55% savings (3-year) while the seasonal spikes stay on flexible on-demand capacity, so you never over-commit. Option A describes an on-premises capital purchasing model that does not exist in Google Cloud. Option C is wrong because Spot VMs can be preempted at any time and are unsuitable for a core production application that must run continuously. Option D adds significant cost and is meant for licensing or compliance isolation requirements, not for cost reduction. This is a direct application of the cost optimization pillar.",
+    "refs": [
+      "https://cloud.google.com/docs/cuds",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-005",
+    "domain": 1,
+    "topic": "Workload disposition strategies",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A media company has inventoried 40 on-premises applications ahead of a Google Cloud migration. The portfolio includes a self-hosted email and calendar server, an internal reporting tool that access logs show has had no logins in 14 months, a heavily customized mainframe billing system with 3 years of remaining vendor support, and a commodity ticketing application whose vendor offers an equivalent SaaS edition. Leadership wants to minimize migration effort and long-term operational overhead. Which two disposition decisions are consistent with Google-recommended practice? (Choose two.)",
+    "options": [
+      "Refactor the mainframe billing system into microservices in the first migration wave because it is the most business-critical workload.",
+      "Retire the internal reporting tool after confirming with its former owners and archiving any required data to Cloud Storage.",
+      "Rehost the self-hosted email server onto a Compute Engine VM so that the existing administrators can keep managing it.",
+      "Replace the commodity ticketing application with the vendor's SaaS edition instead of migrating the servers.",
+      "Rebuild the ticketing application in-house on Cloud Run to avoid paying subscription fees."
+    ],
+    "answer": [1, 3],
+    "explanation": "Disposition (the six or seven Rs) should be driven by business value and effort. An application with no users for over a year is a retire candidate; confirming with stakeholders and archiving data protects against surprises. A commodity application with a SaaS equivalent is a replace (buy) candidate because it removes migration work and ongoing operations entirely. Option A is wrong because tackling the most complex, business-critical system first with the riskiest strategy (refactor) contradicts the recommended approach of starting with simpler workloads to build experience; the mainframe is a retain or later-wave candidate. Option C keeps operational overhead for a commodity capability that should be replaced with a SaaS offering such as Google Workspace. Option E rebuilds a non-differentiating capability, which is the most expensive option and does not minimize effort.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads"
+    ]
+  },
+  {
+    "id": "d1-bus-006",
+    "domain": 1,
+    "topic": "Build vs buy",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A 200-employee specialty insurer needs a customer relationship management (CRM) capability to replace spreadsheets. The company has four developers who are fully occupied maintaining the policy administration system, which is the company's competitive differentiator. The CEO wants the CRM live within three months and asks whether the team should build it on Google Cloud. Which approach should you recommend?",
+    "options": [
+      "Build a custom CRM on GKE Autopilot so that the developers gain Kubernetes experience for future projects.",
+      "Build a lightweight CRM on Cloud Run with Firestore because serverless keeps costs near zero at this scale.",
+      "Buy a SaaS CRM from Google Cloud Marketplace or a vendor and integrate it with the policy system through APIs, keeping developer time focused on the differentiating workload.",
+      "Deploy an open-source CRM on Compute Engine and modify it to the insurer's needs."
+    ],
+    "answer": [2],
+    "explanation": "The deciding factors are a non-differentiating capability, a tiny development team already committed to the strategic system, and a three-month deadline. Google-recommended practice is to buy commodity capabilities and build only where it creates competitive advantage; a SaaS CRM (often procurable through Cloud Marketplace, which consolidates billing) meets the timeline with minimal operational overhead and can be integrated using APIs or Application Integration. Options A and B both consume scarce developer capacity on undifferentiated work and are very unlikely to meet the deadline with a mature feature set. Option D still requires the team to operate, patch and customize the software, shifting effort away from the policy system. This is a workload disposition decision favoring 'buy' over 'build'.",
+    "refs": [
+      "https://cloud.google.com/marketplace",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-007",
+    "domain": 1,
+    "topic": "ROI and business case",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A national retailer's architecture team must present the return on investment (ROI) of moving its e-commerce platform from a colocation facility to Google Cloud. The initial draft counts only the reduction in server and colocation costs and shows a marginal ROI, which the CFO finds unconvincing. How should you strengthen the business case?",
+    "options": [
+      "Quantify additional benefits such as revenue protected by higher availability during peak sales, revenue from faster feature releases, avoided hardware refresh capital, and reduced operations effort, and measure each against a documented baseline.",
+      "Increase the projected savings by assuming that all instances will run on Spot VMs at the maximum discount.",
+      "Exclude the one-time migration and dual-running costs from the calculation so that the ROI appears higher.",
+      "Present only qualitative benefits such as innovation and modernization, because business value from cloud cannot be quantified."
+    ],
+    "answer": [0],
+    "explanation": "A robust ROI model captures both cost side and value side benefits: avoided CapEx for the next hardware refresh, lower operations toil, revenue protected through improved availability and scalability during peak events, and revenue enabled by faster release cycles. Each benefit must be tied to a measured baseline so it can be validated after migration. Option B fabricates savings with an unrealistic assumption; a customer-facing e-commerce tier cannot run entirely on preemptible capacity. Option C hides real costs and would destroy credibility with finance. Option D abandons the quantitative case that the CFO explicitly requires; cloud benefits such as availability and delivery lead time can and should be quantified.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework/cost-optimization",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-008",
+    "domain": 1,
+    "topic": "Business continuity and DR patterns",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online ticketing company runs its order platform in a single Google Cloud region. The business continuity plan states that after a regional outage the company can tolerate losing at most 5 minutes of orders and must be selling tickets again within 1 hour. The CFO wants the lowest-cost architecture that meets these targets. Which disaster recovery pattern should you implement?",
+    "options": [
+      "Backup and restore: take nightly database backups to a multi-region Cloud Storage bucket and rebuild the environment in a second region from Terraform when needed.",
+      "Pilot light: continuously replicate the database to a second region and keep application tier definitions ready so that compute is provisioned and scaled up only during a failover.",
+      "Hot standby: run a fully scaled, active-active deployment across two regions behind a global external Application Load Balancer.",
+      "Cold standby: copy disk snapshots to the second region weekly and store application images in Artifact Registry."
+    ],
+    "answer": [1],
+    "explanation": "The requirements translate to an RPO of 5 minutes and an RTO of 1 hour. Only continuous data replication can satisfy a 5-minute RPO, and a 1-hour RTO leaves enough time to start and scale the application tier from prepared instance templates or GKE manifests, so a pilot light (data replicated, minimal compute) is the cheapest pattern that meets both targets. Option A fails the RPO because nightly backups can lose up to 24 hours of data. Option C meets the targets but is the most expensive pattern, doubling compute cost, which violates the cost constraint. Option D fails both RPO (weekly) and probably RTO. Matching the DR pattern to RPO/RTO and cost is a core reliability pillar decision.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/dr-scenarios-for-applications"
+    ]
+  },
+  {
+    "id": "d1-bus-009",
+    "domain": 1,
+    "topic": "Measurable non-functional requirements",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech startup's product manager writes the following requirement for a new payments API on Google Cloud: 'The API should be fast and almost never go down.' As the architect, you need this requirement to be testable and to drive design decisions. What should you do?",
+    "options": [
+      "Accept the requirement as written and choose the largest machine types available to guarantee speed.",
+      "Ask the development team to interpret the requirement during implementation.",
+      "Work with the product manager to rewrite it as measurable targets, for example 99% of requests complete in under 200 ms and 99.9% monthly availability, and define how each will be measured.",
+      "Replace the requirement with a statement that the API will use a global external Application Load Balancer."
+    ],
+    "answer": [2],
+    "explanation": "Vague non-functional requirements cannot be verified, priced or designed against. Turning them into service level objectives with explicit indicators (latency percentile, availability over a time window) and a measurement method (for example, load balancer request logs in Cloud Monitoring) makes the requirement testable and allows you to compute what redundancy and capacity the design needs. Option A over-provisions without knowing the target and still does not address availability. Option B pushes an unresolved business decision onto developers, leading to inconsistent interpretations. Option D substitutes a technology choice for a requirement; the load balancer is a possible means, not the requirement itself.",
+    "refs": [
+      "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-bus-010",
+    "domain": 1,
+    "topic": "Cost optimization for non-production",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A software company's Google Cloud bill shows that development and test environments on Compute Engine account for 45% of monthly spend, even though engineers only use them during business hours on weekdays. The CI system also runs stateless build agents on standard VMs 24 hours a day. The finance team asks you to reduce OpEx with the least operational overhead and without affecting production. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Attach an instance schedule resource policy that automatically stops the dev and test VMs outside business hours and starts them each weekday morning.",
+      "Purchase a 3-year committed use discount that covers all dev, test and CI instances at their current size.",
+      "Run the stateless CI build agents on Spot VMs, using a managed instance group so preempted agents are recreated automatically.",
+      "Migrate all dev and test environments to sole-tenant nodes to consolidate them on fewer hosts.",
+      "Increase the machine types of the dev VMs so that engineers finish work faster and the VMs can be shut down sooner."
+    ],
+    "answer": [0, 2],
+    "explanation": "The two highest-impact, lowest-effort levers are eliminating idle time and using cheaper capacity for interruptible work. Instance schedules are a native Compute Engine resource policy that stop and start VMs on a calendar with no custom automation, directly removing roughly two-thirds of dev/test running hours. Stateless CI agents tolerate interruption, so Spot VMs (60-91% cheaper) in a managed instance group are the recommended fit. Option B is wrong because a long-term commitment for environments that should be running only a third of the time locks in waste. Option D increases cost; sole-tenant nodes carry a premium and are meant for licensing or isolation needs. Option E is speculative and raises per-hour cost without a guaranteed reduction in hours.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instances/schedule-instance-start-stop",
+      "https://cloud.google.com/compute/docs/instances/spot",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-011",
+    "domain": 1,
+    "topic": "Design trade-offs",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global gaming publisher is designing a player inventory service that will be used by players in North America, Europe and Asia. Business requirements state that inventory updates must be strongly consistent worldwide (a player cannot trade the same item twice), the service must survive the loss of an entire region with no data loss, and the team wants to avoid building custom replication logic. The finance team notes the storage budget is limited, so the team should not over-provision. Which design should you recommend?",
+    "options": [
+      "Deploy Cloud SQL for PostgreSQL with high availability in one region and asynchronous cross-region read replicas in the other two regions.",
+      "Use Bigtable with multi-cluster replication across three regions and single-row transactions.",
+      "Run Firestore in Datastore mode in a single multi-region location and add application-level locking in Memorystore.",
+      "Use Spanner with a multi-region instance configuration that spans the required continents, sizing compute with autoscaling to the actual load."
+    ],
+    "answer": [3],
+    "explanation": "The deciding requirements are global strong consistency, zero data loss on regional failure (RPO 0) and no custom replication logic. Spanner multi-region configurations provide synchronous replication across regions with external consistency and 99.999% availability, and autoscaling lets you pay only for the compute needed, addressing the budget concern. Option A fails because cross-region Cloud SQL replicas are asynchronous, so a regional failure can lose committed writes and reads on replicas are eventually consistent. Option B is wrong because Bigtable replication is eventually consistent between clusters, so a double-trade could occur. Option C introduces a custom locking layer (which the business wants to avoid) and a single-region cache becomes a point of failure. This is a classic trade-off where the consistency and reliability requirements justify a higher unit price for Spanner.",
+    "refs": [
+      "https://cloud.google.com/spanner/docs/instance-configurations",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-bus-012",
+    "domain": 1,
+    "topic": "Workload disposition: replace with SaaS",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital group runs a 12-year-old human resources application on-premises that has accumulated hundreds of customizations. The vendor now offers a multi-tenant SaaS edition and will end support for the on-premises version in 24 months. The HR director wants the SaaS version, but the IT team is worried that the customizations will be lost. You are asked to plan the disposition of this workload. What should you do first?",
+    "options": [
+      "Rehost the application to Compute Engine using Migrate to Virtual Machines so that support can be extended.",
+      "Run a fit-gap analysis that maps each existing customization to a business process and determines which are still required, which the SaaS edition covers natively, and which need integration or a process change.",
+      "Refactor the application into containers on GKE so the customizations can be maintained by the internal team indefinitely.",
+      "Sign the SaaS contract immediately to lock in pricing and migrate the data with Database Migration Service."
+    ],
+    "answer": [1],
+    "explanation": "Before deciding between replace, modify or rehost, you need to understand which customizations still deliver business value. A fit-gap analysis is the recommended first step: it usually reveals that many legacy customizations are obsolete or can be replaced by standard SaaS features, and it identifies the few gaps that need integration (for example, through Apigee or Application Integration) or a business process change. Option A extends the life of the legacy stack without addressing the end-of-support deadline and keeps operational overhead. Option C is the most expensive path and commits the hospital to owning code for a non-differentiating HR function. Option D commits to a decision before the gaps are understood, and Database Migration Service is a tool for migrating relational databases into Cloud SQL or AlloyDB, not for loading data into a vendor SaaS.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-013",
+    "domain": 1,
+    "topic": "Migration strategy under time constraint",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank's data center lease expires in nine months and will not be renewed. The bank has about 500 VMware VMs running a mix of Java web applications, Windows file servers and internal tools. The CTO wants to avoid a large capital purchase of new hardware and does not want to delay the exit. Which migration approach should you recommend?",
+    "options": [
+      "Refactor every application into microservices on GKE before the lease ends so that the bank arrives in the cloud with a modern architecture.",
+      "Purchase a small amount of new hardware for a temporary colocation facility, then migrate to Google Cloud over the next three years.",
+      "Rehost the majority of VMs with Migrate to Virtual Machines (or Google Cloud VMware Engine for VMs that cannot be modified), meet the deadline, and then modernize selected workloads in later waves.",
+      "Rebuild all applications as serverless services on Cloud Run because it has the lowest operating cost."
+    ],
+    "answer": [2],
+    "explanation": "The binding constraints are a hard nine-month deadline, avoidance of CapEx, and 500 heterogeneous VMs. Rehosting (lift and shift) with Migrate to Virtual Machines is the fastest, lowest-risk path for a large VM estate, and Google Cloud VMware Engine offers an even more transparent landing zone for VMs that depend on vSphere features. Once the data center exit is achieved, the bank can pursue a 'move and improve' strategy, modernizing high-value workloads with better information. Option A is unrealistic for 500 VMs in nine months and concentrates risk. Option B incurs the capital spend the CTO wants to avoid and merely defers the problem. Option D, like A, requires rewriting everything and ignores workloads such as Windows file servers that are not suitable for Cloud Run.",
+    "refs": [
+      "https://cloud.google.com/migrate/virtual-machines/docs",
+      "https://cloud.google.com/vmware-engine/docs",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  },
+  {
+    "id": "d1-bus-014",
+    "domain": 1,
+    "topic": "Business continuity planning",
+    "difficulty": "easy",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "The board of a payments processor has asked the cloud architecture team to produce a business continuity plan (BCP) for the Google Cloud platform that hosts its transaction services. The team's draft consists solely of a diagram showing a second region with database replication. Which two elements should you add so the document qualifies as a business continuity plan rather than only a technical disaster recovery design? (Choose two.)",
+    "options": [
+      "A business impact analysis that ranks each business process by criticality and assigns an RTO and RPO to it.",
+      "A list of the Compute Engine machine types used in the secondary region.",
+      "A detailed comparison of Cloud Storage class pricing for backup retention.",
+      "Defined roles, decision authority for invoking failover, a communication plan for customers and regulators, and a schedule for regular testing of the plan.",
+      "The Terraform module version numbers used to build the environment."
+    ],
+    "answer": [0, 3],
+    "explanation": "A business continuity plan goes beyond infrastructure: it starts with a business impact analysis that identifies critical processes and sets their recovery objectives, and it defines the people and process side of recovery, including who decides to fail over, how stakeholders and regulators are informed, and how often the plan is exercised to prove it works. These elements ensure the technical DR design is proportionate to business risk and can be executed under stress. Options B, C and E are implementation details that belong in runbooks or infrastructure documentation; they do not make the plan a BCP. Testing and clear ownership are core recommendations of the reliability pillar of the Well-Architected Framework.",
+    "refs": [
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
+      "https://cloud.google.com/architecture/framework/reliability"
+    ]
+  },
+  {
+    "id": "d1-bus-015",
+    "domain": 1,
+    "topic": "Unit economics KPIs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "Six months after migrating its marketplace platform to Google Cloud, an e-commerce company's leadership is alarmed that the monthly cloud bill has grown 30%. During the same period, order volume grew 55% and the company entered two new countries. Leadership asks you to define a cost KPI that fairly reflects whether the platform is becoming more or less efficient. Which KPI should you propose?",
+    "options": [
+      "Total monthly Google Cloud spend compared with the previous month.",
+      "Cloud cost per completed order, tracked monthly by business unit using billing export to BigQuery and resource labels.",
+      "Number of active Compute Engine instances across all projects.",
+      "Percentage of the annual cloud budget consumed to date."
+    ],
+    "answer": [1],
+    "explanation": "Absolute spend rises naturally with a growing business, so a unit-economics metric such as cost per order (or per active user, per transaction) is the right way to judge efficiency; here cost grew 30% while orders grew 55%, meaning cost per order actually fell. Billing export to BigQuery combined with a consistent labeling strategy lets you attribute costs to business units and compute the ratio automatically. Option A ignores growth and would penalize successful expansion. Option C measures infrastructure count, not efficiency or value. Option D is a budget-tracking figure useful for governance but says nothing about efficiency relative to business output. Unit cost tracking is a specific recommendation of the cost optimization pillar.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-016",
+    "domain": 1,
+    "topic": "Vendor lock-in trade-offs",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "The board of a European bank has mandated that the new digital banking platform must avoid vendor lock-in and be able to exit Google Cloud within 12 months if regulators require it. The engineering leadership is concerned that pursuing portability will eliminate the productivity gains of managed services and inflate cost. You are asked to propose a design principle that satisfies the board's mandate while respecting the engineering concerns. Which approach should you recommend?",
+    "options": [
+      "Standardize on GKE with containerized services, managed open-source-compatible data services such as Cloud SQL for PostgreSQL, Terraform for provisioning, and document a tested exit plan, while using proprietary services only where the benefit clearly outweighs the exit cost.",
+      "Deploy the entire platform active-active on Google Cloud and a second cloud provider from day one so that exiting either provider is trivial.",
+      "Restrict the platform to Compute Engine VMs and self-managed software only, because any managed service constitutes lock-in.",
+      "Ignore the mandate because regulators have never actually forced a bank to exit a cloud provider."
+    ],
+    "answer": [0],
+    "explanation": "Portability is a spectrum and a trade-off. Building on open, widely supported abstractions (Kubernetes, PostgreSQL-compatible databases, Terraform) and documenting and testing an exit strategy meets the regulatory expectation of a credible exit plan while still allowing the team to benefit from managed services; proprietary services are used deliberately with an understood exit cost. Option B roughly doubles cost and operational complexity, and true active-active across clouds requires lowest-common-denominator designs, which is exactly the engineering concern. Option C sacrifices the operational excellence and cost benefits of managed services and increases security and reliability burdens. Option D disregards a board-level requirement and regulatory guidance on exit strategies, which is unacceptable for a regulated institution.",
+    "refs": [
+      "https://cloud.google.com/architecture/hybrid-multicloud-patterns-and-practices",
+      "https://cloud.google.com/architecture/framework"
+    ]
+  },
+  {
+    "id": "d1-bus-017",
+    "domain": 1,
+    "topic": "Business KPIs and observability",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A travel booking company runs its web platform on GKE. The head of e-commerce wants to see the checkout conversion rate and booking revenue per minute on the same dashboards that the SRE team uses for latency and error-rate SLOs, so that business impact is visible during incidents. The company wants the least operational overhead. What should you do?",
+    "options": [
+      "Export application logs to a Cloud Storage bucket and have an analyst compute conversion rates in a spreadsheet each morning.",
+      "Deploy a self-managed Prometheus and Grafana stack on a separate GKE cluster and build the business dashboards there.",
+      "Stream events to BigQuery and build a Looker report that the e-commerce team can open separately from the SRE dashboards.",
+      "Instrument the checkout service to emit business metrics as custom metrics to Cloud Monitoring (for example, via OpenTelemetry) and add them to the existing SLO dashboards with alerting policies."
+    ],
+    "answer": [3],
+    "explanation": "Cloud Monitoring accepts custom and OpenTelemetry metrics, so business indicators such as conversions per minute can be plotted next to SLO burn-rate charts on the same dashboard and even used in alerting policies; this gives shared situational awareness during incidents with no additional infrastructure. Option A is neither real-time nor integrated with SRE tooling. Option B adds an entire self-managed observability stack to operate, which conflicts with the least-overhead requirement (Google Cloud Managed Service for Prometheus would already integrate with Cloud Monitoring). Option C is valuable for deep analytics but produces a separate reporting surface rather than the unified real-time view the business asked for. Observability that connects technical SLIs to business outcomes is a core recommendation of the operational excellence pillar.",
+    "refs": [
+      "https://cloud.google.com/monitoring/custom-metrics",
+      "https://cloud.google.com/architecture/framework/operational-excellence"
+    ]
+  },
+  {
+    "id": "d1-bus-018",
+    "domain": 1,
+    "topic": "Cost allocation and chargeback",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A conglomerate with 15 business units has consolidated its Google Cloud usage under a single billing account. The finance department wants to charge each business unit for the resources it consumes and identify which unit is driving cost growth, but several units share projects for common platforms such as GKE clusters. Finance wants a solution that requires the least manual work each month. What should you recommend?",
+    "options": [
+      "Ask each business unit to download the monthly invoice PDF and self-report the portion they believe they consumed.",
+      "Create a separate billing account for each business unit and move all projects so that each unit receives its own invoice.",
+      "Enforce a labeling standard (for example, business_unit and cost_center) through organization policy and CI checks, enable detailed billing export to BigQuery including GKE cost allocation, and build Looker Studio chargeback reports on top of it.",
+      "Use the Cloud Billing console's monthly cost breakdown and manually copy the numbers into a shared spreadsheet."
+    ],
+    "answer": [2],
+    "explanation": "Labels are the mechanism for attributing cost inside shared projects, and the detailed billing export to BigQuery includes label values and, with GKE cost allocation enabled, per-namespace and per-workload costs for shared clusters. Combining these with Looker Studio produces automated chargeback reports with almost no monthly effort. Option A is inaccurate and unauditable. Option B does not solve the shared-platform problem (a shared GKE cluster still appears under one account) and fragments discounts and governance. Option D is manual, error-prone and cannot split costs within shared projects. Showback and chargeback through labels and billing export is a cost optimization pillar best practice.",
+    "refs": [
+      "https://cloud.google.com/billing/docs/how-to/export-data-bigquery",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/cost-allocations",
+      "https://cloud.google.com/resource-manager/docs/creating-managing-labels"
+    ]
+  },
+  {
+    "id": "d1-bus-019",
+    "domain": 1,
+    "topic": "Requirements elicitation",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "You are the architect for a new mobile-ordering backend at a fast-growing coffee chain. The founder tells you the system must 'scale infinitely, never fail, and cost almost nothing.' The engineering team wants to start building immediately. What should you do first?",
+    "options": [
+      "Facilitate a session with the founder and stakeholders to convert the statements into prioritized, measurable requirements (expected peak orders per minute, availability target, budget ceiling) and document the trade-offs between them.",
+      "Start building on Spanner and a multi-region GKE deployment because it satisfies the scale and availability goals.",
+      "Tell the founder the requirements are impossible and ask the team to build whatever they think is reasonable.",
+      "Select the cheapest possible architecture on a single Compute Engine VM because cost was mentioned last and is therefore the tie-breaker."
+    ],
+    "answer": [0],
+    "explanation": "Conflicting aspirational goals must be turned into concrete, prioritized and measurable requirements before design begins; scalability, availability and cost pull in different directions, and only the business can decide the balance. Documenting these decisions and trade-offs is a Well-Architected Framework practice that prevents costly rework. Option B commits to an expensive architecture without knowing whether the volume or availability targets justify it. Option C abandons the architect's role in requirements facilitation. Option D arbitrarily prioritizes cost and creates a single point of failure, contradicting the stated availability goal.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-020",
+    "domain": 1,
+    "topic": "TCO for data platforms",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A telecommunications company operates a 200-node on-premises Hadoop cluster that runs nightly batch jobs for 6 hours and is otherwise about 20% utilized. HDFS holds 1.5 PB of data. A vendor proposed a Google Cloud TCO comparison that prices 200 equivalent Compute Engine VMs running 24x7 with persistent disks totaling 1.5 PB, and concludes the cloud would be more expensive. How should you correct the model?",
+    "options": [
+      "Keep the 200 VMs but apply a 3-year committed use discount to the compute and use balanced persistent disks to reduce storage cost.",
+      "Model the target architecture the way it would actually be built in the cloud: data in Cloud Storage as the persistent layer, ephemeral job-scoped Dataproc clusters (or Dataproc Serverless) that exist only while jobs run, and BigQuery for analytical workloads that fit it.",
+      "Replace the Hadoop cluster with a 200-node GKE Standard cluster to run Spark on Kubernetes and keep the same node count for comparability.",
+      "Reduce the model to 100 VMs to reflect the average utilization but keep HDFS on persistent disks."
+    ],
+    "answer": [1],
+    "explanation": "A like-for-like lift of an on-premises cluster ignores the cloud's key economic property: separating storage from compute and paying only while compute runs. In the recommended Hadoop migration pattern, data lives in Cloud Storage (far cheaper than triple-replicated HDFS on persistent disks), Dataproc clusters are created per job and deleted afterwards, so the six hours of nightly work is billed instead of 24, and suitable SQL workloads move to BigQuery. This typically changes the TCO conclusion dramatically. Option A keeps the flawed 24x7 model and merely discounts it. Option C preserves the same fixed node count and adds Kubernetes operational overhead. Option D still keeps expensive persistent-disk HDFS and a static cluster instead of ephemeral compute.",
+    "refs": [
+      "https://cloud.google.com/architecture/hadoop/hadoop-gcp-migration-overview",
+      "https://cloud.google.com/dataproc/docs/concepts/overview",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-021",
+    "domain": 1,
+    "topic": "Workload disposition: retain",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government agency is moving its citizen-facing services to Google Cloud. One dependency is a mainframe application that stores land registry records; the agency has 30 months of remaining depreciation on the hardware, national law currently requires the primary registry to remain in a government-owned facility, and the mainframe team is fully booked with a regulatory change program. New cloud services will still need read access to registry data with sub-second latency. What should you recommend for the mainframe workload in the migration plan?",
+    "options": [
+      "Rehost the mainframe workload to Compute Engine immediately using an emulation layer so the data is close to the new services.",
+      "Refactor the mainframe application into microservices on GKE as the first wave of the migration to remove the dependency.",
+      "Replace the mainframe with Spanner and re-implement the registry logic in Cloud Run before any citizen services are launched.",
+      "Retain the mainframe on-premises for now, connect it through Cloud Interconnect, expose registry data via an API layer such as Apigee, and replicate read-only data to Google Cloud for low-latency queries, and revisit the disposition when the legal and depreciation constraints change."
+    ],
+    "answer": [3],
+    "explanation": "Legal residency requirements, remaining depreciation and lack of team capacity together make 'retain' the correct disposition for now; the migration plan should note the trigger conditions (law change, end of depreciation) for revisiting it. Meanwhile, the integration pattern of hybrid connectivity plus an API facade and a read-only replicated copy (for example via change data capture into Cloud SQL, AlloyDB or BigQuery) gives the new cloud services fast access without moving the system of record. Option A violates the law requiring the primary registry to stay in a government facility. Options B and C attempt the riskiest and most labor-intensive strategies with a team that has no capacity, and would delay the citizen services that are the actual business goal.",
+    "refs": [
+      "https://cloud.google.com/architecture/hybrid-multicloud-patterns-and-practices",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/apigee/docs/api-platform/get-started/what-apigee"
+    ]
+  },
+  {
+    "id": "d1-bus-022",
+    "domain": 1,
+    "topic": "Identifying non-functional requirements",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A pharmaceutical company is designing a clinical trial data portal on Google Cloud. A requirements document contains the following statements. You need to identify which ones are non-functional requirements so that they can be mapped to Well-Architected Framework pillars during design. Which three statements are non-functional requirements? (Choose three.)",
+    "options": [
+      "Investigators must be able to upload lab results in CSV or HL7 format.",
+      "All patient data must remain within the European Union and be encrypted with customer-managed keys.",
+      "The portal must support 5,000 concurrent users during trial enrollment peaks with page loads under 2 seconds.",
+      "Trial coordinators must be able to generate a monthly enrollment report per site.",
+      "The platform must recover from a zonal failure within 15 minutes with no data loss.",
+      "The system must send an alert to the sponsor when an adverse event is recorded."
+    ],
+    "answer": [1, 2, 4],
+    "explanation": "Data residency and encryption (security and compliance pillar), concurrency and page-load latency (performance pillar) and recovery time with zero data loss (reliability pillar) are all constraints on how the system operates rather than features it provides, so they are non-functional requirements and drive decisions such as region selection, Cloud KMS usage, load balancing and multi-zone database deployment. Uploading files in specific formats, generating reports and sending alerts on events (options A, D and F) describe behaviors the application must implement and are therefore functional requirements. Distinguishing the two lets the architect trace each NFR to a specific design control and a way to test it.",
+    "refs": [
+      "https://cloud.google.com/architecture/framework",
+      "https://cloud.google.com/architecture/framework/security"
+    ]
+  },
+  {
+    "id": "d1-bus-023",
+    "domain": 1,
+    "topic": "Sustainability requirements",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A European consumer goods company has committed publicly to reducing the carbon footprint of its IT operations and must report progress annually. It is planning a new batch analytics platform on Google Cloud that has no strict latency requirement and whose data has no residency restrictions beyond the EU. The sustainability officer asks how the architecture and region choice can support the commitment with measurable evidence. What should you recommend?",
+    "options": [
+      "Choose the region closest to the head office regardless of its grid mix, and offset emissions by purchasing carbon credits.",
+      "Run the platform on the largest available machine types so that jobs finish quickly and the emissions per job are minimized.",
+      "Select an EU region with a low carbon-free energy percentage indicator shown in the region picker, schedule flexible batch jobs to run when clean energy is most available, use serverless or autoscaled services that release idle resources, and track progress with the Carbon Footprint export to BigQuery.",
+      "Keep the platform on-premises because the company cannot measure emissions of resources it does not own."
+    ],
+    "answer": [2],
+    "explanation": "Sustainability is an explicit Well-Architected Framework pillar. Google publishes carbon data for each region (carbon-free energy percentage and grid carbon intensity) in the region picker, so a latency-tolerant EU workload should be placed in a lower-carbon EU region; flexible batch work can be scheduled for low-carbon periods, autoscaling and serverless services avoid emissions from idle capacity, and the Carbon Footprint tool exports per-project emissions to BigQuery for the annual report. Option A ignores the easiest lever (region choice) and relies solely on offsets. Option B is not necessarily more efficient and ignores the region and idle-capacity factors. Option D is factually wrong; Google Cloud provides emissions reporting for customer usage, whereas most on-premises facilities lack such granular measurement.",
+    "refs": [
+      "https://cloud.google.com/sustainability/region-carbon",
+      "https://cloud.google.com/carbon-footprint/docs",
+      "https://cloud.google.com/architecture/framework/sustainability"
+    ]
+  },
+  {
+    "id": "d1-bus-024",
+    "domain": 1,
+    "topic": "Migration business case and payback",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A retail bank's executive committee has approved a Google Cloud migration in principle but wants the payback period shortened before releasing the budget. The current plan migrates 800 VMs in a single 'big bang' cutover after 14 months of preparation, during which the bank pays for both the existing data center and a fully provisioned cloud landing zone. The migration budget is fixed. What should you recommend to improve the payback period?",
+    "options": [
+      "Re-plan the migration into waves ordered by business value and dependency groups, decommissioning on-premises capacity after each wave, provision cloud resources just in time per wave, and use Migration Center assessments to rightsize and estimate costs so early savings fund later waves.",
+      "Extend the preparation phase to 20 months so the team can refactor more applications and obtain higher long-term savings.",
+      "Provision the full cloud environment immediately with 3-year committed use discounts to obtain the maximum discount from day one.",
+      "Move all 800 VMs in the first month without assessment to eliminate dual-running costs as quickly as possible."
+    ],
+    "answer": [0],
+    "explanation": "Payback improves when benefits arrive sooner and dual-running costs shrink. A wave-based plan lets the bank realize savings incrementally, retire on-premises hardware and contracts progressively, and avoid paying for cloud capacity that sits idle for 14 months; Migration Center provides utilization-based rightsizing and cost estimates that reduce the cloud run-rate from the first wave. Option B lengthens dual running and delays all benefits, worsening payback even if steady-state savings are higher. Option C commits spend for capacity that will be unused for more than a year and locks in sizes before rightsizing data exists. Option D removes dual running but replaces it with unacceptable operational and business risk for a bank, with no dependency mapping or testing, and typically leads to costly rollbacks.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
+      "https://cloud.google.com/migration-center/docs/migration-center-overview",
+      "https://cloud.google.com/architecture/framework/cost-optimization"
+    ]
+  },
+  {
+    "id": "d1-bus-025",
+    "domain": 1,
+    "topic": "Workload disposition: deprecate",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "During the discovery phase of a Google Cloud migration, an energy company finds two internally developed applications that both calculate field-crew shift schedules. The newer application has replaced the older one for all but one regional office, which still uses the old version out of habit. The migration sponsor wants to reduce scope and future operating cost. What should you recommend for the older scheduling application?",
+    "options": [
+      "Rehost both applications to Compute Engine to avoid disrupting the regional office during the migration.",
+      "Refactor the older application into containers on GKE because it is smaller and easier to modernize.",
+      "Migrate both applications and consolidate them after the migration is complete.",
+      "Deprecate the older application: onboard the remaining office to the newer application before the migration, archive any historical data, and remove the old application from the migration scope."
+    ],
+    "answer": [3],
+    "explanation": "Discovery frequently reveals redundant applications, and the recommended disposition for a duplicated capability is to retire or deprecate the redundant system rather than carry it into the cloud. Moving the last office to the newer application before migration reduces the number of workloads to migrate, eliminates future licensing, patching and hosting costs, and simplifies dependency planning. Option A perpetuates duplication and doubles operating cost for the capability. Option B invests modernization effort in a system that is already being replaced. Option C defers an easy decision and pays to migrate a workload that will be deleted shortly afterwards.",
+    "refs": [
+      "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads",
+      "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
+    ]
+  }
+]

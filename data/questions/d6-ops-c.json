@@ -1,0 +1,574 @@
+[
+  {
+    "id": "d6-ops-057",
+    "domain": 6,
+    "topic": "Cloud Run canary releases",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ticketing startup runs its public API on Cloud Run. A new revision changes the pricing logic, and the team wants to expose it to only 5% of production traffic, watch error rates for an hour, and then gradually increase the share. They want to use native Cloud Run capabilities. What should you do?",
+    "options": [
+      "Deploy the new revision as a separate Cloud Run service and configure Cloud DNS weighted records to send 5% of requests to it",
+      "Deploy the new revision normally so that it receives 100% of traffic, and immediately roll back if errors appear",
+      "Deploy the new revision with the --no-traffic flag, then use traffic splitting (gcloud run services update-traffic) to send 5% of requests to the new revision and increase the percentage over time",
+      "Create a second Cloud Run region and deploy the new revision there so that only users routed to that region see it"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Run supports deploying a revision without routing traffic to it and then splitting traffic between revisions by percentage, which is the native way to run a canary and to progressively migrate traffic while watching metrics. DNS weighting across separate services (option A) is imprecise because of client caching and requires duplicating the service. Deploying to 100% (option B) exposes all users to the risk that a canary is meant to avoid. A new region (option D) changes latency for users and does not give a controlled percentage.",
+    "refs": [
+      "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration",
+      "https://cloud.google.com/run/docs/managing/revisions"
+    ]
+  },
+  {
+    "id": "d6-ops-058",
+    "domain": 6,
+    "topic": "Blue/green deployments",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A hospital's patient-portal backend runs on a managed instance group behind an external Application Load Balancer. The application's session-handling code is not compatible between versions, so the two versions must never serve traffic at the same time, and the operations team must be able to revert to the previous version within one minute if problems appear. Which deployment strategy should you use?",
+    "options": [
+      "Blue/green: deploy the new version to a second managed instance group, verify it, switch the load balancer backend service to the new group in one step, and keep the old group running until the release is confirmed so that switching back is instant",
+      "Rolling update on the existing managed instance group with maxSurge set to 100% so that all instances are replaced quickly",
+      "Canary update on the existing managed instance group, running the new template on 10% of instances for an hour before completing the rollout",
+      "In-place update by SSH-ing into each instance and restarting the application with the new binary during a maintenance window"
+    ],
+    "answer": [0],
+    "explanation": "Blue/green deployment switches all traffic between two complete environments at once, so old and new versions never serve concurrently, and rollback is simply pointing the backend back at the previous group, which meets the one-minute requirement. Rolling and canary updates (options B and C) both intentionally run mixed versions during the rollout, violating the compatibility constraint. In-place manual updates (option D) are slow, error-prone toil with no fast rollback.",
+    "refs": [
+      "https://cloud.google.com/architecture/application-deployment-and-testing-strategies",
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups"
+    ]
+  },
+  {
+    "id": "d6-ops-059",
+    "domain": 6,
+    "topic": "MIG update policies",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A payment gateway runs on a regional managed instance group of 20 VMs that is sized exactly for peak load. The team wants to roll out a new instance template automatically without ever reducing serving capacity below 20 healthy instances and without manual intervention. How should you configure the update?",
+    "options": [
+      "Use an opportunistic update so that instances are replaced only when the autoscaler happens to recreate them",
+      "Use a proactive rolling update with maxUnavailable set to 20 so that all instances are replaced at once and downtime is minimized",
+      "Use a proactive rolling update with maxSurge set to 0 and maxUnavailable set to 5 so that at least 15 instances always serve traffic",
+      "Use a proactive rolling update with maxSurge greater than 0 (for example 4) and maxUnavailable set to 0, with an application health check, so that new instances are added and become healthy before old ones are removed"
+    ],
+    "answer": [3],
+    "explanation": "In a MIG rolling update, maxSurge controls how many extra instances are created above the target size and maxUnavailable controls how many can be taken out of service at once; setting maxUnavailable to 0 with a positive maxSurge, combined with a health check, guarantees that capacity never drops below the target because new healthy instances are added before old ones are removed. An opportunistic update (option A) does not proactively roll out the change. Replacing all 20 at once (option B) creates a full outage. maxUnavailable of 5 (option C) explicitly allows capacity to drop to 15, violating the requirement.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups",
+      "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
+    ]
+  },
+  {
+    "id": "d6-ops-060",
+    "domain": 6,
+    "topic": "GKE release channels",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regulated insurance company runs its policy administration system on GKE Standard. The compliance team requires that Kubernetes versions be kept supported and patched, but the operations team wants new minor versions only after they have been proven in the field for a while, and they need upgrades to occur only during an agreed weekly window. Which configuration should you recommend?",
+    "options": [
+      "Enroll the cluster in the Rapid release channel so that security patches arrive as early as possible, and rely on the team to monitor upgrade notifications",
+      "Enroll the cluster in the Stable release channel and configure a weekly maintenance window during the agreed hours",
+      "Do not enroll the cluster in a release channel, disable node auto-upgrade, and perform manual upgrades once per year",
+      "Enroll the cluster in the Regular release channel and disable maintenance windows so that upgrades are applied immediately when available"
+    ],
+    "answer": [1],
+    "explanation": "Release channels keep clusters automatically upgraded to supported, qualified versions; the Stable channel receives minor versions last, after they have matured in Rapid and Regular, which matches the desire for proven releases, and maintenance windows constrain when automatic upgrades run. The Rapid channel (option A) is intended for early adopters testing new features, not conservative production. Opting out of channels and disabling auto-upgrade (option C) risks running unsupported versions and violates the patching requirement. Regular with no maintenance window (option D) allows upgrades at any time, contradicting the agreed window.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions"
+    ]
+  },
+  {
+    "id": "d6-ops-061",
+    "domain": 6,
+    "topic": "GKE maintenance exclusions",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online retailer runs its storefront on GKE clusters enrolled in the Regular release channel. The business mandates a seven-week change freeze from mid-November to early January during which no Kubernetes minor version or node upgrades may occur, but it still wants critical patch releases to be applied automatically if Google publishes them. What should you configure?",
+    "options": [
+      "Unenroll the clusters from the release channel before the freeze and re-enroll them in January",
+      "Configure a maintenance window that covers only one hour per week during the freeze so that upgrades are effectively prevented",
+      "Create a maintenance exclusion covering the freeze dates with the 'no minor or node upgrades' scope, which blocks minor and node upgrades while still allowing patch upgrades",
+      "Create a maintenance exclusion covering the freeze dates with the 'no upgrades' scope, which blocks all upgrades including patches"
+    ],
+    "answer": [2],
+    "explanation": "GKE maintenance exclusions have scopes: 'no upgrades' blocks everything for up to 30 days, whereas 'no minor upgrades' and 'no minor or node upgrades' can span much longer periods (up to 180 days on Regular and Stable channels) while still permitting patch releases to flow, which exactly matches a multi-week freeze that must still receive critical patches. Unenrolling from the channel (option A) loses automatic patching and version qualification. A one-hour maintenance window (option B) does not prevent upgrades; it only concentrates them, and GKE can still force upgrades for end-of-life versions. The 'no upgrades' scope (option D) blocks the desired patches and cannot cover seven weeks.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/maintenance-windows-and-exclusions"
+    ]
+  },
+  {
+    "id": "d6-ops-062",
+    "domain": 6,
+    "topic": "GKE node upgrades",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A media company's GKE Standard cluster hosts a stateful video-encoding service that needs up to 90 seconds to finish in-flight work before a pod can be safely terminated. During the last automatic node pool upgrade, several nodes were drained simultaneously, encoding jobs were killed mid-run, and overall capacity dropped noticeably. Which two configurations should you apply to make future upgrades safe? (Choose two.)",
+    "options": [
+      "Set the node pool upgrade strategy to surge with maxSurge of 1 and maxUnavailable of 0, so that a new node is created and ready before each old node is drained",
+      "Disable node auto-upgrade on the node pool so that nodes are never drained",
+      "Set the Deployment's replica count to 1 so that only one pod can be affected at a time",
+      "Define a PodDisruptionBudget for the encoding workload and set an appropriate terminationGracePeriodSeconds with a preStop hook, so that drains respect availability and give pods time to finish work",
+      "Switch the node pool to Spot VMs so that the cluster autoscaler replaces nodes more quickly"
+    ],
+    "answer": [0, 3],
+    "explanation": "Surge upgrades with maxSurge 1 and maxUnavailable 0 add capacity before removing it, so nodes are upgraded one at a time without reducing available capacity. A PodDisruptionBudget makes the drain wait until enough replicas remain available, and a sufficient termination grace period with a preStop hook gives each pod time to finish in-flight encodes. Disabling auto-upgrade (option B) leaves nodes unpatched and only postpones the problem. Reducing replicas to 1 (option C) sacrifices capacity and does nothing to control drain behavior. Spot VMs (option E) can be preempted at any time, which is worse for stateful, long-running work.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster#pdb"
+    ]
+  },
+  {
+    "id": "d6-ops-063",
+    "domain": 6,
+    "topic": "Cloud Deploy progressive delivery",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company deploys a Kubernetes-based lending API to dev, staging, and production GKE clusters. It wants a managed pipeline in which production releases first receive 10% of traffic, are automatically checked against error-rate and latency metrics for 30 minutes, are automatically rolled back if the checks fail, and require an explicit human approval before promotion to production begins. The team wants to minimize custom scripting. What should you do?",
+    "options": [
+      "Write a Cloud Build pipeline that applies manifests to each cluster sequentially, with a bash step that sleeps for 30 minutes and queries the Monitoring API before continuing",
+      "Create a Cloud Deploy delivery pipeline with the three targets in sequence, require approval on the production target, configure a canary deployment strategy with a 10% phase, add a deployment verification step that runs the metric checks, and create an automation rule that rolls back automatically when verification fails",
+      "Use a GKE multi-cluster Ingress to split traffic 90/10 between the old and new clusters and have an engineer watch dashboards for 30 minutes before updating the Ingress",
+      "Deploy directly to production with kubectl using a Kubernetes Deployment rolling update and rely on readiness probes to prevent bad pods from receiving traffic"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Deploy natively provides ordered targets, per-target approval gates, canary strategies with configurable traffic phases for GKE and Cloud Run, verification steps that run after each phase, and automation rules including automatic rollback on failed verification, so the whole requirement is met with declarative configuration rather than custom scripting. A hand-rolled Cloud Build pipeline (option A) can work but is exactly the custom scripting the team wants to avoid and lacks approval and rollback semantics. Manual traffic splitting with an engineer watching (option C) is toil and error-prone. A plain rolling update (option D) has no approval, no metric-based verification, and readiness probes detect only startup failures, not elevated error rates.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+      "https://cloud.google.com/deploy/docs/verify-deployment",
+      "https://cloud.google.com/deploy/docs/automation"
+    ]
+  },
+  {
+    "id": "d6-ops-064",
+    "domain": 6,
+    "topic": "Feature flags",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A streaming music company wants developers to merge and deploy code to production several times a day, but the product team wants new user-facing features to be shown first to employees, then to 1% of users, and turned off instantly if something goes wrong, all without another deployment. Which approach should you recommend?",
+    "options": [
+      "Maintain a long-lived release branch per feature and deploy the branch only when the product team gives approval",
+      "Deploy each new feature as a separate Cloud Run service and use Cloud Armor to allow only employee IP ranges initially",
+      "Use GKE namespaces per feature and switch the Ingress between namespaces when the product team approves",
+      "Decouple deployment from release by wrapping new features in feature flags that are evaluated at runtime and controlled through a configuration service, targeting employees first, then a percentage of users, with a kill switch"
+    ],
+    "answer": [3],
+    "explanation": "Feature flags separate deploying code from releasing functionality: code can ship continuously in a dark state, then be enabled for specific cohorts or percentages and disabled instantly through configuration, without any redeployment, which is exactly what the two teams need. Long-lived branches (option A) recreate integration risk and block continuous deployment. A service per feature behind IP allow-lists (option B) does not scale, cannot do percentage rollouts, and identifies employees poorly. Namespace switching (option C) is a coarse environment swap, not a per-feature, per-cohort control.",
+    "refs": [
+      "https://cloud.google.com/architecture/application-deployment-and-testing-strategies",
+      "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change"
+    ]
+  },
+  {
+    "id": "d6-ops-065",
+    "domain": 6,
+    "topic": "Database schema migrations",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A logistics company needs to rename the column customer_ref to customer_id in a heavily used Cloud SQL for PostgreSQL table. The service that uses the table runs on GKE with rolling deployments, so old and new pods coexist for several minutes, and the business requires zero downtime. Which two practices should you follow? (Choose two.)",
+    "options": [
+      "Use the expand/contract pattern: add the new column, deploy code that writes to both columns and reads from the old one, backfill, switch reads to the new column, and only then drop the old column in a later release",
+      "Run a single ALTER TABLE RENAME COLUMN statement immediately before starting the rolling deployment so that the schema and code change at the same time",
+      "Stop the GKE Deployment, apply the rename, and start the Deployment again to guarantee consistency",
+      "Ensure every schema migration is backward compatible with the currently running application version and is applied as its own step, separate from and ahead of the application rollout",
+      "Put the table in read-only mode during the rolling deployment so that no writes can conflict with the rename"
+    ],
+    "answer": [0, 3],
+    "explanation": "Zero-downtime schema changes require that at every moment the schema is compatible with both the old and the new code, because both run concurrently during a rolling deployment; expand/contract achieves this by adding, dual-writing, backfilling, switching, and only then removing, and treating each migration as a separately applied, backward-compatible step ensures the database is never ahead of or behind what the running code expects. An immediate rename (option B) breaks the old pods that still reference the old column. Stopping the Deployment (option C) is downtime. Read-only mode (option E) is also an outage for write traffic and still does not solve the compatibility problem.",
+    "refs": [
+      "https://cloud.google.com/architecture/database-migration-concepts-principles-part-1",
+      "https://cloud.google.com/architecture/application-deployment-and-testing-strategies"
+    ]
+  },
+  {
+    "id": "d6-ops-066",
+    "domain": 6,
+    "topic": "Cloud Run revision tags",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A government agency's QA team must test every new revision of a Cloud Run service against the production configuration and data sources before any citizen traffic reaches it. Developers want to keep a single Cloud Run service and avoid creating separate environments for this purpose. What should you do?",
+    "options": [
+      "Deploy the new revision with 100% traffic during a low-traffic period and ask QA to test quickly",
+      "Create a copy of the service named qa in the same project and deploy new revisions there first",
+      "Deploy the new revision with --no-traffic and a revision tag such as qa, give the QA team the tag-specific URL to test the revision directly, and migrate traffic to it only after QA approval",
+      "Deploy the new revision to a Cloud Run service in a different region and use a global load balancer to route the QA team's requests there"
+    ],
+    "answer": [2],
+    "explanation": "Cloud Run revision tags create a dedicated URL for a specific revision that receives no share of the main traffic split, so QA can exercise the exact production revision, configuration, and dependencies before any public traffic is routed to it, all within the same service. Deploying with 100% traffic (option A) exposes citizens to untested code. A separate qa service (option B) diverges in configuration and is the extra environment the developers want to avoid. A second region with a global load balancer (option D) is heavy infrastructure for a testing need that tags already solve.",
+    "refs": [
+      "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration#tags",
+      "https://cloud.google.com/run/docs/managing/revisions"
+    ]
+  },
+  {
+    "id": "d6-ops-067",
+    "domain": 6,
+    "topic": "Cloud Deploy deploy policies",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An online retailer uses Cloud Deploy to promote releases to production. After an incident caused by a Saturday-evening deployment, management requires that no production rollouts start on weekends or during the annual peak sales week, while still permitting an authorized release manager to override the restriction for emergency fixes. How should you implement this with the least custom code?",
+    "options": [
+      "Create a Cloud Deploy deploy policy with rollout restrictions defining the weekend and peak-week time windows for the production target, and grant only release managers the permission to override the policy",
+      "Write a Cloud Build trigger that checks the current date and fails the build if it falls on a weekend or in the peak week",
+      "Remove the production target from the delivery pipeline on Fridays and add it back on Mondays using a scheduled script",
+      "Ask developers not to click Promote on weekends and record the rule in the team wiki"
+    ],
+    "answer": [0],
+    "explanation": "Cloud Deploy deploy policies let you define time-window restrictions on rollouts and other actions for specific targets or pipelines, and an override capability can be granted to a limited set of principals through IAM, which satisfies both the freeze and the emergency exception declaratively. A date check in Cloud Build (option B) is custom logic outside the deployment tool and is easily bypassed by promoting directly in Cloud Deploy. Scripting target removal (option C) is fragile and destroys pipeline history. A wiki rule (option D) is not a control at all.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deploy-policy",
+      "https://cloud.google.com/deploy/docs/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-068",
+    "domain": 6,
+    "topic": "Cloud SQL maintenance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A food-delivery company runs its order database on a Cloud SQL for MySQL high-availability instance. Twice in the past year, a Cloud SQL maintenance event caused a brief connection interruption during the Friday dinner peak. The company accepts short maintenance interruptions but wants them to occur only early on Tuesday mornings and never during the two weeks around the year-end holidays. What should you do?",
+    "options": [
+      "Disable maintenance on the instance permanently to avoid any future interruptions",
+      "Configure the instance's maintenance window for early Tuesday mornings, set the maintenance timing preference, and configure a deny maintenance period covering the holiday weeks",
+      "Migrate the database to a self-managed MySQL on Compute Engine so that the team controls all patching",
+      "Create a read replica and manually promote it whenever a maintenance notification is received"
+    ],
+    "answer": [1],
+    "explanation": "Cloud SQL lets you choose a weekly maintenance window (day and hour) and a timing preference, and deny maintenance periods block maintenance during a specified date range, which together satisfy both requirements while keeping the instance patched. Maintenance cannot be disabled permanently (option A); Cloud SQL needs to apply updates for security and reliability. Self-managing MySQL (option C) trades a brief scheduled interruption for far more operational work. Promoting a replica on every maintenance notice (option D) is manual toil, changes the instance identity, and is not how maintenance is managed.",
+    "refs": [
+      "https://cloud.google.com/sql/docs/mysql/maintenance",
+      "https://cloud.google.com/sql/docs/mysql/set-maintenance-window"
+    ]
+  },
+  {
+    "id": "d6-ops-069",
+    "domain": 6,
+    "topic": "Graceful pod termination",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ride-sharing company's trip-pricing service on GKE Autopilot returns a burst of HTTP 502 and connection-reset errors for a few seconds every time a new version is rolled out or a node is upgraded, even though readiness probes are configured. Investigation shows that pods are terminated while the load balancer is still sending them requests. What should you do to make rollouts and upgrades invisible to users?",
+    "options": [
+      "Increase the number of replicas so that the proportion of failed requests during each rollout is smaller",
+      "Switch from a rolling update to a Recreate strategy so that all pods are replaced at once during a short window",
+      "Remove the readiness probe so that pods are added to the load balancer more quickly after they start",
+      "Add a preStop hook that delays shutdown for a few seconds so that endpoint removal propagates before the process stops, handle SIGTERM in the application to drain in-flight requests, and set terminationGracePeriodSeconds long enough for the drain to complete"
+    ],
+    "answer": [3],
+    "explanation": "The errors come from a race between pod termination and endpoint deregistration: the load balancer briefly continues to route to a pod that has already started shutting down. A preStop sleep gives the endpoint controller and load balancer time to remove the pod, proper SIGTERM handling lets in-flight requests finish, and a sufficient termination grace period ensures Kubernetes does not kill the process prematurely; together they make rollouts and node upgrades zero-error events. More replicas (option A) only dilutes the errors. Recreate (option B) causes a full outage on every deploy. Removing readiness probes (option C) addresses startup, not shutdown, and would route traffic to pods that are not yet ready.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/container-native-load-balancing",
+      "https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace"
+    ]
+  },
+  {
+    "id": "d6-ops-070",
+    "domain": 6,
+    "topic": "Regional progressive rollout",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global gaming company serves players from Cloud Run services deployed in six regions behind a global external Application Load Balancer. Every release currently goes to all six regions simultaneously through a script, and a recent bad release caused a worldwide outage for twelve minutes. The company wants to limit the blast radius of releases while keeping the process automated. Which approach should you recommend?",
+    "options": [
+      "Continue deploying to all regions at once but shorten the deployment script so that a rollback can be executed faster",
+      "Deploy new releases to a single region only and route all global traffic there during the release to simplify observation",
+      "Model the six regions as sequential targets in a Cloud Deploy pipeline, starting with the lowest-traffic region, with a bake period and automated SLI verification between stages, so that a bad release is detected and stopped before it reaches the remaining regions",
+      "Deploy only on weekends when player counts are lowest so that an outage affects fewer users"
+    ],
+    "answer": [2],
+    "explanation": "Rolling a release out region by region, beginning with the smallest population and waiting for verified health before proceeding, is the standard way to bound blast radius in multi-region systems; Cloud Deploy supports sequential targets with verification and automated promotion, keeping the process fully automated. Faster rollback of a global deployment (option A) still exposes all users to the initial failure. Concentrating all global traffic in one region (option B) creates a massive capacity and latency risk. Weekend-only releases (option D) reduce exposure only marginally and slow delivery without addressing blast radius.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/deploying-application",
+      "https://cloud.google.com/architecture/framework/reliability/build-highly-available-systems"
+    ]
+  },
+  {
+    "id": "d6-ops-071",
+    "domain": 6,
+    "topic": "Rollback readiness",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A healthcare SaaS provider has a policy that any production release must be revertible within five minutes. A recent attempt to roll back a GKE service failed because the previous container image had been deleted from the registry and the new release had already altered the database schema in an incompatible way. Which two practices should you adopt to make the five-minute rollback objective achievable? (Choose two.)",
+    "options": [
+      "Retain previously deployed images in Artifact Registry, reference images by immutable digest in manifests, and configure cleanup policies so that images currently or recently in production are never purged",
+      "Store container images only on developer laptops so that they can be pushed quickly during a rollback",
+      "Apply schema changes in the same transaction as the application deployment so that both can be reverted together",
+      "Grant every developer cluster-admin on the production cluster so that anyone can execute a rollback",
+      "Make every database schema change backward compatible with the previous application version, so that rolling back the application never requires a schema rollback"
+    ],
+    "answer": [0, 4],
+    "explanation": "Fast rollback depends on two things: the previous artifact must still exist and be exactly identifiable (immutable digests and retention-aware cleanup policies in Artifact Registry), and the database must still work with the previous code, which is guaranteed by making schema changes backward compatible rather than coupling them to the release. Images on laptops (option B) are unreliable and unauditable. Coupling schema and application changes (option C) makes rollbacks slower and riskier, not faster, because schema changes are often irreversible. Broad cluster-admin grants (option D) violate least privilege and do not address the technical causes of the failed rollback.",
+    "refs": [
+      "https://cloud.google.com/artifact-registry/docs/repositories/cleanup-policy",
+      "https://cloud.google.com/architecture/application-deployment-and-testing-strategies"
+    ]
+  },
+  {
+    "id": "d6-ops-072",
+    "domain": 6,
+    "topic": "Support plans",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A multinational bank is moving its core payments platform to Google Cloud. Regulators require a 15-minute initial response commitment from the cloud provider for critical-impact incidents 24/7, and the bank's leadership wants a named technical contact at Google who understands their architecture and helps plan major events and reviews. Which support offering should you recommend?",
+    "options": [
+      "Premium Support, which provides 15-minute response for P1 cases 24/7 and includes a Technical Account Manager for proactive guidance and event planning",
+      "Enhanced Support, which provides one-hour P1 response 24/7 and access to third-party technology support",
+      "Standard Support, which provides four-hour P2 response during business hours and unlimited case creation",
+      "Basic Support, which includes documentation, community forums, and billing support at no cost"
+    ],
+    "answer": [0],
+    "explanation": "Premium Support is Google Cloud's highest tier: it offers a 15-minute initial response target for P1 cases around the clock and includes a Technical Account Manager who provides operational guidance, launch and event planning, and architecture reviews, matching both the regulatory response requirement and the named-contact expectation. Enhanced Support (option B) targets a one-hour P1 response and does not include a TAM. Standard Support (option C) is business-hours oriented with slower targets and no P1 24/7 coverage. Basic Support (option D) has no technical case support at all.",
+    "refs": [
+      "https://cloud.google.com/support/docs/overview",
+      "https://cloud.google.com/support"
+    ]
+  },
+  {
+    "id": "d6-ops-073",
+    "domain": 6,
+    "topic": "Support plan selection",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A 40-person e-commerce startup runs its production workloads on Google Cloud. It wants to be able to open technical support cases for production outages at any hour with a one-hour initial response for critical issues, but it cannot justify the cost of a dedicated Technical Account Manager. Which support plan should you recommend?",
+    "options": [
+      "Basic Support, because the startup can rely on community forums for production issues",
+      "Premium Support, because it is the only plan that offers 24/7 support",
+      "Standard Support, because it covers production outages with a one-hour response at any hour",
+      "Enhanced Support, which provides 24/7 access to technical support with a one-hour initial response target for P1 cases without requiring a Technical Account Manager"
+    ],
+    "answer": [3],
+    "explanation": "Enhanced Support is designed for production workloads that need fast, around-the-clock responses (one-hour target for P1 cases, 24/7) without the cost and additional services of Premium Support such as a TAM. Basic Support (option A) does not include technical case support. Premium Support (option B) offers 24/7 coverage too, but so does Enhanced, and Premium's TAM and price are more than the startup needs. Standard Support (option C) offers a four-hour response target for P2 cases during business hours, not one-hour P1 response at any time.",
+    "refs": [
+      "https://cloud.google.com/support/docs/overview",
+      "https://cloud.google.com/support"
+    ]
+  },
+  {
+    "id": "d6-ops-074",
+    "domain": 6,
+    "topic": "Personalized Service Health",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company's on-call engineers often spend the first 20 minutes of an incident trying to determine whether a slowdown is caused by their own code or by a Google Cloud service disruption affecting the specific products and regions their projects use. They want to be notified automatically about relevant Google-side incidents and to see them in their own monitoring tools. What should you do?",
+    "options": [
+      "Instruct on-call engineers to refresh the public Google Cloud Service Health dashboard every few minutes during incidents",
+      "Enable Personalized Service Health for the organization, integrate its events with Cloud Logging and Cloud Monitoring, and create alerting policies that notify the on-call channel when an incident affects the products and locations the company uses",
+      "Open a P1 support case at the start of every incident asking Google to confirm whether there is an ongoing disruption",
+      "Subscribe to the Google Cloud status RSS feed and forward every item to the on-call pager"
+    ],
+    "answer": [1],
+    "explanation": "Personalized Service Health shows disruptions that are relevant to your projects' actual products and locations, and it emits logs and metrics that can drive alerting policies and integrate with existing incident tooling, so engineers get automatic, targeted notification instead of manual checking. The public dashboard (option A) is generic and manual. Opening a support case for every incident (option C) is slow and not the intended path for status information. The public RSS feed (option D) includes incidents unrelated to the company's footprint and would create alert noise.",
+    "refs": [
+      "https://cloud.google.com/service-health/docs/overview",
+      "https://cloud.google.com/service-health/docs/configure-alerts"
+    ]
+  },
+  {
+    "id": "d6-ops-075",
+    "domain": 6,
+    "topic": "Gemini Cloud Assist",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A mid-sized retailer has a small operations team with limited Kubernetes expertise. At 02:00, an alert fires because pods in a GKE deployment are stuck in CrashLoopBackOff after a configuration change, and the on-call engineer does not know where to begin. The company wants to shorten time to root cause for incidents like this using built-in Google Cloud capabilities rather than external consultants. What should you recommend?",
+    "options": [
+      "Require the on-call engineer to page a senior Kubernetes engineer from another team whenever a GKE alert fires",
+      "Export all GKE logs to BigQuery and have the engineer write SQL queries during the incident to search for errors",
+      "Use Gemini Cloud Assist investigations from the alert or the GKE console to analyze the relevant logs, events, and configuration changes, obtain a probable root cause and suggested remediation, and link the investigation into the support case if escalation is needed",
+      "Delete the deployment and recreate it from the last known-good manifest without investigating, to restore service as quickly as possible"
+    ],
+    "answer": [2],
+    "explanation": "Gemini Cloud Assist investigations correlate logs, Kubernetes events, metrics, and recent changes for a failing resource and produce ranked hypotheses with remediation steps in natural language, which is precisely the guided troubleshooting a less experienced on-call engineer needs at 02:00; investigations can also be attached to support cases to accelerate escalation. Always paging a senior engineer (option A) does not scale and increases burnout. Ad-hoc SQL over exported logs (option B) is slow and assumes expertise the engineer lacks. Blind recreation (option D) may restore service but loses diagnostic information and may reapply the faulty configuration.",
+    "refs": [
+      "https://cloud.google.com/gemini/docs/cloud-assist/overview",
+      "https://cloud.google.com/gemini/docs/cloud-assist/investigations"
+    ]
+  },
+  {
+    "id": "d6-ops-076",
+    "domain": 6,
+    "topic": "IAM Recommender",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A security review at a publishing company found that many service accounts and users hold broad roles such as Editor that they no longer use. The security team wants data-driven suggestions for tighter roles based on actual permission usage across all projects, with the least manual analysis. What should you do?",
+    "options": [
+      "Use the IAM Recommender (part of Active Assist), which analyzes permission usage over the past 90 days and recommends replacing over-privileged roles with less permissive ones, and review the recommendations in Recommendation Hub or via the Recommender API",
+      "Export Admin Activity audit logs to BigQuery and manually compare each principal's API calls with the permissions in its roles",
+      "Remove all Editor bindings across the organization immediately and wait for teams to request the permissions they need",
+      "Enable VPC Service Controls around all projects so that over-privileged roles cannot be misused"
+    ],
+    "answer": [0],
+    "explanation": "The IAM Recommender uses observed permission usage to propose role bindings that remove unused permissions, including suggesting predefined or custom roles, and surfaces them centrally, which is exactly the least-effort, data-driven approach requested. Manual log analysis (option B) is laborious and error-prone at scale. Removing Editor everywhere at once (option C) would cause outages and is not data-driven. VPC Service Controls (option D) protect against data exfiltration across perimeters but do not reduce IAM privilege.",
+    "refs": [
+      "https://cloud.google.com/policy-intelligence/docs/role-recommendations-overview",
+      "https://cloud.google.com/recommender/docs/overview"
+    ]
+  },
+  {
+    "id": "d6-ops-077",
+    "domain": 6,
+    "topic": "Support case escalation",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company with Enhanced Support has a production outage: a regional Cloud SQL instance is unreachable and the company's own troubleshooting points to an infrastructure issue. An engineer opened a support case two hours ago as priority P3 with a one-line description, and there has been no meaningful progress. The company's CIO wants Google's attention now. What should you do?",
+    "options": [
+      "Open three additional cases for the same issue from different team members so that more support engineers are assigned",
+      "Post the case number on social media to attract the attention of Google engineers",
+      "Wait for the support engineer to respond, because escalating a case resets its place in the queue",
+      "Update the existing case to the correct priority (P1 for a production outage), add detailed technical information such as instance name, timestamps, error messages, and business impact, and use the case escalation function if the response does not match the priority's target"
+    ],
+    "answer": [3],
+    "explanation": "Case priority drives response targets and routing; a production outage filed as P3 will not receive P1 attention, so the first step is to correct the priority and supply the technical context support needs to act. Google Cloud support provides an escalation mechanism for cases that are not progressing appropriately for their priority, which is the correct path to obtain management attention. Duplicate cases (option A) fragment the investigation and are discouraged. Social media (option B) is not a support channel. Escalation does not reset a case's position (option C); waiting simply prolongs the outage.",
+    "refs": [
+      "https://cloud.google.com/support/docs/customer-care-procedures",
+      "https://cloud.google.com/support/docs/manage-cases"
+    ]
+  },
+  {
+    "id": "d6-ops-078",
+    "domain": 6,
+    "topic": "Automated remediation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An ad-tech company's on-call engineers are paged about once a night because a legacy reporting process on a Compute Engine VM leaks memory until it must be restarted; the documented runbook consists of a single command that restarts the service. Rewriting the process is scheduled for next quarter. Until then, the company wants to eliminate the night-time pages without hiding real failures. What should you do?",
+    "options": [
+      "Raise the memory alert threshold to 99% so that the alert fires less often",
+      "Configure the memory alerting policy to publish to a Pub/Sub notification channel that triggers a Cloud Run function (or a Workflows workflow) which executes the runbook restart automatically, and create a lower-priority ticket alert if restarts exceed a defined frequency or the restart fails",
+      "Remove the alerting policy until the rewrite is complete, since the cause is already understood",
+      "Schedule a cron job that restarts the service every hour regardless of memory usage"
+    ],
+    "answer": [1],
+    "explanation": "When a runbook is fully deterministic, SRE guidance is to automate it: an alerting policy can notify a Pub/Sub topic that triggers serverless remediation, removing the human from a repetitive task while keeping a secondary alert so that abnormal restart frequency or failure still gets attention. Raising the threshold (option A) delays the page but does not remove it. Deleting the alert (option C) hides both the known problem and any new failure of the process. Blind hourly restarts (option D) interrupt healthy runs and provide no signal when something changes.",
+    "refs": [
+      "https://cloud.google.com/monitoring/support/notification-options#pubsub",
+      "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change"
+    ]
+  },
+  {
+    "id": "d6-ops-079",
+    "domain": 6,
+    "topic": "Launch support",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A video game publisher with Premium Support is preparing a global launch in six weeks that is expected to increase traffic 30-fold within an hour of release. Beyond load testing its own systems, the company wants to make the best use of its relationship with Google to reduce launch-day risk. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Engage the Technical Account Manager early to schedule an architecture review and event-management support for the launch window, so that Google is aware of the event and ready to respond",
+      "Wait until launch day and open a P1 case if any issue appears, since Premium Support guarantees a 15-minute response",
+      "Review projected resource and API usage against current quotas across all launch projects and submit quota increase requests several weeks in advance",
+      "Disable all alerting during the launch window so that the team is not distracted by notifications",
+      "Ask Google to disable quotas on the launch projects for the duration of the event"
+    ],
+    "answer": [0, 2],
+    "explanation": "Premium Support includes proactive services through the Technical Account Manager, such as architecture reviews and planned-event support, which let Google prepare for the launch rather than react to it. Quota is a common launch-day failure mode; forecasting consumption and requesting increases well ahead of time is a standard readiness step because increases can require review. Relying purely on reactive P1 cases (option B) forgoes the proactive value of the plan. Disabling alerts (option D) removes the team's ability to detect problems. Quotas cannot simply be disabled (option E); they are raised through the standard request process.",
+    "refs": [
+      "https://cloud.google.com/support/docs/overview",
+      "https://cloud.google.com/docs/quotas/view-manage"
+    ]
+  },
+  {
+    "id": "d6-ops-080",
+    "domain": 6,
+    "topic": "Cloud Run rollback",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription-box company deployed a new revision of its Cloud Run order service ten minutes ago, and Error Reporting immediately shows a spike in new exceptions while the checkout conversion rate is dropping. The previous revision is still available in the service's revision list. What should you do first?",
+    "options": [
+      "Open a support case with Google so that they can identify the cause of the exceptions",
+      "Delete the Cloud Run service and redeploy it from the previous week's container image",
+      "Use Cloud Run traffic management to route 100% of traffic back to the previous known-good revision immediately, then investigate the new revision without user impact",
+      "Increase the maximum number of instances so that the failing revision can handle the load from retries"
+    ],
+    "answer": [2],
+    "explanation": "The fastest way to stop user impact after a bad Cloud Run deployment is to shift traffic back to the previous revision, which takes seconds and requires no rebuild; investigation can then proceed on the faulty revision using a tag without affecting customers. A support case (option A) is for Google-side issues and would not restore service quickly. Deleting and redeploying (option B) causes an outage and discards revision history. Adding instances (option D) scales up the broken code and does nothing about the exceptions.",
+    "refs": [
+      "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration#rollback",
+      "https://cloud.google.com/run/docs/managing/revisions"
+    ]
+  },
+  {
+    "id": "d6-ops-081",
+    "domain": 6,
+    "topic": "MIG canary updates",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A travel company runs a stateless booking API on a regional managed instance group of 30 VMs. It wants to validate a new instance template on a small subset of real production traffic for a day before rolling it out to the whole group, and it wants the MIG to keep managing autoscaling and autohealing during that period. What should you do?",
+    "options": [
+      "Create a separate unmanaged instance group with three VMs built from the new template and add it as a second backend to the load balancer",
+      "Set the MIG's update policy to opportunistic and manually recreate three instances so that they pick up the new template",
+      "Abandon three instances from the MIG, update them by hand to the new version, and re-add them the next day",
+      "Start a canary update on the MIG by specifying the new template as a second version with a target size of 10% (or a fixed number of instances), observe for a day, and then complete the rollout by promoting the new template to the primary version"
+    ],
+    "answer": [3],
+    "explanation": "Managed instance groups natively support canary updates: you can define two instance template versions and assign a target size (a fixed count or percentage) to the canary version; the MIG maintains that split while continuing to autoscale and autoheal, and you complete the rollout later by making the new template primary. An unmanaged group (option A) loses autoscaling and autohealing and is managed separately from the MIG. Opportunistic updates with manual recreation (option B) are fragile and do not maintain the desired split as the autoscaler adds or removes instances. Abandoning instances (option C) removes them from MIG management entirely.",
+    "refs": [
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups#canary_update",
+      "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
+    ]
+  },
+  {
+    "id": "d6-ops-082",
+    "domain": 6,
+    "topic": "Database major version upgrades",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A financial reporting company runs a 2 TB Cloud SQL for PostgreSQL 13 instance that must be upgraded to PostgreSQL 16 before end-of-support. An in-place major version upgrade was tested and caused about 45 minutes of write unavailability, which exceeds the business's 5-minute downtime budget for the change. What should you recommend?",
+    "options": [
+      "Use Database Migration Service to create a new PostgreSQL 16 Cloud SQL instance with continuous replication from the existing instance, validate the target, and cut over applications during a brief window once replication lag is near zero",
+      "Perform the in-place upgrade at 03:00 on a Sunday, because that is when the 45-minute outage will affect the fewest users",
+      "Export the database with pg_dump, create a new PostgreSQL 16 instance, import the dump, and repoint the application",
+      "Upgrade incrementally through versions 14 and 15 in-place, because each individual step will have a shorter outage"
+    ],
+    "answer": [0],
+    "explanation": "When an in-place upgrade's downtime exceeds the budget, the standard pattern is a migration to a new instance with continuous change data capture so that the source keeps serving until a short cutover; Database Migration Service supports Cloud SQL to Cloud SQL PostgreSQL migrations across major versions with minimal downtime, and the new instance can be validated before cutover. Scheduling the same 45-minute outage at night (option B) still breaches the stated 5-minute budget. Dump and restore of 2 TB (option C) takes hours, during which writes must stop or be lost. Stepping through intermediate versions (option D) multiplies the number of outages rather than reducing total downtime.",
+    "refs": [
+      "https://cloud.google.com/database-migration/docs/postgres/quickstart",
+      "https://cloud.google.com/sql/docs/postgres/upgrade-major-db-version"
+    ]
+  },
+  {
+    "id": "d6-ops-083",
+    "domain": 6,
+    "topic": "Deployment separation of duties",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An auditor has told a payments company that developers must not be able to deploy directly to production and that every production deployment must be approved by a designated release manager, with an audit trail. The company uses Cloud Deploy pipelines targeting GKE clusters in separate dev, staging, and production projects. Which configuration satisfies the auditor with the least friction for developers?",
+    "options": [
+      "Give developers the Cloud Deploy Operator role on all targets, and ask them to email the release manager before promoting to production",
+      "Mark the production target as requiring approval, grant developers the Cloud Deploy Releaser role so that they can create releases and promote through non-production targets, grant only release managers the Cloud Deploy Approver role, and use a dedicated execution service account per target so that developers never hold direct deploy permissions in the production project",
+      "Remove the production target from Cloud Deploy and have the release manager run kubectl apply manually from a workstation after reviewing the manifests",
+      "Add a Cloud Build step that posts a message to a Slack channel and waits for a thumbs-up emoji before applying manifests to production"
+    ],
+    "answer": [1],
+    "explanation": "Cloud Deploy's approval feature blocks a rollout to an approval-required target until a principal with the Approver role acts, and its role model separates who can create and promote releases from who can approve them; combined with per-target execution service accounts, developers never need write access to the production cluster, and Cloud Deploy plus Cloud Audit Logs record who released, approved, and deployed. An email convention (option A) is not an enforceable control. Manual kubectl by the release manager (option C) removes automation and creates its own audit and consistency problems. A Slack emoji gate (option D) is custom, weakly authenticated, and not a recognized approval record.",
+    "refs": [
+      "https://cloud.google.com/deploy/docs/promote-release#require_approval",
+      "https://cloud.google.com/deploy/docs/iam-roles-permissions"
+    ]
+  }
+]

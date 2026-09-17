@@ -1,0 +1,588 @@
+[
+  {
+    "id": "d2-cmp-026",
+    "domain": 2,
+    "topic": "GKE Autopilot vs Standard",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ten-person startup is moving its containerized web application from a single VM to Kubernetes. The team has no dedicated platform engineers, wants Google to manage node provisioning, security hardening and upgrades, and prefers to pay only for the resources its Pods request. Which GKE option should you recommend?",
+    "options": [
+      "A GKE Standard cluster with node auto-provisioning enabled and node auto-upgrade turned on.",
+      "A GKE Autopilot cluster, which manages nodes, enforces hardened defaults and bills per Pod resource request.",
+      "A GKE Standard cluster with a single node pool of Spot VMs to minimize cost.",
+      "A GKE Enterprise fleet with Config Sync so that cluster configuration is managed from Git."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Autopilot is the Google-recommended mode for teams that want a fully managed Kubernetes experience: Google provisions and scales nodes, applies security best practices (for example Workload Identity and Shielded nodes by default), handles upgrades, and charges for Pod CPU, memory and storage requests rather than for whole nodes. Option A still leaves node pool operations, sizing and security configuration to the team and bills per node. Option C reduces cost but Spot nodes can be preempted and the team must still operate nodes. Option D addresses configuration management across many clusters and does not remove node management responsibilities.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview",
+      "https://cloud.google.com/kubernetes-engine/docs/resources/autopilot-standard-feature-comparison"
+    ]
+  },
+  {
+    "id": "d2-cmp-027",
+    "domain": 2,
+    "topic": "GKE node pools",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A medical imaging company runs a GKE Standard cluster that hosts both a REST API and a set of image-classification workers that need NVIDIA L4 GPUs. The GPU nodes are expensive and the company has noticed that ordinary API Pods are being scheduled on them, wasting GPU capacity. What should you do?",
+    "options": [
+      "Enable node auto-provisioning so that GKE decides where every Pod should run.",
+      "Increase the CPU requests of the API Pods so that they no longer fit on the GPU nodes.",
+      "Move the GPU workers to a separate GKE Autopilot cluster so that GPU nodes are never shared.",
+      "Create a dedicated GPU node pool with a node taint, add a matching toleration and node selector to the classification workers, and keep the API Pods on the general-purpose node pool."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Node pools are the mechanism for grouping nodes with specific hardware, and a taint on the GPU pool prevents Pods without a matching toleration from landing there; GKE automatically adds the nvidia.com/gpu taint to GPU node pools for this reason, and a node selector or affinity on the workers ensures they land on the GPU pool. Option A does not stop general Pods from being placed on GPU nodes. Option B is a fragile side effect rather than a scheduling policy and may not work as the pool scales. Option C introduces a second cluster and cross-cluster networking just to solve a scheduling problem that taints solve natively.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/gpus",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/node-taints"
+    ]
+  },
+  {
+    "id": "d2-cmp-028",
+    "domain": 2,
+    "topic": "Node auto-provisioning",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A data-science platform on GKE Standard runs hundreds of short-lived jobs whose resource requests vary widely: some need 2 vCPUs, others need 64 vCPUs and 400 GB of memory, and a few need GPUs. The platform team currently maintains a dozen node pools and constantly adjusts their sizes and machine types. They want GKE to create appropriately sized nodes on demand and remove them when idle. What should you do?",
+    "options": [
+      "Enable node auto-provisioning on the cluster with resource limits and allowed machine families, and let the cluster autoscaler create and delete node pools based on pending Pods.",
+      "Create one very large node pool with the biggest machine type available and rely on Kubernetes bin-packing to fit all job sizes.",
+      "Migrate every job to a Cloud Run job so that no nodes need to be managed.",
+      "Configure vertical Pod autoscaling on all jobs so that requests are adjusted to fit the existing node pools."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Node auto-provisioning (NAP) extends the cluster autoscaler so that GKE automatically creates node pools with machine types, GPUs and sizes that match pending Pods' requirements and deletes them when unused, which removes the manual node pool management described. Option B wastes money because small jobs occupy huge nodes and large-memory or GPU jobs still cannot be served by a single machine type. Option C is not viable for jobs that need hundreds of gigabytes of memory or GPUs beyond Cloud Run limits and ignores the existing Kubernetes investment. Option D changes what Pods request, not whether suitable nodes exist.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/node-auto-provisioning"
+    ]
+  },
+  {
+    "id": "d2-cmp-029",
+    "domain": 2,
+    "topic": "GKE Enterprise fleets and Config Sync",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A global bank operates 30 GKE clusters across several regions and two on-premises data centers. Each cluster must have identical namespaces, RBAC roles, network policies and resource quotas, and auditors must be able to trace every configuration change to a reviewed commit. Today changes are applied by hand and clusters drift. What should you do?",
+    "options": [
+      "Write a Cloud Build pipeline that runs kubectl apply against every cluster whenever the repository changes.",
+      "Use Terraform's Kubernetes provider to define the resources and run terraform apply nightly against each cluster.",
+      "Register all clusters to a GKE Enterprise fleet and enable Config Sync so that each cluster continuously reconciles the shared configuration from a Git repository.",
+      "Create a golden cluster, export its configuration with kubectl get -o yaml, and re-import it into the other clusters every month."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Config Sync, enabled at fleet level, installs an in-cluster agent on every registered GKE or attached cluster that pulls the desired state from Git and continuously reconciles it, so drift is corrected automatically and every change is a reviewed commit; fleets also let you apply the same configuration to on-premises clusters. Option A pushes configuration but does not detect or revert drift between runs and needs credentials to every cluster. Option B has the same push-model limitation and a nightly window in which drift persists. Option D is manual, error-prone and provides no audit trail.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview",
+      "https://cloud.google.com/kubernetes-engine/fleet-management/docs"
+    ]
+  },
+  {
+    "id": "d2-cmp-030",
+    "domain": 2,
+    "topic": "Policy Controller",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A healthcare SaaS provider must ensure that no workload on its GKE Enterprise clusters runs as a privileged container, uses the latest image tag, or lacks resource limits. Violations must be rejected at admission time, and the security team wants a dashboard of existing violations across all clusters. What should you do?",
+    "options": [
+      "Enable Binary Authorization with a policy that requires attestations for all images.",
+      "Enable Policy Controller in the fleet, apply constraints from the built-in template library (and the Pod Security Standards bundle) to enforce the rules, and review violations in the Policy Controller dashboard.",
+      "Deploy a custom validating admission webhook on each cluster and store violations in a BigQuery table.",
+      "Use Security Command Center container threat detection to alert on privileged containers after they start."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Policy Controller is the GKE Enterprise implementation of Open Policy Agent Gatekeeper: it enforces constraints as an admission controller, ships a library of templates covering privileged containers, image tags and resource limits, audits existing resources, and surfaces violations for the whole fleet in the console. Option A governs which images may be deployed based on signatures and cannot express Pod-level rules such as privileged mode. Option C works but means building and operating custom webhooks and reporting on every cluster. Option D is detective rather than preventive and does not block admission.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/overview",
+      "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/latest/reference/constraint-template-library"
+    ]
+  },
+  {
+    "id": "d2-cmp-031",
+    "domain": 2,
+    "topic": "Multi-cluster Gateway",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A video-streaming service runs the same set of microservices in GKE clusters in us-central1, europe-west1 and asia-southeast1. The company wants a single anycast IP address and hostname for its public API, requests routed to the nearest healthy cluster, automatic failover if a cluster's backends become unhealthy, and the ability for application teams to manage their own HTTP routes using standard Kubernetes APIs. What should you do?",
+    "options": [
+      "Register the clusters in a fleet, designate a config cluster, enable the multi-cluster Gateway controller, and deploy a Gateway using the gke-l7-global-external-managed-mc GatewayClass with HTTPRoutes that reference multi-cluster Services.",
+      "Create a separate Ingress with an external IP in each cluster and use Cloud DNS geolocation routing policies to direct users to the nearest cluster.",
+      "Deploy an NGINX ingress controller in each cluster behind a passthrough Network Load Balancer and use a third-party global traffic manager for failover.",
+      "Expose each cluster's services through Cloud Run as a proxy layer and let the Cloud Run global load balancer handle routing."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Multi-cluster Gateway builds on the Kubernetes Gateway API and the global external Application Load Balancer: a single Gateway in the config cluster programs one anycast IP whose backends are Pods in all fleet member clusters, so traffic goes to the closest healthy cluster with automatic failover, while HTTPRoutes allow teams to own their routing in a standard API. Option B provides regional routing by DNS only, which is slow to fail over because of resolver caching and offers no health-based global load balancing. Option C uses self-managed components and an external product where a native solution exists. Option D adds an unnecessary hop and does not integrate with Kubernetes routing APIs.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/deploying-multi-cluster-gateways",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/gateway-api"
+    ]
+  },
+  {
+    "id": "d2-cmp-032",
+    "domain": 2,
+    "topic": "Workload Identity for GKE",
+    "difficulty": "easy",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An e-commerce company's GKE workloads authenticate to Cloud Storage and Pub/Sub using a service account JSON key that is mounted as a Kubernetes Secret. A security review flagged the long-lived key as a risk. You need to remove the key while allowing each Kubernetes service account to receive only the permissions it needs, following Google-recommended practices. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enable Workload Identity Federation for GKE on the cluster and its node pools so that Pods can obtain short-lived Google credentials through the GKE metadata server.",
+      "Rotate the JSON key every 30 days with a Cloud Scheduler job and store it in Secret Manager instead of a Kubernetes Secret.",
+      "Grant the required IAM roles to the node pool's default Compute Engine service account and remove the key from the Pods.",
+      "Grant the required IAM roles to each Kubernetes service account principal (or bind it to a dedicated IAM service account) so that each workload gets only the permissions it needs.",
+      "Use the Kubernetes Secrets Store CSI driver to fetch the JSON key from Secret Manager at Pod start time."
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "Workload Identity Federation for GKE lets Pods authenticate as their Kubernetes service account and receive short-lived Google credentials without any exported key, and binding IAM roles per Kubernetes service account gives least-privilege access for each workload. Option B keeps a long-lived key in circulation; rotating and moving it does not eliminate the risk. Option C removes the key but gives every Pod on the node the same broad identity, violating least privilege. Option E still relies on an exported key, just delivered differently.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity"
+    ]
+  },
+  {
+    "id": "d2-cmp-033",
+    "domain": 2,
+    "topic": "GKE release channels",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A logistics company runs a revenue-critical order-management system on GKE Standard. The operations team wants Google to keep the control plane and nodes automatically patched, but it wants new Kubernetes minor versions to have been proven in the field for as long as possible before they reach production. A separate pre-production cluster should receive the same versions earlier for testing. How should you configure the clusters?",
+    "options": [
+      "Enroll both clusters in the Rapid channel and rely on the pre-production cluster to catch issues.",
+      "Do not enroll the production cluster in a channel and pin it to a static version; upgrade manually once a year.",
+      "Enroll the production cluster in the Extended channel and pre-production in the Rapid channel.",
+      "Enroll the production cluster in the Stable channel and the pre-production cluster in the Regular channel, so pre-production receives each minor version before production."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Release channels provide automatic, Google-managed upgrades with different levels of maturity: Rapid gets versions first, Regular follows after they have been qualified, and Stable receives them last after additional soak time, so Stable for production and Regular for pre-production gives the requested early testing and maximum maturity. Option A exposes production to the newest, least-proven releases. Option B removes automatic patching and leaves the cluster unsupported between manual upgrades. Option C is wrong because the Extended channel is intended to prolong support of an older minor version, not to provide the most-proven current versions, and Rapid pre-production would test versions two channels ahead.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-upgrades"
+    ]
+  },
+  {
+    "id": "d2-cmp-034",
+    "domain": 2,
+    "topic": "GKE maintenance windows",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "An online retailer runs its checkout service on a GKE cluster enrolled in the Regular release channel. The retailer wants routine automatic upgrades to happen only between 02:00 and 06:00 local time on weekdays, and it wants no upgrades of any kind during its peak sales period from 15 November to 5 January. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Unenroll the cluster from the release channel in November and re-enroll it in January.",
+      "Configure a recurring maintenance window that covers 02:00 to 06:00 on weekdays.",
+      "Disable node auto-upgrade and auto-repair and upgrade nodes manually using a Cloud Scheduler job at 02:00.",
+      "Add a maintenance exclusion covering 15 November to 5 January with a scope that blocks all upgrades.",
+      "Set the cluster's control plane to a static version and enable surge upgrades so that upgrades finish faster."
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "GKE maintenance windows define when automatic maintenance may run, and maintenance exclusions block upgrades for a defined period; exclusions can be scoped to block only minor upgrades, minor and node upgrades, or all upgrades, which is exactly how to implement a holiday freeze while staying in a release channel. Option A is disruptive, loses channel benefits and risks falling out of supported versions. Option C removes automatic maintenance entirely and adds custom automation. Option E does not control the timing of upgrades, and pinning the control plane version does not stop node maintenance.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/maintenance-windows-and-exclusions"
+    ]
+  },
+  {
+    "id": "d2-cmp-035",
+    "domain": 2,
+    "topic": "Backup for GKE",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A fintech company runs a stateful ledger service on GKE with data on regional persistent disks. Compliance requires application-consistent backups of the Kubernetes resources and persistent volumes every four hours, retention for 90 days, and a tested ability to restore the whole namespace into a cluster in another region. The team wants a managed solution. What should you do?",
+    "options": [
+      "Enable Backup for GKE on the cluster, create a backup plan targeting the namespace with a 4-hour schedule, 90-day retention and application-consistent hooks, and restore to a cluster in the second region using a restore plan.",
+      "Schedule Compute Engine snapshots of the persistent disks every four hours and export the Kubernetes manifests to Cloud Storage with a CronJob.",
+      "Use Velero installed on the cluster with a Cloud Storage bucket as the backup target and manage schedules with Velero CRDs.",
+      "Enable regional persistent disks so that data is replicated to a second zone and rely on that replication as the backup."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Backup for GKE is the Google-managed service that captures both Kubernetes resource state and persistent volume data, supports pre/post hooks for application consistency, scheduled backup plans with retention policies, and cross-region and cross-cluster restores through restore plans. Option B backs up disks and manifests separately and provides no consistent point-in-time coupling between them or a managed restore. Option C is a viable open-source approach but requires the team to operate and upgrade Velero. Option D is high availability, not backup; it does not protect against accidental deletion or corruption and does not span regions.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/concepts/backup-for-gke",
+      "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/how-to/backup-plan"
+    ]
+  },
+  {
+    "id": "d2-cmp-036",
+    "domain": 2,
+    "topic": "Cloud Run jobs",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A subscription-box company has a containerized Python script that reconciles the previous day's orders against payment records. It runs for about 25 minutes, does not serve HTTP requests, and must execute once every night. The team wants a serverless approach with the least operational overhead. What should you do?",
+    "options": [
+      "Deploy the container as a Cloud Run service with minimum instances set to 1 and have Cloud Scheduler send an HTTP request that starts the reconciliation.",
+      "Run the container in a GKE Autopilot CronJob so that it executes nightly.",
+      "Deploy the container as a Cloud Run job and use Cloud Scheduler to execute the job every night.",
+      "Deploy the script to App Engine standard and configure a cron.yaml entry that calls a handler running the reconciliation."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Cloud Run jobs are designed for run-to-completion workloads that do not listen for requests: the container runs until the task exits, execution can last up to 24 hours, and Cloud Scheduler can trigger executions directly, with no idle instances to pay for. Option A misuses a request-driven service for batch work, keeps an instance running around the clock and is constrained by request timeouts. Option B works but requires a Kubernetes cluster and its associated management. Option D forces an HTTP-handler model and App Engine standard's request deadlines onto a long-running batch task.",
+    "refs": [
+      "https://cloud.google.com/run/docs/create-jobs",
+      "https://cloud.google.com/run/docs/execute/jobs-on-schedule"
+    ]
+  },
+  {
+    "id": "d2-cmp-037",
+    "domain": 2,
+    "topic": "Cloud Run concurrency",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A document-conversion API on Cloud Run renders PDFs with a single-threaded library that allocates up to 1.5 GB of memory per request. The service is configured with 2 GB of memory and the default concurrency of 80. Under load, instances crash with out-of-memory errors and p99 latency is very high, even though Cloud Run reports low instance counts. What should you do?",
+    "options": [
+      "Increase memory to 32 GB per instance so that 80 concurrent requests fit in memory.",
+      "Set minimum instances to 20 so that enough instances are always warm to absorb the load.",
+      "Enable CPU always allocated so that the rendering library gets CPU time between requests.",
+      "Set the maximum concurrent requests per instance to 1 (or a very small number) so that Cloud Run scales out by instances instead of packing requests into a single container."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Cloud Run's autoscaler decides how many instances to run based on the configured concurrency: with concurrency 80 and a single-threaded, memory-hungry workload, up to 80 requests share one 2 GB container, which exhausts memory and queues requests behind one thread. Setting concurrency to 1 (or matching the actual parallelism the container can safely handle) makes Cloud Run scale horizontally, fixing both the crashes and the latency. Option A is expensive and still leaves one thread serving 80 requests. Option B adds idle cost but does not change how many requests each instance accepts. Option C affects CPU allocation outside request handling and is irrelevant to this bottleneck.",
+    "refs": [
+      "https://cloud.google.com/run/docs/about-concurrency",
+      "https://cloud.google.com/run/docs/configuring/concurrency"
+    ]
+  },
+  {
+    "id": "d2-cmp-038",
+    "domain": 2,
+    "topic": "Cloud Run minimum instances",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A travel-booking company hosts a JVM-based pricing API on Cloud Run. The API is idle for several minutes at a time, and the first request after each idle period takes about 6 seconds because a new container instance must start and warm up. Product managers require that the first request always completes in under 1 second. Which change should you make first?",
+    "options": [
+      "Configure a minimum number of instances (for example 1 or 2) so that warm instances are kept available between requests.",
+      "Increase the maximum number of instances so that more containers are available to serve requests.",
+      "Increase the request timeout so that the first request does not fail while the container is starting.",
+      "Enable session affinity so that repeat clients are routed to the same container instance."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Cold starts occur when Cloud Run has scaled to zero; minimum instances keep a configured number of instances warm (billed at a reduced idle rate), so the first request after an idle period is served immediately, which directly satisfies the latency requirement. Option B addresses scale-out capacity, not the absence of any warm instance. Option C only prevents a timeout error; the request would still take 6 seconds. Option D influences which instance handles subsequent requests but does nothing when no instance is running.",
+    "refs": [
+      "https://cloud.google.com/run/docs/configuring/min-instances",
+      "https://cloud.google.com/run/docs/tips/general#using_minimum_instances_to_reduce_cold_starts"
+    ]
+  },
+  {
+    "id": "d2-cmp-039",
+    "domain": 2,
+    "topic": "Cloud Run CPU allocation",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A marketing platform's Cloud Run service returns an HTTP 202 immediately and then continues processing in a background goroutine to send analytics events to a third-party API. Engineers notice that many events are never delivered, and Cloud Logging shows the background work stalling right after the response is sent. Which configuration change resolves the problem with minimal code changes?",
+    "options": [
+      "Increase the service's request timeout to the maximum of 60 minutes.",
+      "Configure the service so that CPU is always allocated instead of only during request processing, so background work continues after the response is returned.",
+      "Set minimum instances to 1 so that the container is never terminated.",
+      "Raise the container's memory limit so that the goroutine has enough resources to finish."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "By default Cloud Run allocates CPU to an instance only while it is handling requests; once the response is sent the CPU is throttled, so background threads stall. Setting CPU to always allocated keeps the CPU available between requests, which lets asynchronous work finish. Option A is irrelevant because the request has already completed when the work stalls. Option C keeps an instance alive but does not remove CPU throttling outside requests. Option D addresses memory, which is not the cause. Note that the more robust long-term design is to hand background work to Cloud Tasks or Pub/Sub, but the question asks for the minimal change.",
+    "refs": [
+      "https://cloud.google.com/run/docs/configuring/cpu-allocation",
+      "https://cloud.google.com/run/docs/tips/general#avoiding_background_activities"
+    ]
+  },
+  {
+    "id": "d2-cmp-040",
+    "domain": 2,
+    "topic": "Cloud Run functions triggers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "An insurance company wants to generate a thumbnail every time a claims adjuster uploads a photo to a specific Cloud Storage bucket. The thumbnail logic is a short Node.js function. The company wants an event-driven, serverless design with no polling and minimal infrastructure. What should you do?",
+    "options": [
+      "Deploy the function as a Cloud Run service and have a Cloud Scheduler job list the bucket every minute and call the service for new objects.",
+      "Configure Cloud Storage Pub/Sub notifications to a topic and write a Compute Engine subscriber that runs the thumbnail code.",
+      "Deploy the code as a Cloud Run function with an Eventarc trigger for the google.cloud.storage.object.v1.finalized event on the bucket.",
+      "Enable Object Lifecycle Management on the bucket with a rule that invokes the function when objects are created."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Cloud Run functions integrate with Eventarc so that a Cloud Storage object finalized event on the bucket invokes the function directly, giving a fully managed, push-based, event-driven design with nothing to poll or host. Option A polls, introduces up to a minute of delay and wastes invocations. Option B is event-driven but needs a VM to run and maintain. Option D is not possible; lifecycle rules can only delete objects or change storage class, they cannot invoke code.",
+    "refs": [
+      "https://cloud.google.com/run/docs/triggering/storage-triggers",
+      "https://cloud.google.com/eventarc/docs/overview"
+    ]
+  },
+  {
+    "id": "d2-cmp-041",
+    "domain": 2,
+    "topic": "Eventarc audit log triggers",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A security operations team wants a Cloud Run service to be invoked whenever anyone creates a new firewall rule in any project of the organization, so that the rule can be reviewed and, if necessary, disabled within seconds. The team does not want to modify how firewall rules are created and wants a fully managed event path. What should you do?",
+    "options": [
+      "Create an Eventarc trigger of type Cloud Audit Logs for the compute.googleapis.com service and the v1.compute.firewalls.insert method, with the Cloud Run service as the destination, and use an organization-level log sink to route the audit logs if triggers are needed across projects.",
+      "Create a Cloud Scheduler job that runs every minute and calls a Cloud Run function that lists firewall rules in every project and compares them with a previous snapshot.",
+      "Enable Security Command Center Premium and configure its firewall misconfiguration finding to email the on-call engineer.",
+      "Ask each project team to add an Eventarc trigger to their own Terraform module so that firewall rule creation publishes a message."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "Eventarc can create triggers from Cloud Audit Logs entries, so a trigger filtered on the Compute Engine firewalls.insert method fires within seconds of a rule being created, with no change to how rules are provisioned; for organization-wide coverage the audit logs can be aggregated with an organization-level sink into Pub/Sub and delivered to the Cloud Run service through Eventarc. Option B is polling with per-minute latency and heavy API usage. Option C detects certain misconfigurations but is not a general, near-real-time hook on rule creation and only notifies. Option D depends on every team's cooperation and cannot cover rules created outside Terraform.",
+    "refs": [
+      "https://cloud.google.com/eventarc/docs/reference/supported-events",
+      "https://cloud.google.com/eventarc/docs/run/route-trigger-cloud-audit-logs",
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks"
+    ]
+  },
+  {
+    "id": "d2-cmp-042",
+    "domain": 2,
+    "topic": "Cloud Tasks",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A ride-sharing company must send a receipt through a third-party email API after each completed trip. The email API enforces a limit of 50 requests per second and occasionally returns errors that should be retried with exponential backoff. Trips peak at 2,000 completions per second. The receipts must be sent eventually but do not need to be immediate, and the team wants to avoid writing rate-limiting logic. Which service should you use to dispatch the email calls?",
+    "options": [
+      "Publish each trip to a Pub/Sub topic with a push subscription targeting a Cloud Run service that calls the email API.",
+      "Write each trip to Firestore and have a Cloud Scheduler job invoke a Cloud Run function every second to send up to 50 emails.",
+      "Use Eventarc to route trip-completed events directly to a Cloud Run service with maximum instances set to 1.",
+      "Create a Cloud Tasks queue with a maximum dispatch rate of 50 per second and a retry configuration with exponential backoff, and enqueue an HTTP task per trip that targets a Cloud Run service which calls the email API."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Cloud Tasks is purpose-built for controlled, asynchronous execution: queues support explicit rate limits (dispatches per second, maximum concurrent dispatches) and per-queue retry policies with exponential backoff, so the third-party limit is respected without custom code and bursts are absorbed in the queue. Option A delivers as fast as possible and Pub/Sub push has no per-second rate limit control, so the email API would be overwhelmed. Option B is a hand-built scheduler with one-second granularity and custom bookkeeping. Option C uses max instances as a crude throttle, which does not guarantee 50 requests per second and causes Eventarc retries and back-pressure problems.",
+    "refs": [
+      "https://cloud.google.com/tasks/docs/configuring-queues",
+      "https://cloud.google.com/tasks/docs/comp-pub-sub"
+    ]
+  },
+  {
+    "id": "d2-cmp-043",
+    "domain": 2,
+    "topic": "Workflows and Cloud Scheduler",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A regional bank needs to run an end-of-day process every evening: call an internal Cloud Run service to close the ledger, wait for a BigQuery job to finish, call a partner's REST API, and finally send a Pub/Sub message. Each step depends on the previous one's output, failures must be retried with backoff, and the team does not want to manage servers or a Python-based orchestration cluster. What should you do?",
+    "options": [
+      "Deploy Cloud Composer and write an Airflow DAG that chains the steps and is scheduled nightly.",
+      "Define the sequence in Workflows with built-in connectors and retry policies, and trigger the workflow with a Cloud Scheduler job every evening.",
+      "Write a single Cloud Run function that performs all four steps in order and schedule it with Cloud Scheduler.",
+      "Create four Cloud Scheduler jobs spaced 15 minutes apart, one per step, so that each step runs after the previous one should have finished."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Workflows is a serverless orchestrator for sequencing HTTP-based services and Google Cloud APIs: it passes outputs between steps, has connectors for BigQuery and Pub/Sub that handle long-running operations, and supports declarative retry and error handling, and Cloud Scheduler is the standard way to start it on a schedule. Option A meets the requirements but requires operating a Composer environment, which the team explicitly wants to avoid and which is aimed at data pipelines rather than simple service orchestration. Option C hides the orchestration in code, hits function timeout limits while waiting for BigQuery, and complicates retries. Option D relies on timing assumptions and breaks whenever a step runs long or fails.",
+    "refs": [
+      "https://cloud.google.com/workflows/docs/overview",
+      "https://cloud.google.com/workflows/docs/schedule-workflow"
+    ]
+  },
+  {
+    "id": "d2-cmp-044",
+    "domain": 2,
+    "topic": "Cloud Run cold-start optimization",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A mobile gaming company runs a matchmaking API on Cloud Run written in Java with Spring Boot. Players complain that the first request after periods of low traffic, and requests during sudden scale-out, take 4 to 8 seconds. The company accepts a modest increase in cost but needs cold-start latency reduced significantly with configuration changes rather than a rewrite. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Configure a minimum number of instances so that warm instances are always available to serve the first requests.",
+      "Enable startup CPU boost so that the container gets additional CPU during initialization and the JVM starts faster.",
+      "Set the maximum number of instances to 1 so that no new instances need to start.",
+      "Migrate the service to a Cloud Run job so that the JVM stays resident between executions.",
+      "Increase the request timeout to 300 seconds so that slow first requests do not fail."
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "explanation": "Two configuration-only levers directly attack cold-start latency: minimum instances eliminate cold starts after idle periods by keeping warm instances (at a reduced idle price), and startup CPU boost temporarily grants extra CPU while the instance starts, which materially shortens JVM startup during scale-out. Option C would cap capacity at one instance and create massive queuing under load. Option D is wrong because jobs are for run-to-completion tasks and cannot serve API requests. Option E only avoids timeout errors; it does not make the requests faster.",
+    "refs": [
+      "https://cloud.google.com/run/docs/configuring/services/cpu#startup-boost",
+      "https://cloud.google.com/run/docs/configuring/min-instances",
+      "https://cloud.google.com/run/docs/tips/java"
+    ]
+  },
+  {
+    "id": "d2-cmp-045",
+    "domain": 2,
+    "topic": "App Engine flexible vs standard",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media company has an existing App Engine standard application written in Python. A new feature requires a native library that is not available in the standard runtime, needs to open long-lived WebSocket connections, and must write temporary files larger than the standard environment's in-memory file system allows. The team wants to keep using App Engine and its deployment tooling. What should you do?",
+    "options": [
+      "Keep the application in App Engine standard and move the native library call into a Cloud Run function that the application invokes.",
+      "Rewrite the application to run on GKE Autopilot so that any library can be installed.",
+      "Deploy the new component as a separate App Engine flexible environment service using a custom runtime container, and route requests to it with a dispatch.yaml file.",
+      "Upgrade the App Engine standard application to the latest Python runtime, which supports arbitrary native libraries and WebSockets."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "The App Engine flexible environment runs Docker containers on Compute Engine VMs, so it supports custom runtimes with native dependencies, WebSockets and local disk, and an application can mix standard and flexible services with dispatch rules, which keeps the existing tooling and codebase intact. Option A moves one library call but does not solve WebSockets or the temporary file requirement. Option B is a much larger migration than necessary and abandons the App Engine tooling the team wants to keep. Option D is incorrect because App Engine standard still sandboxes the runtime, does not support WebSockets, and provides only an in-memory /tmp file system.",
+    "refs": [
+      "https://cloud.google.com/appengine/docs/the-appengine-environments",
+      "https://cloud.google.com/appengine/docs/flexible/custom-runtimes"
+    ]
+  },
+  {
+    "id": "d2-cmp-046",
+    "domain": 2,
+    "topic": "App Engine standard",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A municipal government hosts a Python web portal for reporting potholes. Traffic is near zero at night and spikes sharply after local news coverage. The IT team has no container experience, wants the application to scale to zero when idle to save money, and wants automatic scaling that reacts within seconds. Which platform should you choose?",
+    "options": [
+      "App Engine standard environment with automatic scaling.",
+      "App Engine flexible environment with automatic scaling and a minimum of two instances.",
+      "A Compute Engine managed instance group with an autoscaler and a minimum size of zero.",
+      "A GKE Standard cluster with the Horizontal Pod Autoscaler and cluster autoscaler."
+    ],
+    "answer": [
+      0
+    ],
+    "explanation": "App Engine standard deploys source code directly without containers, scales to zero when idle, and starts new instances in seconds, which matches all three constraints: no container skills required, zero idle cost, and rapid scaling. Option B cannot scale to zero (it requires at least one instance and starts instances in minutes) and is built on containers. Option C requires VM image management, cannot scale a MIG to zero behind a load balancer in a way that serves the first request, and boots slowly. Option D requires Kubernetes and container expertise the team lacks and keeps nodes running.",
+    "refs": [
+      "https://cloud.google.com/appengine/docs/the-appengine-environments",
+      "https://cloud.google.com/appengine/docs/standard/how-instances-are-managed"
+    ]
+  },
+  {
+    "id": "d2-cmp-047",
+    "domain": 2,
+    "topic": "GKE Spot node pools",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A bioinformatics company runs a GKE Standard cluster that hosts a latency-sensitive API and a large number of fault-tolerant genome-alignment batch Pods. Compute costs are dominated by the batch workload. The company wants to reduce cost significantly without risking the API's availability when Google reclaims capacity. What should you do?",
+    "options": [
+      "Convert the entire cluster's node pools to Spot VMs and add PodDisruptionBudgets to the API deployment.",
+      "Purchase committed use discounts for the whole cluster and keep all node pools on standard VMs.",
+      "Run the batch Pods on a Cloud Run service with minimum instances set to zero so they cost nothing between runs.",
+      "Add a Spot VM node pool for the batch workload, rely on the automatic Spot taint so only Pods with the matching toleration and node selector are scheduled there, and keep the API on the standard node pool."
+    ],
+    "answer": [
+      3
+    ],
+    "explanation": "Mixing node pools lets you match volatility to workload tolerance: GKE automatically taints Spot nodes with cloud.google.com/gke-spot, so only the batch Pods that tolerate it land on the cheap, preemptible capacity, while the API stays on standard nodes and is unaffected by reclamation (cost optimization without sacrificing reliability). Option A puts the API on Spot capacity, and a PodDisruptionBudget cannot prevent a preemption. Option B saves less than Spot for the batch work and keeps the API cost unchanged. Option C is a different platform, and Cloud Run services are request-driven, not suited to long batch computations.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/node-taints"
+    ]
+  },
+  {
+    "id": "d2-cmp-048",
+    "domain": 2,
+    "topic": "GKE private cluster egress",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A media analytics company created a GKE private cluster in which nodes have no external IP addresses. Pods must download open-source packages from public package repositories and call a partner's public API, but the security team will not allow nodes to have public IP addresses. Deployments are currently failing with connection timeouts. What should you do?",
+    "options": [
+      "Add an external IP address to each node through a node pool update and restrict inbound traffic with firewall rules.",
+      "Configure Cloud NAT with a Cloud Router on the cluster's VPC network and subnet, including the Pod secondary IP range, so nodes and Pods can initiate outbound connections without external IPs.",
+      "Enable Private Google Access on the subnet so that Pods can reach the public internet through Google's network.",
+      "Create a VPC peering connection to a VPC that has an internet gateway."
+    ],
+    "answer": [
+      1
+    ],
+    "explanation": "Cloud NAT provides outbound internet connectivity for resources without external IP addresses, and for GKE you must include both the primary node range and the Pod secondary range so that Pod-originated traffic is translated; the nodes remain unreachable from the internet, satisfying the security team. Option A violates the no-public-IP requirement. Option C is wrong because Private Google Access only reaches Google APIs and services, not arbitrary internet destinations. Option D is not a Google Cloud concept; VPC peering does not provide transitive internet access.",
+    "refs": [
+      "https://cloud.google.com/nat/docs/gke-example",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/private-cluster-concept"
+    ]
+  },
+  {
+    "id": "d2-cmp-049",
+    "domain": 2,
+    "topic": "GKE upgrade operations",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "question": "A software company operates several GKE Standard clusters. Engineers currently spend days each quarter planning and executing control plane and node upgrades, and a missed upgrade recently left a cluster on an unsupported version. Leadership wants Google to handle upgrades automatically, while ensuring upgrades happen only during low-traffic periods and that the team is told about upcoming changes in advance. Which two actions should you take? (Choose two.)",
+    "options": [
+      "Enroll the clusters in a release channel appropriate to their risk tolerance so that control plane and node upgrades are applied automatically.",
+      "Disable node auto-upgrade and pin each node pool to a specific version to avoid unexpected changes.",
+      "Configure maintenance windows during low-traffic hours and subscribe to cluster upgrade notifications through Pub/Sub.",
+      "Move all workloads to a single very large cluster to reduce the number of upgrades to perform.",
+      "Set the control plane to a static version and upgrade node pools manually with surge upgrades."
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Release channels hand upgrade management to Google while keeping clusters in support, and maintenance windows plus cluster notifications (published to Pub/Sub for events such as UpgradeAvailableEvent and UpgradeEvent) give control over timing and advance visibility, which is the Google-recommended operating model. Option B and Option E both increase manual work and were the cause of the unsupported-version incident. Option D concentrates risk and does not reduce the need to upgrade; it also runs against reliability best practices for blast-radius isolation.",
+    "refs": [
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-notifications",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions"
+    ]
+  },
+  {
+    "id": "d2-cmp-050",
+    "domain": 2,
+    "topic": "Cloud Run jobs parallelism",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "question": "A legal-tech firm must re-index 50,000 PDF documents stored in Cloud Storage after every schema change. Indexing one document takes about 3 seconds and is independent of all others. The firm wants the whole run to complete in minutes rather than hours, wants failed documents retried automatically, and wants to avoid provisioning any cluster or VMs. What should you do?",
+    "options": [
+      "Deploy the indexer as a Cloud Run service and have a Cloud Run function loop through the object list and call the service synchronously for each document.",
+      "Create a Dataproc cluster and run a Spark job that partitions the object list across executors.",
+      "Create a Cloud Run job with a task count of, for example, 200 and a parallelism of 200, have each task use the CLOUD_RUN_TASK_INDEX and CLOUD_RUN_TASK_COUNT environment variables to select its shard of the object list, and set a per-task retry limit.",
+      "Deploy the indexer to a GKE Autopilot cluster as a Kubernetes Job with completions set to 50000."
+    ],
+    "answer": [
+      2
+    ],
+    "explanation": "Cloud Run jobs natively support array-style parallel execution: you specify how many tasks make up an execution and how many run concurrently, each task learns its index and the total count from injected environment variables so it can process a deterministic slice of the work, and failed tasks are retried up to the configured maximum, all without clusters or VMs. Option A serializes the work through one caller and risks the caller's own timeout. Option B provisions a cluster the firm wants to avoid and is heavyweight for independent tasks. Option D requires a Kubernetes cluster and a 50,000-completion Job is far less efficient than sharding.",
+    "refs": [
+      "https://cloud.google.com/run/docs/create-jobs#parallelism",
+      "https://cloud.google.com/run/docs/container-contract#jobs-env-vars"
+    ]
+  }
+]
