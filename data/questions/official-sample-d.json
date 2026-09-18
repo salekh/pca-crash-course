@@ -17,11 +17,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Create one project for development, a second for staging and a third for production.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because Google Cloud best practices mandate placing Development, Staging, and Production in separate Google Cloud Projects (`dev`, `staging`, `prod`). Project boundaries enforce strict IAM isolation so developers cannot touch staging/production resources, prevent noisy-neighbor quota exhaustion, and allow controlled cross-project communication (e.g., Shared VPC or VPC Peering with firewall rules) between staging and production services.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy"
+    ],
+    "hint": "In Google Cloud, Projects are the primary trust, IAM, billing, and quota isolation boundary—always isolate Development, Staging, and Production into separate Google Cloud Projects.",
+    "whyWrong": {
+      "0": "Grouping Staging and Production into the same project violates least-privilege isolation and allows staging tests or misconfigurations to impact live production resources and quotas.",
+      "1": "Isolating environments only by VPC network inside a single project leaves all environments sharing the same IAM project roles and project-level API quotas.",
+      "2": "Subnet-level separation within a single project provides zero IAM resource isolation between development and production."
+    }
   },
   {
     "id": "off-smp-158",
@@ -42,11 +48,18 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Cloud Dataflow, Cloud Storage, Cloud Pub/Sub, and BigQuery). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because it satisfies every single Mountkirk Games analytics technical requirement: Cloud Pub/Sub ingests high-velocity streaming telemetry from game servers, Cloud Storage ingests batch files uploaded by mobile devices, Cloud Dataflow (Apache Beam) processes both streaming and late-arriving mobile events on the fly with event-time windowing/watermarks, and BigQuery provides serverless SQL analytics over 10+ TB of historical data.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/architecture/gaming-analytics-pipeline"
+    ],
+    "hint": "Mountkirk Games' real-time streaming analytics reference architecture is: Cloud Pub/Sub (global event ingestion) -> Cloud Dataflow (streaming windowing & late-data handling) -> BigQuery (SQL analytics over 10+ TB) + Cloud Storage (raw/mobile file archival).",
+    "whyWrong": {
+      "0": "Cloud SQL is a regional relational OLTP database that cannot scale to ingest high-velocity global streaming game telemetry or run petabyte-scale analytical SQL queries.",
+      "2": "Cloud SQL cannot replace BigQuery as the analytical data warehouse for 10+ TB of historical SQL reporting.",
+      "3": "Cloud Dataproc requires managing Hadoop/Spark clusters (violating the preference for fully serverless managed services) and Cloud SQL is unsuitable for 10+ TB OLAP analytics.",
+      "4": "Self-managing Compute Engine and Dataproc clusters adds operational overhead and omits BigQuery for serverless SQL analytics."
+    }
   },
   {
     "id": "off-smp-188",
@@ -70,7 +83,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option B (Encrypt the card data with a deterministic algorithm, and store it in Firestore using Datastore mode.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Store the card data in Secret Manager after running a query to identif…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Encrypt the card data with a deterministic algorithm, and shard it acr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use column-level encryption to store the data in Cloud SQL.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-189",
@@ -94,7 +113,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option D (gcloud compute security-policies rules create 1000 \\ --security-policy hrl-policy \\ --expression \"evaluatePreconfiguredExpr('sourceiplist-fastly')\" \\ --action \"allow\").",
+    "whyWrong": {
+      "0": "Incorrect distractor (gcloud compute security-policies rules create 1000 \\ --security-policy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (gcloud compute firewall-rules create allow-fastly-to-lb \\ --network hr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (gcloud compute firewall-rules create allow-fastly-to-lb \\ --network hr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-190",
@@ -118,7 +143,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option C (Configure the deployment job to notify a Pub/Sub queue that triggers a Cloud Function.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Set up Cloud Tasks and a Cloud Storage bucket that triggers a Cloud Fu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Set up a Cloud Logging sink and a Cloud Storage bucket that triggers a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Set up Identity and Access Management (IAM) and Confidential Computing…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-191",
@@ -142,7 +173,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option A (Use Explainable AI).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use Vision AI): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Google Cloud's operations suite): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Jupyter Notebooks): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-192",
@@ -166,7 +203,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Cost Optimization, Governance & Technical Processes): The Google-recommended architectural solution is Option C (Use BigQuery for its scalability and ability to add columns to a schema.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use Firestore for its scalable and flexible document-based database. U…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use Cloud Spanner for its scalability and ability to version schemas w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Cloud SQL for its ability to automatically manage storage increase…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-193",
@@ -190,7 +233,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option C (Use the gcloud recommender command to list the idle virtual machine instances.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Log into each Compute Engine instance and collect disk, CPU, memory, a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use the gcloud compute instances list to list the virtual machine inst…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (From the Google Console, identify which Compute Engine instances in th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-194",
@@ -216,7 +265,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Designing & Planning Cloud Solution Architecture): The Google-recommended architectural solution is Option A (Verify EHR's product usage against the list of compliant products on the Google Cloud compliance page.) and Option B (Advise EHR to execute a Business Associate Agreement (BAA) with Google Cloud.).",
+    "whyWrong": {
+      "2": "Incorrect distractor (Use Firebase Authentication for EHR's user-facing applications.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Implement Prometheus to detect and prevent security breaches on EHR's …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Use GKE private clusters for all Kubernetes workloads.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-195",
@@ -241,7 +296,12 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option A (Enable Binary Authorization on GKE and sign containers as part of a CI/CD pipeline.) and Option D (Configure Container Registry to use Vulnerability Scanning to confirm that there are no vulnerabilities before deploying the workload.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Configure Jenkins to utilize Kritis to cryptographically sign a contai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure Container Registry to only allow trusted service accounts to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-196",
@@ -265,7 +325,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option A (Add a new Dedicated Interconnect connection).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Upgrade the bandwidth on the Dedicated Interconnect connection to 100G): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Add three new Cloud VPN connections): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Add a new Carrier Peering connection): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-197",
@@ -289,7 +355,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option D (Configure two Dedicated Interconnect connections in one metro city and two connections in another metro, and make sure the interconnect connections are placed in different metro zones.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Configure two Partner Interconnect connections in one metro city, and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure two VPN connections from on-premises to Google Cloud, and ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure direct peering between EHR Healthcare and Google Cloud, and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-198",
@@ -313,7 +385,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Observability, SRE & Operations Excellence): The Google-recommended architectural solution is Option C (Turn off Pub/Sub message batching.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the Pub/Sub total timeout retry value.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Move from a Pub/Sub subscriber pull model to a push model.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a backup Pub/Sub message queue.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-199",
@@ -337,7 +415,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option A (Create an organizational policy with a constraint to allow external IP addresses only on the front-end Compute Engine instances.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Revoke the compute.networkAdmin role from all users in the project wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create an Identity and Access Management (IAM) policy that maps the IT…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a custom Identity and Access Management (IAM) role named GCE_Fr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-200",
@@ -361,7 +445,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option A (Use a private cluster with a private endpoint, with master authorized networks configured.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use a public cluster with firewall rules and Virtual Private Cloud (VP…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use a private cluster with a public endpoint, with master authorized n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use a public cluster with master authorized networks enabled and firew…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-201",
@@ -385,7 +475,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Cost Optimization, Governance & Technical Processes): The Google-recommended architectural solution is Option B (Memcache backed by Cloud Datastore for the customer session state data.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Local SSD for customer session state data. Lifecycle-managed Cloud Sto…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Memcache backed by Cloud SQL for customer session state data. Assorted…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Memcache backed by Persistent Disk SSD storage for customer session st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-202",
@@ -409,7 +505,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option D (Use Cloud Audit Logging to view Cloud Audit Logs, and create a filter on the query operation to get the required information.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Connect Google Data Studio to BigQuery. Create a dimension for the use…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (In the BigQuery interface, execute a query on the jobs table to get th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use bq show to list all jobs. Per job, use bq ls to list job informati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-203",
@@ -435,7 +537,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option A (Evaluate the impact of migrating their current batch ETL code to Cloud Dataflow.) and Option B (Write a schema migration plan to denormalize data for better performance in BigQuery.).",
+    "whyWrong": {
+      "2": "Incorrect distractor (Draw an architecture diagram that shows how to move from a single MySQ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Load 10 terabytes of analytics data from a previous game into a Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Integrate Cloud Armor to defend against possible SQL injection attacks…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-204",
@@ -459,7 +567,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option D (Create a global load balancer with managed instance groups and autoscaling policies.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create network load balancers. Use preemptible Compute Engine instance…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create network load balancers. Use non-preemptible Compute Engine inst…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a global load balancer with managed instance groups and autosca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-205",
@@ -485,7 +599,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option A (Store as much analytics and game activity data as financially feasible today so it can be used to train machine learning models to predict user behavior in the future.) and Option B (Begin packaging their game backend artifacts in container images and running them on Google Kubernetes Engine to improve the ability to scale up or down based on game activity.).",
+    "whyWrong": {
+      "2": "Incorrect distractor (Set up a CI/CD pipeline using Jenkins and Spinnaker to automate canary…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Adopt a schema versioning tool to reduce downtime when adding new game…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Implement a weekly rolling maintenance process for the Linux virtual m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-206",
@@ -509,7 +629,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option A (Deploy failure injection software to the game analytics platform that can inject additional latency to mobile client analytics traffic.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Build a test client that can be run from a mobile phone emulator on a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Add the ability to introduce a random amount of delay before beginning…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create an opt-in beta of the game that runs on players' mobile devices…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-207",
@@ -533,7 +659,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option D (Use Cloud Bigtable for time series data, use Cloud Spanner for transactional data, and use BigQuery for historical data queries.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use Cloud SQL for time series data, and use Cloud Bigtable for histori…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use Cloud SQL to replace MySQL, and use Cloud Spanner for historical d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Cloud Bigtable to replace MySQL, and use BigQuery for historical d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-208",
@@ -557,7 +689,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option A (Cloud Bigtable).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Cloud Spanner): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (BigQuery): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cloud Datastore): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-209",
@@ -581,7 +719,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option C (Create an instance template for the backend.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create an instance template for the backend. For every region, deploy …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create an instance template for the backend. For every region, deploy …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create an instance template for the backend. For every region, deploy …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-210",
@@ -605,7 +749,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option B (Use gsutil to batch-copy the files in parallel.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use gsutil to batch-move files in sequence.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use gsutil to extract the files as the first part of ETL.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use gsutil to load the files as the last part of ETL.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-211",
@@ -629,7 +779,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option C (Create a service account (SA) in the legacy game's Google Cloud project, add this SA in the new game's IAM page, and then give it the Firebase Admin role in both projects.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a service account (SA) in the legacy game's Google Cloud projec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a service account (SA) in the legacy game's Google Cloud projec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a service account (SA) in the legacy game's Google Cloud projec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-212",
@@ -653,7 +809,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option A (Configure an organizational policy which constrains where resources can be deployed.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Configure IAM conditions to limit what resources can be configured.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure the quotas for resources in the regions not being used to 0.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Configure a custom alert in Cloud Monitoring so you can disable resour…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-213",
@@ -677,7 +839,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option D (Configure Ingress for Anthos with a global load balancer and Google Kubernetes Engine.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Configure a global load balancer connected to a managed instance group…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure kubemci with a global load balancer and Google Kubernetes En…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure a global load balancer with Google Kubernetes Engine.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-214",
@@ -701,7 +869,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Observability, SRE & Operations Excellence): The Google-recommended architectural solution is Option C (Create Request Latency and Error Rate as service level indicators.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create CPU Utilization and Request Latency as service level indicators…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create GKE CPU Utilization and Memory Utilization as service level ind…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create Server Uptime and Error Rate as service level indicators.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-215",
@@ -725,7 +899,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option A (Configure Workload Identity and service accounts to be used by the application platform.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use Kubernetes Secrets, which are obfuscated by default. Configure the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure Kubernetes Secrets to store the secret, enable Application-L…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Configure HashiCorp Vault on Compute Engine, and use customer managed …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-216",
@@ -749,7 +929,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Cost Optimization, Governance & Technical Processes): The Google-recommended architectural solution is Option A (Upload your mobile app to the Firebase Test Lab, and test the mobile app on Android and iOS devices.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create Android and iOS VMs on Google Cloud, install the mobile app on …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create Android and iOS containers on Google Kubernetes Engine (GKE), i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Upload your mobile app with different configurations to Firebase Hosti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-220",
@@ -776,7 +962,14 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Cost Optimization, Governance & Technical Processes): The Google-recommended architectural solution is Option C (Cloud Deployment Manager is unfamiliar to the company's engineers.) and Option F (Cloud Deployment Manager only supports automation of Google Cloud resources.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cloud Deployment Manager uses Python.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Cloud Deployment Manager APIs could be deprecated in the future.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cloud Deployment Manager requires a Google APIs service account to run…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Cloud Deployment Manager can be used to permanently delete cloud resou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-221",
@@ -800,7 +993,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option A (Google Kubernetes Engine, Jenkins, and Helm).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Google Kubernetes Engine and Cloud Load Balancing): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Google Kubernetes Engine and Cloud Deployment Manager): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Google Kubernetes Engine, Jenkins, and Cloud Load Balancing): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-231",
@@ -824,7 +1023,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Observability, SRE & Operations Excellence): The Google-recommended architectural solution is Option A (Inspect the logs and metrics from the instances in Cloud Logging and Cloud Monitoring.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Change the Compute Engine Instances behind the application to a machin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Restore a backup of the application database from a time before the ap…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the applications on a managed instance group with autoscaling e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-232",
@@ -848,7 +1053,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option C (Set up a Cloud VPN gateway in each Shared VPC and peer Cloud VPNs.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Set up VPC peering and peer each Shared VPC together.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Migrate the projects from the acquired company into your company's Goo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Configure SSH port forwarding on each application to provide connectiv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-233",
@@ -872,7 +1083,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option A (Use Google Cloud Shell in the Google Cloud Console to interact with Google Cloud.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a Compute Engine instance and install gcloud on the instance. C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Install gcloud on all of your workstations. Run the command gcloud com…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use a package manager to install gcloud on your workstations instead o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-234",
@@ -896,7 +1113,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option B (Use the Storage Transfer Service to move the data.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use the gsutil mv command to move the data.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Download the data to a Transfer Appliance, and ship it to Google.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Download the data to the on-premises data center, and upload it to the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-235",
@@ -920,7 +1143,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Observability, SRE & Operations Excellence): The Google-recommended architectural solution is Option C (Review your RowKey strategy and ensure that keys are evenly spread across the alphabet.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Advise your clients to use HBase APIs instead of NodeJS APIs.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Delete records older than 30 days.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Double the number of nodes you currently have.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-236",
@@ -944,7 +1173,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option A (Configure an organization policy to restrict identities by domain.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Configure an organization policy to block creation of service accounts…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure Cloud Scheduler to trigger a Cloud Function every hour that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a technical user (e.g., crawler@yourdomain.com), and give it th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-237",
@@ -968,7 +1203,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Observability, SRE & Operations Excellence): The Google-recommended architectural solution is Option A (1.",
+    "whyWrong": {
+      "1": "Incorrect distractor (1. Write a daily cron job, running on all instances, that uploads logs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (1. Install a Cloud Logging agent on all instances. 2. Create a sink to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (1. Create a daily cron job, running on all instances, that uploads log…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-239",
@@ -992,7 +1233,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Observability, SRE & Operations Excellence): The Google-recommended architectural solution is Option C (Digitally sign each timestamp and log entry and store the signature.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Write the log concurrently in the cloud and on premises.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use a SQL database and limit who can modify the log table.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a JSON dump of each log entry and store it in Google Cloud Stor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-240",
@@ -1018,7 +1265,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option B (Google Kubernetes Engine with containers) and Option C (Google App Engine Standard Environment).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Compute Engine with containers): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Compute Engine with custom instance types): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Compute Engine with managed instance groups): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-241",
@@ -1044,7 +1297,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option B (Use source code security analyzers as part of the CI/CD pipeline.) and Option E (Run a vulnerability security scanner as part of your continuous-integration /continuous-delivery (CI/CD) pipeline.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Ensure every code check-in is peer reviewed by a security SME.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Ensure you have stubs to unit test all interfaces between components.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable code signing and a trusted binary repository integrated with yo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-242",
@@ -1069,7 +1328,12 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option A (Use Google App Engine to serve the website and Google Cloud Datastore to store user data.) and Option C (Use a managed instance group to serve the website and Google Cloud Bigtable to store user data.).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use a Google Container Engine cluster to serve the website and store d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use a single Compute Engine virtual machine (VM) to host a web server,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-243",
@@ -1093,7 +1357,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option C (Update the existing Kubernetes Engine cluster with the following command: gcloud alpha container clusters update mycluster --enable-autoscaling --min-nodes=1 --max-nodes=10).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add additional nodes to your Kubernetes Engine cluster using the follo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add a tag to the instances in the cluster with the following command: …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a new Kubernetes Engine cluster with the following command: gcl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-244",
@@ -1117,7 +1387,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option B (Org viewer, project viewer).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Org viewer, project owner): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Org admin, project browser): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Project owner, network admin): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-245",
@@ -1145,7 +1421,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Observability, SRE & Operations Excellence): The Google-recommended architectural solution is Option A (Ensure that the load tests validate the performance of Cloud Bigtable.) and Option B (Create a separate Google Cloud project to use for the load-testing environment.) and Option F (Instrument the load-testing tool and the target services with detailed logging and metrics collection.).",
+    "whyWrong": {
+      "2": "Incorrect distractor (Schedule the load-testing tool to regularly run against the production…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ensure all third-party systems your services use are capable of handli…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Instrument the production services to record every transaction for rep…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-246",
@@ -1169,7 +1451,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (CI/CD, Deployment & Programmatic Tooling): The Google-recommended architectural solution is Option B (Mount a local SSD volume as the backup location.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Configure a cron job to use the gcloud tool to take regular backups us…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use gcsfuse to mount a Google Cloud Storage bucket as a volume directl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Mount additional persistent disk volumes onto each virtual machine (VM…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-247",
@@ -1193,7 +1481,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Designing & Planning Cloud Solution Architecture): The Google-recommended architectural solution is Option D (Create a snapshot of the root disk, create an image file in Google Cloud Storage from the snapshot, and create a new virtual machine instance in the US-East region using the image file as the root disk.).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use the Linux dd and netcat commands to copy and stream the root disk …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a snapshot of the root disk and select the snapshot as the root…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create an image file from the root disk with the Linux dd command, cre…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-251",
@@ -1217,7 +1511,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option B (Use Google Cloud's retail API recommendation service to dynamically serve product suggestions based on user behavior and catalog data).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Train and deploy a custom recommendation engine on GKE that ingests re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run nightly batch jobs in BigQuery ML to generate recommended product …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Implement a rule-based recommendation engine using cloud memory store …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-252",
@@ -1241,7 +1541,13 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Security, IAM, Compliance & Data Protection): The Google-recommended architectural solution is Option B (Set up continuous data pipelines via data stream and dataflow to replicate each source into BigQuery creating a consolidated cloud data warehouse).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate all application databases into a single cloud spanner database…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use BigQuery federated queries to directly query the on-prem databases…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Build an ETL pipeline that dumps data from each system into cloud stor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "off-smp-253",
@@ -1267,6 +1573,12 @@
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure Provisioning: Network, Storage, Compute & AI): The Google-recommended architectural solution is Option B (Vertex AI vision) and Option C (Vertex AI language).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Vertex AI search and conversation): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Vertex AI tabular workflows): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Vertex AI prediction): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

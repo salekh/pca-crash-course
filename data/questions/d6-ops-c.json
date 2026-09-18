@@ -13,12 +13,20 @@
       "Deploy the new revision with the --no-traffic flag, then use traffic splitting (gcloud run services update-traffic) to send 5% of requests to the new revision and increase the percentage over time",
       "Create a second Cloud Run region and deploy the new revision there so that only users routed to that region see it"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud Run supports deploying a revision without routing traffic to it and then splitting traffic between revisions by percentage, which is the native way to run a canary and to progressively migrate traffic while watching metrics. DNS weighting across separate services (option A) is imprecise because of client caching and requires duplicating the service. Deploying to 100% (option B) exposes all users to the risk that a canary is meant to avoid. A new region (option D) changes latency for users and does not give a controlled percentage.",
     "refs": [
       "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration",
       "https://cloud.google.com/run/docs/managing/revisions"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run canary releases): Cloud Run supports deploying a revision without routing traffic to it and then splitting traffic between revisions by percentage, which is the native way to run a canary and to progressively migrate traffic while watching metrics.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the new revision as a separate Cloud Run service and configure …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy the new revision normally so that it receives 100% of traffic, …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a second Cloud Run region and deploy the new revision there so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-058",
@@ -34,12 +42,20 @@
       "Canary update on the existing managed instance group, running the new template on 10% of instances for an hour before completing the rollout",
       "In-place update by SSH-ing into each instance and restarting the application with the new binary during a maintenance window"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Blue/green deployment switches all traffic between two complete environments at once, so old and new versions never serve concurrently, and rollback is simply pointing the backend back at the previous group, which meets the one-minute requirement. Rolling and canary updates (options B and C) both intentionally run mixed versions during the rollout, violating the compatibility constraint. In-place manual updates (option D) are slow, error-prone toil with no fast rollback.",
     "refs": [
       "https://cloud.google.com/architecture/application-deployment-and-testing-strategies",
       "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups"
-    ]
+    ],
+    "hint": "Core Rule (Blue/green deployments): Blue/green deployment switches all traffic between two complete environments at once, so old and new versions never serve concurrently, and rollback is simply pointing the backend back at the previous group, which meets the one-minute requirement.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Rolling update on the existing managed instance group with maxSurge se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Canary update on the existing managed instance group, running the new …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (In-place update by SSH-ing into each instance and restarting the appli…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-059",
@@ -55,12 +71,20 @@
       "Use a proactive rolling update with maxSurge set to 0 and maxUnavailable set to 5 so that at least 15 instances always serve traffic",
       "Use a proactive rolling update with maxSurge greater than 0 (for example 4) and maxUnavailable set to 0, with an application health check, so that new instances are added and become healthy before old ones are removed"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "In a MIG rolling update, maxSurge controls how many extra instances are created above the target size and maxUnavailable controls how many can be taken out of service at once; setting maxUnavailable to 0 with a positive maxSurge, combined with a health check, guarantees that capacity never drops below the target because new healthy instances are added before old ones are removed. An opportunistic update (option A) does not proactively roll out the change. Replacing all 20 at once (option B) creates a full outage. maxUnavailable of 5 (option C) explicitly allows capacity to drop to 15, violating the requirement.",
     "refs": [
       "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups",
       "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
-    ]
+    ],
+    "hint": "Core Rule (MIG update policies): In a MIG rolling update, maxSurge controls how many extra instances are created above the target size and maxUnavailable controls how many can be taken out of service at once; setting maxUnavailable to 0 with a positive maxSurge, combined with a health check, guarantees that capacity never drops below the target because new healthy instances are added before old ones are removed.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use an opportunistic update so that instances are replaced only when t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use a proactive rolling update with maxUnavailable set to 20 so that a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use a proactive rolling update with maxSurge set to 0 and maxUnavailab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-060",
@@ -76,12 +100,20 @@
       "Do not enroll the cluster in a release channel, disable node auto-upgrade, and perform manual upgrades once per year",
       "Enroll the cluster in the Regular release channel and disable maintenance windows so that upgrades are applied immediately when available"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Release channels keep clusters automatically upgraded to supported, qualified versions; the Stable channel receives minor versions last, after they have matured in Rapid and Regular, which matches the desire for proven releases, and maintenance windows constrain when automatic upgrades run. The Rapid channel (option A) is intended for early adopters testing new features, not conservative production. Opting out of channels and disabling auto-upgrade (option C) risks running unsupported versions and violates the patching requirement. Regular with no maintenance window (option D) allows upgrades at any time, contradicting the agreed window.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions"
-    ]
+    ],
+    "hint": "Core Rule (GKE release channels): Release channels keep clusters automatically upgraded to supported, qualified versions; the Stable channel receives minor versions last, after they have matured in Rapid and Regular, which matches the desire for proven releases, and maintenance windows constrain when automatic upgrades run.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enroll the cluster in the Rapid release channel so that security patch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Do not enroll the cluster in a release channel, disable node auto-upgr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enroll the cluster in the Regular release channel and disable maintena…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-061",
@@ -97,12 +129,20 @@
       "Create a maintenance exclusion covering the freeze dates with the 'no minor or node upgrades' scope, which blocks minor and node upgrades while still allowing patch upgrades",
       "Create a maintenance exclusion covering the freeze dates with the 'no upgrades' scope, which blocks all upgrades including patches"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "GKE maintenance exclusions have scopes: 'no upgrades' blocks everything for up to 30 days, whereas 'no minor upgrades' and 'no minor or node upgrades' can span much longer periods (up to 180 days on Regular and Stable channels) while still permitting patch releases to flow, which exactly matches a multi-week freeze that must still receive critical patches. Unenrolling from the channel (option A) loses automatic patching and version qualification. A one-hour maintenance window (option B) does not prevent upgrades; it only concentrates them, and GKE can still force upgrades for end-of-life versions. The 'no upgrades' scope (option D) blocks the desired patches and cannot cover seven weeks.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/maintenance-windows-and-exclusions"
-    ]
+    ],
+    "hint": "Core Rule: GKE maintenance exclusions have scopes: 'no upgrades' blocks everything for up to 30 days, whereas 'no minor upgrades' and 'no minor or node upgrades' can span much longer periods (up to 180 days on Regular and Stable channels) while still permitting patch releases to flow, which exactly matches a multi-week freeze that must still receive critical patches.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Unenroll the clusters from the release channel before the freeze and r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure a maintenance window that covers only one hour per week duri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a maintenance exclusion covering the freeze dates with the 'no …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-062",
@@ -119,12 +159,21 @@
       "Define a PodDisruptionBudget for the encoding workload and set an appropriate terminationGracePeriodSeconds with a preStop hook, so that drains respect availability and give pods time to finish work",
       "Switch the node pool to Spot VMs so that the cluster autoscaler replaces nodes more quickly"
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Surge upgrades with maxSurge 1 and maxUnavailable 0 add capacity before removing it, so nodes are upgraded one at a time without reducing available capacity. A PodDisruptionBudget makes the drain wait until enough replicas remain available, and a sufficient termination grace period with a preStop hook gives each pod time to finish in-flight encodes. Disabling auto-upgrade (option B) leaves nodes unpatched and only postpones the problem. Reducing replicas to 1 (option C) sacrifices capacity and does nothing to control drain behavior. Spot VMs (option E) can be preempted at any time, which is worse for stateful, long-running work.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster#pdb"
-    ]
+    ],
+    "hint": "Core Rule (GKE node upgrades): Surge upgrades with maxSurge 1 and maxUnavailable 0 add capacity before removing it, so nodes are upgraded one at a time without reducing available capacity.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Disable node auto-upgrade on the node pool so that nodes are never dra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Set the Deployment's replica count to 1 so that only one pod can be af…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Switch the node pool to Spot VMs so that the cluster autoscaler replac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-063",
@@ -140,13 +189,21 @@
       "Use a GKE multi-cluster Ingress to split traffic 90/10 between the old and new clusters and have an engineer watch dashboards for 30 minutes before updating the Ingress",
       "Deploy directly to production with kubectl using a Kubernetes Deployment rolling update and rely on readiness probes to prevent bad pods from receiving traffic"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Deploy natively provides ordered targets, per-target approval gates, canary strategies with configurable traffic phases for GKE and Cloud Run, verification steps that run after each phase, and automation rules including automatic rollback on failed verification, so the whole requirement is met with declarative configuration rather than custom scripting. A hand-rolled Cloud Build pipeline (option A) can work but is exactly the custom scripting the team wants to avoid and lacks approval and rollback semantics. Manual traffic splitting with an engineer watching (option C) is toil and error-prone. A plain rolling update (option D) has no approval, no metric-based verification, and readiness probes detect only startup failures, not elevated error rates.",
     "refs": [
       "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
       "https://cloud.google.com/deploy/docs/verify-deployment",
       "https://cloud.google.com/deploy/docs/automation"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Deploy progressive delivery): Cloud Deploy natively provides ordered targets, per-target approval gates, canary strategies with configurable traffic phases for GKE and Cloud Run, verification steps that run after each phase, and automation rules including automatic rollback on failed verification, so the whole requirement is met with declarative configuration rather than custom scripting.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Write a Cloud Build pipeline that applies manifests to each cluster se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use a GKE multi-cluster Ingress to split traffic 90/10 between the old…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy directly to production with kubectl using a Kubernetes Deployme…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-064",
@@ -162,12 +219,20 @@
       "Use GKE namespaces per feature and switch the Ingress between namespaces when the product team approves",
       "Decouple deployment from release by wrapping new features in feature flags that are evaluated at runtime and controlled through a configuration service, targeting employees first, then a percentage of users, with a kill switch"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Feature flags separate deploying code from releasing functionality: code can ship continuously in a dark state, then be enabled for specific cohorts or percentages and disabled instantly through configuration, without any redeployment, which is exactly what the two teams need. Long-lived branches (option A) recreate integration risk and block continuous deployment. A service per feature behind IP allow-lists (option B) does not scale, cannot do percentage rollouts, and identifies employees poorly. Namespace switching (option C) is a coarse environment swap, not a per-feature, per-cohort control.",
     "refs": [
       "https://cloud.google.com/architecture/application-deployment-and-testing-strategies",
       "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change"
-    ]
+    ],
+    "hint": "Core Rule: Feature flags separate deploying code from releasing functionality: code can ship continuously in a dark state, then be enabled for specific cohorts or percentages and disabled instantly through configuration, without any redeployment, which is exactly what the two teams need.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Maintain a long-lived release branch per feature and deploy the branch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy each new feature as a separate Cloud Run service and use Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use GKE namespaces per feature and switch the Ingress between namespac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-065",
@@ -184,12 +249,21 @@
       "Ensure every schema migration is backward compatible with the currently running application version and is applied as its own step, separate from and ahead of the application rollout",
       "Put the table in read-only mode during the rolling deployment so that no writes can conflict with the rename"
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Zero-downtime schema changes require that at every moment the schema is compatible with both the old and the new code, because both run concurrently during a rolling deployment; expand/contract achieves this by adding, dual-writing, backfilling, switching, and only then removing, and treating each migration as a separately applied, backward-compatible step ensures the database is never ahead of or behind what the running code expects. An immediate rename (option B) breaks the old pods that still reference the old column. Stopping the Deployment (option C) is downtime. Read-only mode (option E) is also an outage for write traffic and still does not solve the compatibility problem.",
     "refs": [
       "https://cloud.google.com/architecture/database-migration-concepts-principles-part-1",
       "https://cloud.google.com/architecture/application-deployment-and-testing-strategies"
-    ]
+    ],
+    "hint": "Core Rule (Database schema migrations): Zero-downtime schema changes require that at every moment the schema is compatible with both the old and the new code, because both run concurrently during a rolling deployment; expand/contract achieves this by adding, dual-writing, backfilling, switching, and only then removing, and treating each migration as a separately applied, backward-compatible step ensures the database is never ahead of or behind what the running code expects.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Run a single ALTER TABLE RENAME COLUMN statement immediately before st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Stop the GKE Deployment, apply the rename, and start the Deployment ag…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Put the table in read-only mode during the rolling deployment so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-066",
@@ -205,12 +279,20 @@
       "Deploy the new revision with --no-traffic and a revision tag such as qa, give the QA team the tag-specific URL to test the revision directly, and migrate traffic to it only after QA approval",
       "Deploy the new revision to a Cloud Run service in a different region and use a global load balancer to route the QA team's requests there"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud Run revision tags create a dedicated URL for a specific revision that receives no share of the main traffic split, so QA can exercise the exact production revision, configuration, and dependencies before any public traffic is routed to it, all within the same service. Deploying with 100% traffic (option A) exposes citizens to untested code. A separate qa service (option B) diverges in configuration and is the extra environment the developers want to avoid. A second region with a global load balancer (option D) is heavy infrastructure for a testing need that tags already solve.",
     "refs": [
       "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration#tags",
       "https://cloud.google.com/run/docs/managing/revisions"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Run revision tags create a dedicated URL for a specific revision that receives no share of the main traffic split, so QA can exercise the exact production revision, configuration, and dependencies before any public traffic is routed to it, all within the same service.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the new revision with 100% traffic during a low-traffic period …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a copy of the service named qa in the same project and deploy n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the new revision to a Cloud Run service in a different region a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-067",
@@ -226,12 +308,20 @@
       "Remove the production target from the delivery pipeline on Fridays and add it back on Mondays using a scheduled script",
       "Ask developers not to click Promote on weekends and record the rule in the team wiki"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Cloud Deploy deploy policies let you define time-window restrictions on rollouts and other actions for specific targets or pipelines, and an override capability can be granted to a limited set of principals through IAM, which satisfies both the freeze and the emergency exception declaratively. A date check in Cloud Build (option B) is custom logic outside the deployment tool and is easily bypassed by promoting directly in Cloud Deploy. Scripting target removal (option C) is fragile and destroys pipeline history. A wiki rule (option D) is not a control at all.",
     "refs": [
       "https://cloud.google.com/deploy/docs/deploy-policy",
       "https://cloud.google.com/deploy/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Deploy deploy policies let you define time-window restrictions on rollouts and other actions for specific targets or pipelines, and an override capability can be granted to a limited set of principals through IAM, which satisfies both the freeze and the emergency exception declaratively.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Write a Cloud Build trigger that checks the current date and fails the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Remove the production target from the delivery pipeline on Fridays and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask developers not to click Promote on weekends and record the rule in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-068",
@@ -247,12 +337,20 @@
       "Migrate the database to a self-managed MySQL on Compute Engine so that the team controls all patching",
       "Create a read replica and manually promote it whenever a maintenance notification is received"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud SQL lets you choose a weekly maintenance window (day and hour) and a timing preference, and deny maintenance periods block maintenance during a specified date range, which together satisfy both requirements while keeping the instance patched. Maintenance cannot be disabled permanently (option A); Cloud SQL needs to apply updates for security and reliability. Self-managing MySQL (option C) trades a brief scheduled interruption for far more operational work. Promoting a replica on every maintenance notice (option D) is manual toil, changes the instance identity, and is not how maintenance is managed.",
     "refs": [
       "https://cloud.google.com/sql/docs/mysql/maintenance",
       "https://cloud.google.com/sql/docs/mysql/set-maintenance-window"
-    ]
+    ],
+    "hint": "Core Rule (Cloud SQL maintenance): Cloud SQL lets you choose a weekly maintenance window (day and hour) and a timing preference, and deny maintenance periods block maintenance during a specified date range, which together satisfy both requirements while keeping the instance patched.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Disable maintenance on the instance permanently to avoid any future in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Migrate the database to a self-managed MySQL on Compute Engine so that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a read replica and manually promote it whenever a maintenance n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-069",
@@ -268,12 +366,20 @@
       "Remove the readiness probe so that pods are added to the load balancer more quickly after they start",
       "Add a preStop hook that delays shutdown for a few seconds so that endpoint removal propagates before the process stops, handle SIGTERM in the application to drain in-flight requests, and set terminationGracePeriodSeconds long enough for the drain to complete"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The errors come from a race between pod termination and endpoint deregistration: the load balancer briefly continues to route to a pod that has already started shutting down. A preStop sleep gives the endpoint controller and load balancer time to remove the pod, proper SIGTERM handling lets in-flight requests finish, and a sufficient termination grace period ensures Kubernetes does not kill the process prematurely; together they make rollouts and node upgrades zero-error events. More replicas (option A) only dilutes the errors. Recreate (option B) causes a full outage on every deploy. Removing readiness probes (option C) addresses startup, not shutdown, and would route traffic to pods that are not yet ready.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/container-native-load-balancing",
       "https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace"
-    ]
+    ],
+    "hint": "Core Rule (Graceful pod termination): The errors come from a race between pod termination and endpoint deregistration: the load balancer briefly continues to route to a pod that has already started shutting down.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the number of replicas so that the proportion of failed reque…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Switch from a rolling update to a Recreate strategy so that all pods a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Remove the readiness probe so that pods are added to the load balancer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-070",
@@ -289,12 +395,20 @@
       "Model the six regions as sequential targets in a Cloud Deploy pipeline, starting with the lowest-traffic region, with a bake period and automated SLI verification between stages, so that a bad release is detected and stopped before it reaches the remaining regions",
       "Deploy only on weekends when player counts are lowest so that an outage affects fewer users"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Rolling a release out region by region, beginning with the smallest population and waiting for verified health before proceeding, is the standard way to bound blast radius in multi-region systems; Cloud Deploy supports sequential targets with verification and automated promotion, keeping the process fully automated. Faster rollback of a global deployment (option A) still exposes all users to the initial failure. Concentrating all global traffic in one region (option B) creates a massive capacity and latency risk. Weekend-only releases (option D) reduce exposure only marginally and slow delivery without addressing blast radius.",
     "refs": [
       "https://cloud.google.com/deploy/docs/deploying-application",
       "https://cloud.google.com/architecture/framework/reliability/build-highly-available-systems"
-    ]
+    ],
+    "hint": "Core Rule (Regional progressive rollout): Rolling a release out region by region, beginning with the smallest population and waiting for verified health before proceeding, is the standard way to bound blast radius in multi-region systems; Cloud Deploy supports sequential targets with verification and automated promotion, keeping the process fully automated.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Continue deploying to all regions at once but shorten the deployment s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy new releases to a single region only and route all global traff…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy only on weekends when player counts are lowest so that an outag…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-071",
@@ -311,12 +425,21 @@
       "Grant every developer cluster-admin on the production cluster so that anyone can execute a rollback",
       "Make every database schema change backward compatible with the previous application version, so that rolling back the application never requires a schema rollback"
     ],
-    "answer": [0, 4],
+    "answer": [
+      0,
+      4
+    ],
     "explanation": "Fast rollback depends on two things: the previous artifact must still exist and be exactly identifiable (immutable digests and retention-aware cleanup policies in Artifact Registry), and the database must still work with the previous code, which is guaranteed by making schema changes backward compatible rather than coupling them to the release. Images on laptops (option B) are unreliable and unauditable. Coupling schema and application changes (option C) makes rollbacks slower and riskier, not faster, because schema changes are often irreversible. Broad cluster-admin grants (option D) violate least privilege and do not address the technical causes of the failed rollback.",
     "refs": [
       "https://cloud.google.com/artifact-registry/docs/repositories/cleanup-policy",
       "https://cloud.google.com/architecture/application-deployment-and-testing-strategies"
-    ]
+    ],
+    "hint": "Core Rule (Rollback readiness): Fast rollback depends on two things: the previous artifact must still exist and be exactly identifiable (immutable digests and retention-aware cleanup policies in Artifact Registry), and the database must still work with the previous code, which is guaranteed by making schema changes backward compatible rather than coupling them to the release.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Store container images only on developer laptops so that they can be p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Apply schema changes in the same transaction as the application deploy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Grant every developer cluster-admin on the production cluster so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-072",
@@ -332,12 +455,20 @@
       "Standard Support, which provides four-hour P2 response during business hours and unlimited case creation",
       "Basic Support, which includes documentation, community forums, and billing support at no cost"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Premium Support is Google Cloud's highest tier: it offers a 15-minute initial response target for P1 cases around the clock and includes a Technical Account Manager who provides operational guidance, launch and event planning, and architecture reviews, matching both the regulatory response requirement and the named-contact expectation. Enhanced Support (option B) targets a one-hour P1 response and does not include a TAM. Standard Support (option C) is business-hours oriented with slower targets and no P1 24/7 coverage. Basic Support (option D) has no technical case support at all.",
     "refs": [
       "https://cloud.google.com/support/docs/overview",
       "https://cloud.google.com/support"
-    ]
+    ],
+    "hint": "Core Rule (Support plans): Premium Support is Google Cloud's highest tier: it offers a 15-minute initial response target for P1 cases around the clock and includes a Technical Account Manager who provides operational guidance, launch and event planning, and architecture reviews, matching both the regulatory response requirement and the named-contact expectation.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Enhanced Support, which provides one-hour P1 response 24/7 and access …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Standard Support, which provides four-hour P2 response during business…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Basic Support, which includes documentation, community forums, and bil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-073",
@@ -353,12 +484,20 @@
       "Standard Support, because it covers production outages with a one-hour response at any hour",
       "Enhanced Support, which provides 24/7 access to technical support with a one-hour initial response target for P1 cases without requiring a Technical Account Manager"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Enhanced Support is designed for production workloads that need fast, around-the-clock responses (one-hour target for P1 cases, 24/7) without the cost and additional services of Premium Support such as a TAM. Basic Support (option A) does not include technical case support. Premium Support (option B) offers 24/7 coverage too, but so does Enhanced, and Premium's TAM and price are more than the startup needs. Standard Support (option C) offers a four-hour response target for P2 cases during business hours, not one-hour P1 response at any time.",
     "refs": [
       "https://cloud.google.com/support/docs/overview",
       "https://cloud.google.com/support"
-    ]
+    ],
+    "hint": "Core Rule (Support plan selection): Enhanced Support is designed for production workloads that need fast, around-the-clock responses (one-hour target for P1 cases, 24/7) without the cost and additional services of Premium Support such as a TAM.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Basic Support, because the startup can rely on community forums for pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Premium Support, because it is the only plan that offers 24/7 support): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Standard Support, because it covers production outages with a one-hour…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-074",
@@ -374,12 +513,20 @@
       "Open a P1 support case at the start of every incident asking Google to confirm whether there is an ongoing disruption",
       "Subscribe to the Google Cloud status RSS feed and forward every item to the on-call pager"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Personalized Service Health shows disruptions that are relevant to your projects' actual products and locations, and it emits logs and metrics that can drive alerting policies and integrate with existing incident tooling, so engineers get automatic, targeted notification instead of manual checking. The public dashboard (option A) is generic and manual. Opening a support case for every incident (option C) is slow and not the intended path for status information. The public RSS feed (option D) includes incidents unrelated to the company's footprint and would create alert noise.",
     "refs": [
       "https://cloud.google.com/service-health/docs/overview",
       "https://cloud.google.com/service-health/docs/configure-alerts"
-    ]
+    ],
+    "hint": "Core Rule: Personalized Service Health shows disruptions that are relevant to your projects' actual products and locations, and it emits logs and metrics that can drive alerting policies and integrate with existing incident tooling, so engineers get automatic, targeted notification instead of manual checking.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Instruct on-call engineers to refresh the public Google Cloud Service …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Open a P1 support case at the start of every incident asking Google to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Subscribe to the Google Cloud status RSS feed and forward every item t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-075",
@@ -395,12 +542,20 @@
       "Use Gemini Cloud Assist investigations from the alert or the GKE console to analyze the relevant logs, events, and configuration changes, obtain a probable root cause and suggested remediation, and link the investigation into the support case if escalation is needed",
       "Delete the deployment and recreate it from the last known-good manifest without investigating, to restore service as quickly as possible"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Gemini Cloud Assist investigations correlate logs, Kubernetes events, metrics, and recent changes for a failing resource and produce ranked hypotheses with remediation steps in natural language, which is precisely the guided troubleshooting a less experienced on-call engineer needs at 02:00; investigations can also be attached to support cases to accelerate escalation. Always paging a senior engineer (option A) does not scale and increases burnout. Ad-hoc SQL over exported logs (option B) is slow and assumes expertise the engineer lacks. Blind recreation (option D) may restore service but loses diagnostic information and may reapply the faulty configuration.",
     "refs": [
       "https://cloud.google.com/gemini/docs/cloud-assist/overview",
       "https://cloud.google.com/gemini/docs/cloud-assist/investigations"
-    ]
+    ],
+    "hint": "Core Rule: Gemini Cloud Assist investigations correlate logs, Kubernetes events, metrics, and recent changes for a failing resource and produce ranked hypotheses with remediation steps in natural language, which is precisely the guided troubleshooting a less experienced on-call engineer needs at 02:00; investigations can also be attached to support cases to accelerate escalation.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Require the on-call engineer to page a senior Kubernetes engineer from…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Export all GKE logs to BigQuery and have the engineer write SQL querie…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Delete the deployment and recreate it from the last known-good manifes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-076",
@@ -416,12 +571,20 @@
       "Remove all Editor bindings across the organization immediately and wait for teams to request the permissions they need",
       "Enable VPC Service Controls around all projects so that over-privileged roles cannot be misused"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The IAM Recommender uses observed permission usage to propose role bindings that remove unused permissions, including suggesting predefined or custom roles, and surfaces them centrally, which is exactly the least-effort, data-driven approach requested. Manual log analysis (option B) is laborious and error-prone at scale. Removing Editor everywhere at once (option C) would cause outages and is not data-driven. VPC Service Controls (option D) protect against data exfiltration across perimeters but do not reduce IAM privilege.",
     "refs": [
       "https://cloud.google.com/policy-intelligence/docs/role-recommendations-overview",
       "https://cloud.google.com/recommender/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: The IAM Recommender uses observed permission usage to propose role bindings that remove unused permissions, including suggesting predefined or custom roles, and surfaces them centrally, which is exactly the least-effort, data-driven approach requested.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Export Admin Activity audit logs to BigQuery and manually compare each…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Remove all Editor bindings across the organization immediately and wai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable VPC Service Controls around all projects so that over-privilege…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-077",
@@ -437,12 +600,20 @@
       "Wait for the support engineer to respond, because escalating a case resets its place in the queue",
       "Update the existing case to the correct priority (P1 for a production outage), add detailed technical information such as instance name, timestamps, error messages, and business impact, and use the case escalation function if the response does not match the priority's target"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Case priority drives response targets and routing; a production outage filed as P3 will not receive P1 attention, so the first step is to correct the priority and supply the technical context support needs to act. Google Cloud support provides an escalation mechanism for cases that are not progressing appropriately for their priority, which is the correct path to obtain management attention. Duplicate cases (option A) fragment the investigation and are discouraged. Social media (option B) is not a support channel. Escalation does not reset a case's position (option C); waiting simply prolongs the outage.",
     "refs": [
       "https://cloud.google.com/support/docs/customer-care-procedures",
       "https://cloud.google.com/support/docs/manage-cases"
-    ]
+    ],
+    "hint": "Core Rule (Support case escalation): Case priority drives response targets and routing; a production outage filed as P3 will not receive P1 attention, so the first step is to correct the priority and supply the technical context support needs to act.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Open three additional cases for the same issue from different team mem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Post the case number on social media to attract the attention of Googl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Wait for the support engineer to respond, because escalating a case re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-078",
@@ -458,12 +629,20 @@
       "Remove the alerting policy until the rewrite is complete, since the cause is already understood",
       "Schedule a cron job that restarts the service every hour regardless of memory usage"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "When a runbook is fully deterministic, SRE guidance is to automate it: an alerting policy can notify a Pub/Sub topic that triggers serverless remediation, removing the human from a repetitive task while keeping a secondary alert so that abnormal restart frequency or failure still gets attention. Raising the threshold (option A) delays the page but does not remove it. Deleting the alert (option C) hides both the known problem and any new failure of the process. Blind hourly restarts (option D) interrupt healthy runs and provide no signal when something changes.",
     "refs": [
       "https://cloud.google.com/monitoring/support/notification-options#pubsub",
       "https://cloud.google.com/architecture/framework/operational-excellence/automate-and-manage-change"
-    ]
+    ],
+    "hint": "Core Rule (Automated remediation): When a runbook is fully deterministic, SRE guidance is to automate it: an alerting policy can notify a Pub/Sub topic that triggers serverless remediation, removing the human from a repetitive task while keeping a secondary alert so that abnormal restart frequency or failure still gets attention.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Raise the memory alert threshold to 99% so that the alert fires less o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Remove the alerting policy until the rewrite is complete, since the ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Schedule a cron job that restarts the service every hour regardless of…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-079",
@@ -480,12 +659,21 @@
       "Disable all alerting during the launch window so that the team is not distracted by notifications",
       "Ask Google to disable quotas on the launch projects for the duration of the event"
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Premium Support includes proactive services through the Technical Account Manager, such as architecture reviews and planned-event support, which let Google prepare for the launch rather than react to it. Quota is a common launch-day failure mode; forecasting consumption and requesting increases well ahead of time is a standard readiness step because increases can require review. Relying purely on reactive P1 cases (option B) forgoes the proactive value of the plan. Disabling alerts (option D) removes the team's ability to detect problems. Quotas cannot simply be disabled (option E); they are raised through the standard request process.",
     "refs": [
       "https://cloud.google.com/support/docs/overview",
       "https://cloud.google.com/docs/quotas/view-manage"
-    ]
+    ],
+    "hint": "Core Rule (Launch support): Premium Support includes proactive services through the Technical Account Manager, such as architecture reviews and planned-event support, which let Google prepare for the launch rather than react to it.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Wait until launch day and open a P1 case if any issue appears, since P…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Disable all alerting during the launch window so that the team is not …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Ask Google to disable quotas on the launch projects for the duration o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-080",
@@ -501,12 +689,20 @@
       "Use Cloud Run traffic management to route 100% of traffic back to the previous known-good revision immediately, then investigate the new revision without user impact",
       "Increase the maximum number of instances so that the failing revision can handle the load from retries"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The fastest way to stop user impact after a bad Cloud Run deployment is to shift traffic back to the previous revision, which takes seconds and requires no rebuild; investigation can then proceed on the faulty revision using a tag without affecting customers. A support case (option A) is for Google-side issues and would not restore service quickly. Deleting and redeploying (option B) causes an outage and discards revision history. Adding instances (option D) scales up the broken code and does nothing about the exceptions.",
     "refs": [
       "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration#rollback",
       "https://cloud.google.com/run/docs/managing/revisions"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run rollback): The fastest way to stop user impact after a bad Cloud Run deployment is to shift traffic back to the previous revision, which takes seconds and requires no rebuild; investigation can then proceed on the faulty revision using a tag without affecting customers.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Open a support case with Google so that they can identify the cause of…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Delete the Cloud Run service and redeploy it from the previous week's …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Increase the maximum number of instances so that the failing revision …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-081",
@@ -522,12 +718,20 @@
       "Abandon three instances from the MIG, update them by hand to the new version, and re-add them the next day",
       "Start a canary update on the MIG by specifying the new template as a second version with a target size of 10% (or a fixed number of instances), observe for a day, and then complete the rollout by promoting the new template to the primary version"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Managed instance groups natively support canary updates: you can define two instance template versions and assign a target size (a fixed count or percentage) to the canary version; the MIG maintains that split while continuing to autoscale and autoheal, and you complete the rollout later by making the new template primary. An unmanaged group (option A) loses autoscaling and autohealing and is managed separately from the MIG. Opportunistic updates with manual recreation (option B) are fragile and do not maintain the desired split as the autoscaler adds or removes instances. Abandoning instances (option C) removes them from MIG management entirely.",
     "refs": [
       "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups#canary_update",
       "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
-    ]
+    ],
+    "hint": "Core Rule (MIG canary updates): Managed instance groups natively support canary updates: you can define two instance template versions and assign a target size (a fixed count or percentage) to the canary version; the MIG maintains that split while continuing to autoscale and autoheal, and you complete the rollout later by making the new template primary.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a separate unmanaged instance group with three VMs built from t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Set the MIG's update policy to opportunistic and manually recreate thr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Abandon three instances from the MIG, update them by hand to the new v…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-082",
@@ -543,12 +747,20 @@
       "Export the database with pg_dump, create a new PostgreSQL 16 instance, import the dump, and repoint the application",
       "Upgrade incrementally through versions 14 and 15 in-place, because each individual step will have a shorter outage"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "When an in-place upgrade's downtime exceeds the budget, the standard pattern is a migration to a new instance with continuous change data capture so that the source keeps serving until a short cutover; Database Migration Service supports Cloud SQL to Cloud SQL PostgreSQL migrations across major versions with minimal downtime, and the new instance can be validated before cutover. Scheduling the same 45-minute outage at night (option B) still breaches the stated 5-minute budget. Dump and restore of 2 TB (option C) takes hours, during which writes must stop or be lost. Stepping through intermediate versions (option D) multiplies the number of outages rather than reducing total downtime.",
     "refs": [
       "https://cloud.google.com/database-migration/docs/postgres/quickstart",
       "https://cloud.google.com/sql/docs/postgres/upgrade-major-db-version"
-    ]
+    ],
+    "hint": "Core Rule (Database major version upgrades): When an in-place upgrade's downtime exceeds the budget, the standard pattern is a migration to a new instance with continuous change data capture so that the source keeps serving until a short cutover; Database Migration Service supports Cloud SQL to Cloud SQL PostgreSQL migrations across major versions with minimal downtime, and the new instance can be validated before cutover.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Perform the in-place upgrade at 03:00 on a Sunday, because that is whe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Export the database with pg_dump, create a new PostgreSQL 16 instance,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Upgrade incrementally through versions 14 and 15 in-place, because eac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-083",
@@ -564,11 +776,19 @@
       "Remove the production target from Cloud Deploy and have the release manager run kubectl apply manually from a workstation after reviewing the manifests",
       "Add a Cloud Build step that posts a message to a Slack channel and waits for a thumbs-up emoji before applying manifests to production"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Deploy's approval feature blocks a rollout to an approval-required target until a principal with the Approver role acts, and its role model separates who can create and promote releases from who can approve them; combined with per-target execution service accounts, developers never need write access to the production cluster, and Cloud Deploy plus Cloud Audit Logs record who released, approved, and deployed. An email convention (option A) is not an enforceable control. Manual kubectl by the release manager (option C) removes automation and creates its own audit and consistency problems. A Slack emoji gate (option D) is custom, weakly authenticated, and not a recognized approval record.",
     "refs": [
       "https://cloud.google.com/deploy/docs/promote-release#require_approval",
       "https://cloud.google.com/deploy/docs/iam-roles-permissions"
-    ]
+    ],
+    "hint": "Core Rule (Deployment separation of duties): Cloud Deploy's approval feature blocks a rollout to an approval-required target until a principal with the Approver role acts, and its role model separates who can create and promote releases from who can approve them; combined with per-target execution service accounts, developers never need write access to the production cluster, and Cloud Deploy plus Cloud Audit Logs record who released, approved, and deployed.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Give developers the Cloud Deploy Operator role on all targets, and ask…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Remove the production target from Cloud Deploy and have the release ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Add a Cloud Build step that posts a message to a Slack channel and wai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

@@ -17,11 +17,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Ensure that VM service accounts are granted the appropriate Cloud Pub/Sub IAM roles.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because attaching a dedicated IAM Service Account to the Compute Engine VMs and granting it the least-privilege Pub/Sub IAM role (e.g., `roles/pubsub.publisher`) allows Application Default Credentials (ADC) to automatically fetch short-lived OAuth2 tokens from the local metadata server without managing static keys.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/compute/docs/access/service-accounts"
+    ],
+    "hint": "Workloads on Compute Engine should authenticate to Google Cloud APIs (like Pub/Sub) using attached VM Service Accounts granted least-privilege IAM roles via the metadata server.",
+    "whyWrong": {
+      "1": "Legacy VM access scopes only restrict the ceiling of OAuth scopes on default service accounts and are not a substitute for IAM role bindings.",
+      "2": "Manually generating, encrypting, and distributing OAuth2 tokens via Cloud Storage is insecure and unnecessary because metadata server tokens rotate automatically.",
+      "3": "Proxying VM traffic through an intermediate Cloud Function adds latency, cost, and an extra failure point when VMs can publish directly to Pub/Sub."
+    }
   },
   {
     "id": "off-smp-106",
@@ -41,11 +47,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Deploy a Cloud VPN gateway in each region. Ensure that each region has at least one VPN tunnel to the on-premises peer gateway.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because Cloud VPN gateways are strictly regional resources in Google Cloud. Deploying a Cloud VPN gateway and tunnel in each region where Compute Engine instances run ensures traffic between each cloud region and the on-premises network routes directly without inter-region hair-pinning.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/network-connectivity/docs/vpn/concepts/topologies"
+    ],
+    "hint": "Cloud VPN gateways are regional resources; to provide direct, low-latency hybrid connectivity for multi-region VPC workloads, deploy a Cloud VPN gateway and tunnel in each region.",
+    "whyWrong": {
+      "0": "VPC Network Peering connects two Google Cloud VPC networks; it cannot connect a VPC to an external on-premises data center.",
+      "1": "Shared VPC shares subnets across Google Cloud projects within an organization; it does not establish physical or VPN hybrid connectivity to on-premises networks.",
+      "2": "There is no such resource as a 'global Cloud VPN gateway' in Google Cloud—all Cloud VPN gateways are regional."
+    }
   },
   {
     "id": "off-smp-107",
@@ -65,11 +77,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Make the tables time-partitioned and configure the partition expiration at 45 days.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because partitioning each application's BigQuery table by ingestion time or timestamp column and setting `partition_expiration_days = 45` instructs BigQuery to automatically drop daily partitions older than 45 days at zero query cost while keeping newer partitions intact.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/bigquery/docs/managing-partitioned-tables#partition-expiration"
+    ],
+    "hint": "To automatically expire rolling log records older than N days in BigQuery without deleting the entire table or running costly DML DELETE queries, use time-partitioned tables with `partition_expiration_days`.",
+    "whyWrong": {
+      "0": "Setting the table-level expiration time deletes the entire table (including recent logs) 45 days after table creation.",
+      "2": "BigQuery retains stored table data indefinitely by default unless table or partition expiration is explicitly configured.",
+      "3": "Running scheduled `bq` DML `DELETE` scripts incurs query scan costs and operational maintenance that native partition expiration avoids for free."
+    }
   },
   {
     "id": "off-smp-108",
@@ -89,11 +107,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Configure a Horizontal Pod Autoscaler with a target CPU usage. Enable the cluster autoscaler from the GCP Console.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because GKE scales workloads across two coordinated layers: the Horizontal Pod Autoscaler (HPA) increases or decreases Pod replicas based on target CPU utilization, and the GKE Cluster Autoscaler monitors unschedulable (Pending) Pods and automatically provisions or drains worker nodes in the underlying node pools.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler"
+    ],
+    "hint": "GKE elastic scaling combines Horizontal Pod Autoscaler (HPA) to scale Pod replicas based on CPU utilization with Cluster Autoscaler to add/remove worker nodes when Pods are pending.",
+    "whyWrong": {
+      "1": "Enabling Compute Engine MIG autoscaling directly conflicts with Kubernetes scheduling decisions; GKE node pools must be scaled exclusively by GKE Cluster Autoscaler.",
+      "2": "`maxUnavailable` and `maxSurge` control rolling update deployment velocity, not CPU-based Pod autoscaling.",
+      "3": "Combining `maxUnavailable`/`maxSurge` with raw MIG autoscaling fails to scale Pods by CPU and causes cluster state conflicts."
+    }
   },
   {
     "id": "off-smp-109",
@@ -113,11 +137,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Verify that Dedicated Interconnect can replicate files to GCP. Verify that Cloud VPN can establish a secure connection between your networks if Dedicated Interconnect fails.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because Dedicated Interconnect delivers high-bandwidth private fiber connectivity for ongoing replication, while Cloud VPN provides an independent, encrypted IPsec path over the public internet that Cloud Router (via BGP) automatically fails over to if the Dedicated Interconnect circuit experiences a fiber cut or outage.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/ha-vpn-as-backup-for-dedicated-interconnect"
+    ],
+    "hint": "Pair Dedicated Interconnect (high-throughput private primary link) with HA Cloud VPN over the public internet as an encrypted, independent failover path for disaster recovery resilience.",
+    "whyWrong": {
+      "0": "Direct Peering exchanges public Google API/workspace traffic at Google edge POPs and does not provide private RFC 1918 VPC routing or encryption.",
+      "2": "Transfer Appliance is a physical hardware box shipped for one-time offline bulk data transfer, not a live network link for continuous DR failover.",
+      "3": "Transfer Appliance cannot perform continuous network replication for disaster recovery."
+    }
   },
   {
     "id": "off-smp-110",
@@ -137,11 +167,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Provision preemptible VMs to reduce cost. Disable and then discontinue use of all GCP services and APIs that are not HIPAA-compliant.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because fault-tolerant, non-time-critical batch workloads save up to 60–91% using Preemptible/Spot VMs, and maintaining strict HIPAA compliance under Google Cloud's Business Associate Agreement (BAA) requires actively disabling (and discontinuing) any Google Cloud APIs or services not covered under the HIPAA BAA.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/security/compliance/hipaa"
+    ],
+    "hint": "For non-time-critical batch jobs under HIPAA compliance, use Preemptible/Spot VMs to minimize compute costs and explicitly disable all non-HIPAA-covered APIs/services.",
+    "whyWrong": {
+      "0": "Merely discontinuing use of non-HIPAA services without disabling their APIs leaves the project vulnerable to accidental non-compliant resource creation.",
+      "2": "Standard VMs cost significantly more than Preemptible/Spot VMs for interruptible batch workloads, and non-HIPAA APIs must be disabled.",
+      "3": "Using standard VMs misses major cost savings on non-time-critical batch processing."
+    }
   },
   {
     "id": "off-smp-111",
@@ -161,11 +197,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Create a custom VM image with all OS package dependencies. Use Deployment Manager to create the managed instance group with the VM image.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because baking all OS packages and application dependencies into a custom Compute Engine image eliminates package download and compilation time during VM startup. Using Cloud Deployment Manager (or Terraform) to deploy the MIG with that pre-baked custom image yields the fastest possible scale-out times.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/compute/docs/images/create-custom"
+    ],
+    "hint": "To minimize VM boot and scale-out latency in a Managed Instance Group, pre-bake all OS packages and dependencies into a golden Custom Image rather than installing them at boot.",
+    "whyWrong": {
+      "0": "Running `apt-get`/`yum` package installations inside a startup script slows down every new VM launch and introduces external repository dependencies during scale-out.",
+      "2": "Running Puppet runs at boot time adds configuration convergence latency to every new instance launch.",
+      "3": "Running Ansible playbooks at boot time delays instance readiness compared to booting a pre-baked golden image."
+    }
   },
   {
     "id": "off-smp-112",
@@ -185,11 +227,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Create a group per country. Add analysts to their respective country groups. Create a single group all_analysts and add all country groups as members. Grant the all_analysts group the IAM role of BigQuery jobUser. Share the appropriate dataset with view access with each respective analyst country group.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because BigQuery separates the permission to execute query jobs (`roles/bigquery.jobUser` at the project level) from permission to read data (`roles/bigquery.dataViewer` at the dataset level). Nesting each country group inside `all_analysts` grants query execution rights centrally while dataset-level ACLs isolate each country's data cleanly.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/bigquery/docs/control-access-to-resources-iam"
+    ],
+    "hint": "In multi-country BigQuery architectures, grant `roles/bigquery.jobUser` at the project level to an umbrella `all_analysts` group and grant dataset-level `roles/bigquery.dataViewer` to each country group.",
+    "whyWrong": {
+      "1": "Managing access at the individual table level creates excessive administrative overhead when datasets are already partitioned by country.",
+      "2": "`roles/bigquery.dataViewer` at the project level grants read access to ALL datasets across all countries and does NOT include permission to run query jobs (`bigquery.jobs.create`).",
+      "3": "`roles/bigquery.dataViewer` lacks `bigquery.jobs.create` permission, preventing analysts from executing any queries."
+    }
   },
   {
     "id": "off-smp-113",
@@ -209,11 +257,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (StatefulSets). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because Kubernetes `StatefulSet` controllers assign each Pod a sticky, ordinal index and stable DNS hostname (`<statefulset-name>-<ordinal>.<service-name>`) that persists across Pod restarts, rescheduling, and scaling operations.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/statefulset"
+    ],
+    "hint": "Kubernetes `StatefulSets` provide stable, deterministic network identities (`pod-0`, `pod-1`) and persistent storage bindings that survive Pod restarts and rescheduling.",
+    "whyWrong": {
+      "1": "Role-Based Access Control (RBAC) governs Kubernetes API authorization, not Pod hostnames or network identity.",
+      "2": "Container environment variables pass static configuration into containers but do not preserve Pod DNS hostnames across rescheduling.",
+      "3": "Persistent Volumes provide durable block/file storage across Pod restarts, not stable Pod network hostnames."
+    }
   },
   {
     "id": "off-smp-114",
@@ -233,11 +287,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Customize the cache keys to omit the protocol from the key.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because by default Cloud CDN includes the request protocol (`http` vs `https`), host, path, and query string in the cache key. Omitting the protocol from the custom cache key unifies HTTP and HTTPS requests for the same static asset into a single cache entry, directly increasing the cache hit ratio.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/cdn/docs/using-cache-keys"
+    ],
+    "hint": "To prevent Cloud CDN from storing duplicate cache entries for identical assets requested over both HTTP and HTTPS, customize the Cloud CDN cache key to exclude the protocol.",
+    "whyWrong": {
+      "1": "Shortening the cache TTL/expiration time forces more frequent origin revalidations and decreases the cache hit ratio.",
+      "2": "There is no `cache-region` HTTP header in Cloud CDN; Cloud CDN automatically caches content at edge locations closest to users.",
+      "3": "Moving the origin from a Compute Engine MIG to a Cloud Storage bucket changes the origin backend type but does not fix fragmented cache keys."
+    }
   },
   {
     "id": "off-smp-115",
@@ -257,11 +317,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Stackdriver automatically collects admin activity logs for most services. The Stackdriver Logging agent must be installed on each instance to collect system logs.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because Google Cloud automatically generates and collects Admin Activity audit logs at the platform API layer for all projects, while guest OS system logs (`/var/log/syslog`, `/var/log/messages`, Windows Event Logs) reside inside the VM guest OS and require the Cloud Logging / Ops Agent installed on each VM instance to stream to Cloud Logging.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/logging/docs/audit"
+    ],
+    "hint": "Cloud Logging automatically ingests Admin Activity audit logs for Google Cloud services, whereas collecting OS/syslog files from inside Compute Engine VMs requires installing the Ops Agent / Logging agent on each VM.",
+    "whyWrong": {
+      "0": "Guest OS system logs inside Compute Engine VMs are not collected without installing the Logging / Ops Agent on each VM.",
+      "2": "Deploying a self-managed `syslogd` collector VM introduces unnecessary operational overhead and single points of failure.",
+      "3": "Installing the Logging agent on a single VM only collects logs from that single host, not from other VMs or Cloud Audit Logs."
+    }
   },
   {
     "id": "off-smp-116",
@@ -281,11 +347,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Deploy the update as a new version in the App Engine application and split traffic between the new and current versions.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because App Engine natively supports deploying multiple versions of a service simultaneously and using built-in Traffic Splitting to route a controlled percentage (e.g., 5%) of live production traffic to the new version before migrating 100% of traffic.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/appengine/docs/standard/splitting-traffic"
+    ],
+    "hint": "App Engine supports native canary testing by deploying the update as a new named version within the same service and using Traffic Splitting (by IP, cookie, or random percentage).",
+    "whyWrong": {
+      "0": "Instance Group Updater applies to Compute Engine Managed Instance Groups, not App Engine services.",
+      "2": "Creating a separate VPC and External HTTP(S) Load Balancer is unnecessary because App Engine provides built-in version traffic splitting.",
+      "3": "Deploying a second App Engine application in another project duplicates infrastructure unnecessarily when version traffic splitting is native."
+    }
   },
   {
     "id": "off-smp-117",
@@ -305,11 +377,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Create an egress rule with priority 1000 to deny all traffic for all instances. Create another egress rule with priority 100 to allow the Active Directory traffic for all instances.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because every VPC has an implied allow-all egress rule at priority 65535. To restrict outbound traffic strictly to Active Directory ports, you create an explicit egress `DENY` rule for `0.0.0.0/0` at priority 1000 (overriding the implied allow) and an explicit egress `ALLOW` rule for the Active Directory ports/IPs at a higher priority (lower integer, priority 100).",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/vpc/docs/firewalls#priority_order_for_firewall_rules"
+    ],
+    "hint": "VPC firewall rules evaluate lower numerical priority values first (0 is highest priority, 65535 is lowest). Pair a high-priority allow rule (e.g., 100) with a lower-priority deny-all egress rule (e.g., 1000).",
+    "whyWrong": {
+      "1": "Placing the `DENY ALL` rule at priority 100 and the `ALLOW` rule at priority 1000 causes the priority-100 rule to match first and block all traffic, including Active Directory.",
+      "2": "VPC networks have an implied ALLOW egress rule (priority 65535), NOT an implied deny egress rule.",
+      "3": "There is no implied deny egress rule in Google Cloud VPCs; the default implied egress rule allows all outbound traffic."
+    }
   },
   {
     "id": "off-smp-118",
@@ -329,11 +407,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Save a history of recommendations and results of the recommendations in BigQuery to be used as training data.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because improving the predictive quality and accuracy of a machine learning recommendation model requires capturing ground-truth user feedback—specifically logging the recommendations served alongside actual user interactions (clicks, conversions, purchases) into BigQuery to serve as labeled training data for continuous retraining.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning"
+    ],
+    "hint": "Improving ML recommendation quality over time requires a closed-loop ground-truth feedback dataset (storing served predictions and actual user outcomes/clicks in BigQuery for continuous retraining).",
+    "whyWrong": {
+      "0": "Stackdriver infrastructure metrics (CPU/latency) measure serving system health, not ML model prediction accuracy or recommendation relevance.",
+      "1": "Cloud TPUs accelerate matrix math and reduce training time for large deep learning models, but hardware accelerators do not improve model quality without better training data.",
+      "2": "Newer CPU architectures improve inference latency and throughput, not the statistical quality of recommendations."
+    }
   },
   {
     "id": "off-smp-119",
@@ -353,11 +437,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Create an HTTPS load balancer with URL maps.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because URL path inspection (`/video`, `/api`, etc.) is a Layer 7 (HTTP/HTTPS) capability provided by URL maps on the Global External HTTPS Load Balancer, which also terminates client TLS and can re-encrypt traffic over HTTPS to backend instance groups for end-to-end encryption.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/load-balancing/docs/https/url-map-concepts"
+    ],
+    "hint": "Global Layer 7 URL path-based routing with end-to-end TLS encryption requires a Global External HTTPS Load Balancer configured with URL maps and HTTPS backend services.",
+    "whyWrong": {
+      "0": "Without specifying HTTPS, plain HTTP load balancing does not satisfy the requirement for in-transit encryption.",
+      "2": "SSL Proxy Load Balancing operates at Layer 4 (TCP/SSL) and cannot inspect HTTP headers or route based on URL paths.",
+      "3": "SSL Proxy Load Balancing does not support Layer 7 URL maps or path-based routing."
+    }
   },
   {
     "id": "off-smp-120",
@@ -377,11 +467,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Implement retry logic using a truncated exponential backoff strategy). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because HTTP `5xx` (server error) and `429` (Too Many Requests) responses in distributed cloud storage systems are transient rate-limiting or shard-splitting events. Google Cloud client libraries and best practices require retrying failed requests using truncated exponential backoff with random jitter so clients do not synchronize retry storms.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/storage/docs/retry-strategy"
+    ],
+    "hint": "Handle transient HTTP `5xx` server errors and `429` rate-limit responses from Cloud Storage by implementing retry logic with truncated exponential backoff and jitter.",
+    "whyWrong": {
+      "0": "Switching transport protocols to gRPC does not eliminate server-side rate limits (`429`) or transient backend errors.",
+      "2": "Multi-regional bucket placement improves geo-redundancy and read availability, but hot partition bursts still trigger `429`/`5xx` responses requiring client retry backoff.",
+      "3": "Polling the public RSS status feed does not handle per-second micro-burst `429` rate limits or transient `5xx` responses."
+    }
   },
   {
     "id": "off-smp-121",
@@ -401,11 +497,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Use Deployment Manager to automate service provisioning. Use Stackdriver to monitor and debug your tests.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because disaster recovery drills require repeatable, declarative Infrastructure as Code (Cloud Deployment Manager) to provision identical recovery environments reliably, paired with Google Cloud's operations suite (Stackdriver Monitoring and Logging) to observe application health metrics, latency, and runtime errors during the drill.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
+    ],
+    "hint": "Automate DR environment provisioning declaratively with Infrastructure as Code (Deployment Manager / Terraform) and monitor/debug DR test runs using Cloud Operations (Stackdriver).",
+    "whyWrong": {
+      "0": "Cloud Audit Admin Activity Logs record control-plane API calls (who created a resource), not runtime application health, metrics, or crash logs needed to debug DR tests.",
+      "2": "Imperative `gcloud` shell scripts are fragile for complex multi-tier DR provisioning, and Activity Logs do not capture application metrics or runtime errors.",
+      "3": "Imperative `gcloud` scripts lack state management, dependency ordering, and idempotency compared to declarative Deployment Manager templates."
+    }
   },
   {
     "id": "off-smp-122",
@@ -425,11 +527,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Store the data in Cloud Storage and use lifecycle management to delete files when they expire.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Cloud Storage provides durable, encrypted archival storage and native Object Lifecycle Management rules that automatically and serverlessly delete objects once their age reaches the regulatory retention threshold (4 years) without custom cron jobs.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/storage/docs/lifecycle"
+    ],
+    "hint": "Use Cloud Storage Object Lifecycle Management (`Delete` action based on `Age` condition) to automatically purge regulated archival records immediately upon expiration.",
+    "whyWrong": {
+      "0": "Google Drive is an enterprise collaboration workspace, not a programmable archival storage system, and manual deletion is error-prone and non-compliant.",
+      "1": "Storing anonymized records indefinitely violates the explicit corporate policy to delete the data as soon as regulations allow.",
+      "3": "Maintaining a nightly batch script introduces unnecessary compute, operational overhead, and failure modes compared to native Object Lifecycle Management."
+    }
   },
   {
     "id": "off-smp-123",
@@ -449,11 +557,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Set the memcache service level to dedicated. Create a key from the hash of the query, and return database values from memcache before issuing a query to Cloud SQL.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because Dedicated Memcache provides predictable, high-throughput in-memory caching for App Engine Standard, and keying cache entries by the hash of each SQL query enables the standard cache-aside pattern: check Memcache first, return immediately on a cache hit, and query Cloud SQL only on a cache miss.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/appengine/docs/standard/php/memcache"
+    ],
+    "hint": "Implement the cache-aside (lazy-loading) pattern using Dedicated Memcache keyed by the cryptographic hash of each SQL query string to minimize Cloud SQL read load.",
+    "whyWrong": {
+      "1": "Pre-populating cache entries every minute via cron wastes database queries on data users may never request and cannot anticipate dynamic query parameters.",
+      "2": "Storing all queries under a single key (`cached_queries`) causes constant overwrites and contention, and Shared Memcache offers best-effort eviction without capacity guarantees.",
+      "3": "Using a single key (`cached_queries`) for distinct queries overwrites previous query results and breaks cache lookups."
+    }
   },
   {
     "id": "off-smp-124",
@@ -473,11 +587,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Using the Cron service provided by App Engine, publish messages to a Cloud Pub/Sub topic. Subscribe to that topic using a message-processing utility service running on Compute Engine instances.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because inserting Cloud Pub/Sub between the scheduler (App Engine Cron / Cloud Scheduler) and the Compute Engine worker fleet decouples task triggering from task execution. Pub/Sub durably buffers messages and retries delivery with at-least-once guarantees if worker VMs are temporarily restarting or overloaded.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/scheduler/docs/overview"
+    ],
+    "hint": "Decouple scheduled triggers from worker compute instances by publishing scheduled events from App Engine Cron / Cloud Scheduler to a Cloud Pub/Sub topic subscribed to by Compute Engine workers.",
+    "whyWrong": {
+      "0": "Sending HTTP requests directly from Cron to Compute Engine VMs tightly couples the scheduler to worker uptime, causing dropped tasks whenever workers are unhealthy.",
+      "2": "GKE uses Kubernetes `CronJob` manifests rather than an 'App Engine-style Cron service', and direct VM calls lack durable message buffering.",
+      "3": "GKE does not provide a standalone managed 'GKE Cron service' outside a Kubernetes cluster."
+    }
   },
   {
     "id": "off-smp-125",
@@ -497,11 +617,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Lease a Transfer Appliance, upload archived files to it, and send it to Google to transfer archived data to Cloud Storage. Establish a connection with Google using a Dedicated Interconnect or Direct Peering connection and use it to upload files daily.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because uploading 900 TB over an existing 100 Mbps internet link would take over two years, making physical offline Transfer Appliance essential for the historical archive. Meanwhile, ingesting 10 TB every single day requires at least ~1 Gbps sustained throughput, which requires upgrading network connectivity via Dedicated Interconnect or Direct Peering rather than using a 100 Mbps internet link.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/architecture/transferring-big-data-sets-to-gcp"
+    ],
+    "hint": "Combine offline Transfer Appliance for massive historical archives (900 TB over a 100 Mbps link) with Dedicated Interconnect or Direct Peering for high-volume ongoing daily ingest (10 TB/day).",
+    "whyWrong": {
+      "0": "Uploading 900 TB plus 10 TB/day over a 100 Mbps internet connection is mathematically impossible (100 Mbps transfers at most ~1 TB per 24 hours at 100% saturation).",
+      "2": "A Cloud VPN tunnel over the existing 100 Mbps public internet link is still bottlenecked by the 100 Mbps physical circuit and cannot carry 10 TB/day.",
+      "3": "Cloud VPN over the 100 Mbps internet link cannot sustain 10 TB/day of ongoing daily uploads."
+    }
   },
   {
     "id": "off-smp-126",
@@ -521,11 +647,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (1. Perform an assessment of virtual machines running in the current VMware environment. 2. Define a migration plan, prepare a Migrate for Compute Engine migration Runbook, and execute the migration.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Google Cloud's migration framework requires starting with an automated discovery and assessment phase of the existing VMware environment, followed by defining wave plans and a Migrate for Compute Engine (now Migrate to Virtual Machines) Runbook before executing automated streaming migration.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/migrate/virtual-machines/docs/5.0/concepts/overview"
+    ],
+    "hint": "Follow Google's structured VMware lift-and-shift methodology: (1) Assess current VMware inventory/dependencies, (2) Build a migration plan & Runbook, and (3) Execute with Migrate for Compute Engine.",
+    "whyWrong": {
+      "0": "Skipping the initial discovery/assessment phase and migrating VMs individually without wave runbooks risks breaking multi-tier application dependencies.",
+      "1": "Manually exporting, uploading, and importing VMDK disk images across a VMware fleet causes extended downtime and high operational toil compared to Migrate for Compute Engine.",
+      "3": "Installing generic third-party agents on every VM is unnecessary when Google's native agentless VMware vSphere integration via Migrate for Compute Engine is available."
+    }
   },
   {
     "id": "off-smp-127",
@@ -545,11 +677,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Use an unmanaged instance group with an active and standby instance in different zones, use a regional persistent disk, and use a network load balancer in front of the instances.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because the legacy application cannot run concurrently across multiple nodes (ruling out active-active MIGs), uses raw TCP (requiring a Layer 4 Passthrough/Network Load Balancer rather than an HTTP Load Balancer), and requires a block filesystem that survives zonal failure (satisfied by a Regional Persistent Disk synchronously replicated across two zones and attached to the standby VM on failover).",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/compute/docs/disks/high-availability-regional-persistent-disk"
+    ],
+    "hint": "For a non-horizontally-scalable TCP application requiring exclusive POSIX block storage and zonal HA, use active/standby VMs in different zones sharing a Regional Persistent Disk behind a Network Load Balancer.",
+    "whyWrong": {
+      "0": "A multi-zone active-active MIG corrupts data when concurrent writes occur, Cloud Firestore is a NoSQL document store rather than a POSIX filesystem, and HTTP LB does not handle raw TCP.",
+      "1": "Cloud Firestore does not provide a block/POSIX filesystem, and active-active MIG instances violate the single-writer requirement.",
+      "2": "An HTTP Load Balancer operates strictly at Layer 7 (HTTP/HTTPS) and cannot load balance arbitrary non-HTTP TCP traffic."
+    }
   },
   {
     "id": "off-smp-128",
@@ -569,11 +707,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Configure a Cloud Dedicated Interconnect connection between the on-premises environment and Google Cloud.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because Cloud Dedicated Interconnect provisions direct physical fiber links (10 Gbps or 100 Gbps circuits) between your on-premises router and Google's peering edge, delivering deterministic low latency, high throughput, and direct private RFC 1918 IP routing without traversing the public internet.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview"
+    ],
+    "hint": "Dedicated Interconnect provides direct physical 10G/100G fiber connectivity between on-premises networks and Google Cloud VPCs with private RFC 1918 routing, maximum throughput, and lowest latency.",
+    "whyWrong": {
+      "0": "Self-managed OpenVPN on Compute Engine VMs introduces VM CPU/network bottlenecks, public internet jitter, and operational maintenance.",
+      "1": "Direct Peering only routes traffic to public Google IP addresses (`googleapis.com`) and does not provide private RFC 1918 VPC internal IP connectivity.",
+      "2": "Cloud VPN encrypts traffic over the public internet, where bandwidth per tunnel is capped (1.5–3 Gbps) and latency varies with internet routing."
+    }
   },
   {
     "id": "off-smp-129",
@@ -595,11 +739,17 @@
       2,
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Binary logging) and Option D (Automated backups). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Options C and D are correct because minimizing data loss (RPO near zero) in Cloud SQL for MySQL requires Point-in-Time Recovery (PITR). Automated daily backups provide the base full snapshot, while Binary Logging continuously records every committed transaction log event so Cloud SQL can replay transactions up to the exact second before a catastrophic failure.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/sql/docs/mysql/backup-recovery/pitr"
+    ],
+    "hint": "To achieve Point-in-Time Recovery (PITR) with minimal data loss (lowest RPO) on Cloud SQL for MySQL, enable both Automated Backups and Binary Logging (binlog).",
+    "whyWrong": {
+      "0": "Sharding horizontally partitions large tables across multiple database instances to scale write throughput; it does not prevent data loss.",
+      "1": "Read replicas scale read traffic asynchronously and replicate accidental DROP/DELETE statements immediately, so they do not replace PITR backups.",
+      "4": "Semisynchronous replication optimizes primary-to-standby commit acknowledgment for HA failover, not point-in-time recovery from corruption or catastrophic failure."
+    }
   },
   {
     "id": "off-smp-130",
@@ -619,11 +769,17 @@
     "answer": [
       0
     ],
-    "explanation": "To comply with GDPR/privacy right-to-erasure requests in BigQuery, every subject's records must be addressable by a unique identifier so that a targeted DML `DELETE` (or crypto-deletion of a per-user key) can remove that individual's rows (Option A). Option B only identifies which columns contain PII in Data Catalog metadata—it does not delete an individual member's data rows.",
+    "explanation": "Option A is keyed as correct in the official sample bank because assigning a unique subject identifier to every record enables deterministic deletion of all records belonging to that individual via BigQuery DML (`DELETE FROM dataset.table WHERE subject_id = ...`). Note that in the Video 07 walkthrough, the instructor also highlights Option B (using Cloud DLP during ingestion to tag PII columns in Data Catalog so governance teams can locate all columns containing personal data across datasets).",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/bigquery/docs/managing-table-data"
+    ],
+    "hint": "For subject right-to-erasure ('right to be forgotten') requests in BigQuery, either key rows by a unique subject ID for targeted DML deletion or scan ingested columns with Sensitive Data Protection (DLP) and catalog tags in Data Catalog.",
+    "whyWrong": {
+      "1": "While DLP + Data Catalog identifies which columns contain PII metadata, Data Catalog alone does not delete the subject's rows from underlying storage tables.",
+      "2": "Filtering rows out of a BigQuery view leaves the underlying personal health data intact in the base table, violating statutory right-to-erasure requirements.",
+      "3": "Hashing an identifier column in place leaves all injury and health attributes intact and vulnerable to re-identification or linkage attacks."
+    }
   },
   {
     "id": "off-smp-131",
@@ -643,11 +799,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Google Kubernetes Engine). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because Google Kubernetes Engine (GKE) abstracts away underlying cluster control-plane administration while providing standardized Kubernetes APIs, namespaces, and declarative Deployment pipelines that allow developers to stage containerized releases and an outsourced operations team to promote them reliably.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview"
+    ],
+    "hint": "Google Kubernetes Engine (GKE) provides declarative container orchestration, namespaces/staging isolation, and automated rollout/rollback pipelines with minimal infrastructure management overhead.",
+    "whyWrong": {
+      "0": "While App Engine supports traffic splitting, GKE provides full container portability and granular RBAC separation between developer staging and outsourced operations promotion workflows.",
+      "1": "GKE On-Prem (Anthos clusters on VMware) runs in on-premises data centers and increases infrastructure management overhead compared to cloud-hosted GKE.",
+      "2": "Raw Compute Engine VMs require building custom deployment, orchestration, and rollback tooling from scratch, maximizing operational overhead."
+    }
   },
   {
     "id": "off-smp-132",
@@ -667,11 +829,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Use Cloud Scheduler to trigger a Cloud Function that will stop the development and acceptance environments after office hours and start them just before office hours.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because stopped (TERMINATED) Compute Engine instances incur zero vCPU/memory compute charges. Using Cloud Scheduler (managed cron) to invoke a Cloud Function (serverless compute) via the Compute Engine API stops development and acceptance VMs after hours and restarts them before work begins with zero dedicated management infrastructure.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/scheduler/docs/start-and-stop-compute-engine-instances-on-a-schedule"
+    ],
+    "hint": "To eliminate idle compute costs for non-production VMs outside business hours, use Cloud Scheduler to trigger a serverless Cloud Function that stops VMs at night and starts them each morning.",
+    "whyWrong": {
+      "0": "Resizing VMs to a smaller machine type still incurs 24/7 compute charges outside office hours, and running cron scripts on production VMs violates environment isolation.",
+      "2": "Autoscaled Managed Instance Groups maintain at least `minReplicas >= 1` running instance continuously and do not shut down stateful dev/test environments to zero.",
+      "3": "Preemptible/Spot VMs can be reclaimed by Google Cloud at any moment during business hours, disrupting active developer and QA acceptance testing."
+    }
   },
   {
     "id": "off-smp-133",
@@ -691,11 +859,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (1. Set up Cloud VPN to provide private network connectivity between the Compute Engine application and the on-premises MySQL server. 2. Stop the on-premises application. 3. Start the Compute Engine application, configured to read and write to the on-premises MySQL server. 4. Create the replication configuration in Cloud SQL. 5. Configure the source database server to accept connections from the Cloud SQL replica. 6. Finalize the Cloud SQL replica configuration. 7. When replication has been completed, stop the Compute Engine application. 8. Promote the Cloud SQL replica to a standalone instance. 9. Restart the Compute Engine application, configured to read and write to the Cloud SQL standalone instance.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because continuous replication minimizes cutover downtime: after establishing private connectivity via Cloud VPN, Cloud SQL replicates ongoing binlog changes from the live on-premises MySQL primary. Once replication lag reaches zero, you briefly pause writes, promote the Cloud SQL replica to a standalone primary instance, and point the Compute Engine application to Cloud SQL.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/sql/docs/mysql/replication/replication-from-external"
+    ],
+    "hint": "To migrate an on-premises MySQL database to Cloud SQL with near-zero downtime and zero data loss, configure Cloud SQL as an external replication replica over Cloud VPN and promote it during a brief cutover window.",
+    "whyWrong": {
+      "0": "Stopping the application for the entire duration of `mysqldump`, Cloud Storage upload, and Cloud SQL import causes hours of unnecessary downtime, and modifying application code for dual-writes violates the minimal modification requirement.",
+      "1": "Taking a `mysqldump` while the on-premises application continues accepting writes causes data loss for all transactions committed after the dump started.",
+      "3": "Offline `mysqldump` export, upload, and import requires an extended maintenance outage proportional to database size."
+    }
   },
   {
     "id": "off-smp-134",
@@ -715,11 +889,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Set an Organization Policy with a constraint on constraints/compute.vmExternalIpAccess. List the approved instances in the allowedValues list.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because the Organization Policy Service evaluates preventive guardrails at the Organization, Folder, or Project level before resources are created. Setting `constraints/compute.vmExternalIpAccess` with `allowedValues` containing only approved VM instance URIs centrally blocks any user or service account from attaching external IPs across all current and future VPCs.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-external-ip-address#disableexternalip"
+    ],
+    "hint": "Enforce organization-wide preventive guardrails against public VM IP addresses using the Organization Policy constraint `constraints/compute.vmExternalIpAccess` with an explicit allowlist.",
+    "whyWrong": {
+      "0": "Manually deleting default routes in every VPC does not prevent project admins from recreating routes or attaching external IPs to VMs.",
+      "1": "Creating a single custom VPC does not enforce governance across all existing and future VPC networks across the organization.",
+      "2": "Cloud NAT provides outbound internet access for private VMs; it does not prevent users from assigning external IP addresses to VMs."
+    }
   },
   {
     "id": "off-smp-135",
@@ -739,11 +919,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Enable Firewall Rules Logging for the firewall rules you want to monitor.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because Firewall Insights analyzes hit counts, shadowed rules, and overly permissive ranges by reading VPC Firewall Rules Logs. Firewall Rules Logging is disabled by default on individual firewall rules to save logging costs, so you must explicitly enable logging on the target firewall rules.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/network-intelligence-center/docs/firewall-insights/concepts/overview"
+    ],
+    "hint": "Network Intelligence Center's Firewall Insights requires Firewall Rules Logging to be explicitly enabled on each monitored VPC firewall rule.",
+    "whyWrong": {
+      "0": "VPC Flow Logs sample TCP/UDP network flows at the VM NIC/subnet level; Firewall Insights specifically requires Firewall Rules Logging enabled on the firewall rules.",
+      "2": "If IAM permissions were missing, the Cloud Console would display an authorization error (`403 Permission Denied`) rather than an empty log table.",
+      "3": "Installing the Google Cloud SDK locally has no effect on server-side Firewall Rules Logging collection."
+    }
   },
   {
     "id": "off-smp-136",
@@ -763,11 +949,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (1. Create a VPC Service Controls perimeter that includes the projects with the buckets. 2. Create an access level with the CIDR of the office network.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because IAM permissions alone do not restrict the network location from which a user authenticates. Wrapping the project in a VPC Service Controls (VPC-SC) service perimeter and attaching an Access Context Manager (ACM) access level that permits only the corporate office public CIDR block ensures Cloud Storage API requests from outside the office are denied even with valid IAM credentials.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/vpc-service-controls/docs/overview"
+    ],
+    "hint": "Prevent data exfiltration from managed services like Cloud Storage by placing projects inside a VPC Service Controls perimeter combined with an Access Context Manager access level restricting source IP CIDRs.",
+    "whyWrong": {
+      "1": "VPC firewall rules filter packet traffic to Compute Engine VM network interfaces; they do not govern public Google API endpoints like `storage.googleapis.com`.",
+      "2": "Toggling IAM bindings on a time schedule via Cloud Functions does not prevent an attacker or analyst outside the office network from exfiltrating data during business hours.",
+      "3": "Private Google Access for on-premises hosts routes on-prem traffic privately over VPN/Interconnect, but does not block analysts from accessing `storage.googleapis.com` over the public internet from home."
+    }
   },
   {
     "id": "off-smp-137",
@@ -787,11 +979,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Start a new rolling update. Select the Opportunistic update mode.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because Managed Instance Group rolling updates support two modes: `Proactive` (immediately replaces existing VMs) and `Opportunistic` (updates the target template so only newly scaled-out or autohealed instances use the new template without disrupting currently running VMs).",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/compute/docs/instance-groups/updating-migs#selective_updates"
+    ],
+    "hint": "In a Managed Instance Group rolling update, `Opportunistic` mode applies the new Instance Template only when new VMs are created by autoscaling or autohealing, leaving running instances untouched.",
+    "whyWrong": {
+      "0": "A rolling restart reboots all running VM instances immediately, causing unnecessary disruption.",
+      "1": "A rolling replace terminates and recreates all currently running VM instances immediately.",
+      "2": "Proactive update mode actively terminates and replaces existing healthy instances to converge immediately on the new template."
+    }
   },
   {
     "id": "off-smp-138",
@@ -811,11 +1009,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Configure the Compute Engine instances with an instance template for the application, and use a regional persistent disk for the application data. Whenever a zonal outage occurs, use the instance template to spin up the application in another zone in the same region. Use the regional persistent disk for the application data.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because a Regional Persistent Disk maintains synchronous block-level replication across two zones in the same region (RPO = 0). During a zonal outage, spinning up a new Compute Engine VM from the Instance Template in the surviving zone of the same region and force-attaching the Regional Persistent Disk restores service rapidly with zero data loss.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/compute/docs/disks/high-availability-regional-persistent-disk"
+    ],
+    "hint": "Regional Persistent Disks synchronously replicate block data across two zones within the same region, enabling immediate attachment to a standby VM launched from an Instance Template in the surviving zone.",
+    "whyWrong": {
+      "0": "Restoring a disk into the same zone that is experiencing a physical zonal outage fails because that zone's compute/storage control plane is unavailable.",
+      "2": "Periodic snapshots are asynchronous point-in-time backups that lose data written since the last snapshot and take longer to hydrate than attaching a Regional Persistent Disk.",
+      "3": "Regional Persistent Disks are strictly scoped to two zones within a single region and cannot be attached directly to a VM in a different region."
+    }
   },
   {
     "id": "off-smp-139",
@@ -835,11 +1039,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Create a Cloud VPN connection from the new VPC to the data center, create a Cloud Router, and apply new IP addresses so there is no overlapping IP space.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because standard IP routing over Cloud VPN and Cloud Router requires non-overlapping RFC 1918 address spaces across connected networks. Re-addressing the overlapping subnet ranges eliminates routing ambiguity so Cloud Router BGP sessions can advertise routes cleanly between the acquired VPC and the corporate data center.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/network-connectivity/docs/vpn/concepts/overview"
+    ],
+    "hint": "When integrating an acquired company's VPC whose RFC 1918 CIDR blocks overlap with your on-premises data center, you must re-address (re-IP) the overlapping subnets before establishing BGP routing over Cloud VPN.",
+    "whyWrong": {
+      "1": "Public Cloud NAT performs source NAT for outbound internet traffic or Private NAT for specific NCC/hybrid spokes, not bidirectional arbitrary overlapping VPN host routing without re-addressing.",
+      "2": "Blocking custom route advertisements prevents the overlapping subnets from communicating at all, violating the requirement to enable connectivity.",
+      "3": "VPC firewall rules filter allowed/denied packets after routing decisions; they cannot resolve duplicate IP routing conflicts."
+    }
   },
   {
     "id": "off-smp-140",
@@ -859,11 +1069,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Create a Dataproc cluster using preemptible worker instances.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because Cloud Dataproc is Google Cloud's fully managed Apache Hadoop and Spark service that executes existing Hadoop jobs without code changes. Adding Preemptible (Spot) worker instances for stateless compute tasks dramatically lowers compute costs while standard primary workers maintain HDFS stability.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/dataproc/docs/concepts/compute/preemptible-vms"
+    ],
+    "hint": "Migrate existing Apache Hadoop/Spark jobs with zero code changes and lowest cost by running them on Cloud Dataproc with Preemptible/Spot secondary worker nodes.",
+    "whyWrong": {
+      "0": "Using exclusively standard worker nodes on Dataproc costs significantly more than mixing in Preemptible/Spot secondary worker nodes for batch processing.",
+      "2": "Manually deploying and administering Hadoop on Compute Engine VMs incurs heavy operational toil compared to managed Dataproc.",
+      "3": "Self-managing Hadoop on preemptible Compute Engine VMs requires extensive custom cluster management and risks HDFS corruption if primary datanodes are preempted."
+    }
   },
   {
     "id": "off-smp-141",
@@ -883,11 +1099,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Add two additional NICs to Instance #1 with the following configuration: NIC #2 -> VPC: VPC #2 -> SUBNETWORK: subnet #2; NIC #3 -> VPC: VPC #3 -> SUBNETWORK: subnet #3. Update firewall rules to enable traffic between instances.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because a Compute Engine instance can have up to 8 network interfaces (`nic0`..`nic7`), each attached to a subnet in a different VPC network within the same region. Adding two additional NICs to Instance #1 places an interface directly inside VPC #2 and VPC #3 so Instance #1 communicates with Instance #2 and Instance #3 via internal IPs while VPC #2 and VPC #3 remain isolated.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts"
+    ],
+    "hint": "Because VPC Network Peering is strictly non-transitive, connect a single multi-homed appliance/exception VM to three isolated VPCs by attaching three Network Interfaces (NICs) to the VM—one in each VPC subnet.",
+    "whyWrong": {
+      "0": "Cloud Router advertises dynamic BGP routes across Cloud VPN or Interconnect tunnels; it cannot route traffic directly between isolated VPCs without a network datapath.",
+      "2": "Building multiple IPsec Cloud VPN tunnels between VPCs adds unnecessary encryption overhead, tunnel management, and transitive routing complexity for a single VM exception.",
+      "3": "VPC Network Peering is non-transitive (peering VPC #1<->VPC #2 and VPC #2<->VPC #3 does not allow VPC #1 to reach VPC #3) and peering all pairs violates the requirement that subnets remain separated."
+    }
   },
   {
     "id": "off-smp-142",
@@ -907,11 +1129,17 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Create a Debian-based Compute Engine instance, install and configure the application, and use OS patch management to install available updates.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because VM Manager's OS Patch Management service automates operating system package updates across Debian, Ubuntu, RHEL, CentOS, and Windows Compute Engine instances via scheduled patch deployments, maintenance windows, and compliance reporting without manual SSH sessions or rebuilding complex custom instances.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/compute/docs/os-patch-management"
+    ],
+    "hint": "Use VM Manager OS Patch Management (`osconfig`) to automate scheduled Debian/Linux distribution security patching across Compute Engine VMs with minimal manual intervention.",
+    "whyWrong": {
+      "0": "Recreating templates and reinstalling complex application configurations on every Debian patch release is disruptive and operationally heavy for stateful/heavily configured VMs.",
+      "2": "Manually connecting via SSH to patch or rebuild instances violates the requirement for minimal manual intervention.",
+      "3": "Containerizing on GKE does not automatically patch packages inside a custom Debian Docker base image without rebuilding and redeploying the container image."
+    }
   },
   {
     "id": "off-smp-143",
@@ -931,11 +1159,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Create a Cloud Filestore instance and mount it in each instance.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Cloud Filestore is Google Cloud's fully managed Network File System (NFSv3) service providing a true POSIX-compliant shared filesystem that can be mounted concurrently in read-write mode across hundreds of Compute Engine VMs while delivering predictable IOPS and throughput exceeding 100 MB/s.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/filestore/docs/overview"
+    ],
+    "hint": "When multiple Compute Engine VMs require concurrent read/write access to a shared POSIX-compliant filesystem with high sustained write throughput (100 MB/s), mount a Cloud Filestore NFS instance.",
+    "whyWrong": {
+      "0": "Standard Persistent Disks only support multi-writer mode on specific SSD types with specialized cluster-aware filesystems, not general shared POSIX directories across horizontally scaled VMs.",
+      "1": "Regional Persistent Disks replicate block storage across two zones for active/standby failover, not concurrent multi-instance POSIX shared filesystem writes.",
+      "3": "Cloud Storage FUSE (`gcsfuse`) translates object storage calls into file operations with eventual metadata consistency and high write latency, failing strict POSIX and 100 MB/s concurrent write requirements."
+    }
   },
   {
     "id": "off-smp-144",
@@ -955,11 +1189,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Use the Service Mesh visualization in the Cloud Console to inspect the telemetry between the microservices.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because Anthos Service Mesh automatically instruments sidecar Envoy proxies on every microservice Pod to emit golden signals (request latency distributions, throughput, error rates) to Cloud Monitoring and Cloud Trace, rendering an interactive topology graph in the Cloud Console Service Mesh dashboard that immediately highlights the slow downstream microservice.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/service-mesh/docs/observability-overview"
+    ],
+    "hint": "In Anthos Service Mesh (ASM), inspect service-to-service request latency, error rates, and traffic topology directly in the Cloud Console Service Mesh visualization dashboard.",
+    "whyWrong": {
+      "1": "Anthos Config Management (ACM) enforces GitOps declarative cluster policies and manifests; it does not capture or display live request latency telemetry.",
+      "2": "NamespaceSelectors in Anthos Config Management scope policy configurations, not distributed tracing or latency diagnostics.",
+      "3": "Anthos Service Mesh is already installed and collecting telemetry; reinstalling open-source Istio would cause an outage and is completely unnecessary."
+    }
   },
   {
     "id": "off-smp-145",
@@ -979,11 +1219,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Create a retention policy on the bucket for the duration of 5 years. Create a lock on the retention policy.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because Cloud Storage Bucket Lock implements SEC Rule 17a-4(f), FINRA, and CFTC compliant WORM storage. Defining a 5-year retention policy prevents any object in the bucket from being deleted or overwritten until it reaches 5 years of age, and locking the retention policy makes it permanently irreversible—even by Project Owners.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/storage/docs/bucket-lock"
+    ],
+    "hint": "To enforce immutable WORM (Write Once, Read Many) regulatory compliance on Cloud Storage objects for a fixed duration (5 years), configure a Bucket Retention Policy and lock it with Bucket Lock.",
+    "whyWrong": {
+      "1": "IAM roles like Object Writer control who can upload files today, but a Project Owner or Storage Admin could still modify IAM policies and delete objects later.",
+      "2": "Customer-Managed Encryption Keys (CMEK) protect data confidentiality at rest and key rotation schedules; CMEK does not prevent authorized users from deleting or overwriting objects.",
+      "3": "Fine-grained ACLs do not provide irreversible WORM immutability against privileged administrators."
+    }
   },
   {
     "id": "off-smp-146",
@@ -1003,11 +1249,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Create a Cloud Build trigger based on the development branch that tests the code, builds the container, and stores it in Container Registry. Create a deployment pipeline that watches for new images and deploys the new image on the development cluster. Ensure only the deployment tool has access to deploy new versions.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because a production-grade CI/CD pipeline separates Continuous Integration (Cloud Build trigger running unit tests, building container images, and pushing immutable artifacts to Container/Artifact Registry) from Continuous Delivery (a deployment pipeline watching for verified images and deploying to GKE), while revoking direct human `kubectl` deploy permissions on the cluster.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/kubernetes-engine/docs/tutorials/gitops-cloud-build"
+    ],
+    "hint": "Enforce secure, automated GitOps/CI-CD by using Cloud Build triggers on Git pushes to test and push images to Artifact/Container Registry, followed by an automated CD pipeline granted exclusive GKE deploy permissions.",
+    "whyWrong": {
+      "0": "Client-side Git pre-commit hooks run on developer laptops, can be bypassed with `git commit --no-verify`, and require manual human deployment.",
+      "1": "Requiring developers to manually deploy container images from their workstations after a commit violates automated CI/CD governance and auditability.",
+      "3": "Container Vulnerability Scanning checks OS/package CVEs rather than running functional unit/integration tests."
+    }
   },
   {
     "id": "off-smp-147",
@@ -1027,11 +1279,17 @@
     "answer": [
       3
     ],
-    "explanation": "The Google-recommended architectural solution is Option D (Increase the maximum number of instances in the autoscaling group.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option D is correct because the diagnostics confirm that each instance is legitimately saturated by CPU load, downstream databases are healthy, and the MIG autoscaler has hit its configured maximum instance cap (`maxNumReplicas`). Raising the maximum instance count allows the autoscaler to immediately scale out additional VMs to absorb the traffic spike and restore availability.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/compute/docs/autoscaler/scaling-cpu-load-balancing"
+    ],
+    "hint": "When a CPU-bound Compute Engine Managed Instance Group drops requests during a traffic spike because autoscaling has hit its configured `maxReplicas` ceiling, immediately raise the maximum instance limit.",
+    "whyWrong": {
+      "0": "Changing the autoscaling metric from CPU to memory will not help when CPU is the saturated bottleneck and the group is already capped at `maxReplicas`.",
+      "1": "Restarting overloaded instances temporarily reduces serving capacity even further, worsening request drops across the remaining VMs.",
+      "2": "Manually SSHing into instances to restart processes reduces active capacity during an overload event and does not add compute resources."
+    }
   },
   {
     "id": "off-smp-148",
@@ -1051,11 +1309,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Deploy each microservice as a Deployment. Expose the Deployment in the cluster using a Service, and use the Service DNS name to address it from other microservices within the cluster.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because Kubernetes `Deployments` declaratively maintain the desired replica count and handle self-healing/rolling updates, while a Kubernetes `Service` (default type `ClusterIP`) allocates a stable virtual IP and internal kube-dns name that automatically load balances requests across all healthy Pod replicas.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/service"
+    ],
+    "hint": "In Kubernetes, manage replicated stateless microservices using `Deployments` and expose them internally via ClusterIP `Services` so callers address a stable internal DNS name (`<svc>.<ns>.svc.cluster.local`).",
+    "whyWrong": {
+      "1": "Kubernetes `Ingress` exposes HTTP/HTTPS routes to external clients outside the cluster, whereas internal east-west pod-to-pod traffic should use `ClusterIP` Services.",
+      "2": "Deploying standalone naked `Pods` without a `Deployment` controller prevents replica scaling, rolling updates, and automatic rescheduling when nodes fail.",
+      "3": "Combining naked `Pods` with external `Ingress` resources fails both replica management and internal-only cluster communication requirements."
+    }
   },
   {
     "id": "off-smp-149",
@@ -1075,11 +1339,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (1. Create a project with a Shared VPC and assign the Network Admin role to the networking team. 2. Create a second project without a VPC, configure it as a Shared VPC service project, and assign the Compute Admin role to the development team.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Shared VPC allows the Networking Team to own and administer the central VPC network in a dedicated Host Project (`roles/compute.networkAdmin`) while the Development Team owns their Compute Engine VMs in an attached Service Project (`roles/compute.admin`). Because the Networking Team has no IAM roles in the Service Project, they cannot SSH into or read sensitive data on the developer VMs.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/vpc/docs/shared-vpc"
+    ],
+    "hint": "Shared VPC enforces least-privilege separation of duties: central network admins manage subnets, routes, and firewalls in the Host Project (`roles/compute.networkAdmin`) without having Compute Admin access to VMs in Service Projects.",
+    "whyWrong": {
+      "0": "Using Cloud VPN between standalone VPCs adds unnecessary tunnel bandwidth costs and management overhead compared to Shared VPC.",
+      "1": "Putting both teams in a single project risks privilege escalation or accidental firewall/metadata changes affecting sensitive VMs.",
+      "3": "VPC Network Peering decentralizes firewall and subnet administration across projects rather than giving the central networking team unified control."
+    }
   },
   {
     "id": "off-smp-150",
@@ -1099,11 +1369,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Export logs to a Pub/Sub topic, and trigger Cloud Function with the relevant log events.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Cloud Logging sinks stream matching log entries in near real time to Cloud Pub/Sub, which immediately invokes an event-driven Cloud Function (or Cloud Run service) to alert the SOC or automatically remediate unauthorized firewall changes within seconds.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/logging/docs/export/configure_export_v2"
+    ],
+    "hint": "For real-time event-driven security remediation of Cloud Logging audit/firewall anomalies, route logs via a Log Sink to a Cloud Pub/Sub topic that triggers a Cloud Function.",
+    "whyWrong": {
+      "0": "Polling Cloud Logging every minute via Cloud Scheduler introduces up to 60+ seconds of detection latency and unnecessary polling API queries.",
+      "1": "Exporting logs to BigQuery is ideal for historical forensic SQL analytics, but scheduled BigQuery queries are batch-oriented rather than sub-second event-driven triggers.",
+      "3": "Cloud Storage log sinks batch log files hourly, introducing high latency unsuitable for real-time security incident response."
+    }
   },
   {
     "id": "off-smp-151",
@@ -1123,11 +1399,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Configure Identity-Aware Proxy (IAP) for the instance and ensure that you have the role of IAP-secured Tunnel User. Use the gcloud command line tool to ssh into the instance.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Identity-Aware Proxy (IAP) TCP forwarding establishes an authenticated, encrypted HTTPS tunnel from the administrator's workstation to Google's edge and forwards SSH (port 22) traffic to the VM's internal IP address (`35.235.240.0/20`). Users authenticate via IAM (`IAP-secured Tunnel User` / `roles/iap.tunnelResourceAccessor`) without exposing any public IPs or bastion hosts.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/iap/docs/using-tcp-forwarding"
+    ],
+    "hint": "Connect via SSH to private Compute Engine VMs (without external IPs or VPNs) using Identity-Aware Proxy (IAP) TCP forwarding (`gcloud compute ssh --tunnel-through-iap`) with the `roles/iap.tunnelResourceAccessor` role.",
+    "whyWrong": {
+      "0": "Cloud NAT only translates outbound connections initiated by private VMs to the internet; it does not accept inbound SSH connections.",
+      "1": "TCP Proxy Load Balancing distributes external client traffic across a pool of backend instances and cannot target interactive SSH sessions to a specific private VM.",
+      "3": "Deploying a public bastion host requires exposing an external IP address and managing SSH jump-box hardening, which IAP TCP forwarding eliminates."
+    }
   },
   {
     "id": "off-smp-152",
@@ -1147,11 +1429,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Assign the development team group the Project Owner role on the Shopping folder, and remove the development team group Project Owner role from the Organization.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Google Cloud IAM Allow policies are inherited downward from Organization -> Folder -> Project -> Resource. Granting `Project Viewer` on the Finance folder does NOT revoke the `Project Owner` role inherited from the Organization node. You must remove `Project Owner` from the Organization level and grant `Project Owner` specifically on the Shopping folder.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/iam/docs/resource-hierarchy-access-control"
+    ],
+    "hint": "IAM Allow policies in Google Cloud are strictly hierarchical and additive (child resources inherit all parent bindings). To restrict access on a sibling folder, remove the over-privileged role at the Organization root and grant it only on the specific target folder.",
+    "whyWrong": {
+      "0": "Because IAM allow policies are unioned down the hierarchy, leaving `Project Owner` at the Organization level ensures the group still inherits full Owner permissions on the Finance folder.",
+      "1": "Assigning `Project Viewer` on the Finance folder without removing `Project Owner` at the Organization level leaves effective permissions on Finance as `Project Owner`.",
+      "3": "Failing to remove `Project Owner` from the Organization node leaves the development team with full Owner access across both Finance and Shopping folders."
+    }
   },
   {
     "id": "off-smp-153",
@@ -1171,11 +1459,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Tests should scale well beyond the prior approaches.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because Mountkirk Games' CEO and CTO explicitly state that previous game launches failed to scale under unexpected player popularity, causing outages and player churn. Their new cloud testing strategy must include automated, large-scale load and stress testing that simulates traffic spikes far exceeding historical peaks to validate autoscaling behavior before launch.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/architecture/gaming"
+    ],
+    "hint": "In the Mountkirk Games case study, prior titles suffered severe reputation damage because legacy servers failed under unexpected player spikes; the new testing strategy must validate high-concurrency load and autoscaling well beyond prior limits.",
+    "whyWrong": {
+      "1": "Eliminating unit tests violates software engineering best practices and slows down defect detection in microservices.",
+      "2": "Waiting until after production release to run tests exposes live players to crashes and repeats Mountkirk's past launch failures.",
+      "3": "Under the Shared Responsibility Model, Google tests underlying GCP hardware/infrastructure; Mountkirk must test their own application code, configuration, and scaling policies."
+    }
   },
   {
     "id": "off-smp-154",
@@ -1195,11 +1489,17 @@
     "answer": [
       0
     ],
-    "explanation": "The Google-recommended architectural solution is Option A (Create a scalable environment in GCP for simulating production load.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option B and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option A is correct because validating an autoscaling game backend requires an elastic staging environment in GCP capable of dynamically scaling under synthetic load generation (e.g., GKE/MIG load generators) and scaling down or being decommissioned when tests complete so Mountkirk only pays for compute consumed during test runs.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/architecture/distributed-load-testing-using-gke"
+    ],
+    "hint": "For Mountkirk Games' pre-release load testing, spin up an elastic, ephemeral staging environment in GCP that mirrors production autoscaling and tear it down after testing to optimize cost.",
+    "whyWrong": {
+      "1": "Mountkirk's legacy physical/leased server infrastructure could not scale to handle previous games and cannot generate or absorb realistic cloud-scale traffic.",
+      "2": "Embedding load-generation code inside production application components distorts application performance metrics and wastes production compute resources.",
+      "3": "Maintaining multiple permanent static environments (high, medium, low) incurs continuous idle VM costs and fails to test dynamic autoscaling transitions."
+    }
   },
   {
     "id": "off-smp-155",
@@ -1219,11 +1519,17 @@
     "answer": [
       2
     ],
-    "explanation": "The Google-recommended architectural solution is Option C (Google Kubernetes Registry, Google Container Engine, Google HTTP(S) Load Balancer). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option B introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option C is correct because Container Registry / Artifact Registry stores immutable Docker container images, Google Kubernetes Engine (GKE) orchestrates rapid rolling updates and rollbacks across multi-region clusters in the US and Europe, and the Global External HTTP(S) Load Balancer exposes a single global anycast IP address that routes players to the nearest healthy regional frontend.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress"
+    ],
+    "hint": "Mountkirk Games' multi-region microservices CD architecture requires Container/Artifact Registry (immutable images), Google Kubernetes Engine (fast rollouts/rollbacks across US & Europe), and Global External HTTP(S) Load Balancing (single anycast frontend IP).",
+    "whyWrong": {
+      "0": "Cloud Dataflow is a streaming/batch data processing engine, not a microservice hosting platform, and lacks a global anycast frontend load balancer.",
+      "1": "Google Network Load Balancer is a regional Layer 4 load balancer and cannot provide a single global anycast IP spanning both the US and Europe.",
+      "3": "Cloud Functions and Pub/Sub do not provide a single global frontend IP or multi-region container orchestration."
+    }
   },
   {
     "id": "off-smp-156",
@@ -1243,10 +1549,16 @@
     "answer": [
       1
     ],
-    "explanation": "The Google-recommended architectural solution is Option B (Verify that the project quota hasn't been exceeded.). This directly satisfies the technical and operational requirements stated in the scenario—optimizing for managed reliability, security best practices, and minimal operational overhead on Google Cloud. In contrast, Option A and Option C introduce unnecessary operational complexity, violate Google Cloud security/networking constraints, or fail to meet the stated SLA and cost objectives.",
+    "explanation": "Option B is correct because HTTP `503 Service Unavailable` errors paired with an autoscaler that has stopped adding instances during record player traffic is the classic signature of hitting a Google Cloud project or regional quota limit (such as regional vCPU quota or in-use IP address quota). Checking IAM & Admin -> Quotas immediately confirms whether GCP is blocking new VM creation.",
     "refs": [
-      "https://cloud.google.com/architecture/framework",
-      "https://cloud.google.com/learn/certification/cloud-architect"
-    ]
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/compute/quotas"
+    ],
+    "hint": "When a Managed Instance Group or GKE cluster fails to scale out during a sudden traffic spike and users receive HTTP 503 errors, check regional/project Compute Engine resource quotas (vCPUs, IPs, disks) first.",
+    "whyWrong": {
+      "0": "If the backend database were completely offline, all requests would fail immediately rather than the autoscaler failing to provision new game server VMs.",
+      "2": "While a code regression can increase CPU usage per request, it would not prevent the Compute Engine autoscaler from launching additional VM instances unless quotas or max limits were reached.",
+      "3": "Speculating about internal load-testing tools ignores the explicit fact that a newly launched feature went viral with record real user traffic."
+    }
   }
 ]

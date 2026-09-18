@@ -1,0 +1,1338 @@
+TITLE: Real Google Cloud Professional Cloud Architect Exam Questions & Answers | Part 5 (Questions 81-100)
+URL: https://www.youtube.com/watch?v=oOTJSgHJzvM
+DESCRIPTION:
+Welcome to Part 5 of our Google Cloud Professional Architect exam series! In this 1-hour session, we dive deep into **questions 81-100** from the real exam. This set of questions specifically focuses on core topics like **Data Security**, **Planning for Migration**, **Designing Storage Infrastructure**, and **Identity and Access Management (IAM)**. We provide in-depth explanations for every single answer option (A, B, C, D) to build your core Cloud Architect problem-solving skills.
+
+Our full playlist contains 250+ questions to get you fully prepared for exam day.
+
+▶️ WATCH THE FULL PLAYLIST HERE:
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+
+-- SUPPORT THE CHANNEL --
+If you find this content valuable, please consider supporting the channel by liking, sharing, and subscribing. It helps us create more free, high-quality content for everyone.
+
+If you want to discuss any of the questions, leave a comment below! I read them all and will respond as soon as I can. Good luck! #googlecloud #cloudarchitect #gcp #professionalcloudarchitect #itcertification #gcpexamquestions #realexamquestions #datasecurity #migration #cloudstorage #iam
+
+CHAPTERS:
+
+TRANSCRIPT:
+All right, let's move on to our next set
+of questions. Question 81. You are
+migrating your on- premises solution to
+Google Cloud in several phases. You will
+use CloudVPN to maintain a connection
+between your on- premises systems and
+Google Cloud until the migration is
+completed. You want to make sure all
+your on- premises systems remain
+reachable during this period. How should
+you organize your networking in Google
+Cloud? A. Use the same IP range on
+Google Cloud as you use on premises. B.
+Use the same IP range on Google Cloud as
+you use on premises for your primary IP
+range and use a secondary range that
+does not overlap with the range you use
+on premises. C. Use an IP range on
+Google Cloud that does not overlap with
+the range you use on premises. D. Use an
+IP range on Google Cloud that does not
+overlap with the range you use on
+premises for your primary IP range and
+use a secondary range with the same IP
+range as you use on premises. Okay, this
+is a fundamental network planning
+question for any hybrid cloud migration.
+The key to this problem is understanding
+how network routing works when you
+connect two different networks like your
+on-remise data center and a Google Cloud
+VPC using a VPN. The most important rule
+is that the IP address ranges on both
+sides of the connection must be unique.
+If both your on-remise network and your
+GCP network use the same IP range, the
+routers won't know where to send the
+traffic, leading to routing conflicts
+that break the connection. With that
+rule in mind, let's look at options A,
+B, and D. All of these options suggest
+using an IP range on Google Cloud that
+is the same as or overlaps with the
+on-remise range in either the primary or
+secondary range. Any overlap will cause
+the routing conflicts we just described
+which violates the requirement to keep
+all systems reachable. Therefore, all of
+these options are incorrect. This brings
+us to option C, which is the correct
+answer. This describes the standard best
+practice for hybrid networking by
+choosing an IP range on Google Cloud
+that does not overlap with your
+on-remise range. You ensure that every
+address is unique across the entire
+connected network. This allows routers
+to correctly send traffic to the right
+destination, whether it's in the cloud
+or on premise, ensuring a stable and
+reliable connection for your migration.
+Therefore, the way you should organize
+your networking is C. Use an IP range on
+the range you use on premises. Question
+82. You have found an error in your App
+Engine application caused by missing
+cloud data store indexes. You have
+created a YAML file with the required
+indexes and want to deploy these new
+indexes to cloud data store. What should
+you do? A point cloud data store create
+indexes to your configuration file. B.
+Upload the configuration file to App
+Engine's default cloud storage bucket
+and have App Engine detect the new
+indexes. C. In the GCP console, use data
+store admin to delete the current
+indexes and upload the new configuration
+file. D. Create an HTTP request to the
+built-in Python module to send the index
+configuration file to your application.
+Okay, this is a very practical question
+about managing cloud data store when
+you're using it with App Engine. The
+situation is that your application needs
+new indexes to run its queries and
+you've already defined them in a YAML
+file. The task is to get that
+configuration file deployed. With that
+in mind, let's look at our options.
+Let's look at option B, uploading the
+file to a cloud storage bucket. This is
+incorrect because App Engine and Data
+Store don't automatically monitor a
+storage bucket for new index
+configurations. Simply uploading the
+file won't do anything. Next option C
+suggests using the data store admin in
+the GCP console. While you can manage
+indexes there, the process described is
+flawed. There isn't a direct upload
+configuration file option for deployment
+and deleting your current indexes before
+adding new ones is unnecessary and could
+cause problems. Option D, creating an
+HTTP request from your application is
+also incorrect. Deploying indexes is an
+administrative task that you do from
+outside your application. It's not
+something the application code itself
+should be doing. This brings us to
+option A, which is the correct and
+standard method. The cloud command line
+tool is designed for managing all of
+your Google Cloud resources. It has a
+specific command cloud data store create
+indexes which is built for this exact
+purpose. You run this command from your
+local machine and point it to your local
+YAML configuration file. The tool then
+handles the process of deploying those
+new indexes to your cloud data store
+instance. Therefore, the correct thing
+to do is a point cloud data store create
+indexes to your configuration file.
+Question 83. You have an application
+that will run on compute engine. You
+need to design an architecture that
+takes into account a disaster recovery
+plan that requires your application to
+fail over to another region in case of a
+regional outage. What should you do?
+Deploy the application on two compute
+engine instances in the same project but
+in a different region. Use the first
+instance to serve traffic and use the
+HTTP load balancing service to fail over
+to the standby instance in case of a
+disaster. B. Deploy the application on a
+compute engine instance. Use the
+to an instance on your premises in case
+of a disaster. C. Deploy the application
+on two compute engine instance groups
+each in the same project but in a
+different region. Use the first instance
+group to serve traffic and use the HTTP
+load balancing service to fail over to
+the standby instance group in case of a
+disaster. D.
+engine instance groups, each in a
+separate project and a different region.
+Use the first instance group to serve
+traffic and use the HTTP load balancing
+service to fail over to the standby
+instance group in case of a disaster.
+Okay, this is a question about designing
+a high availability and disaster
+recovery architecture on Google Cloud.
+The main requirement is that the
+application must be able to survive a
+complete regional outage by failing over
+to another region. With that in mind,
+let's evaluate our options. Let's start
+with option A. This is incorrect because
+it suggests using single standalone
+compute engine instances. For a critical
+application, you should always use
+managed instance groups which provide
+essential features like autoscaling and
+self-healing. A single instance is a
+single point of failure. Option B is
+also incorrect for the same reason. It
+uses a single instance. Additionally,
+failing over from the cloud back to an
+on-remise data center is a much more
+complex and generally less desirable
+disaster recovery strategy. Next, let's
+look at option D. While it correctly
+uses instance groups in different
+regions, it suggests placing them in
+separate projects. This adds unnecessary
+complexity to the management of the
+application and the load balancer. The
+standard best practice is to keep all
+the resources for a single application
+within the same project for easier
+governance. This brings us to option C
+which is the correct and recommended
+architecture. It uses two compute engine
+instance groups which provides
+scalability and self-healing. Placing
+these instance groups in different
+regions is the key to providing disaster
+recovery against a regional failure.
+Finally, using a global HTTP load
+balancing service is the perfect tool to
+manage this setup. The load balancer can
+distribute traffic between the two
+regions and will automatically fail over
+by directing all traffic to the healthy
+region if the other one goes down.
+Therefore, the best way to design this
+architecture is C. Deploy the
+application on two compute engine
+instance groups, each in the same
+project but in a different region, and
+use the HTTP load balancing service to
+fail over. Question 84. You are
+deploying an application on App Engine
+that needs to integrate with an on-
+premises database. For security
+purposes, your on- premises database
+must not be accessible through the
+public internet. What should you do?
+Deploy your application on App Engine
+Standard Environment and use App Engine
+Firewall rules to limit access to the
+open on premises database. B. Deploy
+your application on App Engine Standard
+Environment and use CloudVPN to limit
+access to the on- premises database. C.
+flexible environment and use App Engine
+firewall rules to limit access to the
+on- premises database. D. Deploy your
+application on App Engine flexible
+environment and use CloudVPN to limit
+access to the on-remises database. Okay,
+this question is about hybrid cloud
+networking. Specifically, how to connect
+a serverless application on App Engine
+to a private on-remise database. The two
+key parts to this are choosing the right
+App Engine environment and the right
+networking solution. With that in mind,
+by looking at options A and B, which
+both suggest using the App Engine
+standard environment. Both of these are
+incorrect because the standard
+environment runs in a sandboxed
+environment and cannot directly connect
+to a VPC network. This means it cannot
+use a cloudVPN to reach your on-remise
+resources. Next, let's look at option C.
+While it correctly identifies the App
+Engine flexible environment, it suggests
+using firewall rules to protect an
+on-remise database that is open to the
+public internet. This is a very bad
+security practice and directly violates
+the requirement that the database must
+not be accessible publicly. This brings
+us to option D, which is the correct and
+most secure architecture. First, it uses
+the App Engine flexible environment.
+This is critical because the flexible
+environment deploys your application
+inside your project's VPC network.
+Second, by being in a VPC, your
+application can then use a cloudVPN to
+establish a secure private tunnel to
+your on-remise data center. This allows
+your app engine application to
+communicate with your database using
+private IP addresses completely isolated
+from the public internet which fulfills
+all the requirements of the question.
+Therefore, the correct solution is D.
+flexible environment and use CloudVPN to
+limit access to the on- premises
+database. Question 85. You are working
+in a highly secured environment where
+public internet access from the comput
+engine VMs is not allowed. You do not
+yet have a VPN connection to access an
+on- premises file server. You need to
+install specific software on a comput
+engine instance. How should you install
+the software? Hey, upload the required
+installation files to cloud storage.
+Configure the VM on a subnet with a
+private Google access subnet. Assign
+only an internal IP address to the VM.
+Download the installation files to the
+VM using pseud B. Upload the required
+installation files to cloud storage and
+use firewall rules to block all traffic
+except the IP address range for cloud
+storage. Download the files to the VM
+using sud C. Upload the required
+installation files to cloud source
+repositories. Configure the VM on a
+subnet with a private Google access
+subnet. Assign only an internal IP
+address to the VM. Download the
+installation files to the VM using
+cloud. D. Upload the required
+repositories and use firewall rules to
+block all traffic except the IP address
+range for cloud source repositories.
+Download the files to the VM using sud.
+Okay, this is a network security
+question that deals with a common
+scenario. How do you get files onto a
+virtual machine that has no public
+internet access? The solution needs to
+be secure and use Google Cloud's native
+features. With that in mind, let's look
+at our options. Let's start by looking
+at the options that use the wrong tools
+or methods. Options C and D suggest
+using cloud source repositories. This is
+not the ideal place to store
+installation files. cloud storage is
+designed for that. They also suggest
+using incorrect command line tools for
+that service. Option B suggests using
+firewall rules to allow traffic to a
+specific IP address range for cloud
+storage. This is an outdated and less
+secure approach. Those IP ranges can
+change and the modern recommended way to
+handle this is with a feature called
+private Google access. This brings us to
+option A which is the correct and most
+secure solution. It follows a perfect
+four-step process. First, you upload the
+installation files to cloud storage,
+which is the right service for storing
+files. Second, you ensure your VM is on
+a subnet that has private Google access
+enabled. This is the key feature that
+allows a VM with only a private internal
+IP address to reach Google's APIs and
+services like cloud storage over
+Google's internal network. Third, you
+ensure the VM only has an internal IP
+which meets the security requirement.
+Finally, from the VM, you can use the
+pseudo command to securely download the
+files from your cloud storage bucket.
+Therefore, the best way to install the
+software is a upload the required
+only an internal IP address to the VM
+and download the installation files to
+the VM using sud. Question 86. Your
+company is moving 75 tab of data into
+Google Cloud. You want to use cloud
+storage and follow Google recommended
+practices. What should you do?
+Move your data onto a transfer
+appliance. Use a transfer appliance
+rehydrator to decrypt the data into
+cloud storage. B. Move your data onto a
+transfer appliance. Use cloud data prep
+to decrypt the data into cloud storage.
+C. Install sud on each server that
+contains data. Use resumable transfers
+to upload the data into cloud storage.
+D. Install sud on each server containing
+data. Use streaming transfers to upload
+the data into cloud storage. Okay, this
+is a data migration question. The most
+important piece of information here is
+the size of the data 75 tab. For such a
+large amount of data, the method of
+transfer becomes critical. With that in
+mind, let's look at our options. Let's
+start with options C and D, which both
+suggest using the sud command line tool.
+While sud is the standard tool for
+interacting with cloud storage, it's not
+the recommended practice for
+transferring a data set of this massive
+size. Trying to upload 75 tab over a
+standard internet connection would be
+incredibly slow and could take weeks or
+even months and would be prone to
+network failures. Next, let's look at
+option B. It correctly identifies that a
+transfer appliance is needed, but it
+suggests using cloud data prep to
+decrypt the data. This is incorrect.
+Cloud data prep is a service for
+cleaning and preparing data for analysis
+not for handling the ingestion process
+from a hardware appliance. This brings
+us to option A which is the correct and
+Google recommended solution for
+large-scale data transfers. The process
+involves using a transfer appliance.
+This is a physical piece of hardware
+that Google ships to your data center.
+You load your 75 tab of data onto it
+locally and then ship it back to Google.
+At the Google data center, they use a
+specific tool called the transfer
+appliance rehydrator to securely decrypt
+and upload your data into your cloud
+storage bucket. This offline transfer
+method is much faster and more reliable
+than trying to send that much data over
+the internet. Therefore, the Google
+recommended practice for this scenario
+is a move your data onto a transfer
+appliance and use a transfer appliance
+cloud storage. Question 87. You have an
+application deployed on Google
+Kubernetes Engine using a deployment
+named Echo deployment. The deployment is
+exposed using a service called
+echoservice. You need to perform an
+update to the application with minimal
+downtime to the application. What should
+you do? Use kubernct set image
+deployment/ech deployment back slash new
+image backslash. B. Use the rolling
+update functionality of the instance
+group behind the Kubernetes cluster. C.
+Update the deployment YAML file with the
+new container image. Use Kubernectl
+delete deployment/ech deployment and
+kubernct create fback slashyl file
+backslash d. Update the service yaml
+file with the new container image. Use
+kubernct delete service/echoservice
+and kubernct ctl create fback slashyl
+file backslash. Okay, this is a very
+common and fundamental question about
+managing applications on kubernetes. The
+key requirement here is to perform an
+update with minimal downtime which means
+we need to use a method that keeps the
+application available while the update
+is in progress. With that in mind, let's
+look at our options. Let's start with
+option B which suggests using the
+rolling update feature of the underlying
+instance group. This is incorrect
+because application updates in
+Kubernetes are managed at the Kubernetes
+level by a deployment not at the
+infrastructure level of the virtual
+machine instance group. Next option C
+suggests deleting the old deployment and
+then creating a new one. This is a bad
+approach because the cubercl delete
+command will immediately terminate all
+the running pods of your application
+causing a complete outage. This directly
+violates the minimal downtime
+requirement. Option D is also incorrect.
+A Kubernetes service is a networking
+resource that directs traffic to your
+application pods. It doesn't know
+anything about the container image
+version. Changing the service will not
+update your application. This brings us
+to option A which is the correct and
+recommended method. The Kubercl set
+image command tells the Kubernetes
+deployment to update the container image
+to a new version. When it receives this
+command, the deployment automatically
+performs a rolling update. It will
+carefully bring up new pods with the new
+image and only once they are healthy
+will it start terminating the old pods.
+This process ensures that there are
+always live healthy pods serving traffic
+which results in a zero downtime
+deployment. Therefore, the best way to
+perform this update is a use kubernct
+set image deployment/e deployment new
+image. Question 88. Your company is
+using BigQuery as its enterprise data
+warehouse. Data is distributed over
+several Google cloud projects. All
+queries on BigQuery need to be built on
+a single project. You want to make sure
+that no query costs are incurred on the
+projects that contain the data. Users
+should be able to query the data sets
+but not edit them. How should you
+configure users access roles? A. Add all
+users to a group. Grant the group the
+role of BigQuery user on the billing
+project and BigQuery data viewer on the
+projects that contain the data. B. Add
+all users to a group. Grant the group
+the roles of BigQuery data viewer on the
+billing project and BigQuery user on the
+projects that contain the data. C. Add
+the roles of BigQuery job user on the
+billing project and BigQuery data viewer
+on the projects that contain the data.
+D. Add all users to a group. Grant the
+group the roles of BigQuery data viewer
+on the billing project and BigQuery job
+user on the projects that contain the
+data. Okay, this is a question about
+identity and access management and
+billing in BigQuery. The goal is to set
+up a specific access pattern where data
+is stored in many projects but all the
+query costs are consolidated into a
+single central project and users can
+only read the data. To solve this, you
+need to understand two key BigQuery
+roles. The BigQuery job user role gives
+permission to run a query and the
+project where this role is granted is
+the one that gets build for the query's
+cost. The BigQuery data viewer role
+gives permission to read the data in a
+data set. By combining these two roles
+on different projects, we can achieve
+our goal. With that in mind, let's look
+at our options. Let's look at option A
+and B first. Both suggest using the Big
+Query user role. This role is too
+powerful as it allows users to create
+and delete data sets which violates the
+requirement that users cannot edit the
+data. So both of these are incorrect.
+Next let's look at option D. This option
+has the roles assigned to the wrong
+projects. Granting job user on the data
+projects would cause the query costs to
+be build to those data projects which is
+the opposite of what we want. Granting
+data viewer on the billing project
+serves no purpose. This brings us to
+option C which describes the correct and
+recommended configuration. First, you
+grant the BigQuery job user role on the
+central billing project. This gives your
+users the ability to run queries and
+ensures that project pays for them.
+Second, you grant the BigQuery data
+viewer role on all the different
+projects that contain the data. This
+gives the same users readonly access to
+that data. This setup perfectly
+separates the permissions and
+centralizes the billing as required.
+Therefore, the correct way to configure
+the access roles is C. Grant the group
+Question 89. You have developed an
+application using CloudML engine that
+recognizes famous paintings from
+uploaded images. You want to test the
+application and allow specific people to
+upload images for the next 24 hours. Not
+all users have a Google account. How
+should you have users upload images?
+Have users upload the images to cloud
+storage. Protect the bucket with a
+password that expires after 24 hours. B.
+storage using a signed URL that expires
+after 24 hours. C. Create an app engine
+web application where users can upload
+images. Configure app engine to disable
+the application after 24 hours.
+Authenticate users via cloud identity.
+D. Create an app engine web application
+where users can upload images for the
+next 24 hours. Authenticate users via
+cloud identity. Okay, this is a question
+about providing secure temporary access
+to Google Cloud resources for users who
+might not have Google accounts. The key
+requirements here are that the access
+must expire after 24 hours and it must
+work for people without a Google
+account. With that in mind, let's look
+at our options. Let's start with option
+A, which suggests protecting a cloud
+storage bucket with a password. This is
+incorrect because cloud storage doesn't
+have a feature to password protect
+buckets. It uses IM and other mechanisms
+for security. Next, let's look at
+options C and D. Both suggest building
+an app engine web application and
+authenticating users with cloud
+identity. These are incorrect because
+the question explicitly states that not
+all users have a Google account. Cloud
+identity is based on Google accounts.
+So, this solution would not work for
+everyone. Also, building a custom web
+app is a much more complex solution than
+what is needed here. This brings us to
+option B, which is the correct and
+recommended solution. Assigned URL is a
+special feature of cloud storage that
+lets you create a time limited unique
+URL that grants temporary permission to
+upload or download a file. You can set
+the expiration to 24 hours. Most
+importantly, anyone who has this URL can
+use it without needing to have a Google
+account. This is a secure, simple, and
+effective way to meet all the
+requirements of the question. Therefore,
+the best way to have users upload images
+is B. Have users upload the images to
+cloud storage using a signed URL that
+expires after 24 hours. Question 90.
+Your web application must comply with
+the requirements of the European Union's
+General Data Protection Regulation,
+GDPR. You are responsible for the
+technical architecture of your web
+application. What should you do? Ensure
+that your web application only uses
+native features and services of Google
+Cloud Platform because Google already
+has various certifications and provides
+a pass on compliance when you use native
+features. B. Enable the relevant GDPR
+compliance setting within the GCP
+console for each of the services in use
+within your application. C. Ensure that
+cloud security scanner is part of your
+test planning strategy in order to pick
+up any compliance gaps. D. Define a
+design for the security of data in your
+web application that meets GDPR
+requirements. Okay, this is a question
+about legal and regulatory compliance,
+specifically the GDPR in a cloud
+environment. The key to answering this
+correctly is to understand the shared
+responsibility model. This model means
+that while Google ensures their
+underlying cloud infrastructure is
+compliant with regulations like GDPR,
+you as the customer are still
+responsible for ensuring that the
+application you build and the data you
+handle on top of that infrastructure are
+also compliant. Google gives you the
+tools but you have to use them
+correctly. With that in mind, let's look
+at our options. Let's look at option A.
+This is incorrect because it's based on
+the misunderstanding that you can just
+pass on compliance responsibility to
+Google. That's not how it works. You are
+always responsible for your own
+applications compliance. Next, option B
+is incorrect. There is no simple GDPR
+compliance setting. You can just turn on
+in the GCP console. Achieving compliance
+is a comprehensive process involving
+your application's architecture and data
+handling, not just a single checkbox.
+Option C suggests using cloud security
+scanner. While this is a helpful tool
+for finding some types of security
+vulnerabilities, it is not a complete
+GDPR compliance tool. GDPR covers a wide
+range of requirements beyond what a
+technical vulnerability scanner can
+check. This brings us to option D, which
+is the correct answer. The primary
+responsibility of a technical architect
+in this situation is to proactively
+define a design for the security of data
+that meets the specific requirements of
+the GDPR. This involves making
+architectural decisions about data
+encryption, access controls, data
+retention policies and ensuring the
+rights of data subjects are protected
+within the application itself. It is
+your responsibility to design for
+compliance. Therefore, the correct thing
+to do is D. Define a design for the
+security of data in your web application
+that meets GDPR requirements. Question
+91. You need to set up Microsoft SQL
+Server on GCP. Management requires that
+there's no downtime in case of a data
+center outage in any of the zones within
+a GCP region. What should you do? A.
+Configure a cloud SQL instance with high
+availability enabled. B. Configure a
+cloud spanner instance with a regional
+instance configuration. C. Set up SQL
+server on compute engine using always on
+availability groups using Windows
+failover clustering. Place nodes in
+different subnets. D. Set up SQL server
+always on availability groups using
+Windows failover clustering. Place nodes
+in different zones. Okay, this is a
+question about designing a high
+availability architecture for a
+Microsoft SQL Server database that you
+are managing yourself on Google Compute
+Engine. The most important requirement
+is that the database must survive the
+failure of an entire data center which
+is called a zone in Google Cloud. With
+that in mind, let's evaluate our
+options. Let's start with option A,
+which suggests using the managed cloud
+SQL service. While Cloud SQL for SQL
+Server does have a high availability
+option, the other answers point towards
+a solution where you are managing the
+SQL Server yourself on Compute Engine
+instances. Next option B suggests using
+Cloud Spanner. This is incorrect because
+the question specifically requires
+setting up Microsoft SQL Server. Cloud
+Spanner is a completely different
+database service. Let's look at option
+C. This option correctly identifies the
+right Microsoft technologies. always on
+availability groups and Windows failover
+clustering. However, it makes a critical
+mistake by suggesting you place the
+nodes in different subnets. Placing
+servers in different subnets doesn't
+guarantee they are in different physical
+locations to protect against a data
+center failure. You must place them in
+different zones. This brings us to
+option D, which is the correct and
+complete solution. It uses the right
+combination of technology and
+infrastructure design. You use
+Microsoft's standard technologies,
+always on availability groups and
+Windows failover clustering to create
+the database cluster. Then, and this is
+the key part, you place the nodes in
+different zones by distributing the
+members of your cluster across different
+physical data centers within a region,
+you ensure that if one zone fails, the
+database can automatically fail over to
+a node in a healthy zone, meeting the
+requirement for no downtime during a
+zonal outage. Therefore, the correct way
+to design this solution is D. Set up SQL
+server always on availability groups
+using Windows failover clustering and
+place the nodes in different zones.
+Question 92. The development team has
+provided you with a Kubernetes
+deployment file. You have no
+infrastructure yet and need to deploy
+the application. What should you do?
+Use cloud to create a Kubernetes
+cluster. Use deployment manager to
+create the deployment. B. Use cloud to
+create a Kubernetes cluster. Use
+Kubernectl to create the deployment. C.
+Use Kubernct CL to create a Kubernetes
+create the deployment. D. Use Kubernct
+CL to create a Kubernetes cluster. Use
+Kubernectl to create the deployment.
+Okay, this question is about the
+fundamental workflow for deploying an
+application on Google Kubernetes Engine.
+It's important to know which tool to use
+for which step, creating the
+infrastructure versus managing the
+application inside it. With that in
+start by looking at options C and D,
+which both suggest using Kubernct CL to
+create the Kubernetes cluster. This is
+incorrect. The Kubernet command is used
+to talk to a Kubernetes cluster that
+already exists. it cannot create the
+underlying cloud infrastructure like the
+virtual machines and networking that
+make up the cluster. The cloud tool is
+used for that. Now let's look at option
+A. It correctly states that you use
+cloud to create the cluster. However, it
+then suggests using deployment manager
+to create the deployment. This is not
+the standard or recommended approach.
+While deployment manager is an
+infrastructure as code tool for GCP, the
+native tool for managing resources
+inside a Kubernetes cluster is Kubernet.
+This brings us to option B which
+describes the correct standard workflow.
+The process has two steps. First, you
+use the cloud command line tool to
+create the Google Kubernetes engine
+cluster itself as the cluster is a
+Google cloud resource. Second, once your
+cluster is up and running, you use the
+standard Kubernetes command line tool
+Kubernct to apply your deployment file
+and create the application resources
+inside that cluster. Therefore, the
+correct procedure is B. Use cloud to
+create a Kubernetes cluster and use
+Kubernet to create the deployment.
+Question 93. You are designing an
+application for use only during business
+hours. For the minimum viable product
+release, you'd like to use a managed
+product that automatically scales to
+zero so you don't incur costs when there
+is no activity. Which primary compute
+resource should you choose? A cloud
+functions, B. Compute Engine, C. Google
+Kubernetes Engine, D. App Engine
+flexible environment. Okay, this is a
+question about choosing the right
+compute service for cost optimization.
+The most important requirement here is
+that the service must scale to zero,
+which is a key characteristic of
+serverless computing. This means you
+should pay absolutely nothing when your
+application is not being used. With that
+Let's start with option B, Compute
+Engine. This is incorrect. Compute
+Engine provides virtual machines and you
+are build for them as long as they
+exist, even if they are idle. It does
+not automatically scale to zero. Next
+option C. Google Kubernetes Engine. This
+is also incorrect. While you can
+configure GKE to scale its worker nodes
+down, you are still charged for the
+cluster's control plane. It doesn't
+offer a true scale to zero cost model.
+Option D is the app engine flexible
+environment. This is a common point of
+confusion, but the flexible environment
+is designed to always keep at least one
+instance running to serve traffic
+quickly. Because an instance is always
+running, it does not scale to zero and
+will always incur costs. This brings us
+to option A, which is the correct
+answer. Cloud Functions is a fully
+managed serverless product. Its pricing
+is based on the number of times your
+code is executed. If no one is using
+your application, your functions are not
+being triggered and therefore you are
+build zero. This is the definition of a
+service that scales to zero, making it
+the perfect choice for an application
+that is only used during specific hours.
+Therefore, the primary compute resource
+you should choose is a cloud functions.
+Question 94. You are creating an app
+engine application that uses cloud data
+store as its persistence layer. You need
+to retrieve several root entities for
+which you have the identifiers. You want
+to minimize the overhead in operations
+performed by cloud data store. What
+should you do? A. Create the key object
+for each entity and run a batch get
+operation. B. Create the key object for
+each entity and run multiple get
+operations, one operation for each
+entity. C. Use the identifiers to create
+a query filter and run a batch query
+operation. D. Use the identifiers to
+create a query filter and run multiple
+query operations, one operation for each
+entity. Okay, this is a question about
+performance optimization when retrieving
+data from cloud data store. The most
+important clues are that you already
+have the identifiers for the entities
+you need and you want to minimize
+operational overhead. To solve this,
+it's important to understand two key
+differences in data store. The
+difference between a get and a query and
+the difference between a single
+operation and a batch operation. A get
+is a direct lookup by a unique key which
+is very fast. A query is a search that
+has to scan indexes which is slower. A
+batch operation lets you request many
+items in one single trip to the database
+which is much more efficient than making
+many separate trips. With that in mind,
+let's look at our options. Let's look at
+option D, which suggests running
+multiple query operations. This is the
+least efficient method because it uses
+the slower query approach and combines
+it with the high overhead of multiple
+separate requests. Option C is slightly
+better because it uses a batch query,
+but it's still incorrect. Using a query
+when you already know the exact keys is
+inefficient compared to a direct get
+operation. Next, let's look at option B.
+It correctly uses the faster get
+operation but it suggests running
+multiple separate operations. This is
+not optimal as it creates a lot of
+unnecessary network traffic and
+overhead. This brings us to option A
+which is the correct and most efficient
+solution. Combines the best of both
+worlds. You create the key object for
+each entity you need and then you
+retrieve all of them at once using a
+single batch get operation. This uses
+the fastest lookup method and the most
+efficient request method which directly
+minimizes the operational overhead as
+required. Therefore, the best way to
+retrieve the entities is a create the
+key object for each entity and run a
+batch get operation. Question 95. You
+need to upload files from your on
+premises environment to cloud storage.
+You want the files to be encrypted on
+cloud storage using customer supplied
+encryption keys. What should you do? A
+supply the encryption key in a.bodto
+configuration file. Use sud to upload
+the files. B supply the encryption key
+using cloud config. Use sud to upload
+the files to that bucket. C. Use sud to
+upload the files and use the flag
+encryption key to supply the encryption
+key. D. Use sud to create a bucket and
+use the flag encryption key to supply
+the encryption key. Use sud to upload
+the files to that bucket. Okay, this is
+a question about data security in cloud
+storage. The specific requirement is to
+use customer supplied encryption keys or
+CSK when uploading files. This means you
+provide the key and Google uses it to
+encrypt your data but does not store the
+key itself. The key to this question is
+knowing how to provide that custom key
+to the pseudo command line tool. With
+that in mind, let's look at our options.
+Let's start by looking at options C and
+D. Both suggest using an encryption key
+flag directly in the pseudo command.
+This is incorrect because the pseudo
+command simply does not have a flag with
+that name. You cannot provide the key
+directly as a command line argument. In
+this way, next option B suggests using
+cloud config. This is also incorrect.
+The cloud config command is for setting
+properties for the cloud tool itself not
+for passing sensitive information like
+an encryption key to the separate pseudo
+tool. This brings us to option A which
+is the correct and recommended method.
+The pseudo tool is configured using a
+special file called the boto
+configuration file to use a customer
+supplied encryption key. You specify the
+keys details within this file. When you
+then run sud to upload your files, it
+will automatically read the key from the
+configuration file and use it to encrypt
+your data as it's sent to cloud storage.
+This is the standard and secure way to
+handle this process. Therefore, the
+correct thing to do is a supply the
+encryption key in a boto configuration
+file and use sud to upload the files.
+Question 96. Your customer wants to
+capture multiple GBs of aggregate
+real-time key performance indicators,
+KPIs, from their game servers running on
+Google Cloud Platform and monitor the
+KPIs with low latency. How should they
+capture the KPIs? A store time series
+data from the game servers in Google Big
+Table and view it using Google Data
+Studio. B. Output custom metrics to
+stack driver from the game servers and
+create a dashboard in stack driver
+monitoring console to view them. C.
+Schedule BigQuery load jobs to ingest
+analytics files uploaded to cloud
+storage every 10 minutes and visualize
+the results in Google data studio. D.
+Insert the KPIs into cloud data store
+entities and run ad hoc analysis and
+visualizations of them in cloud data
+lab. Okay, this is a question about
+monitoring and observability. The key
+requirements here are to handle a
+real-time stream of performance data or
+KPIs and to be able to monitor that data
+with very low latency. With that in
+start with option A. While cloud
+bigtable is a great database for storing
+large volumes of time series data, using
+Google data studio for viewing is not
+the best choice for low latency
+real-time monitoring. Cloud monitoring
+is the purpose-built tool for that.
+Next, option C suggests a batch
+processing approach using BigQuery. This
+is incorrect because loading data every
+10 minutes introduces a significant
+delay which violates the real time and
+low latency requirements of the
+question. Option D is also not a good
+fit. Cloud data store is not optimized
+for time series data and cloud data lab
+is a tool for interactive data science
+not for creating real-time monitoring
+dashboards. This brings us to option B
+which is the correct and Google
+recommended solution. This approach uses
+the right tools for the job. First, your
+game servers can output custom metrics
+directly to cloud monitoring which is
+designed to ingest this kind of data
+with very low latency. Second, once the
+data is in cloud monitoring, you can
+easily create a dashboard in the console
+to visualize and monitor your KPIs in
+near real time. This is exactly what the
+cloud monitoring service is built for.
+Therefore, the best way to capture the
+KPIs is B output custom metrics to stack
+driver from the game servers and create
+a dashboard in the stack driver
+monitoring console to view them.
+Question 97. Your company wants to start
+using Google Cloud resources but wants
+to retain their on- premises Active
+Directory domain controller for identity
+management. What should you do? A. Use
+the admin directory API to authenticate
+against the Active Directory domain
+controller. B. Use Google Cloud
+Directory Sync to synchronize Active
+Directory usernames with cloud
+identities and configure SAML SSO. C.
+Use cloud identity aware proxy
+configured to use the on- premises
+active directory domain controller as an
+identity provider. D. Use compute engine
+to create an active directory AD domain
+controller that is a replica of the on-
+premises AD domain controller using
+Google cloud directory sync. Okay, this
+is a very common identity management
+question for companies moving to the
+cloud. The goal is to let employees use
+their existing company password which is
+managed by an on- premises active
+directory to access Google Cloud
+services. With that in mind, let's look
+A. The admin directory API is a tool for
+managing users and groups that already
+exist within Google system. It's not a
+tool for connecting to and
+authenticating against your onremise
+Active Directory. Next, option C
+suggests using cloud identity aware
+proxy or AP. IAP is a powerful security
+tool for protecting access to specific
+applications, but it's not the primary
+service you would use to integrate your
+entire Active Directory with Google
+Cloud for general access. Option D is
+also incorrect. It suggests creating a
+replica of your Active Directory domain
+controller on a Compute Engine VM. While
+this is a valid architecture for
+extending your AD, the statement
+incorrectly says you would use Google
+Cloud Directory Sync to do the
+replication. GCDS syncs users and
+groups, not the domain controllers
+themselves. This brings us to option B,
+which describes the correct and
+recommended two-part solution. First,
+you use Google Cloud Directory Sync.
+This is a specific tool provided by
+Google that reads your onremise active
+directory and synchronizes your users
+and groups into Google cloud identity.
+Second, you configure SAML SSO which
+stands for single sign on. This sets up
+a trust relationship where Google cloud
+trusts your onremise active directory to
+handle the user login process. This
+combination allows you to manage your
+users in one place, your on-prem AD and
+lets them use their familiar corporate
+password to access Google Cloud.
+Therefore, the correct approach is B.
+Use Google Cloud Directory sync to
+synchronize Active Directory usernames
+with cloud identities and configure SAML
+SSO. Question 98. You are running a
+cluster on Kubernetes Engine GKE to
+serve a web application. Users are
+reporting that a specific part of the
+application is not responding anymore.
+You notice that all pods of your
+deployment keep restarting after 2
+seconds. The application writes logs to
+standard output. You want to inspect the
+logs to find the cause of the issue.
+Which approach can you take?
+Review the stack driver logs for each
+Compute Engine instance that is serving
+as a node in the cluster. B. Review the
+stack driver logs for the specific GKE
+container that is serving the
+unresponsive part of the application. C.
+Connect to the cluster using cloud
+credentials and connect to a container
+in one of the pods to read the logs. D.
+Review the serial port logs for each
+compute engine instance that is serving
+as a node in the cluster. Okay, this is
+a very common troubleshooting scenario
+in Kubernetes. The key symptom is that
+the application pods are in a crash
+loop, restarting every 2 seconds. This
+makes it impossible to connect to them
+directly to see what's wrong. With that
+in mind, let's evaluate our options.
+Let's start with the options that look
+at the wrong level of logs. Options A
+and D suggest looking at the logs for
+the Compute Engine instances, either the
+system logs or the serial port logs.
+This is incorrect because those logs are
+for the underlying virtual machine, not
+for the application running inside a
+container on that machine. You won't
+find your application's error messages
+there. Next, let's look at option C,
+which suggests connecting directly to a
+container in one of the pods. This is
+incorrect because it's practically
+impossible. The pod is only alive for 2
+seconds before it restarts. By the time
+you could get a connection, the pod
+would be gone. You need a way to see the
+logs from before the crash. This brings
+us to option B, which is the correct and
+recommended solution. Google Kubernetes
+Engine is tightly integrated with cloud
+logging, which was formerly part of
+Stack Driver. Any logs your application
+writes to standard output are
+automatically collected and sent to
+cloud logging. Because these logs are
+stored centrally and persistently, you
+can go into the cloud logging console,
+filter for your specific container, and
+see the error messages that were printed
+right before it crashed. This is the
+only reliable way to debug a crash
+looping pod. Therefore, the correct
+approach is B. Review the stack driver
+logs for the specific GKE container that
+is serving the unresponsive part of the
+application. Question 99. You are using
+a single cloud SQL instance to serve
+your application from a specific zone.
+You want to introduce high availability.
+What should you do?
+Create a read replica instance in a
+different region. B. Create a failover
+replica instance in a different region.
+C. Create a read replica instance in the
+same region but in a different zone. D.
+create a failover replica instance in
+the same region but in a different zone.
+Okay, this question is about configuring
+high availability for cloud SQL. The key
+here is to understand the difference
+between a read replica and a failover
+replica and also the difference between
+high availability within a region and
+disaster recovery across regions. With
+Let's start with the options that place
+the replica in a different region which
+are A and B. These describe a disaster
+recovery strategy which is for surviving
+the failure of an entire region. The
+question is asking for high availability
+which is about surviving the failure of
+a single zone within a region. So both A
+and B are incorrect for this specific
+goal. Next let's look at option C. It
+correctly places the replica in a
+different zone within the same region
+which is the right location for high
+availability. However, it suggests using
+a read replica. A read replica is used
+to offload read queries to improve
+performance, but it cannot be
+automatically promoted to become the new
+master instance in case of a failure.
+Therefore, it does not provide high
+availability. This brings us to option
+D, which is the correct solution. To
+configure high availability for cloud
+SQL, you create a specific failover
+replica. This replica is kept in sync
+with your primary instance. You must
+place this failover replica in a
+different zone but within the same
+region. If the zone containing your
+primary instance fails, Cloud SQL will
+automatically promote the failover
+replica to become the new primary
+allowing your application to continue
+running with minimal interruption.
+Therefore, the correct way to introduce
+high availability is D. Create a
+failover replica instance in the same
+region but in a different zone. Question
+100. Your company is running a stateless
+application on a compute engine
+instance. The application is used
+heavily during regular business hours
+and lightly outside of business hours.
+Users are reporting that the application
+is slow during peak hours. You need to
+optimize the application's performance.
+Create a snapshot of the existing disk.
+Create an instance template from the
+snapshot. Create an autoscaled managed
+instance group from the instance
+template. B. Create a snapshot of the
+existing disk. Create a custom image
+from the snapshot. Create an autoscaled
+managed instance group from the custom
+image. C. Create a custom image from the
+existing disk. Create an instance
+template from the custom image. Create
+an autoscaled managed instance group
+from the instance template. D. Create an
+instance template from the existing
+disk. Create a custom image from the
+instance template. Create an autoscaled
+image. Okay, this question is about
+taking a single standalone application
+and making it scalable and resilient on
+Google Cloud. The problem of being slow
+during peak hours is a classic sign that
+a single server can't handle the load.
+So, we need a way to automatically add
+more servers when needed. The standard
+solution for this on compute engine is
+to use an autoscaled managed instance
+group. To create a group, you first need
+a blueprint for your servers, which is
+called an instance template. And to
+create that template, you need a master
+copy of your server's disk, which is
+called a custom image. With that
+sequence in mind, image, then template,
+then group. Let's look at the options.
+Option A is incorrect because you cannot
+create an instance template directly
+from a snapshot. You must create an
+image first. Option B is also incorrect
+because it's missing a step. You cannot
+create a managed instance group directly
+from a custom image. You must use the
+image to create an instance template
+first. Option D has the steps in the
+wrong order. You cannot create a custom
+image from an instance template. It's
+the other way around. This brings us to
+logical sequence of steps. First, you
+create a custom image from the disk of
+your existing working virtual machine.
+This image is your golden copy. Second,
+you create an instance template that
+uses that custom image. This template
+acts as the blueprint for all new
+instances. Finally, you create an
+autoscaled managed instance group based
+on that template. The instance group
+will now automatically launch new
+identical instances from your template
+whenever traffic increases, solving the
+performance problem during peak hours.
+Therefore, the correct procedure is C.
+Create a custom image from the existing
+disk. Create an instance template from
+the custom image and create an
+autoscaled managed instance group from
+the instance template. Thank you for
+watching. If you found this content
+valuable, please consider supporting the
+channel by liking, sharing, and
+subscribing. Furthermore, if you wish to
+discuss any of the questions presented,
+please leave a comment below and I will
+respond as soon as I am able. I will be
+releasing the next video with the
+remaining questions shortly. I wish you
+all the best on your exam.

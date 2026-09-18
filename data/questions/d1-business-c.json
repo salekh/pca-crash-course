@@ -13,12 +13,20 @@
       "Start replicating all VMs with Migrate to Virtual Machines immediately and size them once they are running in Google Cloud.",
       "Purchase a third-party CMDB product and populate it manually before contacting Google."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "The assessment phase begins with discovery. Migration Center's discovery client connects to vCenter and collects inventory and performance metrics without installing agents on individual VMs, which addresses the operators' objection, and multiple weeks of utilization data enable accurate rightsizing and TCO reports. Option A relies on memory and guesswork and misses the utilization data needed for sizing. Option C skips assessment entirely, causing over-provisioning and missed dependencies; sizing after the fact is expensive. Option D adds cost and manual effort when Migration Center provides discovery at no charge.",
     "refs": [
       "https://cloud.google.com/migration-center/docs/discovery-client-overview",
       "https://cloud.google.com/migration-center/docs/migration-center-overview"
-    ]
+    ],
+    "hint": "Core Rule (Migration Center discovery): The assessment phase begins with discovery. Migration Center's discovery client connects to vCenter and collects inventory and performance metrics without installing agents on individual VMs, which addresses the operators' objection, and multiple weeks of utilization data enable accurate rightsizing and TCO reports.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Ask each application owner to fill in a spreadsheet with the VMs they …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Start replicating all VMs with Migrate to Virtual Machines immediately…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Purchase a third-party CMDB product and populate it manually before co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-052",
@@ -34,12 +42,20 @@
       "Exclude the application servers from the estimate and only price the databases, since compute is cheap.",
       "Generate a Migration Center cost report using a sizing preference based on observed utilization with headroom (for example, 95th percentile plus a margin), select an appropriate machine series, and apply committed use discounts, then review outliers with the application team."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Migration Center's cost estimation lets you choose a sizing preference that uses collected utilization data (rather than allocated capacity) with configurable headroom, choose the machine series and apply committed use discounts, producing a realistic yet safe estimate; reviewing outliers with the application team addresses their incident concern. Option A prices idle capacity and inflates the estimate, weakening the business case. Option B is an arbitrary rule that ignores peaks, memory and workload-specific behavior and could indeed cause incidents. Option C omits the majority of the estate and produces an unusable estimate.",
     "refs": [
       "https://cloud.google.com/migration-center/docs/cost-estimation-overview",
       "https://cloud.google.com/migration-center/docs/migration-center-overview"
-    ]
+    ],
+    "hint": "Core Rule (Rightsizing with Migration Center): Migration Center's cost estimation lets you choose a sizing preference that uses collected utilization data (rather than allocated capacity) with configurable headroom, choose the machine series and apply committed use discounts, producing a realistic yet safe estimate; reviewing outliers with the application team addresses their incident concern.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Estimate every VM at its currently allocated size using on-demand pric…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Estimate every VM at one quarter of its current size because utilizati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Exclude the application servers from the estimate and only price the d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-053",
@@ -55,12 +71,20 @@
       "Replatform the MES database to Cloud SQL now to reduce operational overhead, keeping the application on VMs.",
       "Retain the MES on-premises in a small colocation cage until the SaaS edition ships."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The vendor support constraint eliminates any strategy that changes the platform (containers, managed database), and the one-year deadline plus the coming SaaS edition make investment in modernization wasteful. Rehosting preserves vendor supportability, meets the exit deadline, and positions the company for a 'replace' disposition later. Option B breaks vendor support and requires access to source code the company does not own. Option C is unsupported by the vendor and risks the production system. Option D incurs colocation costs and does not achieve the business goal of exiting the data center within a year.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/migrate/virtual-machines/docs"
-    ]
+    ],
+    "hint": "Core Rule (Choosing rehost for vendor-constrained software): The vendor support constraint eliminates any strategy that changes the platform (containers, managed database), and the one-year deadline plus the coming SaaS edition make investment in modernization wasteful.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Refactor the MES into microservices on GKE so that it is cloud-native …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Replatform the MES database to Cloud SQL now to reduce operational ove…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Retain the MES on-premises in a small colocation cage until the SaaS e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-054",
@@ -76,12 +100,20 @@
       "Replatform the database to Cloud SQL for MySQL using Database Migration Service, keeping the same MySQL version so the application connection string is the only change.",
       "Refactor the schema for Spanner to gain global scalability."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Replatforming ('move and improve') moves a workload to a managed equivalent without changing application logic. Cloud SQL for MySQL is protocol-compatible with the self-managed database, so the application needs only a new connection string, while Google takes over patching, backups and high availability; Database Migration Service performs the move with minimal downtime. Option A meets the deadline but leaves all operational burden with the two engineers. Option B requires rewriting the data access layer for a different data model, violating the no-code-change constraint. Option D likewise demands schema and code changes and adds cost for scalability the startup does not need.",
     "refs": [
       "https://cloud.google.com/database-migration/docs/mysql",
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
-    ]
+    ],
+    "hint": "Core Rule (Replatforming to managed services): Replatforming ('move and improve') moves a workload to a managed equivalent without changing application logic.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rehost the MySQL VM to Compute Engine as-is so nothing changes.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rebuild the data layer on Firestore to become fully serverless.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Refactor the schema for Spanner to gain global scalability.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-055",
@@ -98,13 +130,22 @@
       "Migrate the databases of all applications in the first wave to simplify later waves.",
       "Increase the size of the migrated VMs so they can tolerate latency to on-premises dependencies."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Dependency planning is a core migration planning activity: discovery tools capture the network flows between servers, which, combined with owner knowledge, produce a dependency map used to define move groups so that chatty components migrate together. Shared services that many applications rely on must be addressed first, either by migrating them early, replicating them (for example, extending Active Directory or using Managed Microsoft AD), or ensuring low-latency connectivity via Cloud Interconnect. Option B ignores dependencies entirely. Option D splits every application from its database across a WAN, which is the worst pattern for latency-sensitive tiers. Option E does not address latency; more CPU cannot reduce network round-trip time.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads",
       "https://cloud.google.com/migration-center/docs/migration-center-overview",
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
-    ]
+    ],
+    "hint": "Core Rule: Dependency planning is a core migration planning activity: discovery tools capture the network flows between servers, which, combined with owner knowledge, produce a dependency map used to define move groups so that chatty components migrate together.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Migrate all applications in alphabetical order so that progress is eas…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Migrate the databases of all applications in the first wave to simplif…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Increase the size of the migrated VMs so they can tolerate latency to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-056",
@@ -120,12 +161,20 @@
       "Export each VM as an OVA file, import it as a custom image, and ask the application team to test the image.",
       "Take VMware snapshots on-premises and have the team test in the on-premises environment before migrating."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Migrate to Virtual Machines replicates source VMs continuously and offers a test-clone operation that launches a VM in Google Cloud from a replicated snapshot without stopping the source, which is designed for exactly this validation step; when tests pass, the final cutover synchronizes the last changes and starts the production VM. Option A causes production downtime and risky reverse migrations. Option C is a manual, one-off image process with no continuous replication, so the tested image quickly becomes stale before cutover. Option D tests the wrong environment; the policy requires validation in Google Cloud.",
     "refs": [
       "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/test-clone",
       "https://cloud.google.com/migrate/virtual-machines/docs"
-    ]
+    ],
+    "hint": "Core Rule (Migrate to Virtual Machines test clones): Migrate to Virtual Machines replicates source VMs continuously and offers a test-clone operation that launches a VM in Google Cloud from a replicated snapshot without stopping the source, which is designed for exactly this validation step; when tests pass, the final cutover synchronizes the last changes and starts the production VM.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cut over each VM to Google Cloud, let the application team test it, an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Export each VM as an OVA file, import it as a custom image, and ask th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Take VMware snapshots on-premises and have the team test in the on-pre…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-057",
@@ -141,12 +190,20 @@
       "Rehost all 80 VMs to Compute Engine and revisit containers in two years.",
       "Run the Migrate to Containers fit assessment on the VMs to score their suitability, containerize the Tomcat and Apache workloads it rates as good fits, and rehost the Oracle RAC and kernel-module VMs to Compute Engine."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Migrate to Containers includes a fit assessment tool that analyzes each VM and rates how well it can be containerized; stateless web and Java application servers such as Apache and Tomcat are typical good fits and can be converted to container images and Kubernetes manifests without rewriting code, whereas clustered databases and VMs relying on custom kernel modules are poor fits and should stay on VMs. Option A is wrong because Migrate to Containers does not suit databases like Oracle RAC or workloads with kernel dependencies. Option B rewrites code unnecessarily and leaves easy container candidates on VMs. Option C forgoes the immediate operational savings that the assessment would identify.",
     "refs": [
       "https://cloud.google.com/migrate/containers/docs/fit-assessment",
       "https://cloud.google.com/migrate/containers/docs"
-    ]
+    ],
+    "hint": "Core Rule (Migrate to Containers candidates): Migrate to Containers includes a fit assessment tool that analyzes each VM and rates how well it can be containerized; stateless web and Java application servers such as Apache and Tomcat are typical good fits and can be converted to container images and Kubernetes manifests without rewriting code, whereas clustered databases and VMs relying on custom kernel modules are poor fits and should stay on VMs.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Containerize all 80 VMs with Migrate to Containers, since it supports …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rewrite the Tomcat applications as microservices and rehost everything…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Rehost all 80 VMs to Compute Engine and revisit containers in two year…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-058",
@@ -162,12 +219,20 @@
       "Rebuild each instance from scratch in Google Cloud with Terraform and copy the data with gcloud storage rsync at cutover.",
       "Use Storage Transfer Service to copy the EBS snapshots into Cloud Storage and boot VMs from them."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Migrate to Virtual Machines supports AWS (and Azure) as sources in addition to VMware. It continuously replicates instance disks into Google Cloud, supports test clones for validation while the source keeps running, and performs a final delta synchronization at cutover, so downtime is limited to the last sync and boot, well within 30 minutes. Option B is a manual, one-time conversion per instance; with constantly changing volumes the imported image is stale, and the process is slow and error prone at scale. Option C requires rebuilding 150 stateful systems by hand and a lengthy data copy during cutover. Option D is not a supported way to create bootable Compute Engine VMs; Storage Transfer Service moves object data, not EBS snapshots.",
     "refs": [
       "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/aws-migration-overview",
       "https://cloud.google.com/architecture/migrate-aws-to-gcp"
-    ]
+    ],
+    "hint": "Core Rule (Migrating VMs from another cloud): Migrate to Virtual Machines supports AWS (and Azure) as sources in addition to VMware.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Export each EC2 instance as an AMI, convert it to a VMDK, import it wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Rebuild each instance from scratch in Google Cloud with Terraform and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Storage Transfer Service to copy the EBS snapshots into Cloud Stor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-059",
@@ -183,12 +248,20 @@
       "Define an enterprise IP address plan now that allocates non-overlapping CIDR blocks to Google Cloud (for example, a dedicated /12 divided per region and environment), recreate the pilot subnet accordingly, and advertise the ranges over Cloud Router before the first production wave.",
       "Use a separate VPC for every application so that overlapping ranges do not matter."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Overlapping IP ranges between on-premises and Google Cloud break hybrid routing; Cloud Router cannot advertise or learn overlapping routes meaningfully, and the situation only gets harder to fix as more workloads land. Google-recommended practice is to design a non-overlapping IP plan during the foundation phase, reserving contiguous blocks for growth and per-region and per-environment allocation, and to fix the pilot subnet before production traffic depends on it. Option A misuses Cloud NAT, which provides outbound internet or Private Google Access NAT for VM egress, not bidirectional overlap translation with on-premises. Option B cannot resolve overlapping destinations. Option D multiplies management complexity and still leaves each VPC overlapping with on-premises.",
     "refs": [
       "https://cloud.google.com/architecture/best-practices-vpc-design",
       "https://cloud.google.com/architecture/migration-to-google-cloud-building-your-foundation"
-    ]
+    ],
+    "hint": "Core Rule (Network planning: IP addressing): Overlapping IP ranges between on-premises and Google Cloud break hybrid routing; Cloud Router cannot advertise or learn overlapping routes meaningfully, and the situation only gets harder to fix as more workloads land.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep both ranges identical and rely on Cloud NAT to translate traffic …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Continue with the existing subnet and add static routes on the on-prem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use a separate VPC for every application so that overlapping ranges do…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-060",
@@ -204,12 +277,20 @@
       "Cut over on a quiet weekday and monitor Cloud Monitoring dashboards closely for a week.",
       "Ask the application vendor for a certificate stating that the product is supported on Google Cloud."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Workload testing in a migration plan must cover functional correctness, performance against a measured baseline under realistic volumes (especially known peaks such as the month-end batch), and operational resilience (failover, backup and restore), all in the target environment before cutover. Only a baseline comparison can prove 'at least as well as before'. Option A verifies code, not the migrated infrastructure, data or performance. Option C treats production users as testers and risks missing a hard business deadline. Option D is a supportability statement, not evidence that this specific deployment performs correctly.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/architecture/framework/reliability"
-    ]
+    ],
+    "hint": "Core Rule (Workload testing plan): Workload testing in a migration plan must cover functional correctness, performance against a measured baseline under realistic volumes (especially known peaks such as the month-end batch), and operational resilience (failover, backup and restore), all in the target environment before cutover.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run the existing unit test suite in Cloud Build against the migrated c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Cut over on a quiet weekday and monitor Cloud Monitoring dashboards cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask the application vendor for a certificate stating that the product …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-061",
@@ -226,12 +307,21 @@
       "Group applications that communicate heavily with each other into the same wave so they do not end up split across a WAN link.",
       "Randomize the order to avoid bias from application owners."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Google's migration guidance recommends beginning with simple, low-risk workloads: they produce early wins, exercise the landing zone, tooling and runbooks, and let the team learn before facing critical systems. Waves should also respect dependencies, keeping tightly coupled components together to avoid latency and partial-failure problems. Option A maximizes risk at the point of least experience. Option C ignores risk and dependencies in favor of a footprint metric. Option E discards the dependency and risk information gathered during discovery, which is precisely what wave planning should use.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads"
-    ]
+    ],
+    "hint": "Core Rule (Migration wave planning): Google's migration guidance recommends beginning with simple, low-risk workloads: they produce early wins, exercise the landing zone, tooling and runbooks, and let the team learn before facing critical systems.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Place the most business-critical, complex applications in the first wa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Migrate applications strictly in order of the number of VMs, largest f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Randomize the order to avoid bias from application owners.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-062",
@@ -247,12 +337,20 @@
       "Migrate the VMs into the default VPC to save time and move them to a shared VPC later.",
       "Delay the migration until every application has been refactored for containers."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Google's migration framework places 'plan and build the foundation' before deployment for a reason: the resource hierarchy, IAM model, network design, connectivity, logging and policy guardrails are hard to retrofit once workloads are running, and moving VMs between projects and networks later causes downtime and rework. A well-designed landing zone also satisfies the security and operational excellence pillars from day one. Option B and C accumulate technical debt and security risk (broad Owner grants, default network) that is expensive to unwind. Option D confuses the foundation with application modernization and would delay the business unnecessarily.",
     "refs": [
       "https://cloud.google.com/architecture/landing-zones",
       "https://cloud.google.com/architecture/migration-to-google-cloud-building-your-foundation"
-    ]
+    ],
+    "hint": "Core Rule (Landing zone before migration): Google's migration framework places 'plan and build the foundation' before deployment for a reason: the resource hierarchy, IAM model, network design, connectivity, logging and policy guardrails are hard to retrofit once workloads are running, and moving VMs between projects and networks later causes downtime and rework.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Proceed as proposed, since the foundation can be restructured after th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Migrate the VMs into the default VPC to save time and move them to a s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Delay the migration until every application has been refactored for co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-063",
@@ -268,13 +366,21 @@
       "Rebuild the portal as event-driven Cloud Run functions to eliminate all servers.",
       "Containerize the existing monolith with minimal changes (for example, using Jib or a Dockerfile in Cloud Build), deploy it to Cloud Run with autoscaling, and defer any decomposition into services to a later phase."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The constraints are no Kubernetes skills, minor code changes only, elimination of VM patching, and automatic scaling. A stateless Java monolith is an ideal Cloud Run candidate: containerizing it is a packaging change, not a rewrite, Cloud Run removes OS management entirely and scales with request load, and the team avoids learning Kubernetes. This is a replatform (move and improve) that keeps the door open to refactoring later. Option A meets scaling but keeps patching, which the bank wants to eliminate. Option B requires a large rewrite and Kubernetes skills the team lacks. Option C is a full rebuild that exceeds the budget and is a poor fit for a request-driven web portal.",
     "refs": [
       "https://cloud.google.com/run/docs/overview/what-is-cloud-run",
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/java/getting-started/jib"
-    ]
+    ],
+    "hint": "Core Rule (Choosing between replatform and refactor): The constraints are no Kubernetes skills, minor code changes only, elimination of VM patching, and automatic scaling.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rehost the two VMs to Compute Engine in a managed instance group with …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Refactor the monolith into microservices on GKE Standard to achieve in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Rebuild the portal as event-driven Cloud Run functions to eliminate al…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-064",
@@ -290,12 +396,20 @@
       "Use Migrate to Virtual Machines and enable its in-place operating system upgrade feature to upgrade the servers to a supported Windows Server version as part of the migration, then validate with test clones before cutover.",
       "Convert the VMs to Linux containers with Migrate to Containers to eliminate the Windows licensing problem."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Migrate to Virtual Machines can perform an in-place Windows Server OS upgrade during migration (for example, from 2012 R2 to a supported version), which avoids manual rebuilds while satisfying the policy against unsupported operating systems; test clones let the team validate application compatibility first. Option A knowingly runs an unsupported OS with an escalating cost and still violates the spirit of the policy. Option B satisfies the policy but at the cost of weeks of manual work the firm wants to avoid. Option D is not feasible because Windows applications cannot be converted into Linux containers.",
     "refs": [
       "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/os-upgrade",
       "https://cloud.google.com/compute/docs/instances/windows"
-    ]
+    ],
+    "hint": "Core Rule (OS end-of-support during migration): Migrate to Virtual Machines can perform an in-place Windows Server OS upgrade during migration (for example, from 2012 R2 to a supported version), which avoids manual rebuilds while satisfying the policy against unsupported operating systems; test clones let the team validate application compatibility first.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rehost the VMs as-is and purchase Extended Security Updates indefinite…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rebuild all 40 servers manually on Windows Server 2022 images in Compu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Convert the VMs to Linux containers with Migrate to Containers to elim…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-065",
@@ -311,12 +425,20 @@
       "Rehost all 900 VMs to Compute Engine with Migrate to Virtual Machines and retrain the VMware team on Google Cloud networking.",
       "Extend the data center contract by two years to allow a full refactoring program."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Google Cloud VMware Engine provides a managed, dedicated vSphere, vSAN and NSX environment inside Google Cloud, so a large VMware estate can be moved with HCX using bulk or live migration while the team keeps its tools, skills and network policies, which is the fastest and least risky path for a fixed deadline. Its private connection to the VPC enables gradual modernization of individual workloads to Compute Engine, GKE, Cloud SQL and other services. Option A is not feasible for 900 heterogeneous VMs in ten months and ignores workloads unsuitable for containers. Option C is viable but discards the team's operational tooling and requires re-creating NSX policies natively, increasing risk against the deadline. Option D does not meet the business goal of exiting on time.",
     "refs": [
       "https://cloud.google.com/vmware-engine/docs/overview",
       "https://cloud.google.com/vmware-engine/docs/workloads/howto-migrate-vms-using-hcx"
-    ]
+    ],
+    "hint": "Core Rule (Google Cloud VMware Engine as a migration path): Google Cloud VMware Engine provides a managed, dedicated vSphere, vSAN and NSX environment inside Google Cloud, so a large VMware estate can be moved with HCX using bulk or live migration while the team keeps its tools, skills and network policies, which is the fastest and least risky path for a fixed deadline.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Convert every VM into containers with Migrate to Containers and run th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Rehost all 900 VMs to Compute Engine with Migrate to Virtual Machines …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Extend the data center contract by two years to allow a full refactori…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-066",
@@ -332,12 +454,20 @@
       "A full backup of the on-premises database taken immediately before cutover so it can be restored if needed.",
       "An extended maintenance window of 48 hours during which no orders are accepted, so nothing needs to be synchronized."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Migration plans must define how and when to roll back. Because the requirement forbids losing orders captured in the cloud, the plan needs reverse data synchronization (or dual-write or event replay) back to the on-premises database during the observation window, together with objective go/no-go criteria and a rehearsed traffic switch. Option B fails the stated business requirement. Option C protects only the pre-cutover state; restoring it would discard all cloud-side orders. Option D would halt sales for two days, which is commercially unacceptable and does not constitute a rollback capability.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/architecture/database-migration-concepts-principles-part-2"
-    ]
+    ],
+    "hint": "Core Rule (Cutover and rollback planning): Migration plans must define how and when to roll back.",
+    "whyWrong": {
+      "1": "Incorrect distractor (A statement that rollback is not possible after cutover because data w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A full backup of the on-premises database taken immediately before cut…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (An extended maintenance window of 48 hours during which no orders are …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-067",
@@ -355,12 +485,22 @@
       "Success criteria and risks: per-application test and acceptance criteria, cutover and rollback procedures, communication plan, and KPIs to measure the migration's business outcomes.",
       "The hostnames of every on-premises server, in alphabetical order, with no additional context."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "A migration plan is a decision and coordination document: it needs the sequencing and dependencies (wave plan), the destination and the how (target architecture diagrams and per-workload strategy with rationale), and the governance elements that make execution safe and measurable (acceptance criteria, cutover and rollback runbooks, communications, and business KPIs). Option B is implementation output that comes later and changes constantly; it does not belong in an approval document. Option D is an operational security artifact, not a planning element. Option F is raw inventory without analysis; inventory is an input to the plan but is meaningful only when tied to applications, dependencies and dispositions.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads"
-    ]
+    ],
+    "hint": "Core Rule (Migration plan documentation): A migration plan is a decision and coordination document: it needs the sequencing and dependencies (wave plan), the destination and the how (target architecture diagrams and per-workload strategy with rationale), and the governance elements that make execution safe and measurable (acceptance criteria, cutover and rollback runbooks, communications, and business KPIs).",
+    "whyWrong": {
+      "1": "Incorrect distractor (The final Terraform source code for every workload, since the plan sho…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A complete list of all IAM permissions granted to each engineer.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (The hostnames of every on-premises server, in alphabetical order, with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-068",
@@ -376,12 +516,20 @@
       "Ask clinicians to accept that cloud applications may be slower because of the distance to the region.",
       "Capture a pre-migration performance baseline for each application (response times at percentiles, throughput, key transaction timings) using the same measurement method that will be used in Google Cloud, and define acceptance thresholds relative to that baseline as part of workload testing."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Workload testing requires an objective baseline. Measuring key transactions before migration with the same instrumentation (for example, synthetic checks or application metrics later collected by Cloud Monitoring) provides a like-for-like comparison and lets you set acceptance criteria before cutover, so complaints can be verified and diagnosed (network latency, storage, sizing) with data. Option A increases cost and does not address network or design causes of latency. Option B collects perception, not evidence, and cannot pinpoint causes. Option C dismisses a possibly real problem; with proper region selection and design, cloud performance should meet or exceed on-premises.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/architecture/framework/performance-optimization"
-    ]
+    ],
+    "hint": "Core Rule (Performance baselining): Workload testing requires an objective baseline.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate the remaining applications to larger machine types so that per…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add a user survey after each migration to collect perceived performanc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Ask clinicians to accept that cloud applications may be slower because…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-069",
@@ -397,12 +545,20 @@
       "Manually price each server in the Google Cloud pricing calculator and combine the results in a spreadsheet.",
       "Migrate a representative sample of 20 servers first and extrapolate the cost to the remaining 480."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Migration Center supports importing inventory and performance data from files, including RVTools exports and CSV templates, precisely for environments where the discovery client cannot be deployed; the imported assets can then be grouped and used for cost estimates and TCO reports. Option A is unnecessary since a supported offline path exists. Option C is laborious, error-prone for 500 servers and lacks utilization-based rightsizing. Option D requires actually migrating servers before the business case is approved and produces an inaccurate extrapolation.",
     "refs": [
       "https://cloud.google.com/migration-center/docs/import-data-overview",
       "https://cloud.google.com/migration-center/docs/migration-center-overview"
-    ]
+    ],
+    "hint": "Core Rule (Migration Center data import): Migration Center supports importing inventory and performance data from files, including RVTools exports and CSV templates, precisely for environments where the discovery client cannot be deployed; the imported assets can then be grouped and used for cost estimates and TCO reports.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Explain that no assessment is possible without deploying the discovery…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Manually price each server in the Google Cloud pricing calculator and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Migrate a representative sample of 20 servers first and extrapolate th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-070",
@@ -418,12 +574,20 @@
       "Migrate to Virtual Machines with a Migrate Connector appliance deployed in vSphere, which replicates VMs agentlessly and supports batch migration groups.",
       "Migrate to Containers, which converts the VMs without touching the guest OS."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Migrate to Virtual Machines uses a connector appliance deployed in the vSphere environment to replicate VM disks at the hypervisor level, so no agent is installed in the guest, and it supports grouping VMs into migration groups for batched cutovers with continuous replication that keeps downtime short. Option A describes a manual, per-VM import path and misstates the agent requirement; it is not designed for batch, low-downtime migrations. Option B is manual, one-shot and requires VM downtime to export consistent disks. Option D produces containers, not VMs, and is unsuitable for a general rehost of 120 mixed VMs.",
     "refs": [
       "https://cloud.google.com/migrate/virtual-machines/docs/5.0/get-started/how-migrate-vms-works",
       "https://cloud.google.com/migrate/virtual-machines/docs"
-    ]
+    ],
+    "hint": "Core Rule (Agentless VM migration): Migrate to Virtual Machines uses a connector appliance deployed in the vSphere environment to replicate VM disks at the hypervisor level, so no agent is installed in the guest, and it supports grouping VMs into migration groups for batched cutovers with continuous replication that keeps downtime short.",
+    "whyWrong": {
+      "0": "Incorrect distractor (The Compute Engine virtual disk import tool, running an agent inside e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (A custom script that uses gcloud storage to upload VMDK files exported…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Migrate to Containers, which converts the VMs without touching the gue…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-071",
@@ -439,12 +603,20 @@
       "Use Private Service Connect to expose the on-premises databases to the cloud applications.",
       "Route database traffic over the public internet with TLS to avoid the cost of dedicated circuits."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Network planning is a required migration planning activity. A single VPN tunnel is capped well below the sustained 4 Gbps need, adds encryption overhead and latency variance, and is a single point of failure; Dedicated or Partner Interconnect provides high bandwidth, consistent low latency and, when deployed redundantly across edge availability domains, a 99.99% SLA. Circuits take weeks to provision, so they must be ordered and validated before the first wave. Option B reacts to failures instead of planning for them. Option C is incorrect because Private Service Connect publishes services within Google Cloud; it does not replace the physical connectivity to on-premises. Option D exposes database traffic to internet latency and variability and conflicts with a bank's security posture.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/overview",
       "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/dedicated-creating-9999-availability"
-    ]
+    ],
+    "hint": "Core Rule (Hybrid connectivity planning for migration): Network planning is a required migration planning activity.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Keep the single Cloud VPN tunnel and add a second one only if users re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Private Service Connect to expose the on-premises databases to the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Route database traffic over the public internet with TLS to avoid the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-072",
@@ -460,12 +632,20 @@
       "Add a Memorystore cache in front of Cloud SQL to hide the latency during the two-month gap.",
       "Migrate the web tier and the database together in the same wave, because splitting a chatty application across a 12 ms link would add roughly half a second per page view for two months."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Dependency planning must account for network round-trip time: 40 sequential queries at 12 ms each adds about 480 ms per page view compared with 12 ms today, which would visibly degrade the user experience for the entire gap between waves. Tightly coupled, chatty tiers should be migrated in the same wave so they stay co-located. Option A misunderstands the issue; query execution time is not the bottleneck, network round trips are. Option B creates the same latency problem in the opposite direction. Option C requires application changes to use a cache, does not help writes or uncached reads, and adds complexity for a temporary situation.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads",
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
-    ]
+    ],
+    "hint": "Core Rule (Splitting tiers across environments): Dependency planning must account for network round-trip time: 40 sequential queries at 12 ms each adds about 480 ms per page view compared with 12 ms today, which would visibly degrade the user experience for the entire gap between waves.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Approve the plan, because Cloud SQL will process queries faster and co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Move the web tier in wave 1 and the database in wave 3 instead, since …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Add a Memorystore cache in front of Cloud SQL to hide the latency duri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-073",
@@ -482,12 +662,21 @@
       "A Linux VM that loads a proprietary kernel module to drive a hardware security appliance.",
       "An SAP HANA in-memory database on a 4 TB certified VM."
     ],
-    "answer": [0, 1],
+    "answer": [
+      0,
+      1
+    ],
     "explanation": "Migrate to Containers provides workload-specific plugins for Linux applications, Apache Tomcat, JBoss, WebSphere traditional and Windows IIS ASP.NET applications, generating container images, Kubernetes manifests and deployment configuration that can target GKE or Cloud Run, so the Tomcat and IIS workloads are good candidates. Clustered relational databases such as Oracle RAC, VMs with kernel-level dependencies, and SAP HANA are explicitly poor fits: they depend on specific kernels, drivers, clustering or certified hardware sizing that containers do not provide, and they should instead run on Compute Engine (or Bare Metal Solution for Oracle) or on certified SAP machine types.",
     "refs": [
       "https://cloud.google.com/migrate/containers/docs",
       "https://cloud.google.com/migrate/containers/docs/fit-assessment"
-    ]
+    ],
+    "hint": "Core Rule (Migrate to Containers workload suitability): Migrate to Containers provides workload-specific plugins for Linux applications, Apache Tomcat, JBoss, WebSphere traditional and Windows IIS ASP.NET applications, generating container images, Kubernetes manifests and deployment configuration that can target GKE or Cloud Run, so the Tomcat and IIS workloads are good candidates.",
+    "whyWrong": {
+      "2": "Incorrect distractor (An Oracle Real Application Clusters database spanning three VMs.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A Linux VM that loads a proprietary kernel module to drive a hardware …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (An SAP HANA in-memory database on a 4 TB certified VM.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-074",
@@ -503,13 +692,21 @@
       "Place both the on-premises front end (via a hybrid connectivity NEG) and the Cloud Run service behind a global external Application Load Balancer, use weighted traffic splitting to shift a small percentage of users to Cloud Run, increase the weight as metrics stay healthy, and keep the ability to set the cloud weight back to zero.",
       "Run the two environments in parallel and ask a group of editors to test the Cloud Run version manually before switching everyone."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "A progressive (canary) cutover reduces migration risk. A global external Application Load Balancer can route to on-premises backends through hybrid connectivity network endpoint groups and to Cloud Run through serverless NEGs, and weighted traffic splitting lets the team move 5%, 25%, 50% and eventually 100% of real traffic while watching SLIs, with instant rollback by changing weights. Option A is a hard DNS switch whose rollback is delayed by DNS caching. Option B is a big bang with downtime, the opposite of what the editors want. Option D validates with a handful of users rather than real production traffic patterns and still ends with an abrupt switch.",
     "refs": [
       "https://cloud.google.com/load-balancing/docs/negs/hybrid-neg-concepts",
       "https://cloud.google.com/load-balancing/docs/https/traffic-management-global",
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
-    ]
+    ],
+    "hint": "Core Rule (Progressive cutover): A progressive (canary) cutover reduces migration risk.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Switch the DNS record to the Cloud Run URL at midnight and keep the on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Announce a maintenance window, stop the on-premises servers, and start…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run the two environments in parallel and ask a group of editors to tes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-bus-075",
@@ -525,11 +722,19 @@
       "Google Cloud Migration Center, which provides discovery, grouping, TCO and cost estimate reports, and fit assessments for Google Cloud targets at no additional cost.",
       "Recommender, which analyzes workloads and suggests optimal machine types."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Migration Center is Google Cloud's unified, no-cost migration assessment platform: it discovers on-premises and other-cloud assets, groups them into applications, generates TCO comparisons and cost estimates, and provides fit assessments for targets such as Compute Engine, GKE and managed databases, which is exactly the requested deliverable. Option A inventories resources that already exist in Google Cloud, not on-premises estates. Option B is an AI assistant that helps with design and operations questions but does not perform discovery of an on-premises environment. Option D produces rightsizing and cost recommendations for resources already running in Google Cloud.",
     "refs": [
       "https://cloud.google.com/migration-center/docs/migration-center-overview",
       "https://cloud.google.com/migration-center/docs/tco-report-overview"
-    ]
+    ],
+    "hint": "Core Rule (Choosing an assessment tool): Migration Center is Google Cloud's unified, no-cost migration assessment platform: it discovers on-premises and other-cloud assets, groups them into applications, generates TCO comparisons and cost estimates, and provides fit assessments for targets such as Compute Engine, GKE and managed databases, which is exactly the requested deliverable.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cloud Asset Inventory, which lists all assets and their configuration.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Gemini Cloud Assist, which can generate a migration report from a natu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Recommender, which analyzes workloads and suggests optimal machine typ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

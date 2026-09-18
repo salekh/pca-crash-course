@@ -13,12 +13,20 @@
       "Hyperdisk Extreme with provisioned IOPS set to the required value.",
       "Regional SSD Persistent Disk to combine high IOPS with cross-zone replication."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Hyperdisk Extreme is Google's highest-performance block storage and lets you provision IOPS independently of capacity, so you pay for exactly the performance you need rather than buying capacity to unlock throughput; it is certified for demanding databases such as SAP HANA and SQL Server. Option A is wrong because Persistent Disk performance scales with size and pd-balanced tops out well below 200,000 IOPS regardless of capacity. Option B uses the lowest-performing HDD-backed disk, which cannot approach the target. Option D adds replication but Regional PD has lower performance ceilings than Hyperdisk Extreme and does not decouple IOPS from size. This is a performance-optimization and cost-optimization decision.",
     "refs": [
       "https://cloud.google.com/compute/docs/disks/hyperdisks",
       "https://cloud.google.com/compute/docs/disks"
-    ]
+    ],
+    "hint": "Core Rule (Persistent Disk and Hyperdisk): Hyperdisk Extreme is Google's highest-performance block storage and lets you provision IOPS independently of capacity, so you pay for exactly the performance you need rather than buying capacity to unlock throughput; it is certified for demanding databases such as SAP HANA and SQL Server.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Balanced Persistent Disk (pd-balanced) sized at 10 TB to reach the IOP…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Standard Persistent Disk (pd-standard) with a larger machine type to r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Regional SSD Persistent Disk to combine high IOPS with cross-zone repl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-002",
@@ -34,12 +42,20 @@
       "Mount a Filestore Enterprise share on every VM and clean up the scratch directory after each job.",
       "Attach a Regional SSD Persistent Disk so the scratch data survives a zonal failure."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Local SSD is physically attached NVMe storage that offers the highest IOPS and lowest latency at the lowest cost per IOPS, but it is ephemeral: data is lost when the VM stops or is deleted. That makes it ideal for scratch data that has no value after the job, with durable outputs persisted to Cloud Storage. Option B delivers high IOPS but at a much higher price for data that does not need durability. Option C is a network file system that adds latency and cost and is designed for shared, persistent data. Option D pays a premium for cross-zone durability that is explicitly unnecessary. This applies the cost-optimization pillar by matching durability to the actual value of the data.",
     "refs": [
       "https://cloud.google.com/compute/docs/disks/local-ssd",
       "https://cloud.google.com/compute/docs/disks#localssds"
-    ]
+    ],
+    "hint": "Core Rule: Local SSD is physically attached NVMe storage that offers the highest IOPS and lowest latency at the lowest cost per IOPS, but it is ephemeral: data is lost when the VM stops or is deleted.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Attach Hyperdisk Extreme volumes with provisioned IOPS and delete them…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Mount a Filestore Enterprise share on every VM and clean up the scratc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Attach a Regional SSD Persistent Disk so the scratch data survives a z…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-003",
@@ -55,12 +71,20 @@
       "Switch to Standard Persistent Disk and increase the disk size until throughput targets are met.",
       "Keep SSD Persistent Disk but enable multi-writer mode to increase aggregate throughput."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Hyperdisk Throughput is designed for scale-out, throughput-oriented analytics workloads such as Hadoop and Kafka; you provision throughput (MB/s) independently of capacity and pay a lower price per GB than SSD Persistent Disk, eliminating the need to oversize disks. Option A is wrong because Local SSD is ephemeral and capacity-bound per VM, which is unsuitable for durable Kafka logs and HDFS. Option C would require enormous HDD-backed disks to reach 1.5 GB/s and still might not, with a large capacity bill. Option D does not increase throughput for a single VM and multi-writer is intended for clustered file systems, not this use case. This is a cost-optimization decision guided by the workload's I/O profile.",
     "refs": [
       "https://cloud.google.com/compute/docs/disks/hyperdisks#hyperdisk-throughput",
       "https://cloud.google.com/compute/docs/disks/hyperdisk-performance"
-    ]
+    ],
+    "hint": "Core Rule: Hyperdisk Throughput is designed for scale-out, throughput-oriented analytics workloads such as Hadoop and Kafka; you provision throughput (MB/s) independently of capacity and pay a lower price per GB than SSD Persistent Disk, eliminating the need to oversize disks.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Switch to Local SSD to obtain higher throughput at lower cost.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Switch to Standard Persistent Disk and increase the disk size until th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Keep SSD Persistent Disk but enable multi-writer mode to increase aggr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-004",
@@ -76,12 +100,20 @@
       "Filestore Zonal with the highest performance band.",
       "Filestore Regional, which synchronously replicates data across three zones in the region."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Filestore Regional (and the Enterprise tier that preceded it) is the only Filestore tier that replicates data synchronously across multiple zones within a region and carries a 99.99% availability SLA, so the NFS share survives a zonal outage without manual failover. Options A and B are zonal tiers with 99.9% availability; a zone failure takes the share offline, and a nightly copy implies up to a day of data loss. Option C, Filestore Zonal, offers high performance but is still confined to a single zone. Choosing the tier by availability requirement rather than raw performance is a reliability-pillar decision.",
     "refs": [
       "https://cloud.google.com/filestore/docs/service-tiers",
       "https://cloud.google.com/filestore/docs/regional"
-    ]
+    ],
+    "hint": "Core Rule: Filestore Regional (and the Enterprise tier that preceded it) is the only Filestore tier that replicates data synchronously across multiple zones within a region and carries a 99.99% availability SLA, so the NFS share survives a zonal outage without manual failover.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Filestore Basic HDD, with a nightly copy of the share to a second zone…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Filestore Basic SSD in the same zone as the GKE node pool.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Filestore Zonal with the highest performance band.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-005",
@@ -97,12 +129,20 @@
       "Nearline storage, because it is the recommended class for compliance archives.",
       "Coldline storage, because Archive storage requires hours to restore objects."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Archive storage is the lowest-cost class for data accessed less than once a year; unlike tape-style archives at other providers, objects remain available within milliseconds, so the immediate-availability requirement is met. Its higher retrieval and per-operation fees and 365-day minimum duration are irrelevant when files are read once every few years. Option A is far more expensive over a decade for data that is almost never read. Option C, Nearline, targets data accessed roughly once a month, making it costlier than Archive here. Option D is based on a false premise: Archive has no restore delay in Cloud Storage. This is a straightforward cost-optimization decision.",
     "refs": [
       "https://cloud.google.com/storage/docs/storage-classes",
       "https://cloud.google.com/storage/pricing"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage classes): Archive storage is the lowest-cost class for data accessed less than once a year; unlike tape-style archives at other providers, objects remain available within milliseconds, so the immediate-availability requirement is met.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Standard storage, because retrieval fees would make other classes more…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Nearline storage, because it is the recommended class for compliance a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Coldline storage, because Archive storage requires hours to restore ob…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-006",
@@ -118,12 +158,20 @@
       "Enable Autoclass on the bucket so objects transition between storage classes automatically based on access, with no retrieval fees.",
       "Store popular photos in a Standard bucket and unpopular photos in an Archive bucket, moving them with a daily Cloud Run job."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Autoclass automatically moves objects that are not accessed to colder classes and returns them to Standard when they are read, charging no early-deletion or retrieval fees, which is exactly right for unpredictable per-object access patterns with a small team. Option A incurs retrieval fees every time a popular photo is viewed, which could dwarf the storage savings. Option B is a fixed age-based policy that ignores actual access and still charges retrieval fees for objects read after transition; the team also explicitly does not want to tune rules. Option D requires building and operating custom logic and still cannot predict future popularity. This is a cost-optimization and operational-excellence choice.",
     "refs": [
       "https://cloud.google.com/storage/docs/autoclass",
       "https://cloud.google.com/storage/docs/storage-classes"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage Autoclass): Autoclass automatically moves objects that are not accessed to colder classes and returns them to Standard when they are read, charging no early-deletion or retrieval fees, which is exactly right for unpredictable per-object access patterns with a small team.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Set the bucket default class to Coldline and accept retrieval fees for…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create lifecycle rules that move objects to Nearline after 30 days and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Store popular photos in a Standard bucket and unpopular photos in an A…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-007",
@@ -139,12 +187,20 @@
       "Apply an IAM deny policy that prevents storage.objects.delete for all principals except a break-glass group.",
       "Enable soft delete with a 6-year retention duration so deleted objects remain recoverable."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A locked bucket retention policy (Bucket Lock) makes it impossible for anyone, including owners and Google support, to delete objects before the retention period ends or to reduce the retention period; Cloud Storage has been assessed by Cohasset Associates as meeting SEC 17a-4, FINRA, and CFTC requirements when Bucket Lock is used. Option B does not prevent deletion of noncurrent versions and provides no immutable guarantee. Option C relies on IAM, which an organization administrator can change, and includes an exception group, so it is not a WORM control. Option D is wrong because soft delete supports a maximum retention of 90 days and is a recovery feature, not a compliance lock. This is a compliance requirement under the security pillar.",
     "refs": [
       "https://cloud.google.com/storage/docs/bucket-lock",
       "https://cloud.google.com/storage/docs/using-bucket-lock"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage retention): A locked bucket retention policy (Bucket Lock) makes it impossible for anyone, including owners and Google support, to delete objects before the retention period ends or to reduce the retention period; Cloud Storage has been assessed by Cohasset Associates as meeting SEC 17a-4, FINRA, and CFTC requirements when Bucket Lock is used.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Enable object versioning on the bucket so deleted records remain as no…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Apply an IAM deny policy that prevents storage.objects.delete for all …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable soft delete with a 6-year retention duration so deleted objects…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-008",
@@ -160,12 +216,20 @@
       "Add a lifecycle rule with the SetStorageClass action to move noncurrent versions to Archive storage.",
       "Add a lifecycle rule with the Delete action and the condition numNewerVersions equal to 3, which targets only noncurrent versions."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The numNewerVersions lifecycle condition applies only to noncurrent object versions and matches when at least the specified number of newer versions exist, so setting it to 3 with a Delete action removes every version beyond the three most recent noncurrent ones, precisely as required. Option A removes the versioning protection the team relies on; soft delete has a maximum 90-day window and is not a substitute for version history. Option B would delete live objects older than 30 days, destroying current documents. Option C reduces per-GB cost but keeps unlimited versions, incurs early-deletion fees on frequently replaced versions, and does not meet the retention-count requirement. This is a cost-optimization control that preserves the intended data protection.",
     "refs": [
       "https://cloud.google.com/storage/docs/lifecycle#numbernewerversions",
       "https://cloud.google.com/storage/docs/object-versioning"
-    ]
+    ],
+    "hint": "Core Rule (Object versioning and lifecycle): The numNewerVersions lifecycle condition applies only to noncurrent object versions and matches when at least the specified number of newer versions exist, so setting it to 3 with a Delete action removes every version beyond the three most recent noncurrent ones, precisely as required.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Disable object versioning and rely on soft delete to recover overwritt…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add a lifecycle rule with the Delete action and the condition age grea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Add a lifecycle rule with the SetStorageClass action to move noncurren…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-009",
@@ -182,12 +246,21 @@
       "Delete with condition age = 365 days.",
       "SetStorageClass to Nearline with condition age = 365 days."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "After 30 days the logs are accessed only occasionally, so transitioning them to Coldline (designed for data read less than once per quarter, 90-day minimum duration) captures most of the savings while keeping retrieval costs reasonable for compliance reviews. A Delete rule at 365 days enforces the data-minimization policy automatically. Option B (Archive) has a 365-day minimum storage duration, so objects deleted at day 365 after transitioning at day 30 would incur early-deletion charges, and its retrieval fees are higher for the occasional compliance reads. Option C would destroy logs after 30 days, violating the compliance access window. Option E transitions objects at the moment they should be deleted, which is pointless. Lifecycle automation is a core cost-optimization practice.",
     "refs": [
       "https://cloud.google.com/storage/docs/lifecycle",
       "https://cloud.google.com/storage/docs/storage-classes#coldline"
-    ]
+    ],
+    "hint": "Core Rule (Object lifecycle management): After 30 days the logs are accessed only occasionally, so transitioning them to Coldline (designed for data read less than once per quarter, 90-day minimum duration) captures most of the savings while keeping retrieval costs reasonable for compliance reviews.",
+    "whyWrong": {
+      "1": "Incorrect distractor (SetStorageClass to Archive with condition age = 30 days.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Delete with condition age = 30 days and matchesStorageClass = Standard…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (SetStorageClass to Nearline with condition age = 365 days.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-010",
@@ -203,12 +276,20 @@
       "Enable a 30-day bucket retention policy on the assets bucket, and delete and recreate the temporary bucket without soft delete.",
       "Move the assets bucket to a dual-region location for durability and apply an Autoclass configuration to the temporary bucket."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Soft delete is enabled by default with a 7-day retention and can be configured per bucket from 0 (disabled) to 90 days; setting 30 days on the assets bucket extends the recovery window, and setting 0 on the temporary bucket disables the feature so no soft-deleted storage charges accrue. Option A confuses versioning (which protects overwrites and explicit deletes by keeping noncurrent versions but requires the client to not delete versions) with soft delete, and enabling soft delete on the temporary bucket is the opposite of what was asked. Option C misuses a retention policy, which blocks deletion entirely rather than allowing recovery, and recreating the bucket is unnecessary. Option D addresses durability against infrastructure failures, not human error. This is a data-protection decision balanced against cost.",
     "refs": [
       "https://cloud.google.com/storage/docs/soft-delete",
       "https://cloud.google.com/storage/docs/use-soft-delete"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage soft delete): Soft delete is enabled by default with a 7-day retention and can be configured per bucket from 0 (disabled) to 90 days; setting 30 days on the assets bucket extends the recovery window, and setting 0 on the temporary bucket disables the feature so no soft-deleted storage charges accrue.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable object versioning on the assets bucket with a lifecycle rule to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable a 30-day bucket retention policy on the assets bucket, and dele…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move the assets bucket to a dual-region location for durability and ap…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-011",
@@ -224,12 +305,20 @@
       "Grant the Cloud Run service account the Service Account Token Creator role on itself and generate V4 signed URLs by calling the IAM signBlob API, with a 15-minute expiration.",
       "Grant the customers' email addresses the Storage Object Viewer role on the bucket for 15 minutes using IAM conditions."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "V4 signed URLs give time-limited access to a private object to anyone holding the URL, regardless of Google identity. The signing normally uses a private key, but the client libraries can instead call the IAM Credentials signBlob API using the runtime service account's identity, which avoids creating or storing any key file; the service account needs roles/iam.serviceAccountTokenCreator on itself. Option A exposes all content to the internet; obscurity is not access control. Option B directly violates the prohibition on service account keys. Option D fails because customers have no Google identities and IAM conditions cannot grant per-user, per-object 15-minute access at scale. This follows the security pillar's guidance to avoid long-lived credentials.",
     "refs": [
       "https://cloud.google.com/storage/docs/access-control/signed-urls",
       "https://cloud.google.com/storage/docs/access-control/signing-urls-with-helpers"
-    ]
+    ],
+    "hint": "Core Rule: V4 signed URLs give time-limited access to a private object to anyone holding the URL, regardless of Google identity.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Make the bucket publicly readable and obscure object names with random…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a service account key, store it in Secret Manager, and use it i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Grant the customers' email addresses the Storage Object Viewer role on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-012",
@@ -245,12 +334,20 @@
       "Enable object versioning so ACL changes can be reverted from prior versions.",
       "Move all objects to new buckets in a project where the former contractors have no IAM roles."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Uniform bucket-level access disables object ACLs entirely so that only IAM (bucket and project policies, optionally with IAM Conditions) controls access; Google recommends it for all new buckets and the organization policy constraint storage.uniformBucketLevelAccess can enforce it. Option B is reactive, leaves windows of exposure, and adds operational toil. Option C does not affect access control; versioning protects object data, not permissions. Option D is disruptive and does nothing about ACLs, which travel with copied objects unless rewritten, and legacy ACLs could still be set in the new buckets. This is a least-privilege simplification under the security pillar.",
     "refs": [
       "https://cloud.google.com/storage/docs/uniform-bucket-level-access",
       "https://cloud.google.com/storage/docs/access-control"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage access control): Uniform bucket-level access disables object ACLs entirely so that only IAM (bucket and project policies, optionally with IAM Conditions) controls access; Google recommends it for all new buckets and the organization policy constraint storage.uniformBucketLevelAccess can enforce it.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Run a script that removes every object ACL nightly and alert on new AC…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable object versioning so ACL changes can be reverted from prior ver…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move all objects to new buckets in a project where the former contract…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-013",
@@ -267,12 +364,21 @@
       "Grant the Cloud Storage service agent for the project the Cloud KMS CryptoKey Encrypter/Decrypter role on the key.",
       "Enable object versioning so that previously encrypted versions can be re-encrypted after key rotation."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "To use CMEK on Cloud Storage, the KMS key must be in a location that matches the bucket (same region, or a multi-region/dual-region that covers it), and the project's Cloud Storage service agent must have roles/cloudkms.cryptoKeyEncrypterDecrypter on the key; setting the key as the bucket's default encryption key then applies it to all new objects transparently, with no application changes. Option A is invalid because a key in the global location cannot be used for a regional bucket. Option C would meet the encryption goal but violates the no-code-change constraint and is error-prone. Option E is unrelated: existing objects are not automatically re-encrypted on rotation regardless of versioning, and rotation does not require it since older key versions remain usable until destroyed. This satisfies the security pillar's key-control requirement.",
     "refs": [
       "https://cloud.google.com/storage/docs/encryption/customer-managed-keys",
       "https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys"
-    ]
+    ],
+    "hint": "Core Rule: To use CMEK on Cloud Storage, the KMS key must be in a location that matches the bucket (same region, or a multi-region/dual-region that covers it), and the project's Cloud Storage service agent must have roles/cloudkms.cryptoKeyEncrypterDecrypter on the key; setting the key as the bucket's default encryption key then applies it to all new objects transparently, with no application changes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create the Cloud KMS key ring in the global location so every bucket c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Require every application to pass the key resource name in each upload…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Enable object versioning so that previously encrypted versions can be …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-014",
@@ -288,12 +394,20 @@
       "Order a Transfer Appliance, ship it to the AWS region, and perform daily incremental loads until cutover.",
       "Deploy a Dataflow pipeline that lists the S3 bucket every day and copies changed objects to Cloud Storage."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Storage Transfer Service is Google's managed, agentless service for moving data from S3 (and other clouds) into Cloud Storage; it supports scheduled recurring jobs, incremental transfers that copy only new or changed objects, and options to delete destination objects missing from the source, all with parallelism managed by Google. Option A works but requires a customer-managed VM that becomes a bandwidth and reliability bottleneck for 500 TB and violates the no-infrastructure requirement. Option C is a physical device for offline transfers from customer premises and cannot be shipped to AWS or used for daily sync. Option D is custom code that must be built and operated when a managed service already exists. This is an operational-excellence and reliability decision for data movement.",
     "refs": [
       "https://cloud.google.com/storage-transfer/docs/overview",
       "https://cloud.google.com/storage-transfer/docs/create-transfers"
-    ]
+    ],
+    "hint": "Core Rule: Storage Transfer Service is Google's managed, agentless service for moving data from S3 (and other clouds) into Cloud Storage; it supports scheduled recurring jobs, incremental transfers that copy only new or changed objects, and options to delete destination objects missing from the source, all with parallelism managed by Google.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use gcloud storage rsync on a large Compute Engine VM, scheduled daily…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Order a Transfer Appliance, ship it to the AWS region, and perform dai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy a Dataflow pipeline that lists the S3 bucket every day and copi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-015",
@@ -309,12 +423,20 @@
       "Order one or more Transfer Appliances, load the data locally, and ship the appliances to Google for upload into the destination bucket.",
       "Provision a Partner Interconnect connection at the field office for the duration of the migration."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "At 100 Mbps, 800 TB would take well over two years to transfer even using the entire link, so any online approach fails the six-week deadline; Google recommends Transfer Appliance when online transfer would take more than about a week. Transfer Appliance is a ruggedized storage device shipped to the site, loaded offline, and returned to Google, where the data is uploaded to Cloud Storage. Options A and B are both online methods bounded by the same 100 Mbps link; bandwidth limits and parallelism do not change the arithmetic. Option D would take weeks to provision, requires a nearby provider, and is disproportionate for a one-time historical load. This decision applies the performance and cost-optimization pillars to data movement.",
     "refs": [
       "https://cloud.google.com/transfer-appliance/docs/4.0/overview",
       "https://cloud.google.com/architecture/migration-to-google-cloud-transferring-your-large-datasets"
-    ]
+    ],
+    "hint": "Core Rule: At 100 Mbps, 800 TB would take well over two years to transfer even using the entire link, so any online approach fails the six-week deadline; Google recommends Transfer Appliance when online transfer would take more than about a week.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use Storage Transfer Service with on-premises agents and a bandwidth l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Upload the data with gcloud storage cp using parallel composite upload…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Provision a Partner Interconnect connection at the field office for th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-016",
@@ -331,12 +453,21 @@
       "Run gsutil -m cp -r from the file server as a one-time copy, since STS does not support file system sources.",
       "Order a Transfer Appliance because Storage Transfer Service cannot use Interconnect bandwidth."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Storage Transfer Service supports on-premises POSIX file system sources through lightweight agents that run in Docker on customer machines with access to the file system; the agents are grouped into an agent pool, and a transfer job with a file system source can be scheduled to run repeatedly, transferring only new or changed files, preserving metadata, and retrying automatically. Option B misuses the S3-compatible source type, which requires an S3 API endpoint, not an NFS mount. Option D is incorrect because STS does support file system sources, and gsutil is legacy tooling with no managed scheduling or checkpointing. Option E is wrong because 60 TB over 10 Gbps completes in well under a day and STS agents use whatever network path routes to Google, including Interconnect. This is an operational-excellence choice for hybrid data movement.",
     "refs": [
       "https://cloud.google.com/storage-transfer/docs/on-prem-overview",
       "https://cloud.google.com/storage-transfer/docs/on-prem-agent"
-    ]
+    ],
+    "hint": "Core Rule: Storage Transfer Service supports on-premises POSIX file system sources through lightweight agents that run in Docker on customer machines with access to the file system; the agents are grouped into an agent pool, and a transfer job with a file system source can be scheduled to run repeatedly, transferring only new or changed files, preserving metadata, and retrying automatically.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a Storage Transfer Service job with the S3-compatible source ty…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run gsutil -m cp -r from the file server as a one-time copy, since STS…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Order a Transfer Appliance because Storage Transfer Service cannot use…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-017",
@@ -352,12 +483,20 @@
       "Compress the files before upload using gzip to reduce the number of bytes transferred.",
       "Enable parallel composite uploads so each large file is split into chunks uploaded concurrently and composed server-side, and increase the process and thread counts."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A single-stream upload of a large object is limited by per-connection throughput; parallel composite uploads divide the file into up to 32 chunks uploaded in parallel and then compose them into one object, which typically multiplies throughput for large files. gcloud storage enables this behavior via the storage/parallel_composite_upload_enabled property and tuning of process and thread counts. Composite objects carry a CRC32C checksum but not an MD5 hash, which is fine because the downstream tools use CRC32C. Option A changes durability and geographic placement, not per-object upload speed. Option B is backwards: gcloud storage is the newer, faster CLI and gsutil is in maintenance mode. Option C adds CPU time and most render outputs (images, video) are already compressed, so it yields little benefit. This is a performance-optimization tuning decision.",
     "refs": [
       "https://cloud.google.com/storage/docs/parallel-composite-uploads",
       "https://cloud.google.com/sdk/gcloud/reference/topic/gcloud_storage"
-    ]
+    ],
+    "hint": "Core Rule (Data transfer performance): A single-stream upload of a large object is limited by per-connection throughput; parallel composite uploads divide the file into up to 32 chunks uploaded in parallel and then compose them into one object, which typically multiplies throughput for large files.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Switch the bucket to a multi-region location so uploads are accepted b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Replace gcloud storage with gsutil, which uses more parallel threads b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Compress the files before upload using gzip to reduce the number of by…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-018",
@@ -374,12 +513,21 @@
       "Enable Turbo replication on the bucket to accelerate delivery to end users.",
       "Enable parallel composite uploads so that player downloads are split across connections."
     ],
-    "answer": [1, 2],
+    "answer": [
+      1,
+      2
+    ],
     "explanation": "Cloud CDN caches Cloud Storage objects at Google's edge points of presence worldwide, so repeated downloads of the same asset packs are served from a location near each player, which is the highest-impact change for global download latency. Using a multi-region or dual-region bucket places the origin data in multiple geographic locations, improving performance and availability for cache misses and first requests. Option A, Anywhere Cache, accelerates reads from Compute Engine and other Google Cloud compute in specific zones, not from players on the internet. Option D, Turbo replication, sets a 15-minute replication RPO for dual-region buckets to improve disaster recovery, not end-user latency. Option E concerns uploads, not downloads. Combining CDN with a geographically distributed origin follows the performance-optimization pillar.",
     "refs": [
       "https://cloud.google.com/cdn/docs/setting-up-cdn-with-bucket",
       "https://cloud.google.com/storage/docs/locations"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage latency): Cloud CDN caches Cloud Storage objects at Google's edge points of presence worldwide, so repeated downloads of the same asset packs are served from a location near each player, which is the highest-impact change for global download latency.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable Anywhere Cache on the bucket in every region where players are …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable Turbo replication on the bucket to accelerate delivery to end u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Enable parallel composite uploads so that player downloads are split a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-019",
@@ -395,12 +543,20 @@
       "Two regional buckets, one in each region, kept in sync by a Storage Transfer Service job running every 15 minutes.",
       "A single regional bucket with object versioning and a 15-minute snapshot schedule."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Dual-region buckets let you pick two specific regions, providing geo-redundancy with a single namespace and colocation with compute in both regions; turbo replication adds a 15-minute replication RPO backed by an SLA, which meets the stated recovery point requirement. Option B does not allow choosing the two regions, and multi-region buckets have no turbo replication option or 15-minute RPO SLA (the default replication target is about one hour). Option C introduces two namespaces, eventual consistency between them, and an STS job whose run interval plus transfer time cannot guarantee a 15-minute RPO for continuous writes. Option D is single-region, and Cloud Storage has no snapshot feature; it would not survive a regional outage. This is a reliability-pillar decision based on explicit RPO and locality requirements.",
     "refs": [
       "https://cloud.google.com/storage/docs/availability-durability#cross-region-redundancy",
       "https://cloud.google.com/storage/docs/turbo-replication"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage locations): Dual-region buckets let you pick two specific regions, providing geo-redundancy with a single namespace and colocation with compute in both regions; turbo replication adds a 15-minute replication RPO backed by an SLA, which meets the stated recovery point requirement.",
+    "whyWrong": {
+      "1": "Incorrect distractor (A US multi-region bucket, which replicates data across all US regions …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Two regional buckets, one in each region, kept in sync by a Storage Tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A single regional bucket with object versioning and a 15-minute snapsh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-020",
@@ -416,12 +572,20 @@
       "Create a Hyperdisk Balanced volume with multi-writer (shared) access mode and attach it to both cluster nodes.",
       "Use a Filestore Enterprise share mounted over SMB as the cluster's shared storage."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Hyperdisk Balanced supports the multi-writer access mode, which allows the same volume to be attached read-write to multiple VMs and includes SCSI-3 persistent reservation support required by Windows Server Failover Clustering and SQL Server FCI, while providing provisioned, predictable IOPS. Option A is wrong because Regional Persistent Disk provides cross-zone replication for one VM at a time; a regional disk can be force-attached to another VM during failover but cannot be attached to two VMs simultaneously as shared storage. Option B uses ephemeral Local SSD, so a VM stop or host failure loses the data. Option D is a file service, not block storage, and Filestore serves NFS rather than SMB, so it cannot act as an FCI shared disk. This is a reliability design that uses the correct managed storage primitive.",
     "refs": [
       "https://cloud.google.com/compute/docs/disks/sharing-disks-between-vms",
       "https://cloud.google.com/compute/docs/sql-server/configure-failover-cluster-instance"
-    ]
+    ],
+    "hint": "Core Rule: Hyperdisk Balanced supports the multi-writer access mode, which allows the same volume to be attached read-write to multiple VMs and includes SCSI-3 persistent reservation support required by Windows Server Failover Clustering and SQL Server FCI, while providing provisioned, predictable IOPS.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Attach a Regional SSD Persistent Disk to both nodes, since regional di…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Attach a Local SSD to each node and configure Storage Spaces Direct to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use a Filestore Enterprise share mounted over SMB as the cluster's sha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-021",
@@ -437,12 +601,20 @@
       "Apply a 25-year locked bucket retention policy to be safe, and manage shorter periods with lifecycle rules.",
       "Create the bucket with object retention enabled, set a per-object retention configuration (retain-until time, locked) at upload, and use object holds (event-based or temporary) for legal holds."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Cloud Storage object retention configurations let each object carry its own retain-until time, which can be locked so it cannot be shortened or removed, satisfying per-case retention within one bucket; object holds independently block deletion for as long as the hold is set, which is how indefinite legal holds are implemented. Option A multiplies buckets, and moving objects between buckets is impossible if they are under retention and breaks audit trails. Option B relies on application discipline, not an enforced control. Option C would force every object to be retained 25 years, and lifecycle rules cannot delete objects protected by a retention policy, so shorter periods could not be honored. This provides fine-grained compliance under the security pillar.",
     "refs": [
       "https://cloud.google.com/storage/docs/object-lock",
       "https://cloud.google.com/storage/docs/object-holds"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Storage object retention configurations let each object carry its own retain-until time, which can be locked so it cannot be shortened or removed, satisfying per-case retention within one bucket; object holds independently block deletion for as long as the hold is set, which is how indefinite legal holds are implemented.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create one bucket per retention period with a locked retention policy …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Enable object versioning and instruct the application never to issue d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Apply a 25-year locked bucket retention policy to be safe, and manage …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-022",
@@ -460,13 +632,23 @@
       "Configure a customer-managed encryption key from Cloud KMS as the bucket's default key.",
       "Enable object versioning so that leaked objects can be rolled back."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "Public access prevention blocks any IAM binding or ACL that would grant access to allUsers or allAuthenticatedUsers, uniform bucket-level access removes object ACLs so IAM is the sole access-control mechanism, and a CMEK default key means disabling or destroying the key renders the data unreadable, providing cryptographic revocation. Option B is unrelated to access control; storage class affects cost and access pattern, not permissions. Option D, Requester Pays, shifts egress and operation charges to the requester but does not prevent public access, and it actually requires requesters to have a billing project rather than blocking them. Option F protects against overwrite or deletion, not disclosure. Together, the correct three implement the security pillar's defense-in-depth for sensitive data.",
     "refs": [
       "https://cloud.google.com/storage/docs/public-access-prevention",
       "https://cloud.google.com/storage/docs/uniform-bucket-level-access",
       "https://cloud.google.com/storage/docs/encryption/customer-managed-keys"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage security): Public access prevention blocks any IAM binding or ACL that would grant access to allUsers or allAuthenticatedUsers, uniform bucket-level access removes object ACLs so IAM is the sole access-control mechanism, and a CMEK default key means disabling or destroying the key renders the data unreadable, providing cryptographic revocation.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Set the bucket's default storage class to Archive to limit access.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable Requester Pays so anonymous users cannot download objects.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (Enable object versioning so that leaked objects can be rolled back.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-023",
@@ -482,12 +664,20 @@
       "Restrict downloads to researchers located in the same region as the bucket to eliminate egress charges.",
       "Compress the dataset with Cloud Run functions before serving to reduce egress volume."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Requester Pays shifts network egress, operation, and retrieval charges from the bucket owner to the requester, who must supply a billing project when accessing the bucket; it is the intended solution for sharing large public datasets without absorbing download costs, and it keeps the data available to any authenticated user with a billing account. Option A reduces storage cost but increases retrieval fees, and egress charges are unchanged, which is the actual problem. Option C severely limits availability and is not enforceable for an open dataset. Option D adds compute cost and complexity, and scientific datasets are often already compressed. This is a cost-optimization control specific to data sharing.",
     "refs": [
       "https://cloud.google.com/storage/docs/requester-pays",
       "https://cloud.google.com/storage/docs/using-requester-pays"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage billing): Requester Pays shifts network egress, operation, and retrieval charges from the bucket owner to the requester, who must supply a billing project when accessing the bucket; it is the intended solution for sharing large public datasets without absorbing download costs, and it keeps the data available to any authenticated user with a billing account.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Move the dataset to Archive storage to reduce the monthly bill.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Restrict downloads to researchers located in the same region as the bu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Compress the dataset with Cloud Run functions before serving to reduce…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-024",
@@ -503,12 +693,20 @@
       "Switch the bucket to a dual-region location to increase listing throughput.",
       "Enable object versioning so renames can be performed as pointer updates rather than copies."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "In a flat-namespace bucket, a directory rename is emulated by copying and deleting every object, and prefix listing over millions of objects is slow; buckets with hierarchical namespace (HNS) enabled store folders as first-class resources, support atomic folder rename operations, and provide up to 8x higher initial QPS, which is designed for Hadoop and Spark workloads. Option B addresses storage-class cost, not rename or listing performance. Option C changes geographic redundancy and has no effect on rename semantics. Option D is wrong because versioning has nothing to do with renames; Cloud Storage objects are still copied. Note that HNS must be chosen at bucket creation, so this is an up-front design decision that follows the performance-optimization pillar.",
     "refs": [
       "https://cloud.google.com/storage/docs/hns-overview",
       "https://cloud.google.com/storage/docs/create-hns-bucket"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage for analytics): In a flat-namespace bucket, a directory rename is emulated by copying and deleting every object, and prefix listing over millions of objects is slow; buckets with hierarchical namespace (HNS) enabled store folders as first-class resources, support atomic folder rename operations, and provide up to 8x higher initial QPS, which is designed for Hadoop and Spark workloads.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Enable Autoclass on the bucket so frequently accessed Parquet files re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Switch the bucket to a dual-region location to increase listing throug…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable object versioning so renames can be performed as pointer update…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-sto-025",
@@ -524,11 +722,19 @@
       "Enable Cloud CDN in front of the bucket so that training reads are served from the nearest edge cache.",
       "Enable turbo replication on the bucket so data is replicated to us-central1 more quickly."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Anywhere Cache is a zonal, SSD-backed read cache that sits in front of a bucket and serves repeated reads to Compute Engine and GKE workloads in that zone with lower latency and higher throughput; because cached reads are served locally, they also avoid multi-region data-transfer charges, and the training code continues to use the same bucket paths. Option A worsens latency and adds retrieval fees for a heavily read dataset. Option C is designed for internet clients behind an external load balancer, not for VM-to-bucket reads within Google Cloud. Option D is not applicable: turbo replication is a dual-region feature for disaster-recovery RPO, not a caching or locality mechanism for multi-region buckets. This is a performance-optimization decision that also lowers cost.",
     "refs": [
       "https://cloud.google.com/storage/docs/anywhere-cache",
       "https://cloud.google.com/storage/docs/enable-anywhere-cache"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Storage caching): Anywhere Cache is a zonal, SSD-backed read cache that sits in front of a bucket and serves repeated reads to Compute Engine and GKE workloads in that zone with lower latency and higher throughput; because cached reads are served locally, they also avoid multi-region data-transfer charges, and the training code continues to use the same bucket paths.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Move the dataset to a Coldline bucket in us-central1 to reduce storage…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable Cloud CDN in front of the bucket so that training reads are ser…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable turbo replication on the bucket so data is replicated to us-cen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

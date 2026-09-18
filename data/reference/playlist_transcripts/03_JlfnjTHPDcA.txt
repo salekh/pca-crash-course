@@ -1,0 +1,1354 @@
+TITLE: Real Google Cloud Professional Cloud Architect Exam Questions & Answers | Part 3 (Questions 41- 60)
+URL: https://www.youtube.com/watch?v=JlfnjTHPDcA
+DESCRIPTION:
+Welcome to Part 3 of our Google Cloud Professional Architect exam series! In this 1-hour session, we dive deep into **questions 41-60** from the real exam. This series is designed to help you UNDERSTAND, not just memorize, key concepts for the exam, including **Designing Storage Infrastructure**, **Planning for Migration**, **Data Security**, and **Release Management**. We provide in-depth explanations for every single answer option (A, B, C, D, ...) to build your core Cloud Architect problem-solving skills.
+
+Our full playlist contains 250+ questions to get you fully prepared for exam day.
+
+▶️ WATCH THE FULL PLAYLIST HERE:
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+
+-- SUPPORT THE CHANNEL --
+If you find this content valuable, please consider supporting the channel by liking, sharing, and subscribing. It helps us create more free, high-quality content for everyone.
+
+If you want to discuss any of the questions, leave a comment below! I read them all and will respond as soon as I can. Good luck! #googlecloud #cloudarchitect #gcp #professionalcloudarchitect #itcertification #gcpexamquestions #realexamquestions #storage #migration #datasecurity #releasemanagement
+
+CHAPTERS:
+
+TRANSCRIPT:
+All right, let's move on to our next set
+of questions. Question 41. One of the
+developers on your team deployed their
+application in Google Container Engine
+with the Docker file below. They report
+that their application deployments are
+taking too long. You want to optimize
+this Docker file for faster deployment
+times without adversely affecting the
+app's functionality. Which two actions
+should you take? Choose two.
+Remove Python after running pip. B.
+Remove dependencies from
+requirements.txt.
+C. Use a slim down base image like
+Alpine Linux. D. Use larger machine
+types for your Google container engine
+node pools. E. Copy the source after the
+package dependencies are installed.
+Okay, this question is about optimizing
+a Docker file to make application
+deployments faster. The key to this is
+understanding two main concepts. Docker
+image size and Docker's layer caching.
+First, smaller images are faster to
+transfer over the network, which speeds
+up deployment. Second, Docker builds
+images in steps or layers. If a step and
+all the steps before it haven't changed,
+Docker reuses a saved version, which is
+very fast. The goal is to structure our
+Docker file so that the slowest steps
+like installing dependencies are cached
+as often as possible. With that in mind,
+let's look at our options. Options A and
+B are incorrect because they would break
+the application. The application needs
+the Python runtime and its dependencies
+listed in requirements.txt
+to function. The goal is to optimize,
+not break functionality. Option D is
+also incorrect. Using larger GKE nodes
+might make the application run faster
+once it's deployed, but it won't speed
+up the deployment process itself, which
+involves building the container image
+and pulling it from a registry. This
+solves the wrong problem. Now let's look
+at option C. Use a slim down base image
+like Alpine Linux. This is a correct and
+very common optimization. The analysis
+tells us the Docker file uses a large
+Ubuntu image. Switching to a smaller
+base image like Alpine Linux
+dramatically reduces the final image
+size. Smaller images are much faster to
+upload and download which directly
+reduces deployment time. Finally, option
+E, copy the source after the package
+dependencies are installed. This is the
+other correct and critical optimization.
+The analysis points out that the source
+code is copied before dependencies are
+installed. This is inefficient. By
+changing the order to install
+dependencies before copying your source
+code, you take full advantage of
+Docker's layer cache. The dependency
+layer, which rarely changes, will be
+cached. Now, when you only change your
+application code, the slow installation
+step is skipped, making your builds
+significantly faster. Therefore, the two
+best actions to take to optimize the
+Docker file are C and E. Question 42.
+Your company has a lot of distributed
+applications that need to connect to a
+database backend. Your chief architect
+is looking for a way to store and share
+the credentials of the database
+securely. She also wants to make sure
+that there are no unexpected loginins
+and receive alerts on suspicious login
+activity. What solution would you
+recommend? A. Store the variables as
+environment variables. Check the audit
+log of the database for suspicious
+login. B. Use secret manager to store
+credentials. Enable audit logging and
+check the log for any suspicious login.
+C. Use cloud KMS to store the keys.
+Check the audit log of the database for
+suspicious login. D. Use cloud KMS to
+store the keys. Rotate the keys
+periodically to avoid any suspicious
+login. Okay, this question is all about
+security and requires a solution that
+covers two things. Securely storing the
+database credentials and actively
+monitoring their use for suspicious
+activity. Let's start with option A,
+which suggests using environment
+variables. This is incorrect because
+storing sensitive credentials in
+environment variables is a well-known
+bad security practice as they can be
+easily exposed in logs or system
+information. Next, let's look at option
+C and D which both suggest using cloud
+KMS. This is also not the best choice.
+Cloud key management service is designed
+for managing the encryption keys
+themselves, not for storing the actual
+secrets like passwords. While you could
+use KMS to encrypt the credentials, the
+purpose-built service for storing the
+credentials securely is Secret Manager.
+Also, while rotating keys is a good
+practice, it doesn't solve the
+monitoring requirement. This brings us
+to option B, which is the correct and
+recommended solution. Perfectly
+addresses both parts of the problem.
+First, use Secret Manager to store
+credentials. Secret Manager is Google
+Cloud's purpose-built vault for
+sensitive data like database passwords.
+It provides encryption, access control,
+and versioning. Second, the suggestion
+to enable audit logging is the key to
+monitoring. By enabling cloud audit
+logs, you create a detailed record of
+who accessed what and when. You can then
+use cloud logging and monitoring to set
+up alerts for any suspicious activity.
+Therefore, the best solution that
+combines secure storage with active
+monitoring is B. Use secret manager to
+store credentials and enable audit
+logging and check the log for any
+suspicious login. Question 43. Your
+solution is producing performance bugs
+in production that you did not see in
+staging and test environments. You want
+to adjust your test and deployment
+procedures to avoid this problem in the
+future. What should you do?
+Deploy fewer changes to production. B.
+Deploy smaller changes to production. C.
+Increase the load on your test and
+staging environments. D. Deploy changes
+to a small subset of users before
+rolling out to production. Okay, this
+question is about a common and difficult
+problem. When bugs appear in production
+that you couldn't find in your testing
+environments. The key here is to find a
+deployment strategy that can safely test
+your application in the real world. The
+core issue is that test and staging
+environments, no matter how good they
+are, can never perfectly replicate the
+unique conditions of production like
+real user traffic and data patterns. So
+some performance bugs will only appear
+under that real world load. With that in
+mind, let's evaluate our options. Let's
+look at option A. Deploy fewer changes
+to production. This doesn't really solve
+the problem. It just means you'll
+encounter bugs less often, but the bugs
+can still happen and will still impact
+your users when you do deploy. Option B
+is similar. Deploying smaller changes is
+a good practice because it makes it
+easier to find the source of a bug, but
+it doesn't prevent the bug from
+affecting your entire user base once
+it's deployed. Option C, increasing the
+load on your test environments is a good
+idea in general, but it's not a complete
+solution. You can't perfectly simulate
+the randomness and complexity of real
+user traffic. So this method still won't
+catch all production only performance
+bugs. This brings us to option D which
+is the correct strategy. This is a
+deployment model known as a canary
+release. The idea is to release the new
+version to a small controlled group of
+real users first. You can then monitor
+the application's performance closely
+for this small group. If any performance
+bugs appear, you can quickly roll back
+the change with minimal impact on your
+overall user base. If everything looks
+good, you can then gradually roll the
+release out to everyone. This is the
+best way to safely test your changes in
+the real production environment.
+Therefore, the best strategy to adopt is
+D. Deploy changes to a small subset of
+users before rolling out to production.
+Question 44. A small number of API
+requests to your microservices-based
+application take a very long time. You
+know that each request to the API can
+traverse many services. You want to know
+which service takes the longest in those
+cases. What should you do?
+Set timeouts on your application so that
+you can fail requests faster. B. Send
+custom metrics for each of your requests
+to stack driver monitoring. C. Use stack
+driver monitoring to look for insights
+that show when your API latencies are
+high. D. Instrument your application
+with stack driver trace in order to
+break down the request latencies at each
+micros service. Okay, this question is
+about troubleshooting a common problem
+in a microservices architecture. High
+latency or slowness in some requests.
+The core challenge is that a single
+request travels through many services
+and we need to find exactly which one is
+the bottleneck. To solve this, you need
+a technique called distributed tracing,
+which allows you to follow the entire
+journey of a single request from start
+to finish. With that in mind, let's
+evaluate the options. Let's look at
+option A, setting timeouts. This is not
+a good solution because it doesn't help
+you find the problem. It just makes the
+slow request fail faster, which actually
+creates a worse experience for the user
+without fixing the root cause. Next,
+let's consider options B and C, which
+both involve using stack driver
+monitoring. While cloud monitoring is a
+powerful tool, it's designed to look at
+aggregate metrics like the overall
+average response time of your API. It
+can tell you that your API is slow, but
+it can't break down a single request
+journey to tell you which specific
+service is causing the slowness. This
+brings us to option D, which is the
+correct approach. Instrumenting your
+application with stack driver trace now
+called cloud trace is the solution
+designed for this exact problem by
+adding the trace library to your code.
+It captures the full path of each
+request. It then provides a detailed
+breakdown often visualized as a
+waterfall chart showing exactly how much
+time was spent in each micros service.
+This allows you to immediately pinpoint
+the service that is taking the longest
+and causing the high latency. Therefore,
+the best way to find the specific
+service causing the delay is D.
+Instrument your application with stack
+driver trace in order to break down the
+request latencies at each micros
+service. Question 45. A financial data
+company currently shares data with its
+clients through desktop software and
+APIs but is looking to share a
+particular data set with their clients
+utilizing GCP. The requirements for
+sharing this data are as follows.
+Asterisk clients should be able to only
+read the data and not update or modify
+any data. Asterisk different clients
+subscribe to different parts of the data
+and the company doesn't want to share
+the whole data set to all the clients.
+How should the company design the
+offering so that it can share the data
+set with clients for analysis? A create
+different data sets for different
+clients and store them in a bucket.
+Share each data set as a read only
+object with respective clients. B.
+Create a bucket for each client with
+uniform read access. Share the data sets
+in respective buckets that belong to the
+clients. C. Load the data set into
+BigQuery. Create views for different
+clients and give access to views to
+respective clients. D. Register as a
+partner on Google Cloud Marketplace and
+upload the data set as a solution.
+Redirect clients to access the data set
+through the marketplace. Okay, this
+question is about securely sharing data
+on Google Cloud. The core challenge is
+to give different clients access to
+different slices of the same data set
+without letting them modify the original
+data and without creating a lot of
+duplicate copies. With that in mind,
+let's look at our options. Let's look at
+options A and B first. Both suggest
+creating separate copies of the data for
+each client, either as different data
+sets in one bucket or in separate
+buckets. This is a very inefficient
+approach. It would create a management
+nightmare as you'd have to maintain and
+synchronize many copies of the data.
+Every time the original data is updated,
+you'd have to update every single
+client's copy. Option D suggests using
+the Google Cloud Marketplace. While
+marketplace is a way to distribute data,
+it's more for selling a data set as a
+product to a broad audience. It's not
+designed to be a tool for managing fine-
+grained specific access permissions for
+individual clients. It's overly complex
+for this specific requirement. This
+brings us to option C, which is the
+correct and recommended solution for
+this problem. Here's how it works.
+First, you load your entire data set
+into a single table in BigQuery, which
+is the perfect tool for large-scale data
+analysis. Then, for each client, you
+create a view. A view is essentially a
+saved virtual table based on a SQL
+query. You can write a query for client
+A's view that only selects the specific
+rows and columns they are allowed to
+see. You do the same for client B and so
+on. Finally, you give each client
+readonly access only to their specific
+view. This is a perfect solution because
+you only manage one master copy of the
+data and the views provide a secure
+filtered and readonly window into that
+data for each client. Therefore, the
+best way to design this offering is C.
+Load the data set into BigQuery, create
+views for different clients, and give
+access to views to respective clients.
+Question 46. During a hightraic portion
+of the day, one of your relational
+databases crashes, but the replica is
+never promoted to a master. You want to
+avoid this in the future. What should
+you do?
+Use a different database. B. Choose
+larger instances for your database. C.
+Create snapshots of your database more
+regularly. D. Implement routinely
+scheduled failovers of your databases.
+Okay, this is a question about high
+availability and disaster recovery. The
+core of the problem is that the
+automated failover system, which is
+supposed to be a safety net, didn't work
+when it was needed. Let's look at option
+A using a different database. This is
+unlikely to solve the root problem. The
+issue is with the failover configuration
+and testing process, not the specific
+type of database being used. Next,
+option B suggests choosing larger
+instances. While a bigger database
+server might be more stable, it doesn't
+fix the underlying issue of what happens
+when it eventually fails. A larger
+instance doesn't guarantee that the
+replica promotion process will work
+correctly. Option C, creating snapshots
+more regularly, is also incorrect.
+Snapshots are a tool for backup and data
+restoration, which is different from
+high availability. They help you recover
+your data after a failure, but they
+don't keep your service online by
+automatically promoting a replica. This
+correct and recommended practice.
+Implementing routinely scheduled
+failovers is the only way to proactively
+test and verify that your entire
+failover mechanism is working correctly.
+By intentionally triggering a failover
+in a controlled way, you can find and
+fix any configuration issues before a
+real disaster occurs. This practice
+ensures that your high availability
+setup is reliable when you need it most.
+Therefore, the best way to avoid this
+problem in the future is D. Implement
+routinely scheduled failovers of your
+databases. Question 47. Your company has
+decided to build a backup replica of
+their on premises user authentication
+postgresql database on Google cloud
+platform. The database is 4 terabytes
+and large updates are frequent.
+Replication requires private address
+space communication. Which networking
+approach should you use?
+Google cloud dedicated interconnect. B.
+Google CloudVPN connected to the data
+center network. C. ANAT and TLS
+translation gateway installed on
+premises. D. A Google Compute Engine
+instance with a VPN server installed
+connected to the data center network.
+Okay, this is a hybrid cloud networking
+question. The key to choosing the right
+solution is to look closely at the
+requirements for bandwidth and privacy.
+The scenario describes replicating a
+large 4 TBTE database that also has
+frequent large updates. This tells us we
+need a connection with high consistent
+bandwidth. The second critical
+requirement is that the communication
+must happen over a private address
+space. With those requirements in mind,
+let's look at our options. Let's start
+with option B, Google CloudVPN. While
+CloudVPN provides a secure private
+connection, it operates over the public
+internet. The performance can be
+unpredictable and is generally not
+sufficient for the high bandwidth needed
+to replicate a 4 TBTE database and its
+frequent large updates. Option D,
+setting up your own VPN server on a
+compute engine instance has the same
+limitations as CloudVPN, but is also a
+self-managed solution. It's less
+reliable and requires more operational
+work than using Google's native
+services. Option C, a custom NAT and TLS
+gateway is an overly complex and
+inefficient solution. It doesn't address
+the fundamental need for high bandwidth
+and is not a standard approach for this
+kind of problem. This brings us to
+option A, which is the correct answer.
+Google Cloud dedicated interconnect
+provides a direct private physical
+connection between your on-remise data
+center and Google's network. It offers
+high guaranteed bandwidth which is
+perfect for replicating large databases
+and handling frequent updates. It also
+operates entirely within a private
+address space fulfilling both of the
+core requirements of the question. For
+this scale of data transfer, it is the
+most reliable and performant option.
+Therefore, the networking approach that
+best fits these high bandwidth and
+private communication requirements is a
+Google cloud dedicated interconnect.
+Question 48. A global fashion label gets
+30% of their revenue from online
+channels. Their e-commerce website
+serves customers in multiple geographic
+regions. They use cloud CDN to provide a
+better experience for their users. Their
+head of e-commerce division thinks that
+there is an opportunity to reduce the
+cost of operations of the website. Their
+CDN costs are a major concern and they
+are looking for ways to optimize the
+cost without impacting the user
+experience. They have asked for your
+recommendation on how to optimize the
+CDN costs. Choose two. A enable caching
+for all the common images and
+non-personalized content. B. Enable
+caching for all the content on the
+e-commerce site. C. Optimize images by
+resizing and formatting them
+appropriately. D. Use high resolution
+images for all the content and use
+multi-reion cloud storage to store them.
+Okay, this is a question about cost and
+performance optimization. Specifically
+focusing on how a content delivery
+network or CDN works. The main goal is
+to reduce CDN costs which are primarily
+based on the amount of data transferred
+without making the website worse for
+users. With that in mind, let's evaluate
+the options. Let's start by looking at
+option B, which suggests caching all
+content. This is incorrect and
+dangerous. If you cache personalized
+content like a user's shopping cart or
+account details, you could accidentally
+show one person's private information to
+another, which is a major security and
+privacy failure. Next, option D suggests
+using highresolution images. This is
+also incorrect because it would do the
+exact opposite of our goal.
+Highresolution images are larger files,
+which means more data needs to be
+transferred by the CDN. This would
+increase costs, not reduce them. Now,
+let's look at option A, enabling caching
+for common images and non-personalized
+content. This is a correct and
+fundamental best practice. The main
+purpose of a CDN is to cache static
+content like this at edge locations
+close to your users. When content is
+served from the cache, it reduces the
+amount of data that needs to be pulled
+from your main servers, which directly
+lowers your costs. Finally, option C.
+Optimizing images by resizing and
+formatting them appropriately. This is
+the other correct answer. Images are
+often the largest part of a website. By
+making sure they are properly sized for
+different devices and using modern
+efficient formats like WEBP, you can
+significantly reduce their file size.
+Smaller files mean less data is
+transferred through the CDN for every
+page load, which leads to a direct
+reduction in cost. Therefore, the two
+best recommendations to optimize CDN
+costs are A and C. Question 49. Auditors
+visit your teams every 12 months and ask
+to review all the Google Cloud identity
+and access management cloud IM policy
+changes in the previous 12 months. You
+want to streamline and expedite the
+analysis and audit process. What should
+Create custom Google stack driver alerts
+and send them to the auditor. B. Enable
+logging export to Google BigQuery and
+use ACL's and views to scope the data
+shared with the auditor. C. Use cloud
+functions to transfer log entries to
+Google Cloud SQL and use ACL's and views
+to limit an auditor's view. D. Enable
+Google Cloud Storage GCS log export to
+audit logs into a GCS bucket and
+delegate access to the bucket. Okay,
+this is a question about log management
+and auditing on Google Cloud. The main
+goal is to find a solution that not only
+stores a long history of IM audit logs,
+but also makes it easy and secure to
+analyze them. With that in mind, let's
+look at our options. Let's start with
+option A. Creating stack driver alerts.
+This is incorrect because alerts are for
+notifying you about events as they
+happen in real time. They are not a tool
+for storing and analyzing a 12-month
+history of log data. Next, let's
+consider option C. using cloud functions
+to transfer logs to cloud SQL. This is
+not the best approach. Cloud SQL is a
+transactional database and isn't
+optimized for the kind of large-scale
+log analysis required here. Big query is
+a much better tool for that purpose.
+Also, adding cloud functions creates
+unnecessary complexity. Option D
+suggests exporting the logs to a Google
+Cloud Storage bucket. While this is a
+valid way to store logs, it's not ideal
+for analysis. Searching and querying raw
+log files in a bucket is much slower and
+more difficult than running powerful SQL
+queries in a data warehouse. Providing
+secure limited access is also more
+complex than the alternative. This
+brings us to option B, which is the
+correct and recommended solution. This
+approach has two parts. First, you
+enable logging export to Google
+BigQuery. This sends all your IM audit
+logs to BigQuery which is designed to
+store and analyze massive data sets
+quickly using SQL. This makes the
+analysis part of the audit very fast.
+Second, you use ACL's and views to scope
+the data shared with the auditor. This
+is the security piece. You can create a
+view in BigQuery that only shows the
+specific log entries the auditor needs
+to see. Then you can grant them readonly
+access just to that view. This is a
+secure, efficient and scalable way to
+handle the entire audit process.
+Therefore, the best way to streamline
+the audit process is B. Enable logging
+export to Google BigQuery and use ACL's
+and views to scope the data shared with
+the auditor. Question 50. Your
+organization is developing a global
+multiplayer game and requires a database
+that can consistently capture player
+statistics. The most critical
+requirement of the database is that it
+can serve information for game
+leaderboards and return consistent
+rankings at any given time across game
+players all over the world. The game is
+rapidly developing a following with
+almost unlimited growth in the number of
+players. Which Google Cloud product
+should the organization choose?
+Fire store, B. Cloud Spanner, C. Cloud
+SQL, D. Bare Metal. Okay, this question
+is about choosing a very specific type
+of database for a demanding global
+application. The two most important
+keywords in the requirements are
+consistent rankings across the world and
+almost unlimited growth. This means
+we're looking for a database that can
+not only scale to a massive global
+level, but also guarantee that every
+player, no matter where they are, sees
+the exact same up to the millisecond
+leaderboard. This is a feature known as
+global strong consistency and it's very
+rare. With that in mind, let's evaluate
+our options. Let's start with option A,
+Fire Store. While Fire Store is a highly
+scalable NoSQL database, it's not the
+best choice when global strong
+consistency is the absolute top
+priority. It's excellent for many web
+and mobile apps, but it doesn't provide
+the same transactional consistency
+across regions that Spanner does. Next
+option C. Cloud SQL. This is a managed
+relational database, but it's
+fundamentally a regional service. Cannot
+scale horizontally across the globe and
+does not offer global strong
+consistency. So, it's not a fit for this
+use case. Option D. Bare metal is also
+incorrect. This would mean managing your
+own database on physical hardware.
+Trying to build a globally consistent,
+infinitely scalable database yourself
+would be an incredibly complex and
+expensive engineering challenge, which
+is the exact problem that managed
+services are meant to solve. This brings
+us to option B, which is the correct
+answer. Cloud Spanner is a unique
+database. It's the only globally
+distributed relational database service
+that provides global strong consistency.
+This guarantees that every user in the
+world sees the exact same data at the
+same time. which is essential for a fair
+leaderboard. It is also designed for
+unlimited horizontal scaling, so it can
+handle the game's rapid growth.
+Perfectly matches both of the critical
+requirements. Therefore, the only Google
+Cloud product that can meet the demands
+for both global scale and strong
+consistency is B. Cloud Spanner.
+Question 51. You are designing a large
+distributed application with 30
+microservices. Each of your distributed
+microservices needs to connect to a
+database backend. You want to store the
+credentials securely. Where should you
+store the credentials?
+In the source code, B. In an environment
+variable, C. In a secret management
+system, D. In a config file that has
+restricted access through ACL's. Okay,
+this is a fundamental security question
+for any application, especially a large
+distributed one with many microservices.
+The core task is to find the most secure
+and manageable way to handle sensitive
+credentials. With that in mind, let's
+option A, storing credentials in the
+source code. This is a major security
+anti-attern and should never be done.
+Hard- coding secrets makes them easily
+accessible to anyone who can read the
+code and they can be accidentally
+committed to source control
+repositories. Next, option B suggests
+using an environment variable. This is
+slightly better than hard- coding, but
+it's still not considered a secure best
+practice. Environment variables can be
+leaked through application logs,
+monitoring tools, or if another process
+on the same machine is compromised.
+Option D, using a config file with
+restricted access is an improvement but
+still falls short. While restricting
+access with ACL's helps, the credentials
+are still stored in a file on the file
+system which could be compromised.
+Managing updates and rotation for 30
+services this way would also be very
+difficult. This brings us to option C
+which is the correct and recommended
+solution. A dedicated secret management
+system like Google Cloud Secret Manager
+is purpose-built for this task. It
+stores credentials in an encrypted
+highly available vault. It provides fine
+grained access control using IM. So you
+can define exactly which micros service
+can access which secret. The services
+then fetch the credentials securely at
+runtime via an API. Meaning the secrets
+are never stored in the code, config
+files or environment variables.
+Therefore, the most secure and
+manageable place to store the
+credentials is C in a secret management
+system. Question 52. You have created
+several preemptable Linux virtual
+machine instances using Google Compute
+Engine. You want to properly shut down
+your application before the virtual
+machines are preempted. What should you
+do?
+Create a shutdown script named
+k99.shutdown
+in the / etc/rc.6.d/
+directory. B. Create a shutdown script
+registered as a Zinnit service in Linux
+and configure a stack driver endpoint
+check to call the service. C. Create a
+shutdown script and use it as the value
+for a new metadata entry with the key
+shutdown script in the cloud platform
+console when you create the new virtual
+machine instance. D. create a shutdown
+script registered as a Zenit service in
+Linux and use the cloud compute
+instances add metadata command to
+specify the service URL as the value for
+a new metadata entry with the key
+shutdown script URL. Okay, this question
+is about managing the life cycle of
+preemptable VMs on Google Cloud. The
+core of the problem is knowing the
+specific built-in mechanism that Google
+provides to allow for a graceful
+shutdown before a VM is taken away. With
+that in mind, let's look at our options.
+Let's start with option A. While using a
+script in the / etc/rc.6d/
+directory is a standard way to handle
+shutdowns in Linux, it's not the
+specific method that Google Cloud uses
+to trigger a script during a preeemption
+event. There's a more direct cloudnative
+way to do this. Options B and D are also
+incorrect because they suggest using a
+complex and unnecessary setup with a
+Zinit service. This is not how Google
+Cloud handles this process.
+Additionally, option D uses the wrong
+metadata key. The correct key is
+shutdown script, not shutdown script
+URL. This brings us to option C, which
+is the correct and recommended solution.
+Google compute engine provides a special
+metadata key called shutdown script.
+Here's how it works. You write a script
+that performs the graceful shutdown of
+your application. Then you provide the
+content of the script as the value for
+the shutdown script metadata entry on
+your virtual machine. When Google Cloud
+is about to preempt the instance, it
+gives a 30-second warning. And during
+this time, it automatically executes the
+script you provided. This gives your
+application a chance to save its state
+and shut down cleanly. Therefore, the
+correct way to properly shut down your
+application is C. Create a shutdown
+script and use it as the value for a new
+metadata entry with the key shutdown
+script in the cloud platform console
+when you create the new virtual machine
+instance. Question 53. Blank is a VMware
+product built around Kubernetes that can
+build and orchestrate containers and
+manage containers hosted across multiple
+cloud providers with a single control
+plane with support for all major public
+cloud providers.
+Open Shift, B. Open Stack, C. VSphere,
+D. Tanzoo. Okay, this is a
+fill-in-theblank question that tests our
+knowledge of the modern application
+ecosystem, specifically products from
+VMware. The key identifiers in the
+description are that it's a VMware
+product, it's built around Kubernetes,
+and it's designed to manage containers
+across multiple clouds from a single
+control plane. With that in mind, let's
+evaluate our options. Let's start with
+option A, Open Shift. While Open Shift
+is a Kubernetes-based platform for
+managing containers across multiple
+clouds, it's a product made by Red Hat,
+not VMware. So, this is incorrect. Next,
+option B, OpenStack. This is an
+open-source platform for building
+private clouds primarily for managing
+infrastructure like virtual machines. It
+is not a VMware product and not focused
+on Kubernetes management. So this is
+also incorrect. Option C is vSphere.
+vsere is VMware's core product for
+server virtualization. While it is a
+VMware product, its main job is to
+manage virtual machines, not to act as a
+multi cloud control plane for
+Kubernetes. Although it can integrate
+with Kubernetes, it is not the product
+being described. This brings us to
+option D which is the correct answer.
+VMware Tanzu is the name for VMware's
+portfolio of products for building,
+running, and managing modern
+applications. It is built on Kubernetes
+and is specifically designed to provide
+a single control plane for managing
+Kubernetes clusters across various
+environments including onremise data
+centers and all the major public cloud
+providers. This description perfectly
+matches all the details in the question.
+Therefore, the VMware product that fits
+this description is D. Tanzu. Question
+54. Your organization has a three- tier
+web application deployed in the same
+network on Google Cloud Platform. Each
+tier, web, API, and database scales
+independently of the others. Network
+traffic should flow through the web to
+the API tier and then onto the database
+tier. Traffic should not flow between
+the web and the database tier. How
+should you configure the network?
+Add each tier to a different subn
+network. B. Set up softwarebased
+firewalls on individual VMs. C. Add tags
+to each tier and set up routes to allow
+the desired traffic flow. D. Add tags to
+each tier and set up firewall rules to
+allow the desired traffic flow. Okay,
+this is a very common network security
+question for multi-tered applications on
+Google Cloud. The main goal is to
+control the flow of traffic between the
+different layers of our application,
+making sure they can only talk to each
+other in a specific secure way. With
+Let's start with option A, adding each
+tier to a different subn network. While
+this is a good way to organize your
+resources, it doesn't solve the security
+problem by itself. By default, traffic
+is allowed between all subnets within
+the same VPC network. you would still
+need to add firewall rules to actually
+restrict the traffic. Option B suggests
+setting up softwarebased firewalls on
+each individual VM. This is incorrect
+because it's a very manual and difficult
+to manage approach, especially in an
+environment that scales automatically.
+The cloudnative way is to use the
+centralized VPC firewall service
+provided by Google Cloud. Next, option C
+mentions using tags and routes. This is
+incorrect because it confuses the
+purpose of routes and firewall rules.
+Routes are used to direct traffic to its
+destination like a traffic cop directing
+cars down a specific street. Firewall
+rules act as a security guard deciding
+whether that traffic is allowed to enter
+or not. To block traffic, we need
+firewall rules, not routes. This brings
+us to option D, which is the correct and
+recommended solution. Here's how it
+works. First, you add a unique network
+tag to all the VMs in each tier. For
+example, web tier, API tier, and DB
+tier. Then, you create specific VPC
+firewall rules that use these tags. You
+would create one rule to allow traffic
+from sources with the web tier tag to
+destinations with the API tier tag.
+you'd create another rule to allow
+traffic from the API tier tag to the DB
+tier tag because the firewall implicitly
+denies any traffic that isn't explicitly
+allowed. This setup automatically blocks
+the forbidden traffic from the web tier
+directly to the database tier.
+Therefore, the best way to configure the
+network to enforce this traffic flow is
+D. Add tags to each tier and set up
+firewall rules to allow the desired
+traffic flow. Question 55. How does
+Google Cloud suggest that organizations
+use thirdparty identity providers to
+enable users access to Google Cloud with
+their corporate credentials? A. By
+delegating responsibility to service
+accounts and groups. By
+implementing the principle of least
+privilege. C by federating third party
+identity providers with Google Cloud. D
+by migrating unmanaged accounts to
+personal accounts. Okay, this is a
+fundamental question about identity and
+access management or IM. The core of the
+problem is how to let your employees use
+their existing company login like their
+active directory or octa password to
+access Google cloud instead of creating
+a brand new Google account for everyone.
+With that in mind, let's look at our
+options. Let's start with option A.
+Delegating responsibility to service
+accounts and groups is about how you
+grant permissions, not how you
+authenticate users. Service accounts are
+for applications and groups are for
+managing permissions for multiple users
+at once. This doesn't connect your
+company's login system to Google Cloud.
+Next option B, implementing the
+principle of lease privilege. This is an
+extremely important security best
+practice, meaning you should only give
+users the minimum permissions they need
+to do their job. However, it's a
+security principle, not a technical
+method for integrating identity
+providers. Option D, migrating unmanaged
+accounts, is about cleaning up existing
+consumer accounts that might be using
+company email addresses. It's a
+management task, but it doesn't solve
+the problem of allowing users to log in
+with their corporate credentials going
+forward. This brings us to option C,
+which is the correct answer. The
+recommended method is called identity
+federation. Federation establishes a
+trust relationship between your
+company's identity provider and Google
+Cloud. This allows your users to sign in
+with their familiar corporate
+credentials and your identity provider
+tells Google Cloud that they are a valid
+authenticated user. This centralizes
+user management and provides a seamless
+single sign on experience. Therefore,
+the suggested way to achieve this is C
+by federating third party identity
+providers with Google Cloud. Question
+56. Your development team has installed
+a new Linux kernel module on the batch
+servers in Google Compute Engine GCE
+virtual machines VMs to speed up the
+nightly batch run. 2 days after the
+installation, 50% of the batch servers
+failed the nightly batch run. You want
+to collect details on the failure to
+pass back to the development team. Which
+three actions should you take? Choose
+three.
+Use stack driver logging to search for
+the module log entries. B. Read the
+debug GCE activity log using the API or
+cloud console. C. Use cloud or cloud
+console to connect to the serial console
+and observe the logs. D. Identify
+whether a live migration event of the
+failed server occurred using the
+activity log. E. Adjust the Google stack
+driver timeline to match the failure
+time and observe the batch server
+metrics. F. Export a debug VM into an
+image and run the image on a local
+server where kernel log messages will be
+displayed on the native screen. Okay,
+this is a troubleshooting question that
+requires us to find the best ways to
+diagnose a problem at the operating
+system level on a GCE virtual machine.
+The key clue is that the failure started
+after a new Linux kernel module was
+installed. We need to choose three
+actions. Let's start by evaluating the
+correct options. Option A, using cloud
+logging to search for module log entries
+is a correct first step. Cloud logging
+collects the system logs from your VMs.
+And it's very likely that the new kernel
+module or the kernel itself wrote error
+messages to these logs when the failure
+occurred. Option C, connecting to the
+serial console is another correct and
+very powerful troubleshooting technique.
+The serial console allows you to see
+low-level system and kernel messages,
+which is especially useful if the VM is
+having trouble booting or is
+unresponsive over the network. Any
+kernel panic or critical error messages
+would likely appear here. Option E is
+also a correct action by adjusting the
+timeline in cloud monitoring to the time
+of the failure. You can observe the VM's
+performance metrics. A sudden spike in
+CPU, a drop in available memory, or
+strange disk activity could give you
+valuable clues about how the kernel
+module was misbehaving and causing the
+system to fail. Now, let's look at the
+incorrect options. Option B, reading the
+GC activity log, is wrong because the
+activity log only tracks administrative
+actions on the VM like starting or
+stopping it. It doesn't contain any logs
+from inside the operating system. Option
+D, checking for a live migration event
+is generally a less likely cause. While
+it's a piece of information you might
+check, it's not one of the primary
+direct ways you would investigate a
+specific kernel module failure. Finally,
+option F, exporting the VM and running
+it locally, is incorrect because it's an
+extremely slow and inefficient way to
+debug a problem. The cloudnative tools
+like cloud logging and the serial
+console are designed for exactly this
+kind of remote troubleshooting.
+Therefore, the three best actions to
+take to collect details on the failure
+are A, C, and E. Question 57. Your
+company is working as a cloud security
+consultant for a fintech startup. An API
+is created by the development team to
+save customer card details so that
+returning users can save time by using
+the stored card details. The data is
+stored in cloud data store. Higher
+management is looking for a solution to
+reduce the risk of data breaches from ex
+employees of the company. What would you
+do to secure the data? Cloud IDs. B. VPC
+service controls. C. Cloud armor. D.
+Event threat detection. Okay, this is a
+data security question focused on
+protecting against a specific threat.
+Insider risk in this case from ex
+employees. The core challenge is to find
+a security control that goes beyond
+standard permissions to prevent data
+exfiltration. With that in mind, let's
+option A, cloud IDs. This is an
+intrusion detection system that monitors
+network traffic for malicious activity.
+While useful for network security, it
+doesn't prevent an authenticated user
+with valid permissions from accessing
+data, which is the risk we're trying to
+mitigate. Next, option C, Cloud Armor.
+This is a web application firewall and
+DOS protection service. It's designed to
+protect your web applications from
+attacks coming from the internet. It
+doesn't control access from internal
+users or services to a back-end database
+like cloud data store. Option D is event
+threat detection. This is a detection
+tool, not a prevention tool. It analyzes
+logs and can alert you to suspicious
+activity after it has happened. While
+useful for security monitoring, it
+doesn't actively block the unauthorized
+access in the first place. This brings
+answer. VPC service controls is designed
+for this exact scenario. It allows you
+to create a virtual service perimeter
+around your sensitive Google Cloud
+projects and services like the cloud
+data store instance holding the card
+details. This perimeter acts like a wall
+preventing data from being accessed from
+outside the defined network even if the
+person making the request has valid IM
+permissions. This is the most effective
+way to prevent an ex employee from
+accessing sensitive data from an
+unauthorized location. Therefore, the
+best way to secure the data from this
+type of risk is B. VPC service controls.
+Question 58. Your company wants to try
+out the cloud with low risk. They want
+to archive approximately 100 terabytes
+of their log data to the cloud and test
+the analytics features available to them
+there while also retaining that data as
+a long-term disaster recovery backup.
+Which two steps should you take? Choose
+two.
+Load logs into Google BigQuery. B. Load
+logs into Google Cloud SQL. C. Import
+logs into Google Stack Driver. D. Insert
+logs into Google Cloud Bigtable. E
+upload log files into Google Cloud
+Storage. Okay, this is a question about
+a very common big data architecture
+problem. We need a solution that can
+handle two different goals. First, cheap
+long-term storage for a massive amount
+of data. And second, a powerful way to
+run analytics on that data. We need to
+choose two steps. With that in mind,
+let's look at the options that are not a
+good fit first. Option B, Cloud SQL is a
+relational database that isn't designed
+to handle 100 terabytes of data for
+analytics. It would be slow and very
+expensive. Option C, cloud logging is a
+tool for ingesting and viewing recent
+logs, not for long-term archival of such
+a large data set. And option D, cloud
+bigtable, is a high performance NoSQL
+database, but it's optimized for
+real-time applications, not for the kind
+of analytical SQL queries business
+analysts would run on log archives. This
+brings us to the correct options. Let's
+look at option E. Uploading the log
+files into Google Cloud Storage. This is
+a correct step because cloud storage is
+the ideal place for lowcost long-term
+archival. It's highly durable and can
+store virtually unlimited amounts of
+data which perfectly fulfills the
+long-term disaster recovery backup
+requirement. Now, let's look at option
+A, loading the logs into Google
+BigQuery. This is the other correct step
+because it directly addresses the
+requirement to test the analytics
+features. BigQuery is Google Cloud's
+serverless data warehouse designed to
+run very fast SQL queries on massive
+data sets. By loading the data here, the
+teams can easily perform their analysis.
+The combination of these two services is
+a standard and powerful pattern in
+Google Cloud. You use cloud storage as a
+cost-effective data lake for long-term
+storage and you load the data you need
+to actively analyze into BigQuery, your
+data warehouse. Therefore, the two steps
+you should take are A and E. Question
+59. Your company has a three- tier web
+application deployed in the same network
+on Google Cloud Platform. Each tier web,
+API, and database scales independently
+of the others. Network traffic should
+flow through the web to the API tier and
+then onto the database tier. Traffic
+should not flow between the web and the
+database tier. How should you configure
+the network?
+Install log agent at every microser and
+forward the log data into cloud logging.
+Use cloud logging query to troubleshoot
+any errors. B. Use the cloud logging SDK
+at every microser to ingest the log data
+into cloud logging asynchronously. Use
+cloud logging query to troubleshoot any
+errors. C. Enable cloud debugger API and
+add the debugger support at every
+microser with snapshots and log points
+to allow live production troubleshoot.
+D. Enable cloud debugger API and add the
+debugger support at every microser with
+snapshots and log points in canary mode
+Okay, this is a question about advanced
+troubleshooting in a complex
+microservices environment. The key words
+here are live troubleshooting and
+minimum business impact. We need a
+solution that lets us inspect a running
+application without stopping it and do
+so in a very safe way. With that in
+mind, let's look at our options. Let's
+start with options A and B, which both
+suggest using cloud logging. While
+centralizing logs is a very important
+first step for any production system,
+cloud logging is primarily for analyzing
+events that have already happened. It
+doesn't give you the ability to do live
+troubleshooting like inspecting the
+state of variables at a specific line of
+code in real time. Now let's look at
+option C. This option correctly
+identifies the right tool for the job
+which is cloud debugger. Cloud debugger
+allows you to take snapshots of your
+application state and add temporary log
+points without stopping or redeploying
+the code. However, this option is
+incomplete because it's missing the
+safety aspect. Enabling a new tool like
+this across your entire production
+environment at once can be risky. This
+brings us to option D, which is the best
+and most complete answer. It combines
+the right tool with the right strategy.
+It suggests using cloud debugger with
+its snapshots and log points, which is
+perfect for live troubleshooting. But
+critically, it adds the phrase in canary
+mode. This means you would first enable
+the debugger on a small controlled
+subset of your production instances.
+This allows you to test the debugger and
+its impact safely, fulfilling the
+minimum business impact requirement. If
+everything is fine, you can then roll it
+out more broadly. Therefore, the best
+way to implement a safe live
+troubleshooting solution is D. Enable
+cloud debugger API and add the debugger
+support at every microser with snapshots
+and log points in canary mode to allow
+live production troubleshoot. Question
+60. You created a pipeline that can
+deploy your source code changes to your
+infrastructure in instance groups for
+self-healing. One of the changes
+negatively affects your key performance
+indicator. You are not sure how to fix
+it and investigation could take up to a
+week. What should you do? A log in to a
+server and iterate on the fix locally.
+B. Revert the source code change and
+rerun the deployment pipeline. C. Log
+into the servers with the bad code
+change and swap in the previous code. D.
+Change the instance group template to
+the previous one and delete all
+instances. Okay, this is a question
+about incident recovery and DevOps best
+practices. A bad code change has made it
+to production and the fix will take a
+long time. The top priority in this
+situation is to restore the service to a
+stable state as quickly and safely as
+possible. With that in mind, let's look
+at our options. Let's start with options
+A and C, which both suggest logging into
+a server to make a change locally. This
+is a major anti-attern and should be
+avoided. Manually changing things on
+production servers leads to an
+inconsistent and unmanageable
+environment and it bypasses all the
+safety checks of your deployment
+pipeline. Next, let's look at option D.
+While changing the instance group
+template back to a previous version is a
+valid idea, the action of deleting all
+instances is incorrect and would cause a
+major outage. A properly configured
+instance group would perform a rolling
+update to the new template. Gracefully
+replacing instances without a complete
+service interruption. This brings us to
+option B, which is the correct and most
+professional way to handle this
+situation. The process is simple and
+safe. First, you revert the problematic
+change in your source code repository
+like using git revert. This creates a
+new commit that undoes the bad code.
+Second, you simply rerun your existing
+deployment pipeline. The automated
+pipeline will then build and deploy this
+known good version of the code safely
+returning your application to a stable
+state. The long investigation into the
+bug can then happen in a development
+environment without impacting users.
+Therefore, the best course of action is
+rerun the deployment pipeline. Thank you
+for watching. If you found this content
+valuable, please consider supporting the
+channel by liking, sharing, and
+subscribing. Furthermore, if you wish to
+discuss any of the questions presented,
+please leave a comment below and I will
+respond as soon as I am able. I will be
+releasing the next video with the
+remaining questions shortly. I wish you
+all the best on your exam.

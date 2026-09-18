@@ -20,7 +20,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview",
       "https://cloud.google.com/kubernetes-engine/docs/resources/autopilot-standard-feature-comparison"
-    ]
+    ],
+    "hint": "Core Rule (GKE Autopilot vs Standard): Autopilot is the Google-recommended mode for teams that want a fully managed Kubernetes experience: Google provisions and scales nodes, applies security best practices (for example Workload Identity and Shielded nodes by default), handles upgrades, and charges for Pod CPU, memory and storage requests rather than for whole nodes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A GKE Standard cluster with node auto-provisioning enabled and node au…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A GKE Standard cluster with a single node pool of Spot VMs to minimize…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A GKE Enterprise fleet with Config Sync so that cluster configuration …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-027",
@@ -43,7 +49,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/how-to/gpus",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/node-taints"
-    ]
+    ],
+    "hint": "Core Rule (GKE node pools): Node pools are the mechanism for grouping nodes with specific hardware, and a taint on the GPU pool prevents Pods without a matching toleration from landing there; GKE automatically adds the nvidia.com/gpu taint to GPU node pools for this reason, and a node selector or affinity on the workers ensures they land on the GPU pool.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable node auto-provisioning so that GKE decides where every Pod shou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Increase the CPU requests of the API Pods so that they no longer fit o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Move the GPU workers to a separate GKE Autopilot cluster so that GPU n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-028",
@@ -66,7 +78,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/node-auto-provisioning"
-    ]
+    ],
+    "hint": "Core Rule: Node auto-provisioning (NAP) extends the cluster autoscaler so that GKE automatically creates node pools with machine types, GPUs and sizes that match pending Pods' requirements and deletes them when unused, which removes the manual node pool management described.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create one very large node pool with the biggest machine type availabl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Migrate every job to a Cloud Run job so that no nodes need to be manag…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Configure vertical Pod autoscaling on all jobs so that requests are ad…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-029",
@@ -89,7 +107,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview",
       "https://cloud.google.com/kubernetes-engine/fleet-management/docs"
-    ]
+    ],
+    "hint": "Core Rule (GKE Enterprise fleets and Config Sync): Config Sync, enabled at fleet level, installs an in-cluster agent on every registered GKE or attached cluster that pulls the desired state from Git and continuously reconciles it, so drift is corrected automatically and every change is a reviewed commit; fleets also let you apply the same configuration to on-premises clusters.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Write a Cloud Build pipeline that runs kubectl apply against every clu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use Terraform's Kubernetes provider to define the resources and run te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a golden cluster, export its configuration with kubectl get -o …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-030",
@@ -112,7 +136,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/overview",
       "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/latest/reference/constraint-template-library"
-    ]
+    ],
+    "hint": "Core Rule: Policy Controller is the GKE Enterprise implementation of Open Policy Agent Gatekeeper: it enforces constraints as an admission controller, ships a library of templates covering privileged containers, image tags and resource limits, audits existing resources, and surfaces violations for the whole fleet in the console.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable Binary Authorization with a policy that requires attestations f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy a custom validating admission webhook on each cluster and store…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Security Command Center container threat detection to alert on pri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-031",
@@ -135,7 +165,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/how-to/deploying-multi-cluster-gateways",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/gateway-api"
-    ]
+    ],
+    "hint": "Core Rule: Multi-cluster Gateway builds on the Kubernetes Gateway API and the global external Application Load Balancer: a single Gateway in the config cluster programs one anycast IP whose backends are Pods in all fleet member clusters, so traffic goes to the closest healthy cluster with automatic failover, while HTTPRoutes allow teams to own their routing in a standard API.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a separate Ingress with an external IP in each cluster and use …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy an NGINX ingress controller in each cluster behind a passthroug…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Expose each cluster's services through Cloud Run as a proxy layer and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-032",
@@ -160,7 +196,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity"
-    ]
+    ],
+    "hint": "Core Rule (Workload Identity for GKE): Workload Identity Federation for GKE lets Pods authenticate as their Kubernetes service account and receive short-lived Google credentials without any exported key, and binding IAM roles per Kubernetes service account gives least-privilege access for each workload.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Rotate the JSON key every 30 days with a Cloud Scheduler job and store…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Grant the required IAM roles to the node pool's default Compute Engine…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Use the Kubernetes Secrets Store CSI driver to fetch the JSON key from…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-033",
@@ -183,7 +225,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-upgrades"
-    ]
+    ],
+    "hint": "Core Rule (GKE release channels): Release channels provide automatic, Google-managed upgrades with different levels of maturity: Rapid gets versions first, Regular follows after they have been qualified, and Stable receives them last after additional soak time, so Stable for production and Regular for pre-production gives the requested early testing and maximum maturity.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enroll both clusters in the Rapid channel and rely on the pre-producti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Do not enroll the production cluster in a channel and pin it to a stat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enroll the production cluster in the Extended channel and pre-producti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-034",
@@ -208,7 +256,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/maintenance-windows-and-exclusions"
-    ]
+    ],
+    "hint": "Core Rule: GKE maintenance windows define when automatic maintenance may run, and maintenance exclusions block upgrades for a defined period; exclusions can be scoped to block only minor upgrades, minor and node upgrades, or all upgrades, which is exactly how to implement a holiday freeze while staying in a release channel.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Unenroll the cluster from the release channel in November and re-enrol…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Disable node auto-upgrade and auto-repair and upgrade nodes manually u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Set the cluster's control plane to a static version and enable surge u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-035",
@@ -231,7 +285,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/concepts/backup-for-gke",
       "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/how-to/backup-plan"
-    ]
+    ],
+    "hint": "Core Rule: Backup for GKE is the Google-managed service that captures both Kubernetes resource state and persistent volume data, supports pre/post hooks for application consistency, scheduled backup plans with retention policies, and cross-region and cross-cluster restores through restore plans.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Schedule Compute Engine snapshots of the persistent disks every four h…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Velero installed on the cluster with a Cloud Storage bucket as the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable regional persistent disks so that data is replicated to a secon…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-036",
@@ -254,7 +314,13 @@
     "refs": [
       "https://cloud.google.com/run/docs/create-jobs",
       "https://cloud.google.com/run/docs/execute/jobs-on-schedule"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Run jobs are designed for run-to-completion workloads that do not listen for requests: the container runs until the task exits, execution can last up to 24 hours, and Cloud Scheduler can trigger executions directly, with no idle instances to pay for.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the container as a Cloud Run service with minimum instances set…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run the container in a GKE Autopilot CronJob so that it executes night…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the script to App Engine standard and configure a cron.yaml ent…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-037",
@@ -277,7 +343,13 @@
     "refs": [
       "https://cloud.google.com/run/docs/about-concurrency",
       "https://cloud.google.com/run/docs/configuring/concurrency"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run concurrency): Cloud Run's autoscaler decides how many instances to run based on the configured concurrency: with concurrency 80 and a single-threaded, memory-hungry workload, up to 80 requests share one 2 GB container, which exhausts memory and queues requests behind one thread.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase memory to 32 GB per instance so that 80 concurrent requests f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Set minimum instances to 20 so that enough instances are always warm t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable CPU always allocated so that the rendering library gets CPU tim…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-038",
@@ -300,7 +372,13 @@
     "refs": [
       "https://cloud.google.com/run/docs/configuring/min-instances",
       "https://cloud.google.com/run/docs/tips/general#using_minimum_instances_to_reduce_cold_starts"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run minimum instances): Cold starts occur when Cloud Run has scaled to zero; minimum instances keep a configured number of instances warm (billed at a reduced idle rate), so the first request after an idle period is served immediately, which directly satisfies the latency requirement.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Increase the maximum number of instances so that more containers are a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Increase the request timeout so that the first request does not fail w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable session affinity so that repeat clients are routed to the same …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-039",
@@ -323,7 +401,13 @@
     "refs": [
       "https://cloud.google.com/run/docs/configuring/cpu-allocation",
       "https://cloud.google.com/run/docs/tips/general#avoiding_background_activities"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run CPU allocation): By default Cloud Run allocates CPU to an instance only while it is handling requests; once the response is sent the CPU is throttled, so background threads stall.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the service's request timeout to the maximum of 60 minutes.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Set minimum instances to 1 so that the container is never terminated.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Raise the container's memory limit so that the goroutine has enough re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-040",
@@ -346,7 +430,13 @@
     "refs": [
       "https://cloud.google.com/run/docs/triggering/storage-triggers",
       "https://cloud.google.com/eventarc/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run functions triggers): Cloud Run functions integrate with Eventarc so that a Cloud Storage object finalized event on the bucket invokes the function directly, giving a fully managed, push-based, event-driven design with nothing to poll or host.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the function as a Cloud Run service and have a Cloud Scheduler …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure Cloud Storage Pub/Sub notifications to a topic and write a C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable Object Lifecycle Management on the bucket with a rule that invo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-041",
@@ -370,7 +460,13 @@
       "https://cloud.google.com/eventarc/docs/reference/supported-events",
       "https://cloud.google.com/eventarc/docs/run/route-trigger-cloud-audit-logs",
       "https://cloud.google.com/logging/docs/export/aggregated_sinks"
-    ]
+    ],
+    "hint": "Core Rule (Eventarc audit log triggers): Eventarc can create triggers from Cloud Audit Logs entries, so a trigger filtered on the Compute Engine firewalls.insert method fires within seconds of a rule being created, with no change to how rules are provisioned; for organization-wide coverage the audit logs can be aggregated with an organization-level sink into Pub/Sub and delivered to the Cloud Run service through Eventarc.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a Cloud Scheduler job that runs every minute and calls a Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable Security Command Center Premium and configure its firewall misc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask each project team to add an Eventarc trigger to their own Terrafor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-042",
@@ -393,7 +489,13 @@
     "refs": [
       "https://cloud.google.com/tasks/docs/configuring-queues",
       "https://cloud.google.com/tasks/docs/comp-pub-sub"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Tasks is purpose-built for controlled, asynchronous execution: queues support explicit rate limits (dispatches per second, maximum concurrent dispatches) and per-queue retry policies with exponential backoff, so the third-party limit is respected without custom code and bursts are absorbed in the queue.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Publish each trip to a Pub/Sub topic with a push subscription targetin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Write each trip to Firestore and have a Cloud Scheduler job invoke a C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Eventarc to route trip-completed events directly to a Cloud Run se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-043",
@@ -416,7 +518,13 @@
     "refs": [
       "https://cloud.google.com/workflows/docs/overview",
       "https://cloud.google.com/workflows/docs/schedule-workflow"
-    ]
+    ],
+    "hint": "Core Rule (Workflows and Cloud Scheduler): Workflows is a serverless orchestrator for sequencing HTTP-based services and Google Cloud APIs: it passes outputs between steps, has connectors for BigQuery and Pub/Sub that handle long-running operations, and supports declarative retry and error handling, and Cloud Scheduler is the standard way to start it on a schedule.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy Cloud Composer and write an Airflow DAG that chains the steps a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Write a single Cloud Run function that performs all four steps in orde…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create four Cloud Scheduler jobs spaced 15 minutes apart, one per step…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-044",
@@ -442,7 +550,13 @@
       "https://cloud.google.com/run/docs/configuring/services/cpu#startup-boost",
       "https://cloud.google.com/run/docs/configuring/min-instances",
       "https://cloud.google.com/run/docs/tips/java"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run cold-start optimization): Two configuration-only levers directly attack cold-start latency: minimum instances eliminate cold starts after idle periods by keeping warm instances (at a reduced idle price), and startup CPU boost temporarily grants extra CPU while the instance starts, which materially shortens JVM startup during scale-out.",
+    "whyWrong": {
+      "2": "Incorrect distractor (Set the maximum number of instances to 1 so that no new instances need…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Migrate the service to a Cloud Run job so that the JVM stays resident …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Increase the request timeout to 300 seconds so that slow first request…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-045",
@@ -465,7 +579,13 @@
     "refs": [
       "https://cloud.google.com/appengine/docs/the-appengine-environments",
       "https://cloud.google.com/appengine/docs/flexible/custom-runtimes"
-    ]
+    ],
+    "hint": "Core Rule (App Engine flexible vs standard): The App Engine flexible environment runs Docker containers on Compute Engine VMs, so it supports custom runtimes with native dependencies, WebSockets and local disk, and an application can mix standard and flexible services with dispatch rules, which keeps the existing tooling and codebase intact.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep the application in App Engine standard and move the native librar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rewrite the application to run on GKE Autopilot so that any library ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Upgrade the App Engine standard application to the latest Python runti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-046",
@@ -488,7 +608,13 @@
     "refs": [
       "https://cloud.google.com/appengine/docs/the-appengine-environments",
       "https://cloud.google.com/appengine/docs/standard/how-instances-are-managed"
-    ]
+    ],
+    "hint": "Core Rule: App Engine standard deploys source code directly without containers, scales to zero when idle, and starts new instances in seconds, which matches all three constraints: no container skills required, zero idle cost, and rapid scaling.",
+    "whyWrong": {
+      "1": "Incorrect distractor (App Engine flexible environment with automatic scaling and a minimum o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A Compute Engine managed instance group with an autoscaler and a minim…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A GKE Standard cluster with the Horizontal Pod Autoscaler and cluster …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-047",
@@ -511,7 +637,13 @@
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/node-taints"
-    ]
+    ],
+    "hint": "Core Rule (GKE Spot node pools): Mixing node pools lets you match volatility to workload tolerance: GKE automatically taints Spot nodes with cloud.google.com/gke-spot, so only the batch Pods that tolerate it land on the cheap, preemptible capacity, while the API stays on standard nodes and is unaffected by reclamation (cost optimization without sacrificing reliability).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Convert the entire cluster's node pools to Spot VMs and add PodDisrupt…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Purchase committed use discounts for the whole cluster and keep all no…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run the batch Pods on a Cloud Run service with minimum instances set t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-048",
@@ -534,7 +666,13 @@
     "refs": [
       "https://cloud.google.com/nat/docs/gke-example",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/private-cluster-concept"
-    ]
+    ],
+    "hint": "Core Rule (GKE private cluster egress): Cloud NAT provides outbound internet connectivity for resources without external IP addresses, and for GKE you must include both the primary node range and the Pod secondary range so that Pod-originated traffic is translated; the nodes remain unreachable from the internet, satisfying the security team.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add an external IP address to each node through a node pool update and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable Private Google Access on the subnet so that Pods can reach the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a VPC peering connection to a VPC that has an internet gateway.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-049",
@@ -560,7 +698,13 @@
       "https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-notifications",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/maintenance-windows-and-exclusions"
-    ]
+    ],
+    "hint": "Core Rule (GKE upgrade operations): Release channels hand upgrade management to Google while keeping clusters in support, and maintenance windows plus cluster notifications (published to Pub/Sub for events such as UpgradeAvailableEvent and UpgradeEvent) give control over timing and advance visibility, which is the Google-recommended operating model.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Disable node auto-upgrade and pin each node pool to a specific version…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move all workloads to a single very large cluster to reduce the number…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Set the control plane to a static version and upgrade node pools manua…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-cmp-050",
@@ -583,6 +727,12 @@
     "refs": [
       "https://cloud.google.com/run/docs/create-jobs#parallelism",
       "https://cloud.google.com/run/docs/container-contract#jobs-env-vars"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run jobs parallelism): Cloud Run jobs natively support array-style parallel execution: you specify how many tasks make up an execution and how many run concurrently, each task learns its index and the total count from injected environment variables so it can process a deterministic slice of the work, and failed tasks are retried up to the configured maximum, all without clusters or VMs.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the indexer as a Cloud Run service and have a Cloud Run functio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a Dataproc cluster and run a Spark job that partitions the obje…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the indexer to a GKE Autopilot cluster as a Kubernetes Job with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

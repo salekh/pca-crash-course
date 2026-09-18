@@ -13,12 +13,20 @@
       "Migrate the database to AlloyDB for PostgreSQL, enable the columnar engine, and direct reporting queries to a read pool instance.",
       "Export nightly snapshots to BigQuery with Datastream and rewrite the reports as BigQuery SQL."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "AlloyDB is fully PostgreSQL-compatible, so no application changes are required, and its columnar engine accelerates analytical queries by up to 100x while read pool instances isolate reporting traffic from the primary. This directly satisfies the compatibility, minimal-change, and performance constraints (performance-optimization pillar). Option A keeps the same row-oriented engine, so heavy aggregations remain slow and replicas add replication lag to manage. Option B requires schema and application changes because Spanner's PostgreSQL interface is not a drop-in replacement for an existing PostgreSQL database. Option D forces the team to rewrite reports and introduces data freshness gaps rather than solving the problem in place.",
     "refs": [
       "https://cloud.google.com/alloydb/docs/columnar-engine/about",
       "https://cloud.google.com/alloydb/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (AlloyDB vs Cloud SQL): AlloyDB is fully PostgreSQL-compatible, so no application changes are required, and its columnar engine accelerates analytical queries by up to 100x while read pool instances isolate reporting traffic from the primary.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add two Cloud SQL read replicas and route all reports to the replicas …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Migrate the database to Spanner using the PostgreSQL interface and run…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export nightly snapshots to BigQuery with Datastream and rewrite the r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-002",
@@ -34,12 +42,20 @@
       "Bigtable with multi-cluster replication across three regions",
       "Firestore in Native mode in a multi-region location"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Spanner multi-region configurations provide externally consistent (strongly consistent) transactions with a 99.999% availability SLA and place read-only or read-write replicas close to users on multiple continents, which is exactly what a global seat-inventory system needs. Option B offers eventually consistent replicas and a regional write endpoint with a 99.95%/99.99% SLA, so it cannot guarantee both consistency and 99.999% availability. Option C is a NoSQL wide-column store whose cross-cluster replication is eventually consistent, which risks overselling. Option D is strongly consistent but is a document database with per-transaction limits and write throughput characteristics unsuited to a high-contention, relational inventory model.",
     "refs": [
       "https://cloud.google.com/spanner/docs/instance-configurations",
       "https://cloud.google.com/spanner/sla"
-    ]
+    ],
+    "hint": "Core Rule: Spanner multi-region configurations provide externally consistent (strongly consistent) transactions with a 99.999% availability SLA and place read-only or read-write replicas close to users on multiple continents, which is exactly what a global seat-inventory system needs.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Cloud SQL for MySQL with cross-region read replicas): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Bigtable with multi-cluster replication across three regions): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Firestore in Native mode in a multi-region location): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-003",
@@ -55,12 +71,20 @@
       "Use the Spanner emulator for both development and QA and skip cloud instances entirely.",
       "Create each non-production instance with 100 processing units in a single-region configuration."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Spanner instances can be sized in processing units, and 1,000 processing units equal one node. A 100-PU instance costs one tenth of a node and supports up to 409.6 GB of storage (as of recent limits), so it easily hosts a 20 GB, low-traffic environment while keeping the same engine and features as production (cost-optimization pillar). Option A pays for ten times more capacity than needed. Option B over-provisions even more and removes environment isolation. Option C is useful for local unit tests, but the emulator does not support all production features, has no persistence guarantees, and cannot serve a shared QA environment reliably.",
     "refs": [
       "https://cloud.google.com/spanner/docs/compute-capacity",
       "https://cloud.google.com/spanner/pricing"
-    ]
+    ],
+    "hint": "Core Rule (Spanner processing units): Spanner instances can be sized in processing units, and 1,000 processing units equal one node.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create each non-production environment as a 1-node Spanner instance in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Consolidate development and QA into one 3-node instance and use separa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use the Spanner emulator for both development and QA and skip cloud in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-004",
@@ -76,12 +100,20 @@
       "Use a random UUID as the row key and store the meter ID and timestamp as column qualifiers.",
       "Hash the timestamp and prepend the hash to the existing key to randomize placement."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "A row key that begins with a monotonically increasing timestamp sends all new writes to the same tablet, creating a hotspot that adding nodes cannot fix. Putting a high-cardinality, well-distributed identifier (meter ID) first spreads writes across nodes, and keeping the timestamp as the suffix keeps each meter's readings lexicographically adjacent so range scans for one meter remain efficient. Option A does not remove the hotspot because the key design, not capacity, is the bottleneck. Option C removes hotspotting but destroys locality, forcing a full-table scan for the primary query. Option D randomizes placement but similarly breaks the ability to scan a meter's readings by time range.",
     "refs": [
       "https://cloud.google.com/bigtable/docs/schema-design",
       "https://cloud.google.com/bigtable/docs/schema-design-time-series"
-    ]
+    ],
+    "hint": "Core Rule (Bigtable row-key design): A row key that begins with a monotonically increasing timestamp sends all new writes to the same tablet, creating a hotspot that adding nodes cannot fix.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep the timestamp first but add more Bigtable nodes and enable autosc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use a random UUID as the row key and store the meter ID and timestamp …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Hash the timestamp and prepend the hash to the existing key to randomi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-005",
@@ -97,12 +129,20 @@
       "Bigtable with SSD storage",
       "Cloud Storage with a Cloud CDN cache in front"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Bigtable is designed for single-digit-millisecond point reads at very high throughput on petabyte-scale key-value or wide-column data, so an SSD-backed Bigtable instance is the right fit for a low-latency feature store. Option A is an analytical warehouse; even with BI Engine, BigQuery is not a serving database and cannot sustain 500,000 point lookups per second with millisecond latency. Option B scales well but has higher per-operation latency and cost at this throughput and is not optimized for 30 TB of hot key-value data. Option D is an object store; per-object latency and request costs make it unsuitable as a real-time key-value lookup layer.",
     "refs": [
       "https://cloud.google.com/bigtable/docs/overview",
       "https://cloud.google.com/architecture/storage-advisor"
-    ]
+    ],
+    "hint": "Core Rule (Bigtable vs BigQuery): Bigtable is designed for single-digit-millisecond point reads at very high throughput on petabyte-scale key-value or wide-column data, so an SSD-backed Bigtable instance is the right fit for a low-latency feature store.",
+    "whyWrong": {
+      "0": "Incorrect distractor (BigQuery with BI Engine acceleration enabled): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Firestore in Datastore mode): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cloud Storage with a Cloud CDN cache in front): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-006",
@@ -118,12 +158,20 @@
       "Create a materialized view for each store that filters on store_id and refresh it hourly.",
       "Move the table to a flat-rate Enterprise edition reservation so scanned bytes no longer affect cost."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Partitioning by transaction_date prunes entire partitions when queries filter on date, and clustering by store_id sorts data within each partition so BigQuery skips irrelevant blocks; together they dramatically reduce bytes scanned with no change to query text beyond requiring a date filter. Option B creates an operational burden (hundreds of tables) and requires analysts to change how they query. Option C creates many refresh jobs and does not help queries that span stores. Option D changes the pricing model but does not reduce the work performed; slots would still be consumed by full scans, and it does not follow the cost-optimization principle of eliminating waste first.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/partitioned-tables",
       "https://cloud.google.com/bigquery/docs/clustered-tables"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery partitioning and clustering): Partitioning by transaction_date prunes entire partitions when queries filter on date, and clustering by store_id sorts data within each partition so BigQuery skips irrelevant blocks; together they dramatically reduce bytes scanned with no change to query text beyond requiring a date filter.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Split the table into one table per store and instruct analysts to quer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a materialized view for each store that filters on store_id and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move the table to a flat-rate Enterprise edition reservation so scanne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-007",
@@ -139,12 +187,20 @@
       "Purchase a 3-year commitment for 2,500 slots and disable autoscaling to avoid surprise charges.",
       "Purchase an Enterprise edition commitment for about 800 baseline slots and configure a reservation with autoscaling up to 2,500 slots."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "BigQuery editions let you commit to a baseline of slots at a discounted rate for steady-state usage and configure autoscaling that adds slots only during peaks, billed per second. Committing to the 800-slot baseline gives predictable core spend, while autoscaling to 2,500 slots preserves batch performance without paying for idle capacity 20+ hours a day (cost-optimization pillar). Option A caps spend but will fail jobs when the quota is hit and does nothing to make cost predictable at the peak. Options B and C pay for 2,500 slots continuously, which is roughly three times the average need and wastes money; option C additionally locks in the waste for three years.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/editions-intro",
       "https://cloud.google.com/bigquery/docs/slots-autoscaling-intro"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery slots and editions): BigQuery editions let you commit to a baseline of slots at a discounted rate for steady-state usage and configure autoscaling that adds slots only during peaks, billed per second.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Stay on on-demand pricing and set a project-level custom daily query q…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Purchase a 2,500-slot one-year commitment so the batch peak is always …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Purchase a 3-year commitment for 2,500 slots and disable autoscaling t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-008",
@@ -160,12 +216,20 @@
       "Convert the dashboards to scheduled PDF reports delivered by email.",
       "Enable BigQuery query result caching and increase the cache TTL."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "BI Engine is an in-memory analysis service that transparently accelerates BigQuery queries from Looker Studio and other BI tools, so a reservation sized to hold the working set delivers sub-second responses without changing dashboards or data location. Option A moves data to a transactional database that is slower for analytical scans and adds ETL work. Option C removes interactivity, which the team wants to keep. Option D is already on by default; cached results only help identical repeated queries, not new filter combinations, and the TTL is not configurable in the way described.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/bi-engine-intro",
       "https://cloud.google.com/bigquery/docs/bi-engine-looker-studio"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery BI Engine): BI Engine is an in-memory analysis service that transparently accelerates BigQuery queries from Looker Studio and other BI tools, so a reservation sized to hold the working set delivers sub-second responses without changing dashboards or data location.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Export the table to Cloud SQL and repoint the dashboards.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Convert the dashboards to scheduled PDF reports delivered by email.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable BigQuery query result caching and increase the cache TTL.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-009",
@@ -181,11 +245,19 @@
       "Create a materialized view over the base table with the per-country, per-hour aggregation and point the dashboard at it.",
       "Copy the table to a second dataset in a cheaper region and run the dashboard there."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "BigQuery materialized views precompute aggregations, are incrementally and automatically refreshed as new rows land, and BigQuery can even rewrite queries against the base table to use them. Queries read only the small precomputed result plus a delta of new data, cutting scanned bytes substantially while staying near real time. Option A recomputes the full aggregation every minute, which is exactly the expensive pattern you want to avoid. Option B is only a saved query; it re-scans the base table on every execution. Option D does not reduce scanned bytes and adds copy costs and staleness.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/materialized-views-intro"
-    ]
+    ],
+    "hint": "Core Rule: BigQuery materialized views precompute aggregations, are incrementally and automatically refreshed as new rows land, and BigQuery can even rewrite queries against the base table to use them.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Schedule a query every minute that overwrites a summary table used by …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a logical view with the aggregation and instruct the dashboard …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Copy the table to a second dataset in a cheaper region and run the das…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-010",
@@ -201,12 +273,20 @@
       "Cloud SQL for PostgreSQL with the Cloud SQL Auth Proxy",
       "Bigtable with the HBase client library"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Firestore in Native mode provides mobile and web client SDKs with real-time listeners, offline persistence, and automatic synchronization, making it purpose-built for collaborative mobile apps operated by small teams. Option B (Datastore mode) is intended for server-side applications and does not support real-time listeners or mobile offline SDKs. Option C requires the team to build their own sync and offline logic and manage connectivity from mobile devices. Option D is a high-throughput analytical NoSQL store with no client SDKs for mobile synchronization.",
     "refs": [
       "https://cloud.google.com/firestore/docs/firestore-or-datastore",
       "https://cloud.google.com/firestore/docs/manage-data/enable-offline"
-    ]
+    ],
+    "hint": "Core Rule (Firestore modes): Firestore in Native mode provides mobile and web client SDKs with real-time listeners, offline persistence, and automatic synchronization, making it purpose-built for collaborative mobile apps operated by small teams.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Firestore in Datastore mode): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Cloud SQL for PostgreSQL with the Cloud SQL Auth Proxy): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Bigtable with the HBase client library): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-011",
@@ -222,11 +302,19 @@
       "Deploy a larger self-managed Redis VM with more memory and enable persistence.",
       "Migrate to Memorystore for Redis Cluster and connect from GKE over Private Service Connect."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Memorystore for Redis Cluster is a fully managed, horizontally scalable Redis service with sub-millisecond latency and native sorted sets for leaderboards; it removes Redis operations from the team and connects privately to GKE. Option A replaces an in-memory store with disk-based systems that cannot meet sub-millisecond latency for session lookups. Option B introduces batch latency for a leaderboard that needs to be live. Option C keeps the operational burden and single-node scaling limit the team wants to escape.",
     "refs": [
       "https://cloud.google.com/memorystore/docs/cluster/memorystore-for-redis-cluster-overview"
-    ]
+    ],
+    "hint": "Core Rule: Memorystore for Redis Cluster is a fully managed, horizontally scalable Redis service with sub-millisecond latency and native sorted sets for leaderboards; it removes Redis operations from the team and connects privately to GKE.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Move the session state to Cloud SQL and the leaderboard to BigQuery.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Store sessions in Firestore and compute the leaderboard with a schedul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy a larger self-managed Redis VM with more memory and enable pers…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-012",
@@ -243,12 +331,21 @@
       "Deploy two independent Cloud SQL instances in different regions and dual-write from the application.",
       "Enable point-in-time recovery and rely on it for regional failover."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "The regional HA configuration synchronously replicates to a standby in another zone and fails over automatically, meeting the zonal requirement. A cross-region read replica receives changes asynchronously with seconds of lag and can be promoted to a standalone primary, satisfying the regional DR requirement with an RPO of seconds (reliability pillar). Option B provides only daily granularity, far worse than the RPO. Option D pushes consistency and conflict handling into the application and is an anti-pattern for a relational database. Option E restores to a point in time within the same region using transaction logs; it does not provide a ready instance in another region and does not help if the region is down.",
     "refs": [
       "https://cloud.google.com/sql/docs/mysql/high-availability",
       "https://cloud.google.com/sql/docs/mysql/replication/cross-region-replicas"
-    ]
+    ],
+    "hint": "Core Rule (Cloud SQL high availability): The regional HA configuration synchronously replicates to a standby in another zone and fails over automatically, meeting the zonal requirement.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Schedule daily automated backups and store them in a multi-region Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy two independent Cloud SQL instances in different regions and du…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Enable point-in-time recovery and rely on it for regional failover.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-013",
@@ -264,12 +361,20 @@
       "Add a secondary index on the transaction number so reads no longer touch the base table.",
       "Interleave the transactions table under a parent table keyed by merchant ID."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Monotonically increasing primary keys concentrate all inserts on the last split, creating a write hotspot that added capacity cannot relieve, which is what the band at the end of the keyspace indicates. Spanner's recommended fix is a well-distributed key such as a bit-reversed sequence (a built-in sequence option) or a UUIDv4, with creation order preserved through a separate timestamp column. Option A wastes money because the bottleneck is key distribution, not compute. Option C makes the problem worse: an index on a monotonically increasing value is itself a hotspot. Option D can help co-locate related rows, but if the interleaved child key still increases monotonically per merchant, hot merchants still hotspot, and it does not address the root cause.",
     "refs": [
       "https://cloud.google.com/spanner/docs/schema-design",
       "https://cloud.google.com/spanner/docs/key-visualizer"
-    ]
+    ],
+    "hint": "Core Rule (Spanner schema design): Monotonically increasing primary keys concentrate all inserts on the last split, creating a write hotspot that added capacity cannot relieve, which is what the band at the end of the keyspace indicates.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the instance's processing units until the latency target is m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Add a secondary index on the transaction number so reads no longer tou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Interleave the transactions table under a parent table keyed by mercha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-014",
@@ -285,12 +390,20 @@
       "Cloud SQL for PostgreSQL Enterprise Plus edition with high availability enabled",
       "Bigtable with a PostgreSQL-compatible proxy running on GKE"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud SQL Enterprise Plus offers a 99.99% availability SLA, near-zero-downtime planned maintenance, and full PostgreSQL compatibility including extensions and stored procedures, so the migration is essentially lift-and-shift. The workload is regional and modest in scale, so a globally distributed database is unnecessary. Option A does not support many PostgreSQL extensions or stored procedures and would require schema and code changes, contradicting the minimal-effort requirement. Option B would require re-architecting the data model entirely. Option D is not a real product pattern and Bigtable has no relational capabilities.",
     "refs": [
       "https://cloud.google.com/sql/docs/postgres/editions-intro",
       "https://cloud.google.com/sql/sla"
-    ]
+    ],
+    "hint": "Core Rule (Cloud SQL vs Spanner): Cloud SQL Enterprise Plus offers a 99.99% availability SLA, near-zero-downtime planned maintenance, and full PostgreSQL compatibility including extensions and stored procedures, so the migration is essentially lift-and-shift.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Spanner with the PostgreSQL interface in a single-region configuration): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Firestore in Datastore mode with a relational-to-document mapping laye…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Bigtable with a PostgreSQL-compatible proxy running on GKE): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-015",
@@ -306,12 +419,20 @@
       "Set a partition expiration of 7 years, and switch the dataset to the physical storage billing model after confirming the compressed size is lower.",
       "Move the older partitions to a second table in a region with cheaper storage pricing."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Partitions that have not been modified for 90 consecutive days automatically move to long-term storage at roughly half price, so the old partitions already benefit without any ETL. A 7-year partition expiration deletes data automatically once retention ends, and the physical storage billing model charges for compressed bytes, which is usually much cheaper for highly compressible records like CDRs. Option A adds an export pipeline and complicates any future legal query. Option B removes partition pruning and long-term storage eligibility at the partition level, increasing both query and storage cost. Option D adds a copy job and cross-region complexity for little gain.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/best-practices-storage",
       "https://cloud.google.com/bigquery/pricing#storage"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery storage cost): Partitions that have not been modified for 90 consecutive days automatically move to long-term storage at roughly half price, so the old partitions already benefit without any ETL.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Export partitions older than 13 months to Cloud Storage Archive class …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Convert the table to a clustered, unpartitioned table to reduce metada…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move the older partitions to a second table in a region with cheaper s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-016",
@@ -327,12 +448,20 @@
       "AlloyDB for PostgreSQL primary clusters in both the EU and the US with bi-directional logical replication.",
       "Cloud SQL for PostgreSQL in each region with application-level sharding by customer home region."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The deciding factor is the need for strongly consistent writes that survive a regional outage and serve two continents; only Spanner provides synchronous multi-region replication with external consistency and continued write availability if a region is lost. Because the application is new, the PostgreSQL interface gives engineers familiar syntax without the migration constraints of an existing schema. Option B is regional for writes; a failover to the EU secondary is a manual promotion with non-zero RPO/RTO, so write availability is interrupted. Option C introduces conflict resolution and eventual consistency between two independent primaries, violating the strong-consistency requirement for balances. Option D keeps each shard single-region, so a regional outage still stops writes for that shard's customers.",
     "refs": [
       "https://cloud.google.com/spanner/docs/postgresql-interface",
       "https://cloud.google.com/spanner/docs/instance-configurations"
-    ]
+    ],
+    "hint": "Core Rule (AlloyDB vs Spanner): The deciding factor is the need for strongly consistent writes that survive a regional outage and serve two continents; only Spanner provides synchronous multi-region replication with external consistency and continued write availability if a region is lost.",
+    "whyWrong": {
+      "1": "Incorrect distractor (AlloyDB for PostgreSQL in a US region with a cross-region secondary cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (AlloyDB for PostgreSQL primary clusters in both the EU and the US with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cloud SQL for PostgreSQL in each region with application-level shardin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-017",
@@ -348,12 +477,20 @@
       "Use single-cluster routing for all traffic and rely on Cloud Monitoring alerts to switch clusters manually during an outage.",
       "Use multi-cluster routing for all traffic and add a 2-second sleep between the write and the read."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Bigtable replication is eventually consistent across clusters. Multi-cluster routing gives automatic failover and high availability, but a request may be served by a different cluster than the one that received the write. Pinning the read-after-write workflow to one cluster with single-cluster routing guarantees strong consistency for that path, while other traffic keeps the availability benefits of multi-cluster routing. Option A is invalid because there is no read-your-writes setting in the client that overrides eventual cross-cluster consistency. Option C sacrifices automatic failover for all workloads. Option D is a race condition, not a consistency guarantee, and adds latency to a real-time scoring path.",
     "refs": [
       "https://cloud.google.com/bigtable/docs/app-profiles",
       "https://cloud.google.com/bigtable/docs/replication-overview#consistency-model"
-    ]
+    ],
+    "hint": "Core Rule: Bigtable replication is eventually consistent across clusters.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use a single app profile with multi-cluster routing for all workloads …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use single-cluster routing for all traffic and rely on Cloud Monitorin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use multi-cluster routing for all traffic and add a 2-second sleep bet…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-018",
@@ -370,12 +507,21 @@
       "Configure a per-user custom daily query usage quota for bytes billed in the project.",
       "Turn on BigQuery BI Engine to reduce the bytes scanned by ad hoc queries."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Requiring a partition filter blocks full-table scans at the source, and a per-user daily bytes-billed quota caps how much any single person can spend, so one mistake cannot exhaust the shared budget. Both are native BigQuery controls that keep on-demand pricing and leave legitimate, filtered queries unaffected (cost-optimization pillar). Option A restricts research to a sample and adds a copy to maintain. Option C increases cost because cached results are free. Option E accelerates BI dashboards but does not reduce billed bytes for ad hoc on-demand queries.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/custom-quotas",
       "https://cloud.google.com/bigquery/docs/best-practices-costs"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery cost controls): Requiring a partition filter blocks full-table scans at the source, and a per-user daily bytes-billed quota caps how much any single person can spend, so one mistake cannot exhaust the shared budget.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant students the BigQuery Data Viewer role only on a sampled 1 TB co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Disable query result caching so students are aware of every query's co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Turn on BigQuery BI Engine to reduce the bytes scanned by ad hoc queri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-019",
@@ -391,12 +537,20 @@
       "Ensure the database is Firestore in Datastore mode, which keeps the Datastore API while providing strong consistency and higher scale.",
       "Keep the legacy Datastore database and add a Memorystore cache to absorb the extra load."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Firestore in Datastore mode is the successor to legacy Datastore: it keeps the same Datastore API and client libraries, removes the old eventual-consistency limitations (all queries are strongly consistent), and lifts the previous write-throughput limits on entity groups, so the agency scales without changing code. Option A would require rewriting data access to the Firestore API and is aimed at mobile/web clients rather than a server-only App Engine app. Option B is a full rewrite of the data layer. Option D leaves the old consistency and throughput limits in place and legacy Datastore databases are automatically upgraded to Datastore mode anyway.",
     "refs": [
       "https://cloud.google.com/datastore/docs/firestore-or-datastore",
       "https://cloud.google.com/datastore/docs/upgrade-to-firestore"
-    ]
+    ],
+    "hint": "Core Rule (Firestore Datastore mode): Firestore in Datastore mode is the successor to legacy Datastore: it keeps the same Datastore API and client libraries, removes the old eventual-consistency limitations (all queries are strongly consistent), and lifts the previous write-throughput limits on entity groups, so the agency scales without changing code.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate to Firestore in Native mode to gain real-time listeners and st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Migrate the data to Spanner and replace the Datastore client library w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Keep the legacy Datastore database and add a Memorystore cache to abso…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-020",
@@ -412,12 +566,20 @@
       "Enable RDB snapshots on the Basic tier instance so it can be restored quickly after a failure.",
       "Replace Memorystore with a Cloud SQL read replica dedicated to price lookups."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Standard tier provides a replica in a different zone with automatic failover and a 99.9% SLA, and enabling read replicas adds a read endpoint that scales read throughput; the application continues to use standard Redis commands. Option B pushes dual-write consistency into the application and does not provide automatic failover. Option C only speeds recovery after an outage; it does not prevent the outage or provide failover. Option D removes the in-memory cache entirely, making the latency spike permanent rather than fixing the availability issue.",
     "refs": [
       "https://cloud.google.com/memorystore/docs/redis/high-availability",
       "https://cloud.google.com/memorystore/docs/redis/read-replicas-overview"
-    ]
+    ],
+    "hint": "Core Rule (Memorystore high availability): Standard tier provides a replica in a different zone with automatic failover and a 99.9% SLA, and enabling read replicas adds a read endpoint that scales read throughput; the application continues to use standard Redis commands.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Deploy two Basic tier instances in different zones and have the applic…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable RDB snapshots on the Basic tier instance so it can be restored …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Replace Memorystore with a Cloud SQL read replica dedicated to price l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-021",
@@ -433,12 +595,20 @@
       "Send events through Pub/Sub to a Dataflow job that deduplicates and uses insertAll.",
       "Switch the services to the BigQuery Storage Write API using committed-type streams with offsets for exactly-once semantics."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The Storage Write API is the recommended replacement for the legacy streaming API: it is cheaper per GB, supports exactly-once semantics through stream offsets, and makes data available for query immediately. Option A satisfies cost but violates the seconds-level freshness requirement. Option B relies on best-effort deduplication that BigQuery explicitly does not guarantee, and it keeps the higher legacy pricing. Option C adds a Dataflow pipeline to operate and still ends with the legacy API, so cost and best-effort deduplication remain issues.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/write-api",
       "https://cloud.google.com/bigquery/docs/write-api-streaming#exactly-once"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery ingestion): The Storage Write API is the recommended replacement for the legacy streaming API: it is cheaper per GB, supports exactly-once semantics through stream offsets, and makes data available for query immediately.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Buffer events in Cloud Storage and load them every 5 minutes with batc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Continue using insertAll but add an insertId to every row and increase…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Send events through Pub/Sub to a Dataflow job that deduplicates and us…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-022",
@@ -454,12 +624,20 @@
       "Enable Spanner change streams and replay them into a copy of the database after an incident.",
       "Export the database to Cloud Storage every 15 minutes with a scheduled Dataflow template."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Spanner point-in-time recovery is enabled by extending the database's version retention period up to 7 days; you can then perform stale reads or a Dataflow export at any timestamp in that window, or create a backup/restore at that timestamp, recovering just the corrupted rows without losing unrelated changes. Option A still leaves gaps of up to an hour and requires a full restore that discards later legitimate writes. Option C can reconstruct history but requires building and operating a replay pipeline, which is more complex and slower than PITR. Option D produces coarse snapshots, adds continuous export cost, and still loses up to 15 minutes of data.",
     "refs": [
       "https://cloud.google.com/spanner/docs/pitr",
       "https://cloud.google.com/spanner/docs/backup"
-    ]
+    ],
+    "hint": "Core Rule (Spanner backup and recovery): Spanner point-in-time recovery is enabled by extending the database's version retention period up to 7 days; you can then perform stale reads or a Dataflow export at any timestamp in that window, or create a backup/restore at that timestamp, recovering just the corrupted rows without losing unrelated changes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase backup frequency to hourly and retain backups for 7 days.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable Spanner change streams and replay them into a copy of the datab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export the database to Cloud Storage every 15 minutes with a scheduled…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-023",
@@ -475,12 +653,20 @@
       "Use BigQuery Omni to query the data in place in AWS and bring aggregated results into BigQuery with cross-cloud joins or transfers.",
       "Stand up Amazon Redshift and have analysts switch between the two warehouses."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "BigQuery Omni runs the BigQuery engine inside AWS so the raw data never leaves S3, satisfying the contractual constraint, while analysts use the familiar BigQuery interface and can move only aggregated results to Google Cloud via cross-cloud joins or cross-cloud transfer. Option A violates the agreement by moving the data set. Option B moves the data out of AWS at query time and incurs large egress charges and poor performance. Option D creates a second platform and skill set to maintain, which the company explicitly wants to avoid.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/omni-introduction",
       "https://cloud.google.com/bigquery/docs/omni-aws-cross-cloud-transfer"
-    ]
+    ],
+    "hint": "Core Rule: BigQuery Omni runs the BigQuery engine inside AWS so the raw data never leaves S3, satisfying the contractual constraint, while analysts use the familiar BigQuery interface and can move only aggregated results to Google Cloud via cross-cloud joins or cross-cloud transfer.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use Storage Transfer Service to copy the S3 data to Cloud Storage and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy Dataproc in Google Cloud and read S3 directly over the internet…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Stand up Amazon Redshift and have analysts switch between the two ware…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-024",
@@ -496,12 +682,20 @@
       "Vertically scale the primary instance to the largest available machine type.",
       "Export the catalog to Cloud Storage nightly and serve it from a static site."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "AlloyDB read pool instances are horizontally scalable read replicas that share the cluster's intelligent storage layer, so they stay within milliseconds to seconds of the primary and can be added or resized independently of write capacity. Routing browsing traffic to the read pool endpoint requires only a connection string change, not SQL changes. Option B introduces an additional cluster and replication lag to manage. Option C has a hard ceiling and pays for larger write capacity that is not needed. Option D loses freshness and does not address dynamic catalog queries.",
     "refs": [
       "https://cloud.google.com/alloydb/docs/instance-read-pool-create",
       "https://cloud.google.com/alloydb/docs/overview#read-pool"
-    ]
+    ],
+    "hint": "Core Rule (AlloyDB read pools): AlloyDB read pool instances are horizontally scalable read replicas that share the cluster's intelligent storage layer, so they stay within milliseconds to seconds of the primary and can be added or resized independently of write capacity.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a second AlloyDB cluster and use logical replication to copy th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Vertically scale the primary instance to the largest available machine…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export the catalog to Cloud Storage nightly and serve it from a static…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-025",
@@ -519,12 +713,22 @@
       "Denormalize by writing a second table keyed by city and time bucket to serve the secondary query pattern.",
       "Create a secondary index on the city column so both access patterns share one table."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "Bigtable performance depends on key design: leading with a well-distributed value (vehicle ID) avoids hotspots, and appending a time bucket keeps recent pings for a vehicle contiguous. Rows should stay under 100 MB (cells under 10 MB) for efficient reads, so a row per vehicle per time bucket rather than an unbounded daily row is recommended. Because Bigtable has no secondary indexes, the recommended pattern for a second access path is a denormalized second table with a key that fits that query (city plus time bucket). Option B risks oversized rows and slow reads. Option D is backwards: column families should group related, commonly read-together columns, and too many families hurts performance. Option F is not possible in Bigtable.",
     "refs": [
       "https://cloud.google.com/bigtable/docs/schema-design",
       "https://cloud.google.com/bigtable/docs/schema-design-time-series",
       "https://cloud.google.com/bigtable/quotas#limits-data-size"
-    ]
+    ],
+    "hint": "Core Rule (Bigtable schema design): Bigtable performance depends on key design: leading with a well-distributed value (vehicle ID) avoids hotspots, and appending a time bucket keeps recent pings for a vehicle contiguous.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Store all pings for a vehicle for an entire day in a single row so a s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use a single column family per ping so each sensor value can be versio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (Create a secondary index on the city column so both access patterns sh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

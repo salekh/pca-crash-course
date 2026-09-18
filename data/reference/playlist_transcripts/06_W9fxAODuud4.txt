@@ -1,0 +1,1327 @@
+TITLE: Real Google Cloud Professional Cloud Architect Exam Questions & Answers | Part 6 (Questions 101-120)
+URL: https://www.youtube.com/watch?v=W9fxAODuud4
+DESCRIPTION:
+Welcome to Part 6 of our Google Cloud Professional Architect exam series! In this 1-hour session, we dive deep into **questions 101-120** from the real exam. This series is designed to help you UNDERSTAND, not just memorize, key concepts for the exam, including **Continuous Integration/Continuous Deployment (CI/CD)**, **Provisioning and Managing Resources**, **Designing for Compliance**, and **Analyzing Business Requirements**. We provide in-depth explanations for every single answer option (A, B, C, D) to build your core Cloud Architect problem-solving skills.
+
+Our full playlist contains 250+ questions to get you fully prepared for exam day.
+
+▶️ WATCH THE FULL PLAYLIST HERE:
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+
+-- SUPPORT THE CHANNEL --
+If you find this content valuable, please consider supporting the channel by liking, sharing, and subscribing. It helps us create more free, high-quality content for everyone.
+
+If you want to discuss any of the questions, leave a comment below! I read them all and will respond as soon as I can. Good luck! #googlecloud #cloudarchitect #gcp #professionalcloudarchitect #itcertification #gcpexamquestions #realexamquestions #cicd #compliance #iac #architecturedesign
+
+CHAPTERS:
+
+TRANSCRIPT:
+All right, let's move on to our next set
+of questions. Question 101. Your web
+application has several VM instances
+running within a VPC. You want to
+restrict communications between
+instances to only the paths and ports
+you authorize, but you don't want to
+rely on static IP addresses or subnets
+because the app can autoscale. How
+should you restrict communications? A.
+Use separate VPCs to restrict traffic.
+B. Use firewall rules based on network
+tags attached to the compute instances.
+C. Use cloud DNS and only allow
+connections from authorized host names.
+D. Use service accounts and configure
+the web application to authorize
+particular service accounts to have
+access. Okay, this is a network security
+question about controlling traffic in a
+dynamic autoscaling environment. The
+main challenge is that we can't use
+static IP addresses in our rules because
+the VMs are constantly being created and
+destroyed. With that in mind, let's look
+at our options. Let's start with option
+A, using separate VPCs. This is
+incorrect because it's an overly complex
+solution. It would require setting up
+VPC peering or VPNs just for your
+application's internal components to
+talk to each other, which is not a
+simple or efficient way to manage
+traffic. Next option C suggests using
+cloud DNS. This is also incorrect. DNS
+is used to resolve domain names to IP
+addresses. It is not a security tool
+that can enforce rules about which
+servers are allowed to communicate with
+each other. Option D proposes using
+service accounts. This is incorrect
+because service accounts are for
+identity and permissions at the
+application and API level. They control
+who can do what. They don't control
+network traffic at the IP and port
+level. That's the job of a firewall.
+This brings us to option B, which is the
+correct and Google recommended solution.
+The way this works is you apply a
+network tag to your virtual machines.
+Since you're using an autoscaler, you
+would add this tag to your instance
+template. Then you create VPC firewall
+rules that use these tags as the source
+or destination. For example, you can
+create a rule that allows traffic from
+any VM with the web tier tag to any VM
+with the API tier tag. Because new
+instances created by the autoscaler
+automatically get the tag from the
+template, your firewall rules will apply
+to them instantly without needing to
+know their IP addresses. Therefore, the
+best way to restrict communications in
+this dynamic environment is B. Use
+firewall rules based on network tags
+attached to the compute instances.
+Question 102. Your company is using
+Cloud SQL as the database backend for a
+large CRM deployment. You want to scale
+as usage increases and ensure that you
+don't run out of storage, maintain 75%
+CPU usage cores, and keep replication
+lag below 60 seconds. What are the
+correct steps to meet your requirements?
+One, enable automatic storage increase
+for the instance. Two, create a stack
+driver alert when CPU usage exceeds 75%
+and change the instance type to reduce
+CPU usage. Three, create a stack driver
+alert for replication lag and shard the
+database to reduce replication time. B1,
+enable automatic storage increase for
+the instance. Two, change the instance
+type to a 32 core machine type to keep
+CPU usage below 75%. Three, create a
+stack driver alert for replication lag
+and deploy memake to reduce load on the
+master. See, one, create a stack driver
+alert when storage exceeds 75% and
+increase the available storage on the
+instance to create more space. Two,
+deploy memake to reduce CPU load. Three,
+change the instance type to a 32 core
+machine type to reduce replication lag.
+D1, create a stack driver alert when
+storage exceeds 75%.
+And increase the available storage on
+the instance to create more space. Two,
+create a stack driver alert for
+replication lag and change the instance
+type to a 32 core machine type to reduce
+replication lag. Okay, this question
+requires us to find the best operational
+strategy for managing a growing cloud
+SQL database. We need to address three
+specific requirements. Storage, CPU
+usage, and replication lag. With that in
+mind, let's look at our options. Let's
+start by looking at options C and D.
+Both of these are incorrect because for
+the storage requirement, they suggest
+creating an alert and manually
+increasing storage. This ignores a key
+feature of cloud SQL which is the
+ability to enable automatic storage
+increases. Using the built-in automated
+feature is always the better and more
+reliable practice. Next, let's look at
+option B. While it correctly suggests
+enabling automatic storage increase, its
+approach to the CPU problem is not
+optimal. It suggests immediately
+changing to a large 32 core machine.
+This is not cost-effective. The better
+approach is to monitor the CPU and only
+scale up when necessary. Also, while
+memake can reduce read, it's not the
+most direct solution for replication
+lag, which is often caused by heavy
+write traffic. This brings us to option
+A, which presents the most logical and
+comprehensive plan. For storage, it
+correctly uses the enable automatic
+storage increase feature. For CPU, it
+follows the best practice of creating a
+cloud monitoring alert to notify you
+when usage gets high, at which point you
+can react by changing the instance type.
+For replication lag, it also uses an
+alert to monitor the problem and
+suggests sharding the database as a
+valid long-term architectural solution
+to reduce the load on the primary
+instance. Therefore, the set of steps
+that best meets all the requirements is
+A1, enable automatic storage increase
+database to reduce replication time.
+Question 103. You are tasked with
+building an online analytical processing
+OLAP marketing analytics and reporting
+tool. This requires a relational
+database that can operate on hundreds of
+terabytes of data. What is the Google
+recommended tool for such applications?
+A. Cloud Spanner because it is globally
+distributed. B. Cloud SQL because it is
+a fully managed relational database. C.
+Cloud Fire Store because it offers
+realtime synchronization across devices.
+D. Big query because it is designed for
+large-scale processing of tabular data.
+Okay, this is a big data architecture
+question that asks us to choose the best
+database for an OLAP or online
+analytical processing workload. The key
+requirements are that the solution must
+handle hundreds of terabytes of data and
+support relational style queries for
+analysis. With that in mind, let's look
+A, Cloud Spanner. While Spanner is a
+powerful globally distributed relational
+database, it is primarily designed for
+OLTP or online transaction processing
+workloads that require strong global
+consistency. It is not the recommended
+tool for OLAP analytics where the focus
+is on running complex queries over large
+data sets. Next option B is cloud SQL.
+This is incorrect because Cloud SQL is a
+managed relational database that is not
+designed to scale to hundreds of
+terabytes for analytical workloads. It
+would be too slow and would not be able
+to handle the data volume effectively.
+Option C is cloud fire store. This is
+incorrect because fire store is a NoSQL
+database, not a relational one. It's
+optimized for synchronizing data for web
+and mobile applications, not for
+large-scale data analytics. This brings
+us to option D which is the correct
+answer. BigQuery is Google's serverless
+data warehouse and it is specifically
+designed for this exact use case. It is
+built to run fast SQL queries on massive
+multi-terab data sets. Although it's not
+a traditional relational database, it
+works with tabular data and a SQL
+interface making it the perfect fit for
+OLAP marketing analytics and reporting.
+Therefore, the Google recommended tool
+for this application is DB BigQuery
+because it is designed for large-scale
+processing of tabular data. Question
+104. You have deployed an application to
+Google Kubernetes Engine GKE and are
+using the CloudSQL proxy container to
+make the cloud SQL database available to
+the services running on Kubernetes. You
+are notified that the application is
+reporting database connection issues.
+Your company policies require a
+post-mortem. What should you do?
+Use cloud SQL instances restart. B.
+Validate that the service account used
+by the CloudSQL proxy container still
+has the cloud build editor role. C. In
+the GCP console, navigate to stack
+driver logging. Consult logs for GKE and
+cloud SQL. D. In the GCP console,
+navigate to Cloud SQL. Restore the
+latest backup. Use cubercl to restart
+all pods. Okay, this is a
+troubleshooting question for a common
+architecture using GKE and cloud SQL.
+The most important part of the question
+is the requirement for a postmortem.
+This means our goal isn't just to fix
+the problem, but to understand exactly
+why it happened. With that in mind,
+let's look at our options. Let's start
+with the options that suggest restarting
+things like A and D. Restarting the
+Cloud SQL instance or the application
+pods might temporarily solve the
+connection issue, but it's a poor
+troubleshooting step. It doesn't help
+you find the root cause and it can even
+destroy valuable log information that
+you need for your post-mortem analysis.
+Restoring from a backup, as mentioned in
+D, is also an extreme measure for a
+connection issue and could lead to data
+loss. Next, let's look at option B. This
+suggests checking the cloud build editor
+role. This is incorrect because that
+specific IM role is for managing build
+processes in cloud build and has no
+permissions related to connecting to a
+cloud SQL database. This brings us to
+option C which is the correct first step
+for any proper investigation. Cloud
+logging formerly known as stack driver
+is the centralized logging service for
+Google cloud. It automatically collects
+logs from both your GKE application and
+your cloud SQL database. By navigating
+to cloud logging and consulting the logs
+from both services around the time of
+the incident, you can find the specific
+error messages and events that will tell
+you the root cause of the connection
+failure. This is an essential step for
+any post-mortem. Therefore, the correct
+thing to do to begin your postmortem is
+C. In the GCP console, navigate to stack
+driver logging and consult the logs for
+GKE and cloud SQL. Question 105. Your
+company pushes batches of sensitive
+transaction data from its application
+server VMs to cloud pub/sub for
+processing and storage. What is the
+Google recommended way for your
+application to authenticate to the
+required Google cloud services?
+Ensure that VM service accounts are
+granted the appropriate cloud pub/subim
+roles. B. Ensure that VM service
+accounts do not have access to cloud
+pub/sub and use VM access scopes to
+grant the appropriate cloud pub/subim
+roles. C. Generate an ooth 2 access
+token for accessing cloud pub/sub.
+Encrypt it and store it in cloud storage
+for access from each VM. D. Create a
+gateway to cloud pub/sub using a cloud
+function and grant the cloud function
+service account the appropriate cloud
+pub/subim roles. Okay, this is a very
+important security and identity
+management question. It's asking for the
+best and most secure way for an
+application running on a compute engine
+virtual machine to authenticate to other
+Google cloud services like cloud
+pub/sub. With that in mind, let's look
+at our options. Let's start by looking
+at option B which suggests using VM
+access scopes. This is incorrect because
+access scopes are a legacy method for
+granting permissions. The modern secure
+and Google recommended best practice is
+to use specific IM roles attached to a
+service account as they are much more
+granular and flexible. Next option C
+proposes manually generating an OOTH2
+token and storing it in cloud storage.
+This is also incorrect and a bad
+security practice. You should avoid
+manually managing credentials like
+tokens or keys whenever possible as it
+increases the risk of them being
+exposed. The cloud provides a much
+better automated way to handle this.
+Option D suggests creating a gateway
+using a cloud function. While
+technically possible, this is an overly
+complex and inefficient architecture. It
+adds an unnecessary component which
+increases latency and cost when the VM
+application can and should connect
+directly. This brings us to option A
+which is the correct and Google
+recommended way. The standard practice
+is to use a VM service account. You
+create a service account which acts as
+an identity for your application. You
+then grant that service account the
+specific IM roles it needs. For example,
+the pub/subpublisher role following the
+principle of lease privilege. When your
+application runs on the VM, it
+automatically authenticates as that
+service account and inherits its
+permissions allowing it to securely
+connect to pub/sub without any need for
+manual credential management. Therefore,
+the Google recommended way is a ensure
+that VM service accounts are granted the
+appropriate cloud pub/subim roles.
+Question 106. Your company is moving 75
+tab of data into Google Cloud. You want
+to use cloud storage and follow Google
+recommended practices. What should you
+do? A. Use VPC network peering between
+the VPC and the on- premises network. B.
+Expose the VPC to the on- premises
+network using IM and VPC sharing. C.
+Create a global cloudVPN gateway with
+VPN tunnels from each region to the on-
+premises peer gateway. D. Deploy
+cloudVPN gateway in each region. Ensure
+that each region has at least one VPN
+tunnel to the on- premises pure gateway.
+Okay, this question is about designing a
+reliable network connection for an
+application that is spread across
+multiple regions. The key to solving
+this is understanding that cloudVPN
+gateways are regional resources in
+Google Cloud. With that in mind, let's
+look at our options. Let's start with
+option A which suggests using VPC
+network peering. This is incorrect
+because VPC peering is used to connect
+two Google Cloud VPC networks to each
+other, not to connect a VPC to an
+on-remise network. Next option B
+suggests using IM and VPC sharing. These
+are tools for managing permissions and
+sharing networks between projects within
+Google Cloud. They are not used to
+establish the actual network connection
+to an on-remise location. Option C is
+also incorrect because it mentions a
+global cloudVPN gateway. This type of
+resource does not exist in Google Cloud.
+VPN gateways must be created within a
+specific region. This brings us to
+option D, which is the correct and
+recommended architecture. Because VPN
+gateways are regional resources, you
+must deploy a separate cloudVPN gateway
+in each of the two regions where your
+application is running. You would then
+create VPN tunnels from each of those
+gateways to your on-remise network. This
+ensures that the instances in both
+regions have a reliable and redundant
+path to communicate with your on-remise
+systems. Therefore, the correct way to
+deploy the VPN is D. Deploy a cloudVPN
+gateway in each region and ensure that
+each region has at least one VPN tunnel
+to the on- premises pure gateway.
+Question 107. Your applications will be
+writing their logs to BigQuery for
+analysis. Each application should have
+its own table. Any logs older than 45
+days should be removed. You want to
+optimize storage and follow Google
+do? A. Configure the expiration time for
+your tables at 45 days. B. Make the
+tables time partitioned and configure
+the partition expiration at 45 days. C.
+rely on BigQuery's default behavior to
+prune application logs older than 45
+days. D. Create a script that uses the
+BigQuery command line tool BQ to remove
+records older than 45 days. Okay, this
+is a question about data life cycle
+management in BigQuery. The goal is to
+find the most efficient and automated
+way to delete old log data to save on
+storage costs following Google's
+recommended practices. With that in
+start with option A, which suggests
+setting an expiration time on the entire
+table. This is incorrect because it
+would delete the whole table, including
+the new logs after 45 days. We want to
+delete only the old logs, not the entire
+table. Next, option C suggests relying
+on BigQuery's default behavior. This is
+incorrect because BigQuery does not have
+a default behavior that automatically
+deletes old data. You must configure
+this yourself. Option D proposes
+creating a script to delete old records.
+While this is technically possible, it's
+not the recommended practice. It would
+require you to manage a server to run
+the script, and running delete queries
+can be less efficient and more costly
+than using BigQuery's built-in features.
+correct and most efficient solution. The
+recommended practice is to first make
+your tables time partitioned. This
+organizes your data into daily chunks
+based on a timestamp. Then you simply
+configure a partition expiration of 45
+days on the table. With this setting,
+BigQuery will automatically and
+efficiently delete any daily partition
+that is older than 45 days without you
+needing to run any scripts or queries.
+This is a fully automated serverless and
+cost-effective way to manage your data
+life cycle. Therefore, the best thing to
+do is B make the tables time partitioned
+and configure the partition expiration
+at 45 days. Question 108. You want your
+Google Kubernetes Engine cluster to
+automatically add or remove nodes based
+on CPU load. What should you do? A.
+Configure a horizontal pod autoscaler
+with a target CPU usage. Enable the
+cluster autoscaler from the GCP console.
+B. Configure a horizontal pod autoscaler
+with a target CPU usage. Enable
+autoscaling on the managed instance
+group for the cluster using the cloud
+command. C. Create a deployment and set
+the max unavailable and max search
+properties. Enable the cluster
+autoscaler using the cloud command. D.
+Create a deployment and set the max
+unavailable and max search properties.
+Enable autoscaling on the cluster
+managed instance group from the GCP
+console. Okay, this question is about
+how autoscaling works in Google
+Kubernetes Engine. To get the right
+answer, it's important to understand
+that GKE has a two-level autoscaling
+system that works together. One for
+scaling your applications and one for
+scaling your infrastructure. First, the
+horizontal pod autoscaler or HPA watches
+the CPU usage of your application pods.
+If the load gets high, it creates more
+pods. Second, the cluster autoscaler
+watches for pods that can't be scheduled
+because there's no room. When it sees
+these pending pods, it adds more nodes
+or virtual machines to the cluster. With
+that in mind, let's evaluate our
+options. Let's look at options C and D.
+Both are incorrect because they mention
+they max unavailable and max surge
+properties. These settings are used to
+control how a rolling update happens
+during a deployment. They have nothing
+to do with autoscaling based on CPU
+load. Next option B is also incorrect.
+While it correctly mentions the
+horizontal pod autoscaler, it suggests
+enabling autoscaling directly on the
+managed instance group. You should not
+do this. You should always use the
+Kubernetes native cluster autoscaler
+which is designed to work intelligently
+with the GKER.
+This brings us to option A which
+describes the correct complete process.
+First, you configure a horizontal pod
+autoscaler to create more pods when CPU
+usage is high. Then you enable the
+cluster autoscaler for your GKE cluster.
+When the HPA tries to add new pods and
+there isn't enough space, the cluster
+autoscaler will see this and
+automatically add a new node to the
+cluster to run them. This combination
+provides a complete end-to-end
+autoscaling solution. Therefore, the
+correct thing to do is a configure a
+horizontal pod autoscaler with a target
+CPU usage and enable the cluster
+autoscaler from the GCP console.
+Question 109. You need to develop
+procedures to verify the resilience of
+disaster recovery for remote recovery
+using GCP. Your production environment
+is hosted on premises. You need to
+establish a secure redundant connection
+between your on- premises network and
+the GCP network. What should you do?
+Verify that dedicated interconnect can
+replicate files to GCP. Verify that
+direct peering can establish a secure
+connection between your networks if
+dedicated interconnect fails. B. Verify
+that dedicated interconnect can
+CloudVPN can establish a secure
+dedicated interconnect fails. C. Verify
+that the transfer appliance can
+connection between your networks if the
+transfer appliance fails. D. Verify that
+the transfer appliance can replicate
+files to GCP. Verify that CloudVPN can
+establish a secure connection between
+your networks if the transfer appliance
+fails. Okay, this is a question about
+designing a resilient hybrid cloud
+network. The key requirements are that
+the connection must be secure and most
+importantly redundant, meaning there
+needs to be a primary connection and a
+backup connection in case the primary
+one fails. With that in mind, let's
+evaluate our options. Let's first look
+at options C and D, which both suggest
+using a transfer appliance. This is
+incorrect because a transfer appliance
+is a device for offline bulk data
+migration. You use it to ship a large
+amount of data one time. It is not a
+continuous real-time connection which is
+what you would need for a disaster
+recovery replication plan. Next, let's
+look at option A. It correctly
+identifies dedicated interconnect as a
+good primary connection. However, it
+suggests using direct peering as a
+backup. This is incorrect. Direct
+peering is for exchanging public
+internet traffic with Google's network.
+It's not designed to be a secure private
+failover tunnel for your internal
+corporate traffic. This brings us to
+option B which describes the correct and
+Google recommended architecture for a
+redundant connection. You use dedicated
+interconnect as your primary link. This
+gives you a high bandwidth private and
+reliable connection for your main data
+replication. Then you set up a cloudVPN
+as your backup. The VPN runs over the
+public internet and provides a secure
+encrypted tunnel. If your primary
+dedicated interconnect connection ever
+fails, your network can automatically
+fail over to the cloudVPN to maintain
+connectivity. This combination provides
+both high performance and high
+availability. Therefore, the correct
+approach is B. Verify that dedicated
+interconnect can replicate files to GCP
+and verify that CloudVPN can establish a
+secure connection between your networks
+if dedicated interconnect fails.
+Question 110. Your company operates
+nationally and plans to use GCP for
+multiple batch workloads, including some
+that are not timeritical. You also need
+to use GCP services that are HIPPA and
+manage service costs. How should you
+design to meet Google best practices?
+Provision preemptable VMs to reduce
+cost. Discontinue use of all GCP
+services and APIs that are not HIPPA
+compliant. B. Provision preemptable VMs
+to reduce cost. Disable and then
+discontinue use of all GCP services and
+APIs that are not HIPACO compliant. C.
+Provision standard VMs in the same
+region to reduce cost. Discontinue use
+of all GCP services and APIs that are
+not HIPPA compliant. D. Provision
+standard VMs to the same region to
+reduce cost. Disable and then
+APIs that are not HIPPA compliant. Okay,
+this question combines two important
+topics. Cost optimization for batch
+workloads and ensuring HIPPA compliance.
+We need to find the best approach for
+both of these requirements. With that in
+mind, let's evaluate our options. Let's
+first look at the compute resource
+choice. Options C and D suggest using
+standard VMs. This is not the most
+cost-effective choice. The question
+states that some workloads are not
+time-critical for these types of fault
+tolerant batch jobs. Preemptable VMs as
+mentioned in options A and B are a much
+better option as they offer significant
+cost savings. Now let's look at the
+compliance action. Option A only says to
+discontinue use of non-compliant
+services. This is not strong enough. A
+better security and compliance posture
+is to actively disable those services,
+often using an organization policy to
+technically prevent their use. This is a
+more robust approach than simply having
+a policy to not use them. This brings us
+to option B, which is the correct
+answer. Combines the best of both
+worlds. First, it recommends
+provisioning preemptable VMs to reduce
+cost, which is the perfect choice for
+non-timer critical batch jobs. Second,
+it recommends to disable and then
+discontinue use of any non-hippaco
+compliance services. This is the
+strongest and most secure approach to
+ensuring compliance. This option
+correctly addresses both cost and
+compliance. Therefore, the design that
+meets Google best practices is B.
+Provision preemptable VMs to reduce cost
+and disable and then discontinue use of
+all GCP services and APIs that are not
+HIPACO compliant. Question 111. You want
+to automate the creation of a managed
+instance group. The VMs have many OS
+package dependencies. You want to
+minimize the startup time for new VMs in
+the instance group. What should you do?
+A. Use Terraform to create the managed
+instance group and a startup script to
+install the OS package dependencies. B.
+Create a custom VM image with all OS
+package dependencies. Use deployment
+manager to create the managed instance
+group with the VM image. C. Use Puppet
+to create the managed instance group and
+install the OS package dependencies. D.
+Use deployment manager to create the
+managed instance group and onible to
+install the OS package dependencies.
+Okay, this is a question about
+optimizing the process of creating new
+virtual machines. Specifically, how to
+make them start up as quickly as
+possible. The key problem to solve is
+how to handle the many OS package
+dependencies without slowing down the
+boot process. With that in mind, let's
+evaluate our options. Let's look at the
+options that involve installing software
+during startup which are A, C, and D.
+These options suggest using tools like
+startup scripts, Puppet or Ansible to
+install the dependencies every time a
+new VM is created. While these tools are
+great for automation, this approach
+directly conflicts with the goal of
+minimizing startup time because the
+installation process itself takes time.
+This brings us to option B, which
+describes the correct and Google
+recommended best practice for this
+scenario. The strategy is to pre-bake a
+custom VM image. First, you create a
+custom image that already has all of the
+OS package dependencies installed on it.
+Then, you use an infrastructure as code
+tool like Cloud Deployment Manager to
+automate the creation of your managed
+instance group, telling it to use your
+new custom image. When the instance
+group needs to create new VMs, they are
+created from an image that is already
+configured and ready to go, which
+drastically reduces their startup time.
+Therefore, the best way to minimize
+startup time is B. Create a custom VM
+image with all OS package dependencies
+and use deployment manager to create the
+managed instance group with the VM
+image. Question 112. Your company wants
+to try out the cloud with low risk. They
+want to archive approximately 100
+terabytes of their log data to the cloud
+and test the analytics features
+available to them there while also
+retaining that data as a long-term
+disaster recovery backup. Which two
+steps should you take? Choose two.
+Create a group per country. Add analysts
+to their respective country groups.
+Create a single group all underscore
+analysts and add all country groups as
+members. Grant the all underscorean
+analysts group the IM role of BigQuery
+job user. Share the appropriate data set
+with view access with each respective
+analyst country group. B. Create a group
+per country. Add analysts to their
+respective country groups. Create a
+single group all underscore analysts and
+add all country groups as members. Grant
+the all analysts group the IM role of
+BigQuery job user. Share the appropriate
+tables with view access with each
+respective analyst country group. C.
+members. Grant the all underscore
+data viewer. Share the appropriate data
+set with view access with each
+respective analyst country group. D.
+members. Grant the all_analysts group
+the IM role of BigQuery data viewer.
+Share the appropriate table with view
+access with each respective analyst
+country group. Okay, this is an identity
+and access management question for
+BigQuery. The challenge is to give
+different teams access to their own
+specific data sets while making sure
+they can't see the data of other teams.
+The key to solving this in BigQuery is
+to separate two different types of
+permissions. First is the permission to
+run a query which is a job. Second is
+the permission to actually read the data
+in a specific data set. A user needs
+both of these to successfully analyze
+their data. With that in mind, let's
+look at our options. Let's look at
+options C and D. Both of these are
+incorrect because they grant the
+BigQuery data viewer role to the main
+group of analysts. This role allows
+users to see data, but it does not give
+them the necessary permission to run
+query jobs. So, they wouldn't be able to
+perform their analysis. Next, let's look
+at option B. While it correctly grants
+the BigQuery job user role, it suggests
+sharing access at the table level. The
+question states that the data is already
+neatly organized with one data set per
+country. Therefore, it's much simpler
+and more efficient to grant access at
+the data set level rather than managing
+permissions for every single table
+individually. This brings us to option
+A, which describes the correct and
+recommended best practice. It follows a
+perfect model. First, you grant the
+BigQuery job user role to a group
+containing all analysts. This gives
+everyone the general ability to run
+queries. Then for each specific
+country's analyst group, you share view
+access only to their respective data
+set. This combination ensures that to
+successfully query data, an analyst must
+have both the general permission to run
+a job and the specific permission to
+view their country's data set while
+being blocked from seeing any other
+country's data. Therefore, the correct
+way to configure the access rights is a
+create a group per country, add analysts
+Create a single group all analysts and
+data set with view access with each
+respective analyst country group.
+Question 113. Your web application uses
+Google Kubernetes Engine to manage
+several workloads. One workload requires
+a consistent set of host names even
+after pod scaling and relaunches. Which
+feature of Kubernetes should you use to
+accomplish this stateful sets? B
+role-based access control. C container
+environment variables. D persistent
+volumes. Okay, this is a question about
+Kubernetes workloads. The key to this
+question is the requirement for a
+consistent set of host names. This tells
+us that the application is stateful and
+needs a stable network identity, which
+is a very specific requirement in the
+Kubernetes world. With that in mind,
+with option B, role-based access control
+or RBAC. This is incorrect. RBAC is a
+security feature used to control who has
+permission to do what within the
+cluster. It has no impact on how pods
+are named or addressed on the network.
+Next option C, container environment
+variables. This is also incorrect.
+Environment variables are a way to pass
+configuration settings into your
+application inside the container, but
+they don't control the host name that
+Kubernetes assigns to the pod itself.
+Option D is persistent volumes. While
+persistent storage is a crucial part of
+most stateful applications, it's
+responsible for providing a stable
+identity for the storage, not for the
+pod's network identity or host name.
+This brings us to option A, which is the
+correct answer. A stateful set is a
+special type of Kubernetes workload
+object designed specifically for
+stateful applications like databases or
+message cues that need stable
+identities. Unlike a standard deployment
+where pods are interchangeable, a
+stateful set gives each pod a unique and
+predictable host name like my app zero,
+my app 1 and so on. This host name
+sticks with the pod's identity even if
+it gets restarted or rescheduled
+perfectly fulfilling the requirement for
+a consistent set of host names.
+Therefore, the Kubernetes feature you
+should use to accomplish this is a
+stateful sets. Question 114. You are
+using cloud CDN to deliver static HTTP
+S website content hosted on a compute
+engine instance group. You want to
+improve the cache hit ratio. What should
+you do? A. Customize the cache keys to
+omit the protocol from the key. B.
+Shorten the expiration time of the
+cached objects. C. Make sure the HTTPS
+header cache region points to the
+closest region of your users. D.
+replicate the static content in a cloud
+storage bucket. Point cloud CDN toward a
+load balancer on that bucket. Okay, this
+is a question about optimizing the
+performance of cloud CDN. The goal is to
+improve the cache hit ratio, which means
+we want the CDN to serve content from
+its cache more often instead of having
+to go back to our origin servers. With
+options. Let's start with option B.
+Shortening the expiration time. This is
+incorrect because a shorter expiration
+time would cause the CDN to discard
+cached objects more frequently, forcing
+it to fetch them from your server more
+often. This would actually decrease the
+cache hit ratio. Next, option C suggests
+using a cache region header. This is
+also incorrect as this is not a standard
+HTTP header that cloud CDN uses for its
+caching logic. The CDN automatically
+determines the best location to serve
+content from. Option D suggests
+replicating the content to a cloud
+storage bucket. While using cloud
+storage as an origin for static content
+is a good practice, simply replicating
+the data doesn't solve the core issue of
+why the cache hit ratio might be low.
+The CDN is already designed to
+distribute content globally. This brings
+us to option A, which is the correct
+solution. By default, cloud CDN uses the
+entire URL including the protocol like
+HTTP or HTTPS to create a unique cache
+key. This means if the same image is
+requested over both HTTP and HTTPS,
+the CDN treats it as two separate files
+and creates two different cache entries.
+By customizing the cache keys to omit
+the protocol, you tell the CDN to ignore
+the HTTP versus HTTPS part and treat
+them as the same object. This
+consolidates requests for the same
+content into a single cache entry which
+directly improves the cache hit ratio.
+Therefore, the best way to improve the
+cash hit ratio in this scenario is a
+customize the cache keys to omit the
+protocol from the key. Question 115.
+Your architecture calls for the
+centralized collection of all admin
+activity and VM system logs within your
+project. How should you collect these
+logs from both VMs and services?
+All admin and VM system logs are
+automatically collected by stack driver.
+B. Stack driver automatically collects
+admin activity logs for most services.
+The stack driver logging agent must be
+installed on each instance to collect
+system logs. C. Launch a custom SIS
+logged compute instance and configure
+your GCP project and VMs to forward all
+logs to it. D. Install the stack driver
+logging agent on a single compute
+instance and let it collect all audit
+and access logs for your environment.
+Okay, this question is about how log
+collection works in Google cloud. The
+key to getting this right is to
+understand that there are two different
+types of logs. Logs from the cloud
+platform itself and logs from inside
+your virtual machines and they are
+collected in different ways. With that
+in mind, let's evaluate our options.
+Let's start with option A. It claims
+that all admin and VM system logs are
+collected automatically. This is
+incorrect. While Google Cloud does
+automatically collect admin activity
+logs, it does not automatically collect
+the system logs from inside your VMs.
+Next, let's look at option C, which
+suggests building your own custom
+logging server. This is not a
+recommended practice. It requires you to
+manage your own infrastructure for
+logging, which is less scalable and more
+work than using the fully managed cloud
+logging service that Google provides.
+Option D is also incorrect. It suggests
+installing the logging agent on a single
+VM to collect logs from the entire
+environment. The agent only works on the
+machine it's installed on. It cannot
+collect logs from other VMs. This brings
+us to option B, which accurately
+describes how log collection works.
+Admin activity logs which are generated
+by Google cloud services are indeed
+collected automatically by cloud
+logging. However, to collect the system
+logs from inside your virtual machines,
+you must install the cloud logging agent
+on each of those instances. The agent is
+responsible for sending those internal
+logs to the central cloud logging
+service. This two-part approach is the
+standard recommended practice.
+Therefore, the correct way to collect
+these logs is B. Stack driver
+automatically collects admin activity
+logs for most services and the stack
+driver logging agent must be installed
+on each instance to collect system logs.
+Question 116. You have an app engine
+application that needs to be updated.
+You want to test the update with
+production traffic before replacing the
+current application version. What should
+you do? A. Deploy the update using the
+instance group updater to create a
+partial rollout which allows for canary
+testing. B. Deploy the update as a new
+version in the App Engine application
+and split traffic between the new and
+current versions. C. Deploy the update
+in a new VPC and use Google's global
+HTTP load balancing to split traffic
+between the update and current
+applications. D. deploy the update as a
+new app engine application and use
+Google's global HTTP load balancing to
+split traffic between the new and
+current applications. Okay, this
+question is about safely deploying
+updates to a Google App Engine
+application. The main goal is to test a
+new version with real user traffic
+before sending everyone to it. This is a
+strategy often called a Canary release.
+With that in mind, let's look at our
+options. Let's start with option A. This
+is incorrect because the instance group
+updater is a feature for managing
+virtual machines on compute engine, not
+for deploying applications on the App
+Engine platform. Options C and D are
+also incorrect because they are overly
+complicated. You don't need to create a
+new VPC or an entirely new App Engine
+application just to test an update. App
+Engine has powerful built-in features to
+handle this much more simply. This
+brings us to option B which describes
+the correct and recommended practice for
+App Engine. The platform is designed to
+run multiple versions of your
+application at the same time. You can
+deploy your update as a new separate
+version while the old version continues
+to handle all the user traffic. Then
+using the built-in traffic splitting
+feature, you can direct a small
+percentage of your users like 1% to the
+new version. This allows you to test it
+safely with live traffic. If everything
+looks good, you can gradually increase
+the traffic to the new version until
+it's handling 100%. Therefore, the
+correct thing to do is B deploy the
+update as a new version in the App
+Engine application and split traffic
+between the new and current versions.
+Question 117. All Compute Engine
+instances in your VPC should be able to
+connect to an Active Directory server on
+specific ports. Any other traffic
+emerging from your instances is not
+allowed. You want to enforce this using
+VPC firewall rules. How should you
+configure the firewall rules?
+Create an egress rule with priority
+1,000 to deny all traffic for all
+instances. Create another egress rule
+with priority 100 to allow the active
+directory traffic for all instances. B.
+Create an egress rule with priority 100
+to deny all traffic for all instances.
+Create another egress rule with priority
+1,00 to allow the active directory
+traffic for all instances. C. Create an
+egress rule with priority 1,000 to allow
+the active directory traffic. Rely on
+the implied deny egress rule with
+priority 100 to block all traffic for
+all instances. D. Create an egress rule
+directory traffic. Rely on the implied
+deny egress rule with priority 1,00 to
+block all traffic for all instances.
+Okay, this is a network security
+question about how VPC firewall rules
+work in Google Cloud. The key to solving
+this is to understand how rule
+priorities are evaluated. The most
+important rule to remember is that
+firewall rules are processed in order of
+their priority number and a lower number
+means a higher priority. The first rule
+that matches the traffic is the one that
+gets applied. With that in mind, let's
+option B. It suggests a deny rule with a
+high priority of 100 and an allow rule
+with a lower priority of 1,000. This is
+incorrect because the deny rule would be
+checked first and it would block all
+traffic including the active directory
+traffic we want to permit. The allow
+rule would never even be considered.
+Next, let's look at options C and D.
+Both of these are incorrect because they
+misstate the priority of the implied
+deny egress rule. While there is an
+invisible rule that denies all egress
+traffic that isn't explicitly allowed,
+its priority is 65,535
+which is the lowest possible. The
+priorities mentioned in these options
+are wrong. This brings us to option A
+which describes the correct
+configuration. You create two rules.
+First, an allow rule for the specific
+active directory traffic with a high
+priority like 100. Second, you create a
+deny all rule with a lower priority like
+1,00. When a VM tries to connect to
+Active Directory, the firewall sees the
+high priority allow rule first and lets
+the traffic through. For any other type
+of traffic, it won't match the first
+rule. So, it will continue down the list
+and get blocked by the lower priority
+deny rule. This is the standard way to
+implement a deny by default policy.
+Therefore, the correct way to configure
+the firewall rules is a create an egress
+rule with priority 1,00 to deny all
+traffic for all instances and create
+another egress rule with priority 100 to
+allow the active directory traffic for
+all instances. Question 118. Your
+customer runs a web service used by
+e-commerce sites to offer product
+recommendations to users. The company
+has begun experimenting with a machine
+learning model on Google Cloud Platform
+to improve the quality of results. What
+should the customer do to improve their
+models results over time? A. Export
+cloud machine learning engine
+performance metrics from stack driver to
+BigQuery to be used to analyze the
+efficiency of the model. B. Build a road
+map to move the machine learning model
+training from cloud GPUs to cloud TPUs
+which offer better results. C. Monitor
+compute engine announcements for
+availability of newer CPU architectures
+and deploy the model to them as soon as
+they are available for additional
+performance. D. Save a history of
+recommendations and results of the
+recommendations in BigQuery to be used
+as training data. Okay, this is a
+question about the machine learning life
+cycle. The core task is to find the best
+way to improve the quality of the
+model's results over time, not just its
+speed or efficiency. With that in mind,
+by looking at the options related to
+hardware, which are B and C. Moving to
+faster hardware like TPUs or newer CPUs
+can make your model train faster or
+serve predictions with lower latency,
+but it doesn't inherently make the
+model's recommendations more accurate.
+The quality of a model depends on its
+data and algorithm, not the speed of the
+chip it runs on. So, these are
+incorrect. Next, option A suggests
+analyzing performance metrics. This is
+also incorrect for this specific
+problem. Analyzing metrics like CPU
+usage helps you understand the
+operational efficiency of your model,
+but it tells you nothing about whether
+the recommendations it's making are good
+or bad. This brings us to option D,
+which is the correct solution. This
+describes the process of creating a
+feedback loop, which is essential for
+improving any machine learning model
+over time. You save the recommendations
+that the model makes and you also save
+the results. Did a user click on the
+recommendation or buy the product. This
+new data is incredibly valuable. By
+using this history of results as new
+training data, you can periodically
+retrain your model, allowing it to learn
+from its successes and failures and
+adapt to new trends. This is the
+fundamental way to improve a model's
+quality. Therefore, the correct thing to
+do is D. Save a history of
+as training data. Question 119. You need
+to design a solution for global load
+balancing based on the URL path being
+requested. You need to ensure operations
+reliability and end-to-end intransit
+encryption based on Google best
+practices. What should you do? A. Create
+a cross region load balancer with URL
+maps. B. Create an HTTPS load balancer
+with URL maps. C. Create appropriate
+instance groups and instances. Configure
+SSL proxy load balancing. D. Create a
+global forwarding rule. Configure SSL
+proxy load balancing. Okay, this is a
+question about advanced load balancing
+on Google Cloud. We need to find a
+solution that is global, can route
+traffic based on the URL path, and
+provides end-to-end encryption. With
+options. Let's start with options C and
+D, which both suggest using SSL proxy
+load balancing. This is incorrect. The
+SSL proxy load balancer operates at
+layer 4 of the network stack. This means
+it can't see the application level
+details like the URL path. Since the
+requirement is to route based on the URL
+path, we need a layer 7 load balancer.
+So, these options are not a fit. Next,
+let's look at option A. While it
+correctly mentions a cross region load
+balancer and URL maps, it's incomplete
+because it doesn't specify the use of
+HTTPS, which is crucial for meeting the
+end-to-end encryption requirement. This
+brings us to option B, which is the
+correct and complete solution. An HTTPS
+load balancer is Google's global layer 7
+load balancer. The HTTPS part ensures
+that traffic is encrypted between the
+user and the load balancer and it can be
+configured to also use HTTPS to the
+backends for end-to-end encryption. The
+URL maps component is the specific
+feature that allows the load balancer to
+inspect the URL path and route requests
+to different back-end services. This
+combination perfectly meets all the
+requirements of the question. Therefore,
+the correct thing to do is B. Create an
+HTTPS load balancer with URL maps.
+Question 120. Your company has an outage
+in your compute engine managed instance
+group. All instances keep restarting
+after 5 seconds. You have a health check
+configured, but autoscaling is disabled.
+Your colleague who is a Linux expert
+offered to look into the issue. You need
+to make sure that he can access the VMs.
+What should you do?
+Use gRPC instead of HTTP for better
+performance. B. Implement retry logic
+using a truncated exponential backoff
+strategy. C. Make sure the cloud storage
+bucket is multi-reional for geor
+redundancy. D monitor
+https/status.cloud.google.com/feed.atom
+atom https/statuscloud
+google.com/feed.atom
+and only make requests if cloud storage
+is not reporting an incident. Okay, this
+is a question about building a resilient
+application that can handle the
+temporary errors that are common in
+distributed cloud environments. The key
+to this question is recognizing what the
+HTTP error codes 5xx and 429 mean. A 5xx
+error is a generic serverside error and
+a 429 error means too many requests.
+Both of these are typically transient,
+meaning the problem is temporary. The
+best way to handle temporary problems is
+to wait a short while and try again.
+options. Let's start with option A,
+using gRPC instead of HTTP. This is
+incorrect. Changing the protocol doesn't
+change the fact that the server is
+temporarily busy or that you're being
+rate limited. The same kind of errors
+can happen over gRPC. Next option C,
+making the bucket multi-reional. This is
+a good practice for data availability,
+but it doesn't prevent your application
+from hitting rate limits or encountering
+temporary server issues. So, it doesn't
+solve this specific problem. Option D
+suggests monitoring the Google Cloud
+status page. This is not a practical
+solution for an application. These types
+of granular temporary errors are often
+not reflected on the global status page
+and your application shouldn't have to
+stop working every time it encounters a
+recoverable error. This brings us to
+option B which is the correct and
+universally recommended solution. You
+should implement a retry logic with a
+truncated exponential backoff strategy.
+This means when your application sees a
+temporary error like a 5xx or 429,
+it doesn't immediately fail. Instead, it
+waits for a short increasing amount of
+time before trying the request again.
+This backing off gives the server time
+to recover and greatly increases the
+chance that the retry will succeed. It's
+the standard way to build robust cloud
+applications. Therefore, the way you
+should handle these errors is B
+implement retry logic using a truncated
+exponential backoff strategy. Thanks for
+watching. If you found this video
+interesting and helpful, please like,
+share, and subscribe to our channel. See
+you in the next video. Happy learning.

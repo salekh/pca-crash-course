@@ -13,11 +13,19 @@
       "Create a wiki page listing the services the company uses and the date each was adopted.",
       "Require the CTO to personally approve any proposal to revisit a past decision."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "ADRs are a lightweight, Google-recommended practice for making the reasoning behind significant decisions durable and discoverable; because they record the alternatives considered and the trade-offs accepted, they let new engineers understand why, and allow decisions to be superseded deliberately rather than relitigated informally. Option A buries decisions in meeting minutes that are hard to find and lack structured context. Option C records what was chosen but not why, which is the missing information. Option D makes the CTO a gatekeeper rather than fixing the knowledge gap, and discourages legitimate re-evaluation when context changes.",
     "refs": [
       "https://cloud.google.com/architecture/architecture-decision-records"
-    ]
+    ],
+    "hint": "Core Rule (Architecture decision records): ADRs are a lightweight, Google-recommended practice for making the reasoning behind significant decisions durable and discoverable; because they record the alternatives considered and the trade-offs accepted, they let new engineers understand why, and allow decisions to be superseded deliberately rather than relitigated informally.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Record every decision in the minutes of the weekly architecture meetin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a wiki page listing the services the company uses and the date …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Require the CTO to personally approve any proposal to revisit a past d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-022",
@@ -33,12 +41,20 @@
       "Assign two engineers to build a minimal version and expand it over time.",
       "Buy a SaaS ticketing solution, for example through Google Cloud Marketplace, and keep engineering capacity focused on the differentiating payroll product."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The deciding factor in build-versus-buy is whether the capability differentiates the business; ticketing is a commodity, so buying preserves scarce engineering capacity for the payroll product where custom development creates competitive value. Option A and option B both consume engineering time and create a system that must be maintained indefinitely. Option C still diverts scarce engineers and typically yields a system that is worse than commercial alternatives. Workload disposition (build, buy, modify, deprecate) is an explicit PCA consideration, and the cost optimization pillar stresses focusing spend on business value.",
     "refs": [
       "https://cloud.google.com/marketplace/docs",
       "https://cloud.google.com/architecture/framework/cost-optimization"
-    ]
+    ],
+    "hint": "Core Rule (Build vs buy): The deciding factor in build-versus-buy is whether the capability differentiates the business; ticketing is a commodity, so buying preserves scarce engineering capacity for the payroll product where custom development creates competitive value.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Build a custom ticketing system on Cloud Run and Firestore because the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Build the system on Compute Engine using an open-source ticketing pack…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Assign two engineers to build a minimal version and expand it over tim…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-023",
@@ -54,12 +70,20 @@
       "Reject the model and instead present the cloud option purely on agility benefits, since costs cannot be compared meaningfully.",
       "Ask Google for a larger discount so that the on-demand estimate matches the server purchase price."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The finance model is flawed on both sides: it omits the majority of on-premises costs (facilities, power, networking, refresh cycles, licenses and staff) and inflates cloud costs by assuming like-for-like sizing at on-demand list price rather than rightsized capacity with committed use discounts; a credible TCO corrects both, ideally using Migration Center's utilization data and TCO reporting. Option B applies Spot VMs to workloads that cannot tolerate preemption, such as core banking systems, to paper over a modeling error. Option C dodges the financial question, which a board will not accept. Option D treats the symptom (a number) rather than the flawed method and is unlikely to succeed.",
     "refs": [
       "https://cloud.google.com/migration-center/docs/migration-center-overview",
       "https://cloud.google.com/architecture/framework/cost-optimization"
-    ]
+    ],
+    "hint": "Core Rule (TCO modeling): The finance model is flawed on both sides: it omits the majority of on-premises costs (facilities, power, networking, refresh cycles, licenses and staff) and inflates cloud costs by assuming like-for-like sizing at on-demand list price rather than rightsized capacity with committed use discounts; a credible TCO corrects both, ideally using Migration Center's utilization data and TCO reporting.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Accept the finance team's model but recommend Spot VMs for all workloa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Reject the model and instead present the cloud option purely on agilit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask Google for a larger discount so that the on-demand estimate matche…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-024",
@@ -75,12 +99,20 @@
       "Run a time-boxed proof of concept for both databases with a representative schema and load profile, define measurable success criteria (p99 latency, cost at peak, operational effort) up front, and decide based on the results.",
       "Escalate the decision to the CTO and ask for a ruling within the week."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "When the decision depends on empirical behaviour under a specific access pattern, a time-boxed PoC with pre-agreed success criteria is the appropriate decision-making tool; defining the criteria before testing prevents the results from being interpreted to fit a preference. Option A and option B each pick on a single attribute (SLA or familiarity) without evidence on the critical requirement, peak write latency, and a post-launch database change is very costly. Option D transfers the decision to someone with less information rather than generating the missing information.",
     "refs": [
       "https://cloud.google.com/architecture/framework/performance-optimization",
       "https://cloud.google.com/spanner/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Proof of concept): When the decision depends on empirical behaviour under a specific access pattern, a time-boxed PoC with pre-agreed success criteria is the appropriate decision-making tool; defining the criteria before testing prevents the results from being interpreted to fit a preference.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Choose Spanner because it offers the higher availability SLA and revis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Choose AlloyDB because the team already knows PostgreSQL, and rely on …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Escalate the decision to the CTO and ask for a ruling within the week.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-025",
@@ -96,12 +128,20 @@
       "A change advisory board that must approve every technical change in the program.",
       "A requirement that all vendors and carriers sign contracts before any migration planning starts."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "A risk register is the standard decision-support artifact for surfacing uncertain future events, quantifying them, assigning ownership and tracking mitigation; reviewing it regularly with governance forums turns surprises into managed risks such as license restrictions and connectivity lead times. Option A is retrospective reporting of issues, not anticipation of risks. Option C controls changes but does not identify external risks such as procurement lead times. Option D is impractical and would delay the program without addressing the broader class of risks.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview"
-    ]
+    ],
+    "hint": "Core Rule: A risk register is the standard decision-support artifact for surfacing uncertain future events, quantifying them, assigning ownership and tracking mitigation; reviewing it regularly with governance forums turns surprises into managed risks such as license restrictions and connectivity lead times.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A weekly email from each workstream lead listing what went wrong in th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A change advisory board that must approve every technical change in th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A requirement that all vendors and carriers sign contracts before any …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-026",
@@ -117,12 +157,20 @@
       "Remove the internal SLO and manage reliability directly against the contractual SLA.",
       "Set the contractual SLA looser than the internal SLO (for example 99.5%), so that the SLO acts as an early warning and the company is not paying credits every time it dips slightly below its internal target."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "An SLA is a contractual commitment with financial consequences, whereas an SLO is an internal target used to drive engineering decisions; Google's SRE guidance is to keep the SLO stricter than the SLA so that breaching the internal target triggers action before customers are owed credits. Option A removes all safety margin and turns every minor SLO miss into a contractual breach. Option B sets an unnecessarily demanding internal target and delays the commercial offer for a year without need. Option C discards the engineering tool that provides the early warning.",
     "refs": [
       "https://cloud.google.com/blog/products/devops-sre/sre-fundamentals-slis-slas-and-slos",
       "https://cloud.google.com/architecture/framework/reliability"
-    ]
+    ],
+    "hint": "Core Rule (SLA vs SLO): An SLA is a contractual commitment with financial consequences, whereas an SLO is an internal target used to drive engineering decisions; Google's SRE guidance is to keep the SLO stricter than the SLA so that breaching the internal target triggers action before customers are owed credits.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Agree, because the SLO and SLA should always be identical to keep repo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Raise the internal SLO to 99.99% and offer 99.9% in contracts only aft…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Remove the internal SLO and manage reliability directly against the co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-027",
@@ -138,12 +186,20 @@
       "Freeze all feature releases for one quarter so that the platform can stabilize.",
       "Move release approval to the VP of Engineering so that a single person decides each case."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "An error budget converts the reliability target into a quantified allowance for failure that both product and SRE agree on in advance, making the velocity-versus-reliability trade-off a data-driven business rule rather than a negotiation; this is the SRE practice endorsed in the Well-Architected Framework's reliability pillar. Option B adds a manual gate that slows every release regardless of actual reliability. Option C is a blanket freeze that ignores whether the platform is actually within its reliability target. Option D institutionalizes the escalation the VP wants to eliminate.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability",
       "https://cloud.google.com/blog/products/devops-sre/sre-fundamentals-slis-slas-and-slos"
-    ]
+    ],
+    "hint": "Core Rule (Error budgets): An error budget converts the reliability target into a quantified allowance for failure that both product and SRE agree on in advance, making the velocity-versus-reliability trade-off a data-driven business rule rather than a negotiation; this is the SRE practice endorsed in the Well-Architected Framework's reliability pillar.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Require the SRE team to approve every release through a change advisor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Freeze all feature releases for one quarter so that the platform can s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move release approval to the VP of Engineering so that a single person…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-028",
@@ -159,11 +215,19 @@
       "Enhanced Support, because it provides 24/7 support for critical-impact cases with a one-hour target response time.",
       "Premium Support, because it provides a 15-minute response time and a named Technical Account Manager."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Enhanced Support is the lowest tier that offers 24/7 coverage with a one-hour target response time for P1 critical-impact cases, so it satisfies the requirement at minimum cost. Option A provides only billing support and community resources, with no technical case handling. Option B provides technical support during business hours only, with a four-hour P2 response target, so it would not have helped at 2 a.m. Option D meets the requirement but adds a Technical Account Manager and a 15-minute response the startup did not ask for, at a much higher price.",
     "refs": [
       "https://cloud.google.com/support"
-    ]
+    ],
+    "hint": "Core Rule (Support plans): Enhanced Support is the lowest tier that offers 24/7 coverage with a one-hour target response time for P1 critical-impact cases, so it satisfies the requirement at minimum cost.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Basic Support, because it is free and includes access to documentation…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Standard Support, because it provides unlimited technical support case…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Premium Support, because it provides a 15-minute response time and a n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-029",
@@ -179,11 +243,19 @@
       "Standard Support plus a consulting engagement with Google Cloud Consulting for the launch.",
       "Basic Support combined with a Google Cloud partner's managed service contract."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Premium Support is the only Customer Care tier that bundles a named Technical Account Manager, a 15-minute target response for P1 cases, event-readiness services for planned high-traffic launches, and support for third-party technologies. Option A improves guidance but Enhanced Support's P1 response target is one hour, not 15 minutes, and it does not include event management. Option C provides consulting but leaves the incident response commitment at business hours only. Option D provides no Google technical support commitment at all, so the 15-minute response requirement cannot be met.",
     "refs": [
       "https://cloud.google.com/support"
-    ]
+    ],
+    "hint": "Core Rule (Support plans): Premium Support is the only Customer Care tier that bundles a named Technical Account Manager, a 15-minute target response for P1 cases, event-readiness services for planned high-traffic launches, and support for third-party technologies.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enhanced Support with the Technical Account Advisor add-on.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Standard Support plus a consulting engagement with Google Cloud Consul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Basic Support combined with a Google Cloud partner's managed service c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-030",
@@ -200,12 +272,21 @@
       "The proportion of search requests served in under 500 ms, measured at the load balancer.",
       "The total daily count of search requests, measured from application logs."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Good SLIs measure what users experience, typically expressed as a ratio of good events to total events, which makes them directly usable for SLOs and error budgets; availability (successful request ratio) and latency (fraction of fast requests) measured as close to the user as possible are the canonical choices. Option B and option C are internal resource metrics that can look healthy while users see errors, and they cannot be expressed as a good-events ratio. Option E measures traffic volume, which is a demand signal rather than a quality signal.",
     "refs": [
       "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
       "https://cloud.google.com/architecture/framework/reliability"
-    ]
+    ],
+    "hint": "Core Rule: Good SLIs measure what users experience, typically expressed as a ratio of good events to total events, which makes them directly usable for SLOs and error budgets; availability (successful request ratio) and latency (fraction of fast requests) measured as close to the user as possible are the canonical choices.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Average CPU utilization across the GKE node pool, measured in Cloud Mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (The number of pods in the Ready state for the search deployment.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (The total daily count of search requests, measured from application lo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-031",
@@ -221,11 +302,19 @@
       "Add more golden paths and features to make the platform more attractive.",
       "Hire a marketing specialist to promote the platform internally."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Customer success starts with understanding customer outcomes: measuring adoption and satisfaction and creating feedback loops reveals whether the barrier is discoverability, missing capabilities, friction, or trust, which then drives the backlog. Option B forces usage without addressing the reasons for low adoption and generates resentment. Option C invests in features without evidence that missing features are the problem. Option D addresses awareness only, which may or may not be the issue. Treating internal teams as customers with measured outcomes is consistent with the operational excellence pillar's continuous improvement principle.",
     "refs": [
       "https://cloud.google.com/architecture/framework/operational-excellence"
-    ]
+    ],
+    "hint": "Core Rule: Customer success starts with understanding customer outcomes: measuring adoption and satisfaction and creating feedback loops reveals whether the barrier is discoverability, missing capabilities, friction, or trust, which then drives the backlog.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Mandate that all product teams migrate to the platform within one quar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Add more golden paths and features to make the platform more attractiv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Hire a marketing specialist to promote the platform internally.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-032",
@@ -241,12 +330,20 @@
       "Run a business impact analysis that quantifies the financial, regulatory and reputational impact of outage duration and data loss for each business process, classify applications into tiers by maximum tolerable downtime, derive RTO and RPO per tier, and map each tier to a DR pattern (cold, warm, hot) with its cost.",
       "Select the ten applications with the highest infrastructure cost for hot multi-region DR and give the rest backups only."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "RTO and RPO must be derived from business impact, not from owner preferences or technical convenience: a business impact analysis quantifies the cost of downtime and data loss per process, which lets the organization tier applications, agree targets per tier, and fund DR patterns proportionately, which is exactly what Google's DR planning guide recommends. Option A ignores real differences in impact and will overspend on some systems and under-protect others. Option B leaves unrealistic targets in place and allocates protection arbitrarily. Option D confuses infrastructure cost with business criticality; a cheap application can be the most critical.",
     "refs": [
       "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
       "https://cloud.google.com/architecture/framework/reliability"
-    ]
+    ],
+    "hint": "Core Rule: RTO and RPO must be derived from business impact, not from owner preferences or technical convenience: a business impact analysis quantifies the cost of downtime and data loss per process, which lets the organization tier applications, agree targets per tier, and fund DR patterns proportionately, which is exactly what Google's DR planning guide recommends.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Assign every application a uniform RTO of 4 hours and RPO of 1 hour so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Let each application owner keep their stated targets but implement onl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Select the ten applications with the highest infrastructure cost for h…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-033",
@@ -263,12 +360,21 @@
       "Cross-region replication of Cloud Storage buckets holding regulatory records.",
       "A shorter RPO for the core banking database."
     ],
-    "answer": [1, 2],
+    "answer": [
+      1,
+      2
+    ],
     "explanation": "Disaster recovery addresses restoring technology; business continuity addresses keeping the business operating and is broader, covering people, facilities, processes, communications and governance during a crisis. The missing elements are therefore workforce and process continuity (option B) and a crisis management and communication structure (option C). Options A, D and E are technical DR controls that improve recovery of systems but do not address the examiner's scenario, in which the systems are fine and the organization is what is disrupted.",
     "refs": [
       "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
       "https://cloud.google.com/architecture/framework/reliability"
-    ]
+    ],
+    "hint": "Core Rule (BCP vs DR): Disaster recovery addresses restoring technology; business continuity addresses keeping the business operating and is broader, covering people, facilities, processes, communications and governance during a crisis.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Automated failover of Cloud SQL instances to the secondary region.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cross-region replication of Cloud Storage buckets holding regulatory r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (A shorter RPO for the core banking database.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-034",
@@ -284,12 +390,20 @@
       "Ask the customer to accept Google Cloud's regional availability SLAs as a substitute for DR testing.",
       "Establish a recurring DR testing schedule (at least annually and after major architectural changes), automate recovery with Infrastructure as Code so tests are repeatable, and record results and remediation actions as auditable evidence."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A DR plan that is not regularly exercised is unproven, and architectural drift over two years makes it likely to fail; the sustainable answer is a defined testing cadence, automation so tests are cheap and repeatable, and a record of outcomes and follow-ups, which is what auditors and enterprise customers expect. Option A produces a document, not evidence of capability. Option B satisfies one questionnaire but repeats the same decay problem. Option C confuses Google's responsibility for infrastructure availability with the customer's responsibility for recovering its own application and data, and does not answer the question asked.",
     "refs": [
       "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
       "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
-    ]
+    ],
+    "hint": "Core Rule (DR testing cadence): A DR plan that is not regularly exercised is unproven, and architectural drift over two years makes it likely to fail; the sustainable answer is a defined testing cadence, automation so tests are cheap and repeatable, and a record of outcomes and follow-ups, which is what auditors and enterprise customers expect.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Update the DR document to reflect the current architecture and provide…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Perform a one-time DR test before the customer's deadline and archive …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Ask the customer to accept Google Cloud's regional availability SLAs a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-035",
@@ -305,12 +419,20 @@
       "Disable executives' social media access during incidents.",
       "Publish a detailed post-incident report after each outage to explain what happened."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Business continuity includes managing communication during a crisis; assigning explicit communication roles, using pre-approved templates and a status page with a fixed update cadence, and briefing customer-facing staff keeps messaging consistent and timely regardless of how long the technical recovery takes. Option A addresses recovery time, which was not the problem. Option C is a control on one symptom and not a plan. Option D is valuable for learning but does nothing for customers and staff during the incident, when consistent communication matters most.",
     "refs": [
       "https://cloud.google.com/architecture/framework/operational-excellence",
       "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
-    ]
+    ],
+    "hint": "Core Rule (Crisis communication): Business continuity includes managing communication during a crisis; assigning explicit communication roles, using pre-approved templates and a status page with a fixed update cadence, and briefing customer-facing staff keeps messaging consistent and timely regardless of how long the technical recovery takes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add more engineers to the on-call rotation so that outages are resolve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Disable executives' social media access during incidents.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Publish a detailed post-incident report after each outage to explain w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-036",
@@ -326,12 +448,20 @@
       "Deploy all applications in the company as multi-region active-active so that dependencies are always available.",
       "Add the authentication service and license server to the DR runbook and consider the test passed."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The failure is a scoping error caused by missing dependency mapping; recovering a business service requires that its entire dependency graph, including shared platform services and messaging, is recoverable, and only end-to-end tests of the business process prove this. Option B degrades the business target to accommodate a plan gap rather than fixing the plan. Option C is a blanket, very expensive design decision that is disproportionate for most applications and still fails if dependencies are not identified. Option D fixes the three dependencies found in this test but not the process, so the next unknown dependency will cause the same failure.",
     "refs": [
       "https://cloud.google.com/architecture/dr-scenarios-planning-guide",
       "https://cloud.google.com/architecture/migration-to-google-cloud-assessing-and-discovering-your-workloads"
-    ]
+    ],
+    "hint": "Core Rule: The failure is a scoping error caused by missing dependency mapping; recovering a business service requires that its entire dependency graph, including shared platform services and messaging, is recoverable, and only end-to-end tests of the business process prove this.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Increase the RTO for the order management application so that the depe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy all applications in the company as multi-region active-active s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Add the authentication service and license server to the DR runbook an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-037",
@@ -347,12 +477,20 @@
       "Design multi-region resilience within the EU with tested failover, use portable building blocks (containers, open-source databases or open interfaces) where practical, document a tested exit and data-portability plan, and include continuity testing evidence and third-party risk assessments in the governance process.",
       "Run the payment system active-active across Google Cloud and a second cloud provider from day one to eliminate concentration risk."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Regulations such as the EU's DORA require financial entities to manage ICT third-party risk, test continuity, and maintain exit strategies; the architecture should provide tested in-region resilience, and the governance process should produce evidence of testing, risk assessment and a realistic exit plan supported by portable technology choices. Option A addresses data residency and compliance attestations but not continuity testing, concentration risk or exit. Option B forfeits the migration on a false premise; regulators permit cloud use with appropriate controls. Option D is the most expensive possible interpretation and introduces major complexity for a payments system; a documented, tested exit strategy is what the regulation requires, not permanent dual-cloud operation.",
     "refs": [
       "https://cloud.google.com/security/compliance",
       "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
-    ]
+    ],
+    "hint": "Core Rule (Regulatory continuity): Regulations such as the EU's DORA require financial entities to manage ICT third-party risk, test continuity, and maintain exit strategies; the architecture should provide tested in-region resilience, and the governance process should produce evidence of testing, risk assessment and a realistic exit plan supported by portable technology choices.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy in a single region with Assured Workloads and rely on Google's …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Keep the payment system on-premises indefinitely because regulatory co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run the payment system active-active across Google Cloud and a second …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-038",
@@ -368,12 +506,20 @@
       "Select the option preferred by the most senior of the three leads.",
       "Ask Google Cloud to recommend the option that best fits the company's needs."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A trade-off matrix only produces a legitimate decision when the stakeholders first agree on what matters and how much; agreeing criteria and weights before scoring removes the bias of each party choosing criteria that favour their preferred option. Option B averages incompatible matrices and hides the disagreement instead of resolving it. Option C substitutes hierarchy for reasoning and forfeits buy-in from the other two leads. Option D delegates a decision that depends on the company's own priorities to an outside party.",
     "refs": [
       "https://cloud.google.com/architecture/architecture-decision-records",
       "https://cloud.google.com/architecture/framework"
-    ]
+    ],
+    "hint": "Core Rule: A trade-off matrix only produces a legitimate decision when the stakeholders first agree on what matters and how much; agreeing criteria and weights before scoring removes the bias of each party choosing criteria that favour their preferred option.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Average the three matrices' scores and select the option with the high…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Select the option preferred by the most senior of the three leads.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask Google Cloud to recommend the option that best fits the company's …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-039",
@@ -390,12 +536,21 @@
       "Set an internal SLO tighter than the contractual SLA with an error budget policy so that engineering action is triggered before customer credits are owed.",
       "Remove the availability commitment from contracts until the platform has been stable for a year."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "The availability of a system with serial dependencies is the product of its components' availabilities, so several 99.9% services in a single zone cannot support a 99.95% promise; the engineering fix is redundancy that raises the designed availability above the commitment, and the process fix is an internal SLO stricter than the SLA with an error budget that forces action early. Option B misreads SLAs: Google's SLAs entitle the vendor to credits from Google, they do not guarantee the vendor's composite availability to its own customers. Option C increases the gap between promise and capability. Option E damages commercial trust and does not solve the underlying design problem.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability",
       "https://cloud.google.com/blog/products/devops-sre/sre-fundamentals-slis-slas-and-slos"
-    ]
+    ],
+    "hint": "Core Rule (Composite SLAs): The availability of a system with serial dependencies is the product of its components' availabilities, so several 99.9% services in a single zone cannot support a 99.95% promise; the engineering fix is redundancy that raises the designed availability above the commitment, and the process fix is an internal SLO stricter than the SLA with an error budget that forces action early.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Rely on the individual Google Cloud SLAs, since each is at least 99.9%…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Raise the contractual SLA to 99.99% to reassure customers that reliabi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Remove the availability commitment from contracts until the platform h…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d4-bus-040",
@@ -411,11 +566,19 @@
       "Enable a Cloud SQL high-availability instance with a standby in a second zone of the same region.",
       "Take automated Cloud SQL backups and persistent disk snapshots at least every 4 hours to a multi-region Cloud Storage location, keep the infrastructure defined in Terraform, and rebuild in another region when needed."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A 24-hour RTO and 4-hour RPO are generous targets that a cold DR pattern satisfies: regularly scheduled backups stored in a location that survives a regional outage plus automated infrastructure rebuild keep ongoing cost near zero, which is the cost-optimized match to the business requirement. Option A and option B are hot and warm patterns that provide much lower RTO and RPO than needed at continuous extra cost. Option C protects against a zonal failure but not a regional one, so it does not provide disaster recovery for the region. Matching DR investment to business impact reflects both the reliability and cost optimization pillars.",
     "refs": [
       "https://cloud.google.com/architecture/dr-scenarios-for-applications",
       "https://cloud.google.com/architecture/dr-scenarios-planning-guide"
-    ]
+    ],
+    "hint": "Core Rule (DR tier cost): A 24-hour RTO and 4-hour RPO are generous targets that a cold DR pattern satisfies: regularly scheduled backups stored in a location that survives a regional outage plus automated infrastructure rebuild keep ongoing cost near zero, which is the cost-optimized match to the business requirement.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy an active-active configuration across two regions behind a glob…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run a warm standby in a second region with a Cloud SQL cross-region re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable a Cloud SQL high-availability instance with a standby in a seco…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

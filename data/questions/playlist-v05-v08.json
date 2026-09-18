@@ -1,0 +1,844 @@
+[
+  {
+    "id": "pl-v0508-001",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A sports association collects health and injury records for youth and adult athletes across multiple analytics datasets in BigQuery. Privacy regulations require identifying every column containing personally identifiable information (PII) across newly ingested tables so compliance officers can locate and process subject deletion requests. How should you design the ingestion governance pipeline?",
+    "options": [
+      "Scan ingested data with the Sensitive Data Protection (DLP) API to inspect and classify PII, and store the resulting findings as tags in Data Catalog to locate sensitive columns on demand.",
+      "Create authorized views over every table that filter out athlete rows when a deletion request arrives.",
+      "Replace athlete identifiers with unsalted MD5 hashes during ingestion and retain all rows permanently.",
+      "Export all BigQuery tables to Cloud SQL nightly and execute row-level DELETE statements in Cloud SQL."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Pair Sensitive Data Protection (Cloud DLP) inspection templates with Data Catalog policy tags to automatically discover, classify, and govern PII columns across BigQuery datasets.",
+    "explanation": "Option A is correct because Sensitive Data Protection (Cloud DLP) automatically inspects structured and unstructured ingestion streams to detect PII infoTypes (names, health data, IDs) and publishes findings directly to Data Catalog (Dataplex). When a privacy erasure request arrives, compliance workflows query Data Catalog to pinpoint every table and column containing personal data.",
+    "whyWrong": {
+      "1": "Authorized views hide rows at query time but leave underlying PII data stored in the base tables, failing statutory erasure mandates.",
+      "2": "Unsalted MD5 hashes are cryptographically broken and vulnerable to rainbow-table re-identification.",
+      "3": "Exporting petabyte-scale analytical tables to Cloud SQL nightly is unscalable and does not purge the data from BigQuery."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/sensitive-data-protection/docs/concepts-infotypes"
+    ]
+  },
+  {
+    "id": "pl-v0508-002",
+    "domain": 1,
+    "topic": "Designing & Planning Cloud Solution Architecture",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. Mountkirk Games needs to select a managed NoSQL database service for their new game backend running on Compute Engine. The database must ingest millions of real-time player state updates and time-series telemetry events per second with single-digit millisecond read/write latency and scale horizontally without downtime. Which Google Cloud database should they select?",
+    "options": [
+      "Cloud SQL for MySQL with cross-region read replicas",
+      "Cloud Bigtable",
+      "BigQuery with streaming inserts",
+      "Cloud Filestore Enterprise tier"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Cloud Bigtable is Google Cloud's wide-column managed NoSQL database engineered for massive throughput (>10,000 QPS per node) and single-digit millisecond latency on time-series and gaming state workloads.",
+    "explanation": "Option B is correct because Mountkirk Games explicitly requires a managed NoSQL database capable of handling high-velocity streaming telemetry and player session state with ultra-low latency and linear horizontal scaling. Cloud Bigtable provides sub-10ms read/write latency, scales seamlessly by adding cluster nodes without downtime, and integrates natively with Dataflow and Compute Engine.",
+    "whyWrong": {
+      "0": "Cloud SQL is a regional relational OLTP database; Mountkirk's CTO explicitly stated they want to replace MySQL because it failed to scale.",
+      "2": "BigQuery is an OLAP columnar data warehouse for analytical SQL queries, not a low-latency operational key-value/NoSQL state store.",
+      "3": "Cloud Filestore is a managed NFS file server, not a managed NoSQL database service."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/bigtable/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0508-003",
+    "domain": 1,
+    "topic": "Designing & Planning Cloud Solution Architecture",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. Mountkirk Games' streaming analytics platform must process telemetry events on the fly from game servers while accurately incorporating gameplay events that arrive hours late due to intermittent or slow mobile cellular networks. How should you configure the Cloud Dataflow pipeline to meet this requirement?",
+    "options": [
+      "Use processing-time windows in Dataflow and discard any event whose timestamp is older than 5 minutes.",
+      "Buffer all Pub/Sub messages in Cloud Storage for 24 hours and run a single daily batch Dataflow job.",
+      "Use event-time windowing in Cloud Dataflow configured with watermarks, allowed lateness, and accumulation triggers to update window aggregations when late mobile events arrive.",
+      "Configure Cloud Pub/Sub to reject published messages whose payload timestamp lags behind server wall-clock time."
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "In Apache Beam / Cloud Dataflow, handle late-arriving mobile telemetry by windowing on event time (`timestamp`) and configuring watermarks plus `withAllowedLateness` triggers.",
+    "explanation": "Option C is correct because mobile gaming devices frequently lose connectivity and upload buffered events minutes or hours after they occurred. Cloud Dataflow's Apache Beam programming model separates event time (when the player action happened on the device) from processing time (when the server received it), using watermarks and allowed lateness triggers to accurately recompute window metrics when delayed mobile events arrive.",
+    "whyWrong": {
+      "0": "Processing-time windows bucket events by server arrival time and dropping late events corrupts gameplay analytics.",
+      "1": "Holding all telemetry in 24-hour batch files violates the technical requirement to process incoming game server data on the fly in real time.",
+      "3": "Pub/Sub does not inspect application payload timestamps to reject late events, and dropping late mobile events loses critical revenue and engagement telemetry."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines"
+    ]
+  },
+  {
+    "id": "pl-v0508-004",
+    "domain": 1,
+    "topic": "Designing & Planning Cloud Solution Architecture",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. In addition to real-time game server telemetry, Mountkirk Games' mobile game clients periodically upload compressed gameplay log files directly from players' mobile devices. You need a fully managed ingestion architecture that processes these uploaded files automatically into their analytics warehouse. What should you design?",
+    "options": [
+      "Have mobile clients stream multi-megabyte binary log files directly into Cloud Monitoring custom metric descriptors.",
+      "Have mobile clients open direct JDBC connections to Cloud SQL to insert raw log file blobs.",
+      "Deploy an SFTP server on a single Compute Engine VM and run an hourly cron script to copy files into BigQuery.",
+      "Have mobile clients upload files directly to Cloud Storage via signed URLs, configure Cloud Storage Pub/Sub notifications on object finalize, process the files with Cloud Dataflow, and load results into BigQuery."
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "Ingest mobile device file uploads serverlessly using Cloud Storage Signed URLs paired with Object Finalize Pub/Sub notifications triggering Cloud Dataflow into BigQuery.",
+    "explanation": "Option D is correct because it satisfies all Mountkirk Games technical requirements using 100% fully managed services: mobile clients upload log files securely to Cloud Storage using short-lived Signed URLs, Cloud Storage emits an `OBJECT_FINALIZE` event to Pub/Sub, Cloud Dataflow parses and transforms the files, and BigQuery stores the structured tables for SQL querying over 10+ TB.",
+    "whyWrong": {
+      "0": "Cloud Monitoring custom metrics are designed for numeric time-series gauges/counters, not multi-megabyte client log files.",
+      "1": "Direct database connections from millions of untrusted mobile devices to Cloud SQL is insecure and unscalable.",
+      "2": "A single SFTP Compute Engine VM is a single point of failure and violates the requirement to use only fully managed services for analytics."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/storage/docs/pubsub-notifications"
+    ]
+  },
+  {
+    "id": "pl-v0508-005",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. Mountkirk Games requires their game backend platform to run a customized Linux distribution, dynamically scale up or down based on active player sessions, and connect to a managed NoSQL database. Which compute configuration meets all of these technical requirements?",
+    "options": [
+      "Compute Engine Managed Instance Groups built from a custom Linux image with autoscaling based on custom Cloud Monitoring game session metrics",
+      "App Engine Standard environment with custom runtime sandboxes",
+      "Cloud Functions triggered via HTTP endpoints",
+      "Cloud Run fully managed with default Ubuntu container images"
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "When a workload explicitly requires a custom Linux kernel/distro image plus dynamic autoscaling, use Compute Engine Managed Instance Groups backed by custom images and Cloud Monitoring custom metric autoscaling.",
+    "explanation": "Option A is correct because Mountkirk Games' game backend technical requirements explicitly mandate running a customized Linux distribution (which requires custom VM boot images on Compute Engine) and dynamically scaling up or down based on game activity (achieved via Managed Instance Group autoscaling driven by custom Cloud Monitoring active-session metrics).",
+    "whyWrong": {
+      "1": "App Engine Standard runs inside a sandboxed kernel and does not allow booting a custom Linux OS distribution.",
+      "2": "Cloud Functions executes event-driven code snippets on Google-managed runtimes and cannot run a customized Linux OS kernel or stateful session game loops.",
+      "3": "Cloud Run runs stateless containers sharing a sandboxed host kernel (`gVisor`) and cannot boot a customized Linux kernel distribution."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/compute/docs/autoscaler/scaling-stackdriver-monitoring-metrics"
+    ]
+  },
+  {
+    "id": "pl-v0508-006",
+    "domain": 5,
+    "topic": "Managing Implementation & Delivery",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. Mountkirk Games wants to ensure that every microservice container image deployed to their US and Europe GKE clusters is built from verified source commits, scanned for critical CVEs, and cryptographically verified at deploy time so unsigned or vulnerable images are rejected. Which pipeline architecture should you implement?",
+    "options": [
+      "Use local developer Docker builds, push images to Docker Hub, and configure GKE PodSecurityPolicies to check image tags.",
+      "Use Cloud Build to build images, store them in Artifact Registry with Vulnerability Scanning enabled, create cryptographic attestations, and enforce Binary Authorization on the GKE clusters.",
+      "Use Cloud Scheduler to run `kubectl apply` every 10 minutes from a Cloud Storage bucket.",
+      "Enable VPC Flow Logs and Cloud Armor on the GKE Ingress controller to block unverified container images."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Combine Cloud Build + Artifact Registry Vulnerability Scanning + Binary Authorization attestations to cryptographically enforce supply-chain security on GKE deployments.",
+    "explanation": "Option B is correct because Binary Authorization integrates with Cloud Build and Artifact Registry Vulnerability Scanning to enforce deploy-time admission control on GKE. Only immutable container images that pass CI tests and vulnerability scans receive cryptographic attestations signed by Cloud KMS keys, and GKE's Binary Authorization admission controller blocks any Pod deployment lacking required attestations.",
+    "whyWrong": {
+      "0": "Building on developer workstations and relying on mutable Docker tags provides zero cryptographic provenance or vulnerability enforcement.",
+      "2": "Polling manifests from Cloud Storage does not scan images for CVEs or verify container image signatures.",
+      "3": "VPC Flow Logs and Cloud Armor inspect network traffic, not Kubernetes container image admission provenance."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/binary-authorization/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0508-007",
+    "domain": 5,
+    "topic": "Managing Implementation & Delivery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. Mountkirk Games needs a managed continuous delivery service to promote immutable container releases sequentially across Development, Staging, and multi-region Production GKE clusters with built-in approval gates, canary traffic shifting, and one-click rollbacks. Which Google Cloud service should orchestrate the continuous delivery stage?",
+    "options": [
+      "Cloud Deployment Manager",
+      "Cloud Composer (Apache Airflow)",
+      "Google Cloud Deploy",
+      "Migrate to Virtual Machines"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "Google Cloud Deploy is Google Cloud's fully managed continuous delivery service purpose-built for progressive delivery (canary/blue-green), approval gates, and instant rollbacks across GKE and Cloud Run targets.",
+    "explanation": "Option C is correct because Google Cloud Deploy provides declarative delivery pipelines, Skaffold-based rendering, automated canary/blue-green rollout strategies, IAM-controlled approval gates between Staging and Production, and instant one-command rollbacks across multi-region GKE clusters.",
+    "whyWrong": {
+      "0": "Cloud Deployment Manager provisions static infrastructure templates and lacks progressive canary rollout management for GKE microservices.",
+      "1": "Cloud Composer is a managed Apache Airflow workflow orchestrator for data engineering pipelines, not a Kubernetes progressive CD service.",
+      "3": "Migrate to Virtual Machines lifts and shifts VMware/on-premises VMs to Compute Engine."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/deploy/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0508-008",
+    "domain": 4,
+    "topic": "Analyzing & Optimizing Technical & Business Processes",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. Mountkirk Games' CFO noted that the company is failing to capture user demographic data and in-game 'blast-up' purchase metrics, hurting targeted marketing and revenue. Once streaming telemetry is ingested into BigQuery, how should you enable sub-second interactive executive dashboards for marketing and finance teams?",
+    "options": [
+      "Have executives run ad-hoc Python scripts on Compute Engine VMs using `gsutil cat`.",
+      "Export BigQuery tables hourly to CSV files on Cloud Storage and have executives download and open them in desktop spreadsheets.",
+      "Provision a 64-core Cloud SQL for PostgreSQL instance and replicate all 10+ TB of BigQuery tables into it for reporting.",
+      "Connect Looker Studio (or Looker) to BigQuery accelerated by BigQuery BI Engine in-memory analysis."
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "Accelerate interactive executive dashboards over multi-terabyte BigQuery datasets by enabling BigQuery BI Engine (in-memory vector engine) connected to Looker or Looker Studio.",
+    "explanation": "Option D is correct because BigQuery BI Engine is a fast, in-memory analysis service built directly into BigQuery that accelerates SQL queries from Looker and Looker Studio to sub-second response times while preserving centralized governance over Mountkirk's 10+ TB analytics warehouse.",
+    "whyWrong": {
+      "0": "Running manual Python scripts over raw storage objects is inaccessible to business executives and slow.",
+      "1": "Exporting CSV files to desktop spreadsheets cannot handle 10+ TB of data and creates stale, ungoverned data silos.",
+      "2": "Replicating 10+ TB of analytical data into Cloud SQL is expensive, slow for OLAP aggregations, and duplicates storage unnecessarily."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/bi-engine/docs/introduction"
+    ]
+  },
+  {
+    "id": "pl-v0508-009",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": "mountkirk",
+    "officialSample": true,
+    "question": "For this question, refer to the Mountkirk Games case study. Mountkirk Games has isolated Development, Staging, and Production into three separate Google Cloud projects. The Staging project requires read-only network access to a specific reference service hosted in the Production project over private IP addresses, while Development must remain completely isolated from both Staging and Production. How should you configure networking?",
+    "options": [
+      "Configure VPC Network Peering between the Staging VPC and Production VPC with restrictive ingress firewall rules in Production allowing only the Staging service account/CIDR, and do not peer the Development VPC with Staging or Production.",
+      "Place Development, Staging, and Production VMs into the same default VPC subnet and rely on OS-level `iptables` rules.",
+      "Create public external IP addresses on all Production backend services and share API keys with developers.",
+      "Enable VPC Network Peering between Development and Staging, and between Staging and Production, relying on transitive routing."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "VPC Network Peering provides private RFC 1918 connectivity between two specific projects without transitivity; combine peering between Staging and Production with explicit ingress firewall rules while keeping Development unpeered.",
+    "explanation": "Option A is correct because peering only the Staging VPC and Production VPC establishes private RFC 1918 routing between those two projects while leaving the Development project network completely isolated. Pairing the peering link with least-privilege ingress firewall rules in Production ensures Staging can only reach the authorized reference service ports.",
+    "whyWrong": {
+      "1": "Placing all environments in a single project/subnet violates Mountkirk's project isolation requirement.",
+      "2": "Exposing internal Production services over public external IPs violates Mountkirk's requirement that only frontend services are exposed to the public internet.",
+      "3": "VPC Network Peering is non-transitive, and peering Development with Staging would violate isolation if shared resources exist."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/vpc/docs/vpc-peering"
+    ]
+  },
+  {
+    "id": "pl-v0508-010",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You are modernizing a serverless web application deployed on App Engine Standard environment (second generation runtime). The application must query an internal PostgreSQL database running in your on-premises data center connected to Google Cloud via HA VPN. The database has only private RFC 1918 IP addresses. What should you configure so App Engine Standard can reach the on-premises database privately?",
+    "options": [
+      "Assign a public static IP address to the on-premises PostgreSQL server and allowlist `0.0.0.0/0`.",
+      "Configure a Serverless VPC Access connector (or Direct VPC egress) on the VPC connected to HA VPN, and route private egress traffic from App Engine Standard through the VPC.",
+      "Migrate the entire application to unmanaged Compute Engine VMs because App Engine Standard can never communicate with RFC 1918 addresses.",
+      "Create a Cloud CDN origin pointing to the on-premises database IP address."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "While legacy first-generation App Engine Standard required App Engine Flexible for VPC/VPN access, modern App Engine Standard and Cloud Run connect directly to private VPC and Cloud VPN resources via Serverless VPC Access connectors or Direct VPC Egress.",
+    "explanation": "Option B is correct because Serverless VPC Access connectors (and Direct VPC Egress) bridge serverless runtimes (App Engine Standard, Cloud Run, Cloud Functions) directly into your VPC network, allowing outbound requests to private RFC 1918 IP addresses to traverse Cloud Router dynamic routes across HA VPN or Cloud Interconnect to on-premises databases.",
+    "whyWrong": {
+      "0": "Exposing an internal database to the public internet violates enterprise security principles.",
+      "2": "Modern App Engine Standard fully supports private VPC and hybrid VPN connectivity via Serverless VPC Access without re-platforming to VMs.",
+      "3": "Cloud CDN is an HTTP/HTTPS content delivery network cache, not a private database TCP proxy."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=oOTJSgHJzvM",
+      "https://cloud.google.com/vpc/docs/serverless-vpc-access"
+    ]
+  },
+  {
+    "id": "pl-v0508-011",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A healthcare enterprise stores raw patient clinical tables in Project `data-lake-prod`. External research analysts working in Project `research-compute` need to run SQL queries against specific de-identified columns and filtered rows of the clinical data. All query compute costs must be billed to `research-compute`, and researchers must not have direct read access to the underlying raw tables in `data-lake-prod`. What should you configure?",
+    "options": [
+      "Copy all raw tables into `research-compute` every hour using Cloud Scheduler.",
+      "Grant researchers `roles/bigquery.admin` on `data-lake-prod` and `roles/bigquery.dataViewer` on `research-compute`.",
+      "Grant researchers `roles/bigquery.jobUser` on `research-compute`, create an Authorized View in a separate dataset in `data-lake-prod` referencing the raw tables, and grant researchers `roles/bigquery.dataViewer` on the dataset containing the Authorized View.",
+      "Grant researchers `roles/bigquery.user` on both `data-lake-prod` and `research-compute`."
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "Combine `roles/bigquery.jobUser` on the billing project with BigQuery Authorized Views to expose row/column-filtered data without granting direct read access to underlying raw tables.",
+    "explanation": "Option C is correct because granting `roles/bigquery.jobUser` on `research-compute` ensures all query compute slots/bytes scanned are billed strictly to `research-compute`. Placing an Authorized View in a dedicated dataset in `data-lake-prod` allows researchers to query the filtered view without possessing `dataViewer` permissions on the underlying raw patient tables.",
+    "whyWrong": {
+      "0": "Duplicating raw tables into `research-compute` exposes sensitive PHI columns and incurs redundant storage and ETL maintenance.",
+      "1": "`roles/bigquery.admin` on `data-lake-prod` grants full read/write access to all raw PHI tables and bills queries to `data-lake-prod`.",
+      "3": "Granting `roles/bigquery.user` on `data-lake-prod` allows researchers to run jobs billed directly to `data-lake-prod`."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=oOTJSgHJzvM",
+      "https://cloud.google.com/bigquery/docs/authorized-views"
+    ]
+  },
+  {
+    "id": "pl-v0508-012",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your financial services compliance team requires that all objects written to a specific Cloud Storage bucket be encrypted using an AES-256 key generated and stored inside Google Cloud KMS with an automated 90-day key rotation schedule and full Cloud Audit Logs of every key decryption operation. Which encryption option should you configure on the bucket?",
+    "options": [
+      "Google-managed default encryption keys",
+      "Client-side PGP encryption managed via manual shell scripts",
+      "Customer-Supplied Encryption Keys (CSEK) stored in a local `.boto` file",
+      "Customer-Managed Encryption Keys (CMEK) using Cloud KMS"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "Use Customer-Managed Encryption Keys (CMEK) in Cloud KMS when you need automated key rotation schedules, IAM key access policies, and Cloud Audit Logs for key usage without managing on-premises key storage.",
+    "explanation": "Option D is correct because Customer-Managed Encryption Keys (CMEK) store cryptographic keys in Cloud KMS where you control key rotation schedules (e.g., 90 days), IAM key permissions, key destruction, and Data Access audit logging while Cloud Storage seamlessly handles envelope encryption.",
+    "whyWrong": {
+      "0": "Google-managed default keys do not allow custom 90-day rotation schedules or customer-controlled key revocation.",
+      "1": "Manual client-side PGP scripts add operational toil and prevent server-side Google Cloud analytics services from reading the objects.",
+      "2": "Customer-Supplied Encryption Keys (CSEK) require supplying raw keys in every HTTP request from `.boto` and cannot be rotated automatically by Cloud KMS."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=oOTJSgHJzvM",
+      "https://cloud.google.com/storage/docs/encryption/customer-managed-keys"
+    ]
+  },
+  {
+    "id": "pl-v0508-013",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You manage a mission-critical Cloud SQL for PostgreSQL database in `us-central1`. Your business continuity plan requires BOTH automatic zero-data-loss failover within `us-central1` if a single data center zone fails AND the ability to promote a standby database in `us-east1` if the entire `us-central1` region experiences a disaster. How should you architect the database?",
+    "options": [
+      "Enable High Availability (regional configuration with synchronous standby in a second zone of `us-central1`) AND create a cross-region read replica in `us-east1`.",
+      "Create two standalone Cloud SQL instances in `us-central1-a` and `us-east1-b` and use `pg_dump` every night.",
+      "Enable High Availability across `us-central1` and `us-east1` using a single Regional Persistent Disk.",
+      "Create only a same-zone read replica in `us-central1-a`."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Combine Cloud SQL High Availability (synchronous zonal standby within the primary region) with a Cross-Region Read Replica (asynchronous replication to a secondary region for regional disaster recovery).",
+    "explanation": "Option A is correct because Cloud SQL High Availability (HA) uses synchronous block replication via Regional Persistent Disks across two zones in `us-central1` for automatic zonal failover (RPO = 0), while a Cross-Region Read Replica asynchronously streams WAL logs to `us-east1` where it can be promoted to primary during a full regional outage.",
+    "whyWrong": {
+      "1": "Nightly `pg_dump` backups have a 24-hour Recovery Point Objective (RPO) and no automatic zonal failover.",
+      "2": "Regional Persistent Disks and synchronous Cloud SQL HA are scoped strictly to a single region and cannot span `us-central1` and `us-east1`.",
+      "3": "A same-zone read replica provides zero protection against either a zonal outage or a regional disaster."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=oOTJSgHJzvM",
+      "https://cloud.google.com/sql/docs/postgres/high-availability"
+    ]
+  },
+  {
+    "id": "pl-v0508-014",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You are auditing a VPC network that has no custom firewall rules created yet. A Compute Engine VM with an external IP address is deployed in this VPC. What is the default traffic behavior enforced by Google Cloud's two implied VPC firewall rules?",
+    "options": [
+      "All inbound (ingress) traffic to the VM is allowed at priority 65535, and all outbound (egress) traffic is denied at priority 65535.",
+      "All inbound (ingress) traffic to the VM is denied at priority 65535, and all outbound (egress) traffic from the VM is allowed at priority 65535.",
+      "Both inbound and outbound traffic are denied at priority 1000.",
+      "Both inbound and outbound traffic are allowed at priority 0."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Every Google Cloud VPC network contains exactly two implied firewall rules at priority 65535: Implied Deny Ingress (`0.0.0.0/0` deny all) and Implied Allow Egress (`0.0.0.0/0` allow all).",
+    "explanation": "Option B is correct because every Google Cloud VPC network automatically enforces two implied rules at the lowest possible priority (`65535`): an Implied Deny Ingress rule that blocks all unsolicited incoming connections and an Implied Allow Egress rule that permits all outbound connections unless overridden by a higher-priority custom rule (`0`–`65534`).",
+    "whyWrong": {
+      "0": "Allowing all inbound traffic by default would expose every VM port to the internet.",
+      "2": "Default VPC rules are at priority 1000, whereas implied rules exist on every VPC at priority 65535 and allow egress.",
+      "3": "Priority 0 is the highest possible priority; implied rules sit at priority 65535 and block ingress."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/vpc/docs/firewalls#default_firewall_rules"
+    ]
+  },
+  {
+    "id": "pl-v0508-015",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You run a multi-tenant GKE Standard cluster. Data scientists periodically submit GPU-accelerated machine learning training jobs that require NVIDIA L4 GPUs, but your existing cluster node pools only contain standard CPU-only `e2-standard-4` machines. You want GKE to automatically create a GPU node pool when GPU Pods are scheduled and delete the GPU node pool when training finishes. What should you enable?",
+    "options": [
+      "Kubernetes Pod Disruption Budgets (PDB)",
+      "Vertical Pod Autoscaler (VPA) in recommendation mode only",
+      "Node Auto-Provisioning (NAP) on the GKE cluster with GPU resource limits configured",
+      "App Engine Flexible autoscaler"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "While standard Cluster Autoscaler only scales existing node pools, GKE Node Auto-Provisioning (NAP) automatically creates and deletes entirely new node pools tailored to pending Pod CPU, memory, and GPU requests.",
+    "explanation": "Option C is correct because standard GKE Cluster Autoscaler can only add nodes to pre-existing node pools. Node Auto-Provisioning (NAP) extends Cluster Autoscaler by automatically creating new node pools with matching machine types and GPU accelerators when pending Pods request resources unavailable in any existing node pool, then deleting those node pools when idle.",
+    "whyWrong": {
+      "0": "Pod Disruption Budgets limit voluntary Pod evictions during maintenance; they do not provision node pools.",
+      "1": "Vertical Pod Autoscaler adjusts Pod CPU/memory requests and cannot provision GPU hardware nodes.",
+      "3": "App Engine Flexible does not manage GKE cluster node pools."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/kubernetes-engine/docs/how-to/node-auto-provisioning"
+    ]
+  },
+  {
+    "id": "pl-v0508-016",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your enterprise requires a production hybrid connectivity architecture between two on-premises data centers and Google Cloud that achieves Google's 99.99% availability SLA for Dedicated Interconnect. What topology is required to qualify for the 99.99% Dedicated Interconnect SLA?",
+    "options": [
+      "Provision Direct Peering in a single metropolitan area.",
+      "Provision a single 10 Gbps Dedicated Interconnect circuit in one colocation facility with a single Cloud Router.",
+      "Provision two Classic VPN tunnels from a single on-premises firewall to one Google Cloud region.",
+      "Provision four Dedicated Interconnect connections (two redundant connections in one metropolitan area and two redundant connections in a second metropolitan area) connected to two Google Cloud regions via Cloud Routers."
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "Achieving Google Cloud's 99.99% SLA for Dedicated Interconnect requires 4 physical Interconnect links split across 2 distinct metropolitan areas (2 redundant links per metro) connected to 2 Google Cloud regions with global dynamic routing.",
+    "explanation": "Option D is correct because Google Cloud's 99.99% SLA for Dedicated Interconnect explicitly requires four physical connections across two separate metropolitan areas (two connections in Metro A across different edge availability domains and two connections in Metro B across different edge availability domains) attached to two Google Cloud regions with VPC global dynamic routing enabled.",
+    "whyWrong": {
+      "0": "Direct Peering carries no SLA and does not provide private VPC connectivity.",
+      "1": "A single Dedicated Interconnect circuit provides no hardware or metro redundancy and offers no uptime SLA.",
+      "2": "Classic VPN tunnels do not provide a 99.99% Dedicated Interconnect SLA."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/dedicated-creating-9999-availability"
+    ]
+  },
+  {
+    "id": "pl-v0508-017",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your e-commerce web application serves product images through a Global External HTTPS Load Balancer with Cloud CDN enabled. Marketing campaigns append unique tracking query parameters (such as `?utm_source=email&fbclid=xyz123`) to every image URL, causing Cloud CDN to treat every user request as a cache miss and overwhelming your backend origin. How should you fix this?",
+    "options": [
+      "Configure a custom Cloud CDN cache key on the backend service that excludes query string parameters (or uses a query string allowlist).",
+      "Disable HTTPS and serve all traffic over unencrypted HTTP port 80.",
+      "Replace the Global External HTTPS Load Balancer with a Regional Passthrough Network Load Balancer.",
+      "Reduce the `Cache-Control: max-age` header from 86400 seconds to 1 second."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "When unique tracking query parameters (`utm_*`, `fbclid`, `gclid`) fragment Cloud CDN cache entries, configure a Custom Cache Key on the backend service to strip or allowlist query string parameters.",
+    "explanation": "Option A is correct because by default Cloud CDN includes the full query string in the cache key. Excluding irrelevant marketing tracking query parameters (or allowlisting only functional parameters like `?size=large`) ensures all requests for the same image hit a single cached object at Google's edge.",
+    "whyWrong": {
+      "1": "Disabling HTTPS degrades security and does not stop query parameters from fragmenting cache keys.",
+      "2": "Passthrough Network Load Balancers operate at Layer 4 and do not support Cloud CDN.",
+      "3": "Reducing `max-age` to 1 second expires cached objects almost immediately, worsening cache misses."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/cdn/docs/using-cache-keys"
+    ]
+  },
+  {
+    "id": "pl-v0508-018",
+    "domain": 6,
+    "topic": "Observability, SRE & Operations Excellence",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your security compliance auditor asks you to verify which Cloud Audit Logs are enabled by default in every Google Cloud project at zero charge, and which audit log category must be explicitly enabled (and incurs ingestion charges) to record every read operation (`DATA_READ`) on Cloud Storage objects. What is the accurate distinction?",
+    "options": [
+      "Data Access logs are enabled by default for all services at no charge, while Admin Activity logs must be enabled manually.",
+      "Admin Activity and System Event audit logs are always enabled by default at no charge; Data Access audit logs (`ADMIN_READ`, `DATA_READ`, `DATA_WRITE`) are disabled by default for most services and must be explicitly enabled.",
+      "No audit logs are collected until you install the Ops Agent on every Compute Engine VM.",
+      "System Event logs require purchasing Security Command Center Premium tier."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Admin Activity and System Event audit logs are always written by default and free of charge (retained 400 days), whereas Data Access audit logs must be explicitly enabled per service because of their high log volume.",
+    "explanation": "Option B is correct because Google Cloud always records Admin Activity logs (configuration changes) and System Event logs (Google-initiated maintenance events) automatically at no cost for 400 days. Data Access audit logs (which capture high-volume object reads/writes) are disabled by default for most services (except BigQuery) to prevent unexpected logging bills and must be explicitly enabled in IAM & Admin -> Audit Logs.",
+    "whyWrong": {
+      "0": "Data Access logs are disabled by default for most services and incur standard Cloud Logging ingestion charges.",
+      "2": "Cloud Audit Logs are generated by the Google Cloud API control plane independent of VM agents.",
+      "3": "System Event audit logs are free and enabled by default in all Google Cloud projects."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=W9fxAODuud4",
+      "https://cloud.google.com/logging/docs/audit"
+    ]
+  },
+  {
+    "id": "pl-v0508-019",
+    "domain": 5,
+    "topic": "Managing Implementation & Delivery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You need to migrate a 4 TB production PostgreSQL database running on an on-premises server to Cloud SQL for PostgreSQL with less than 5 minutes of cutover downtime and zero data loss. You want a serverless, Google-managed migration tool that handles initial snapshot load plus continuous Change Data Capture (CDC) replication automatically. Which service should you use?",
+    "options": [
+      "BigQuery Data Transfer Service",
+      "Transfer Appliance offline shipping",
+      "Database Migration Service (DMS) configured with a continuous migration job over Cloud VPN or Interconnect",
+      "Manual CSV export and import via `gsutil`"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "Database Migration Service (DMS) provides serverless, minimal-downtime continuous CDC replication for migrating MySQL, PostgreSQL, SQL Server, and Oracle databases into Cloud SQL and AlloyDB.",
+    "explanation": "Option C is correct because Google Cloud Database Migration Service (DMS) automates both the initial full schema/data dump and continuous Change Data Capture (CDC) transaction log streaming over private connectivity (VPN/Interconnect), allowing you to cut over applications to Cloud SQL with only minutes of downtime.",
+    "whyWrong": {
+      "0": "BigQuery Data Transfer Service ingests SaaS/marketing data into BigQuery, not OLTP databases into Cloud SQL.",
+      "1": "Transfer Appliance is for offline file migration to Cloud Storage and cannot perform continuous live database CDC replication.",
+      "3": "Manual CSV exports lose ongoing transactions during export/import and require hours of application downtime."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/database-migration/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0508-020",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your European financial institution operates under strict data residency and credential governance regulations. You must centrally prevent any developer or administrator across all 50 Google Cloud projects from (1) creating resources outside `europe-west1` and `europe-west4` and (2) downloading JSON private keys for IAM Service Accounts. Which two Organization Policy constraints should you enforce at the Organization root? (Choose two.)",
+    "options": [
+      "Enforce `constraints/gcp.resourceLocations` restricted to `in:europe-west1-locations` and `in:europe-west4-locations`.",
+      "Enforce `constraints/iam.disableServiceAccountKeyCreation` across the Organization.",
+      "Create a VPC Firewall egress deny rule blocking port 443.",
+      "Assign `roles/viewer` to all Organization Administrators.",
+      "Enable Cloud CDN on all buckets in Europe."
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "hint": "Use `constraints/gcp.resourceLocations` to enforce regional data residency guardrails and `constraints/iam.disableServiceAccountKeyCreation` to eliminate long-lived service account JSON keys.",
+    "explanation": "Option A and Option B are correct because the Organization Policy Service enforces preventive guardrails across the entire resource hierarchy: `constraints/gcp.resourceLocations` blocks provisioning compute/storage resources outside approved European regions, and `constraints/iam.disableServiceAccountKeyCreation` prevents creating downloadable service account private keys in favor of short-lived Workload Identity Federation / impersonation credentials.",
+    "whyWrong": {
+      "2": "VPC firewall rules control VM network traffic, not Google Cloud control-plane resource creation or IAM key generation.",
+      "3": "Revoking admin roles does not enforce preventive regional location constraints on authorized deployment pipelines.",
+      "4": "Cloud CDN caches HTTP content at global edge locations, which actually distributes content outside specific regions."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/org-policy-constraints"
+    ]
+  },
+  {
+    "id": "pl-v0508-021",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You have placed Project `analytics-prod` (containing sensitive BigQuery datasets and Cloud Storage buckets) inside a VPC Service Controls perimeter. A Dataflow pipeline running in Project `etl-ingestion` (which belongs to a separate VPC Service Controls perimeter) needs to write transformed records into the BigQuery dataset in `analytics-prod`. Both projects belong to the same Google Cloud Organization. How should you authorize this cross-perimeter data flow?",
+    "options": [
+      "Configure an ingress rule and egress rule (or Perimeter Bridge) between the two VPC Service Controls perimeters authorizing the `etl-ingestion` Dataflow service account to access `bigquery.googleapis.com` in `analytics-prod`.",
+      "Create a VPC Firewall rule allowing TCP port 443 between the two projects.",
+      "Make the BigQuery dataset in `analytics-prod` publicly readable by `allAuthenticatedUsers`.",
+      "Disable VPC Service Controls permanently across the entire Organization."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Authorize controlled cross-perimeter API calls between two VPC Service Controls perimeters using granular Ingress/Egress rules (specifying identity, source project, service, and method) or a Perimeter Bridge.",
+    "explanation": "Option A is correct because VPC Service Controls blocks all cross-perimeter Google API calls (`bigquery.googleapis.com`, `storage.googleapis.com`) by default to prevent data exfiltration. Configuring explicit VPC-SC ingress/egress rules (or a Perimeter Bridge) allows only the specified Dataflow service account in `etl-ingestion` to invoke BigQuery APIs in `analytics-prod` while maintaining full perimeter protection.",
+    "whyWrong": {
+      "1": "VPC Firewall rules operate on VPC VM packets and have no effect on VPC Service Controls API perimeter enforcement.",
+      "2": "Granting `allAuthenticatedUsers` exposes sensitive data to any Google account holder and is still blocked by VPC-SC outside the perimeter.",
+      "3": "Disabling VPC Service Controls removes data exfiltration protection across all sensitive datasets."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/vpc-service-controls/docs/ingress-egress-rules"
+    ]
+  },
+  {
+    "id": "pl-v0508-022",
+    "domain": 5,
+    "topic": "Managing Implementation & Delivery",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You manage a stateless web application running on a regional Managed Instance Group (MIG) of 20 VMs across three zones. You need to roll out a new Instance Template proactively, ensuring that AT NO TIME during the rollout are fewer than 20 healthy instances serving traffic, and no more than 4 extra instances are created concurrently during the rollout. How should you configure the MIG rolling update parameters?",
+    "options": [
+      "Set update mode to `Opportunistic`, `maxUnavailable = 20`, and `maxSurge = 0`.",
+      "Set update mode to `Proactive`, `maxUnavailable = 0`, and `maxSurge = 4`.",
+      "Set update mode to `Proactive`, `maxUnavailable = 4`, and `maxSurge = 0`.",
+      "Delete the Managed Instance Group and recreate it from the new Instance Template."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "In a MIG rolling update, `maxUnavailable = 0` guarantees zero reduction in serving capacity during rollout, while `maxSurge` controls how many temporary extra VMs are provisioned above target size.",
+    "explanation": "Option B is correct because setting `maxUnavailable = 0` forbids the MIG updater from taking any healthy instance offline until its replacement instance is running and passing health checks, guaranteeing at least 20 healthy VMs at all times. Setting `maxSurge = 4` allows provisioning up to 4 temporary surge VMs concurrently so the rollout progresses 4 instances at a time.",
+    "whyWrong": {
+      "0": "`Opportunistic` mode does not actively roll out the update, and `maxUnavailable = 20` would allow terminating all instances simultaneously.",
+      "2": "`maxUnavailable = 4` with `maxSurge = 0` drops active serving capacity down to 16 VMs during the rollout, violating the 20-VM minimum requirement.",
+      "3": "Deleting and recreating the MIG causes a complete production outage."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups"
+    ]
+  },
+  {
+    "id": "pl-v0508-023",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your company acquired a subsidiary whose Google Cloud VPC subnet uses `10.10.0.0/16`, which overlaps identically with a legacy on-premises manufacturing subnet (`10.10.0.0/16`) that cannot be re-addressed because IP addresses are hardcoded into factory PLC firmware. Workloads in the acquired VPC need to initiate connections to a non-overlapping shared services VPC (`192.168.0.0/16`). How can you enable private communication without re-addressing the overlapping factory PLCs?",
+    "options": [
+      "Create a VPC Firewall rule with priority 0 to rewrite IP headers.",
+      "Enable standard Public Cloud NAT on the internet gateway.",
+      "Configure Private NAT (with Network Connectivity Center spokes) to perform source NAT on traffic egressing the overlapping subnet before routing across the hybrid/VPC hub.",
+      "Use Cloud DNS forwarding zones to automatically translate overlapping IPv4 packet headers."
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "While re-addressing subnets is the primary best practice for overlapping CIDRs, Google Cloud Private NAT with Network Connectivity Center (NCC) translates overlapping RFC 1918 source IPs when re-addressing is impossible.",
+    "explanation": "Option C is correct because when legacy hardware or M&A constraints make re-addressing impossible, Google Cloud Private NAT (integrated with Network Connectivity Center spokes) translates source RFC 1918 IP addresses from an overlapping subnet into a non-overlapping NAT CIDR pool so return traffic routes unambiguously.",
+    "whyWrong": {
+      "0": "VPC Firewall rules permit or block packets; they cannot perform Network Address Translation (NAT) on packet headers.",
+      "1": "Public Cloud NAT only translates traffic destined for the public internet, not private RFC 1918 inter-VPC or hybrid traffic.",
+      "3": "Cloud DNS resolves domain names to IPs; it cannot route packets when two networks share identical destination CIDR blocks."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=N0Udrnxdj2w",
+      "https://cloud.google.com/nat/docs/private-nat-overview"
+    ]
+  },
+  {
+    "id": "pl-v0508-024",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You are deploying a virtual network security appliance (next-generation firewall VM) on Compute Engine that must inspect traffic flowing between three isolated VPC networks (`vpc-untrust`, `vpc-dmz`, and `vpc-trust`) within `us-central1`. Each VPC has non-overlapping subnets. What Compute Engine networking rule applies when configuring multiple network interfaces (`nic0`, `nic1`, `nic2`) on this VM?",
+    "options": [
+      "All network interfaces on a single VM must attach to the exact same subnet within the same VPC.",
+      "Additional network interfaces can be attached to or detached from a running Compute Engine VM at any time without stopping the VM.",
+      "Multiple network interfaces on a single VM can connect to subnets located in different Google Cloud regions.",
+      "All network interfaces (`nic0`, `nic1`, `nic2`) must be attached to subnets in distinct VPC networks located in the same Google Cloud region as the VM instance, and the VM must be created with all required NICs at instance creation time."
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "On Compute Engine multi-NIC instances, each NIC must attach to a different VPC network (except specific network attachment setups), all subnets must reside in the same region as the VM, and NIC count is fixed at VM creation time.",
+    "explanation": "Option D is correct because Compute Engine enforces strict architectural constraints on multi-NIC VMs: each interface must connect to a subnet in a separate VPC network, every attached subnet must reside in the exact same region as the VM instance, and network interfaces must be defined when the VM instance is initially created.",
+    "whyWrong": {
+      "0": "Attaching multiple standard NICs of the same VM to the same VPC network is disallowed.",
+      "1": "Compute Engine does not allow adding new NICs (`nic1`, `nic2`) to an existing VM after creation.",
+      "2": "A VM instance is a zonal resource and all of its attached VPC subnets must exist in the same region as the VM."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts"
+    ]
+  },
+  {
+    "id": "pl-v0508-025",
+    "domain": 2,
+    "topic": "Infrastructure Provisioning: Network, Storage, Compute & AI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You are architecting storage for a genomic sequencing pipeline running across 200 GKE worker nodes in `us-central1`. All Pods require concurrent shared read-write POSIX NFS access to a 20 TB dataset with regional high availability (automatic failover across zones if a zone goes down) and point-in-time snapshots. Which storage tier should you select?",
+    "options": [
+      "Cloud Filestore Enterprise tier (Regional instance)",
+      "Cloud Filestore Basic HDD tier (Zonal instance)",
+      "Zonal Balanced Persistent Disk attached in read-write mode to 200 nodes",
+      "Local SSD scratch disks attached to each GKE node"
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Cloud Filestore Enterprise tier provides regional multi-zone synchronous replication (99.99% SLA), shared NFSv3 POSIX read-write mounting across hundreds of nodes, and non-disruptive snapshots.",
+    "explanation": "Option A is correct because Cloud Filestore Enterprise tier deploys a regional NFS file share synchronously replicated across multiple zones within the region (99.99% availability SLA) with native snapshots, backups, and concurrent POSIX read-write access across GKE Pods via the Filestore CSI driver.",
+    "whyWrong": {
+      "1": "Filestore Basic HDD is a single-zone resource with lower throughput and no automatic cross-zone failover.",
+      "2": "Balanced Persistent Disk does not support concurrent general-purpose POSIX read-write filesystem sharing across 200 nodes.",
+      "3": "Local SSDs are ephemeral node-local scratch disks that cannot be shared across nodes and lose data on VM stop/preemption."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/filestore/docs/service-tiers"
+    ]
+  },
+  {
+    "id": "pl-v0508-026",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A legal discovery order requires freezing all existing and newly created documents in a specific Cloud Storage bucket for litigation hold. Unlike fixed-duration regulatory retention policies, the legal team does not know how long the lawsuit will last—objects must remain undeletable indefinitely until the legal team explicitly releases the hold on each object. Which Cloud Storage feature should you use?",
+    "options": [
+      "Configure a locked 100-year Bucket Retention Policy with Bucket Lock.",
+      "Enable Object Holds (`temporaryHold` or default `eventBasedHold`) on the bucket/objects.",
+      "Enable Object Lifecycle Management with a `Delete` action set to `Age: 365`.",
+      "Set the bucket storage class to Archive."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Use Cloud Storage Object Holds (`temporaryHold` for litigation freezes of unknown duration; `eventBasedHold` for retention starting after a future event) when retention duration is indeterminate.",
+    "explanation": "Option B is correct because Cloud Storage Object Holds (`temporaryHold` and `eventBasedHold`) prevent an object from being deleted or overwritten for an indeterminate duration until an authorized user with `storage.objects.update` explicitly clears the hold flag—making it ideal for legal discovery holds where the release date is unknown.",
+    "whyWrong": {
+      "0": "Locking a 100-year Bucket Retention Policy makes objects permanently undeletable for 100 years even after the lawsuit concludes.",
+      "2": "Object Lifecycle Management `Delete` rules purge objects rather than freezing them against deletion.",
+      "3": "Archive storage class optimizes cold storage pricing but does not prevent authorized users from deleting objects."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/storage/docs/object-holds"
+    ]
+  },
+  {
+    "id": "pl-v0508-027",
+    "domain": 6,
+    "topic": "Observability, SRE & Operations Excellence",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your enterprise operates 120 Google Cloud projects organized under a single Organization node. Your Security Operations Center (SOC) requires a single, tamper-resistant log routing configuration at the Organization level that automatically captures all Admin Activity and Data Access audit logs from all current and future child projects into a centralized BigQuery dataset in a dedicated `secops-logging` project. What should you configure?",
+    "options": [
+      "Install Fluentd agents on every Cloud Router in the organization.",
+      "Manually create 120 individual project-level log sinks and remember to run a script whenever a new project is created.",
+      "Create an Aggregated Log Sink at the Organization level with `--include-children` enabled, pointing to the centralized BigQuery dataset in `secops-logging`.",
+      "Export logs manually from Logs Explorer once a month as JSON files."
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "Use an Organization-level Aggregated Log Sink (`includeChildren = true`) to automatically capture and route audit logs from all existing and future folders and projects into a centralized SIEM/BigQuery destination.",
+    "explanation": "Option C is correct because an Aggregated Log Sink configured at the Organization (or Folder) level with `includeChildren = true` automatically intercepts matching log entries across all current and newly created child projects and routes them directly into a central BigQuery dataset, Cloud Storage bucket, or Pub/Sub topic.",
+    "whyWrong": {
+      "0": "Cloud Routers are managed BGP control-plane components and do not run custom Fluentd agents.",
+      "1": "Managing per-project sinks manually leaves newly created projects unmonitored if an engineer forgets to configure a sink.",
+      "3": "Manual monthly exports from Logs Explorer are incomplete, non-real-time, and fail compliance auditability."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/logging/docs/export/aggregated_sinks"
+    ]
+  },
+  {
+    "id": "pl-v0508-028",
+    "domain": 3,
+    "topic": "Designing for Security & Compliance",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You want to enforce centralized, identity-driven Linux SSH access across all private Compute Engine VMs in your organization. You require that (1) VMs have no public IP addresses, (2) SSH keys are automatically tied to corporate Google Cloud identities and revoked immediately when an employee leaves, and (3) multi-factor authentication (2FA) is enforced on SSH sessions. Which combination should you configure?",
+    "options": [
+      "Disable Linux PAM authentication on all Compute Engine instances.",
+      "Manually paste employee SSH public keys into project-wide `ssh-keys` metadata and open TCP port 22 from `0.0.0.0/0`.",
+      "Create a shared root password distributed via email and connect over a public bastion host.",
+      "Enable OS Login with 2FA (`enable-oslogin = TRUE` and `enable-oslogin-2fa = TRUE` in project metadata) combined with Identity-Aware Proxy (IAP) TCP forwarding (`roles/iap.tunnelResourceAccessor` and `roles/compute.osLogin`)."
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "Combine Compute Engine OS Login (`enable-oslogin=TRUE`, `enable-oslogin-2fa=TRUE`) with IAP TCP Forwarding (`35.235.240.0/20`) for zero-trust, IAM-governed, 2FA-protected SSH access to private VMs.",
+    "explanation": "Option D is correct because OS Login links Linux user accounts and SSH public keys directly to Google Cloud IAM identities (automatically revoking SSH access the instant a user is suspended in Cloud Identity) and supports hardware/prompt 2FA, while IAP TCP forwarding tunnels SSH sessions securely over HTTPS without requiring public VM IPs.",
+    "whyWrong": {
+      "0": "Disabling PAM authentication destroys host access security.",
+      "1": "Project metadata SSH keys are static, bypass IAM revocation when employees leave, and opening port 22 to `0.0.0.0/0` exposes VMs to brute-force attacks.",
+      "2": "Shared root passwords violate non-repudiation and compliance audit requirements."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=U1PJhvVPqys",
+      "https://cloud.google.com/compute/docs/oslogin"
+    ]
+  }
+]

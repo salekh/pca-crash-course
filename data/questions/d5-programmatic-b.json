@@ -13,12 +13,20 @@
       "Configure the gcs backend pointing to a dedicated Cloud Storage bucket with object versioning enabled and restricted IAM, and use a distinct prefix per root module; the backend provides state locking automatically.",
       "Use terraform workspaces so each engineer has a private copy of the state and merges changes manually."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The Terraform gcs backend is Google's recommended state store: it supports native state locking (preventing concurrent applies), object versioning lets you recover earlier state, the bucket can be encrypted with CMEK and access restricted with IAM because state may contain sensitive values, and a prefix per root module keeps blast radius small. Option A relies on human discipline and still stores potentially sensitive state in Git. Option B works technically but adds a database to operate when a bucket suffices. Option D misuses workspaces — separate states per engineer diverge and cannot be merged safely.",
     "refs": [
       "https://cloud.google.com/docs/terraform/resource-management/store-state",
       "https://cloud.google.com/docs/terraform/best-practices/root-modules"
-    ]
+    ],
+    "hint": "Core Rule (Terraform state management): The Terraform gcs backend is Google's recommended state store: it supports native state locking (preventing concurrent applies), object versioning lets you recover earlier state, the bucket can be encrypted with CMEK and access restricted with IAM because state may contain sensitive values, and a prefix per root module keeps blast radius small.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep the state in Git but require engineers to acquire a Slack lock me…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Store the state in a Cloud SQL database using the pg backend so transa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use terraform workspaces so each engineer has a private copy of the st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-027",
@@ -34,12 +42,20 @@
       "Have the platform team create every project manually through the console using a checklist.",
       "Ask each team to write its own Terraform and review pull requests for baseline compliance."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Modules are Terraform's abstraction for reusable, opinionated building blocks; Google publishes the Cloud Foundation Toolkit (terraform-google-modules) including a project factory that encapsulates exactly this baseline, and hosting your version in a registry with semantic versioning lets teams consume it with minimal code while the platform team ships improvements centrally. Option B creates copy-paste drift that cannot be updated centrally. Option C is manual toil that does not scale to 30 teams and is not reproducible. Option D pushes compliance to review time rather than encoding it, which is slow and error-prone.",
     "refs": [
       "https://cloud.google.com/docs/terraform/best-practices/reusable-modules",
       "https://cloud.google.com/docs/terraform/blueprints/terraform-blueprints"
-    ]
+    ],
+    "hint": "Core Rule (Terraform modules): Modules are Terraform's abstraction for reusable, opinionated building blocks; Google publishes the Cloud Foundation Toolkit (terraform-google-modules) including a project factory that encapsulates exactly this baseline, and hosting your version in a registry with semantic versioning lets teams consume it with minimal code while the platform team ships improvements centrally.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Provide a Google Doc with the canonical Terraform snippets that each t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Have the platform team create every project manually through the conso…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask each team to write its own Terraform and review pull requests for …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-028",
@@ -55,12 +71,20 @@
       "Keep workspaces but rename prod to production-do-not-touch so the mistake is less likely.",
       "Use a separate root module directory per environment (sharing versioned child modules), each with its own state prefix/bucket, its own tfvars, and its own pipeline running as an environment-specific service account with prod applies gated by approval."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Google's Terraform guidance recommends separating environments into distinct root modules with separate state and separate credentials rather than relying on workspaces, because workspaces share the same configuration and backend and make accidental cross-environment applies easy. Separate directories and pipelines allow different service accounts, IAM boundaries, approval gates, and safe promotion of module versions from dev to prod. Options A and C are cosmetic mitigations for a structural risk. Option B increases blast radius further by placing all environments in one state and one apply.",
     "refs": [
       "https://cloud.google.com/docs/terraform/best-practices/root-modules",
       "https://cloud.google.com/docs/terraform/best-practices/general-style-structure"
-    ]
+    ],
+    "hint": "Core Rule (Terraform environment layout): Google's Terraform guidance recommends separating environments into distinct root modules with separate state and separate credentials rather than relying on workspaces, because workspaces share the same configuration and backend and make accidental cross-environment applies easy.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep the workspaces but add a shell prompt showing the current workspa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Move all three environments into one workspace with conditionals based…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Keep workspaces but rename prod to production-do-not-touch so the mist…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-029",
@@ -76,12 +100,20 @@
       "Create the foundation by clicking through the console using the Google Cloud setup checklist, then export it with Terraform import later.",
       "Provision a single project with an Owner group and add structure later as workloads arrive."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Google publishes battle-tested, security-reviewed foundation blueprints: terraform-example-foundation implements the enterprise foundations blueprint step by step (bootstrap, org, environments, networks, projects) with Cloud Build pipelines, and Cloud Foundation Fabric FAST offers a modular alternative. Starting from these encodes best practices in weeks rather than months. Option A reinvents solved problems and risks omitting controls. Option C produces click-ops drift and importing afterwards is laborious and incomplete. Option D defers structure, which is much harder to introduce once workloads exist.",
     "refs": [
       "https://cloud.google.com/architecture/security-foundations",
       "https://cloud.google.com/docs/terraform/blueprints/terraform-blueprints"
-    ]
+    ],
+    "hint": "Core Rule: Google publishes battle-tested, security-reviewed foundation blueprints: terraform-example-foundation implements the enterprise foundations blueprint step by step (bootstrap, org, environments, networks, projects) with Cloud Build pipelines, and Cloud Foundation Fabric FAST offers a modular alternative.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Design the landing zone from a blank page and write all Terraform from…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create the foundation by clicking through the console using the Google…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Provision a single project with an Owner group and add structure later…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-030",
@@ -97,12 +129,20 @@
       "Config Connector (installed as a GKE add-on or via Config Controller), which exposes Google Cloud resources as Kubernetes custom resources that are reconciled continuously.",
       "Cloud Deploy pipelines that run gcloud commands to create the cloud resources before deploying the workload."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Config Connector is Google's Kubernetes add-on that provides CRDs for Google Cloud resources (SQLInstance, PubSubTopic, StorageBucket and hundreds more) and reconciles them continuously, so the same GitOps flow, RBAC, and Config Sync tooling used for workloads applies to cloud resources and drift is automatically corrected. Option A is valid IaC but is a separate, non-Kubernetes workflow without continuous reconciliation. Option B is a large engineering investment duplicating Config Connector. Option D is imperative and does not reconcile or detect drift.",
     "refs": [
       "https://cloud.google.com/config-connector/docs/overview",
       "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: Config Connector is Google's Kubernetes add-on that provides CRDs for Google Cloud resources (SQLInstance, PubSubTopic, StorageBucket and hundreds more) and reconciles them continuously, so the same GitOps flow, RBAC, and Config Sync tooling used for workloads applies to cloud resources and drift is automatically corrected.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Terraform run from a Cloud Build trigger on each commit to the manifes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Custom Kubernetes operators written by the platform team that call the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cloud Deploy pipelines that run gcloud commands to create the cloud re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-031",
@@ -118,12 +158,20 @@
       "Run terraform apply -auto-approve every five minutes so any manual change is overwritten immediately.",
       "Export Cloud Audit Logs to BigQuery and manually review console changes every Friday."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "terraform plan -detailed-exitcode returns exit code 2 when changes are pending, making a scheduled plan a simple and reliable drift detector; alerting on it (for example through a failed build notification to Pub/Sub or Slack) meets the one-hour requirement, and limiting write IAM so humans cannot change resources outside the pipeline addresses prevention. Option B protects state files but does not compare them to live infrastructure. Option C is dangerous — auto-applying every few minutes can revert emergency fixes and cause outages without review. Option D is manual and far too slow.",
     "refs": [
       "https://cloud.google.com/docs/terraform/best-practices/operations",
       "https://cloud.google.com/docs/terraform/best-practices/security"
-    ]
+    ],
+    "hint": "Core Rule (Drift detection): terraform plan -detailed-exitcode returns exit code 2 when changes are pending, making a scheduled plan a simple and reliable drift detector; alerting on it (for example through a failed build notification to Pub/Sub or Slack) meets the one-hour requirement, and limiting write IAM so humans cannot change resources outside the pipeline addresses prevention.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Enable object versioning on the state bucket so drift can be reconstru…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run terraform apply -auto-approve every five minutes so any manual cha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export Cloud Audit Logs to BigQuery and manually review console change…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-032",
@@ -139,12 +187,20 @@
       "Write a Bash script that greps the .tf files for the strings allUsers and ipv4_enabled.",
       "Add a pre-apply step that runs gcloud beta terraform vet against the Terraform plan using a policy library of Constraint Framework (Rego/CEL) constraints stored in Git, failing the build on any violation."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "gcloud beta terraform vet (policy validation) evaluates a Terraform plan against a policy library of Constraint Framework templates — the same constraints used by Config Validator — before apply, so non-compliant resources are never created; the policy library lives in Git and is reusable across all pipelines, complementing organization policies for defense in depth. Option A detects after creation and its destroy step could cause outages. Option B is manual, slow, and inconsistent. Option C is fragile pattern matching that misses variables, modules, and defaults.",
     "refs": [
       "https://cloud.google.com/docs/terraform/policy-validation",
       "https://cloud.google.com/docs/terraform/policy-validation/create-cai-constraints"
-    ]
+    ],
+    "hint": "Core Rule (Policy as code): gcloud beta terraform vet (policy validation) evaluates a Terraform plan against a policy library of Constraint Framework templates — the same constraints used by Config Validator — before apply, so non-compliant resources are never created; the policy library lives in Git and is reusable across all pipelines, complementing organization policies for defense in depth.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add a post-apply step that runs Security Command Center scans and dest…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rely solely on code review, requiring two approvals from the security …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Write a Bash script that greps the .tf files for the strings allUsers …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-033",
@@ -161,12 +217,21 @@
       "Trigger terraform plan on pull requests and post the plan for review, and run terraform apply only on merge to the protected main branch (with a Cloud Build approval or Cloud Deploy gate for production).",
       "Grant the Cloud Build service account the Organization Administrator role so it never lacks permissions."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Per-environment build identities with least-privilege roles isolate blast radius, so a compromised dev pipeline cannot reach production, and Cloud Build authenticates as those service accounts through the metadata server without keys. A plan-on-PR / apply-on-merge flow with branch protection and an approval gate satisfies review before production changes. Option B centralizes a long-lived key and violates the no-keys requirement. Option C removes review and could apply half-finished branches to production. Option E grants sweeping privileges, the opposite of least privilege.",
     "refs": [
       "https://cloud.google.com/docs/terraform/resource-management/managing-infrastructure-as-code",
       "https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts"
-    ]
+    ],
+    "hint": "Core Rule (Secure Terraform pipelines): Per-environment build identities with least-privilege roles isolate blast radius, so a compromised dev pipeline cannot reach production, and Cloud Build authenticates as those service accounts through the metadata server without keys.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Store a single highly privileged service account key in Secret Manager…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run terraform apply -auto-approve on every push to any branch to keep …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Grant the Cloud Build service account the Organization Administrator r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-034",
@@ -182,12 +247,20 @@
       "Ask an administrator to grant the engineer's user account the same roles as terraform-runner.",
       "Run Terraform inside a Compute Engine VM whose attached service account is the engineer's user account."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "The Google Terraform provider supports impersonation: with ADC from the engineer's own login and impersonate_service_account set, Terraform obtains short-lived tokens for terraform-runner, so resources are created by the same identity as in CI, audit logs show the engineer as the caller, and no key exists. Option A creates and distributes a key, violating policy. Option C duplicates privileges onto a human account and changes the audit trail. Option D is not possible — a user account cannot be attached to a VM — and would be unnecessary infrastructure anyway.",
     "refs": [
       "https://cloud.google.com/docs/terraform/authentication",
       "https://cloud.google.com/docs/authentication/use-service-account-impersonation"
-    ]
+    ],
+    "hint": "Core Rule (Terraform provider authentication): The Google Terraform provider supports impersonation: with ADC from the engineer's own login and impersonate_service_account set, Terraform obtains short-lived tokens for terraform-runner, so resources are created by the same identity as in CI, audit logs show the engineer as the caller, and no key exists.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Set GOOGLE_CREDENTIALS to a base64-encoded key for terraform-runner ex…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Ask an administrator to grant the engineer's user account the same rol…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run Terraform inside a Compute Engine VM whose attached service accoun…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-035",
@@ -203,12 +276,20 @@
       "Do nothing in code: deploy the service with a dedicated runtime service account that has the needed Storage role, and the client library will obtain credentials automatically from the metadata server through Application Default Credentials.",
       "Pass the key's JSON contents as an environment variable and parse it in the application startup code."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Application Default Credentials check GOOGLE_APPLICATION_CREDENTIALS, then the gcloud ADC file, then the metadata server. On Cloud Run (as on Compute Engine, GKE, and Cloud Run functions) the metadata server supplies short-lived tokens for the service's attached service account, so no key material is required — just grant the runtime identity least-privilege IAM roles. Options A, B, and D all persist a long-lived key inside the deployment, which Google explicitly recommends against because keys can leak and never expire; B is worst because the key lives in a registry artifact.",
     "refs": [
       "https://cloud.google.com/docs/authentication/application-default-credentials",
       "https://cloud.google.com/run/docs/securing/service-identity"
-    ]
+    ],
+    "hint": "Core Rule (Application Default Credentials on Cloud Run): Application Default Credentials check GOOGLE_APPLICATION_CREDENTIALS, then the gcloud ADC file, then the metadata server.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Upload the key file to Secret Manager and mount it into the container,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Bake the key file into the container image at a fixed path referenced …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Pass the key's JSON contents as an environment variable and parse it i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-036",
@@ -224,12 +305,20 @@
       "Grant the node pool's Compute Engine default service account the BigQuery Data Viewer role so all pods on the node inherit access.",
       "Rotate the JSON key every 24 hours using a CronJob that calls the IAM API."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Workload Identity Federation for GKE (enabled by default on Autopilot) lets Kubernetes service accounts authenticate to Google Cloud APIs as IAM principals without any keys: the GKE metadata server issues short-lived tokens scoped to the pod's identity, and IAM bindings can be made directly on the Kubernetes service account principal or through a linked IAM service account. Option B still uses a long-lived key, just stored elsewhere. Option C grants the node identity to every pod on the node, violating least privilege and pod-level isolation. Option D reduces exposure time but keeps the key anti-pattern and adds operational overhead.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity"
-    ]
+    ],
+    "hint": "Core Rule: Workload Identity Federation for GKE (enabled by default on Autopilot) lets Kubernetes service accounts authenticate to Google Cloud APIs as IAM principals without any keys: the GKE metadata server issues short-lived tokens scoped to the pod's identity, and IAM bindings can be made directly on the Kubernetes service account principal or through a linked IAM service account.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Store the JSON key in Secret Manager instead of a Kubernetes Secret an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Grant the node pool's Compute Engine default service account the BigQu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Rotate the JSON key every 24 hours using a CronJob that calls the IAM …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-037",
@@ -245,12 +334,20 @@
       "Migrate the deployment stage to Cloud Build and keep only the tests on GitHub Actions, since Cloud Build cannot be keyless from GitHub.",
       "Configure Workload Identity Federation with an OIDC provider for GitHub, add an attribute condition restricting the repository and ref, and let the workflow exchange its GitHub OIDC token for short-lived Google credentials to impersonate the deployer service account."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Workload Identity Federation lets external identity providers such as GitHub's OIDC issuer authenticate to Google Cloud without keys: the workflow's OIDC token is exchanged for a short-lived federated token, an attribute condition (for example assertion.repository == 'org/repo' and assertion.ref == 'refs/heads/main') restricts which workflows may authenticate, and the token impersonates a least-privilege deployer service account. Option A merely guards the key with process. Option B still relies on a long-lived key. Option C is unnecessary — federation is designed exactly for this cross-platform case — and violates the contractual constraint.",
     "refs": [
       "https://cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines",
       "https://cloud.google.com/iam/docs/workload-identity-federation"
-    ]
+    ],
+    "hint": "Core Rule (Workload Identity Federation for CI/CD): Workload Identity Federation lets external identity providers such as GitHub's OIDC issuer authenticate to Google Cloud without keys: the workflow's OIDC token is exchanged for a short-lived federated token, an attribute condition (for example assertion.repository == 'org/repo' and assertion.ref == 'refs/heads/main') restricts which workflows may authenticate, and the token impersonates a least-privilege deployer service account.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Move the key into GitHub's environment-level secrets with required rev…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a short-lived key on each run using a long-lived master key hel…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Migrate the deployment stage to Cloud Build and keep only the tests on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-038",
@@ -266,12 +363,20 @@
       "Open a support case to have the 503 and 429 responses disabled for the project.",
       "Switch the uploads to a single multi-threaded burst at midnight so the job finishes before the errors appear."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Google APIs return 429/503 to signal overload or rate limiting, and the documented client behavior is truncated exponential backoff with random jitter, plus gradual ramp-up (Cloud Storage's request-rate guidelines) so the service can scale its index behind the bucket. The official client libraries implement this automatically and handle idempotency semantics, which is why they are the recommended access method. Option A keeps a tight retry storm that amplifies overload. Option C misunderstands the responses; they cannot be turned off. Option D increases burstiness and makes throttling more likely.",
     "refs": [
       "https://cloud.google.com/storage/docs/retry-strategy",
       "https://cloud.google.com/storage/docs/request-rate"
-    ]
+    ],
+    "hint": "Core Rule (Retries and exponential backoff): Google APIs return 429/503 to signal overload or rate limiting, and the documented client behavior is truncated exponential backoff with random jitter, plus gradual ramp-up (Cloud Storage's request-rate guidelines) so the service can scale its index behind the bucket.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the retry count to 1,000 and add a fixed 100 ms delay between…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Open a support case to have the 503 and 429 responses disabled for the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Switch the uploads to a single multi-threaded burst at midnight so the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-039",
@@ -287,12 +392,20 @@
       "Use the Cloud Client Libraries for Java, which handle authentication via ADC, retries with backoff, and use gRPC for high-throughput products such as Pub/Sub and Spanner; fall back to REST only where no library exists for your language.",
       "Call the APIs through gcloud commands invoked from the Java code with ProcessBuilder."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Google recommends the Cloud Client Libraries as the preferred way to call Google Cloud APIs: they integrate Application Default Credentials, implement idiomatic retries and exponential backoff, follow API best practices, and use gRPC where it improves performance (Pub/Sub streaming pull, Spanner sessions and streaming reads). REST is appropriate when a library is unavailable or for lightweight ad-hoc calls. Option A is wrong — hand-rolled REST is usually slower for these products and re-implements authentication and retries. Option B refers to older, discovery-based libraries that Google positions as a fallback where Cloud Client Libraries do not exist. Option D is an anti-pattern: shelling out to a CLI is brittle and slow.",
     "refs": [
       "https://cloud.google.com/apis/docs/client-libraries-explained",
       "https://cloud.google.com/apis/docs/cloud-client-libraries"
-    ]
+    ],
+    "hint": "Core Rule (Client libraries vs REST): Google recommends the Cloud Client Libraries as the preferred way to call Google Cloud APIs: they integrate Application Default Credentials, implement idiomatic retries and exponential backoff, follow API best practices, and use gRPC where it improves performance (Pub/Sub streaming pull, Spanner sessions and streaming reads).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Hand-write REST calls, because they are always faster than the client …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use the legacy Google API Client Libraries (discovery-based) because t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Call the APIs through gcloud commands invoked from the Java code with …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-040",
@@ -308,12 +421,20 @@
       "Restrict the API key to the Android application's package name and SHA-1 fingerprint and leave the architecture unchanged, since restricted keys cannot be abused.",
       "Embed a service account JSON key in the app instead of an API key because service accounts support IAM."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "API keys identify a project, not a user, and Google recommends them only for APIs serving public data or where quota attribution is the goal — not for authorizing billable, private operations from untrusted clients. Anything shipped in a mobile app must be assumed extractable, so the durable fix is to move the privileged call behind a backend that uses an attached service account (no key), authenticate users, add App Check to attest the calling app, and enforce quotas per user. Option B is security through obscurity. Option C — application restrictions — is a good hardening step for keys that must exist, but Android restrictions can be spoofed and the key still authorizes billable calls; it does not follow the recommended architecture. Option D is far worse: a service account key in an app is a full credential leak.",
     "refs": [
       "https://cloud.google.com/docs/authentication/api-keys",
       "https://cloud.google.com/docs/authentication/api-keys-best-practices"
-    ]
+    ],
+    "hint": "Core Rule (API keys usage): API keys identify a project, not a user, and Google recommends them only for APIs serving public data or where quota attribution is the goal — not for authorizing billable, private operations from untrusted clients.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Generate a new API key and obfuscate it in the APK using string encryp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Restrict the API key to the Android application's package name and SHA…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Embed a service account JSON key in the app instead of an API key beca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-041",
@@ -329,12 +450,20 @@
       "Install a proxy server with an external IP in the VPC and route API traffic through it.",
       "Enable Private Google Access on the VMs' subnet (and ensure a route to the default internet gateway or the private.googleapis.com range exists) so the VMs can reach Google APIs using internal IPs only."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Private Google Access is a subnet-level setting that lets VMs without external IPs reach Google APIs and services (Cloud Storage, BigQuery, etc.) over Google's network, with DNS optionally pointed at private.googleapis.com or restricted.googleapis.com. It requires no additional infrastructure and keeps the VMs off the internet. Option A violates the no-external-IP policy. Option B works technically but Cloud NAT is designed for internet egress and is unnecessary when only Google APIs are needed; PGA is the recommended, simpler path. Option C adds a self-managed component with a public IP.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-google-access",
       "https://cloud.google.com/vpc/docs/configure-private-google-access"
-    ]
+    ],
+    "hint": "Core Rule: Private Google Access is a subnet-level setting that lets VMs without external IPs reach Google APIs and services (Cloud Storage, BigQuery, etc.) over Google's network, with DNS optionally pointed at private.googleapis.com or restricted.googleapis.com.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Assign ephemeral external IP addresses to the VMs and restrict egress …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure Cloud NAT for the subnet so the VMs can reach googleapis.com…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Install a proxy server with an external IP in the VPC and route API tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-042",
@@ -350,12 +479,20 @@
       "Deploy an HTTPS forward proxy on Compute Engine with an internal IP and configure on-premises applications to use it.",
       "Use Cloud NAT so on-premises traffic can exit to the public googleapis.com endpoints."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Private Service Connect endpoints for Google APIs give you a private, customer-chosen internal IP address in your VPC that fronts Google APIs; choosing the vpc-sc bundle limits access to services supported by VPC Service Controls and keeps traffic inside the perimeter. That IP is routable over Interconnect via Cloud Router, and on-premises DNS overrides googleapis.com to the endpoint. Option A uses restricted.googleapis.com, a Google-owned public range, which the bank's firewall policy disallows. Option C introduces a self-managed proxy that bypasses PSC/VPC-SC integration and becomes a bottleneck. Option D is incorrect — Cloud NAT does not serve on-premises sources and would use public endpoints.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-service-connect#benefits-apis",
       "https://cloud.google.com/vpc/docs/configure-private-service-connect-apis"
-    ]
+    ],
+    "hint": "Core Rule (Private Service Connect for Google APIs): Private Service Connect endpoints for Google APIs give you a private, customer-chosen internal IP address in your VPC that fronts Google APIs; choosing the vpc-sc bundle limits access to services supported by VPC Service Controls and keeps traffic inside the perimeter.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable Private Google Access on a subnet and advertise 199.36.153.4/30…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy an HTTPS forward proxy on Compute Engine with an internal IP an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Cloud NAT so on-premises traffic can exit to the public googleapis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-043",
@@ -372,12 +509,21 @@
       "Disable automatic role grants for default service accounts (iam.automaticIamGrantsForDefaultServiceAccounts) and remove existing keys, enforcing iam.disableServiceAccountKeyCreation, so workloads rely on attached identities and short-lived tokens.",
       "Rename the default service account so scripts that depend on it break and must be reviewed."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Google's service account guidance is one identity per workload with least-privilege roles attached directly to the compute resource, so credentials are automatically managed and scoped. Organization policy constraints stop the default service account from receiving Editor automatically and block new key creation, while existing keys are removed after migrating workloads to attached identities. Option A still shares one identity across every workload and Viewer is both too broad for some and insufficient for others. Option C concentrates maximum privilege in a single shared identity. Option E is not possible (service account emails cannot be renamed) and is disruptive rather than corrective.",
     "refs": [
       "https://cloud.google.com/iam/docs/best-practices-service-accounts",
       "https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts"
-    ]
+    ],
+    "hint": "Core Rule (Service account best practices): Google's service account guidance is one identity per workload with least-privilege roles attached directly to the compute resource, so credentials are automatically managed and scoped.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep the default service account but downgrade it from Editor to Viewe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Move all workloads to a single new custom service account with Owner s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Rename the default service account so scripts that depend on it break …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-044",
@@ -394,13 +540,22 @@
       "Delete every service account in the organization and recreate only those requested by teams.",
       "Set the constraint iam.allowServiceAccountCredentialLifetimeExtension so keys expire automatically after one hour."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Organization policy constraints are hierarchical: enforcing disableServiceAccountKeyCreation at the organization root and overriding on a single exception folder gives organization-wide prevention with a controlled exception. Discovery and tracking of existing keys is done with Cloud Asset Inventory queries, Security Command Center findings for user-managed keys, and Policy Intelligence activity analyzers that show when a key was last used so unused keys can be removed safely. Option B is manual and unreliable. Option D would cause widespread outages. Option E misnames the constraint's purpose — it governs OAuth token lifetime extension, not key expiry (key expiry is set via the separate iam.serviceAccountKeyExpiryHours constraint).",
     "refs": [
       "https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys",
       "https://cloud.google.com/resource-manager/docs/organization-policy/restricting-service-accounts",
       "https://cloud.google.com/policy-intelligence/docs/activity-analyzer-service-account-authentication"
-    ]
+    ],
+    "hint": "Core Rule (Service account key governance): Organization policy constraints are hierarchical: enforcing disableServiceAccountKeyCreation at the organization root and overriding on a single exception folder gives organization-wide prevention with a controlled exception.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Ask every team to email a list of the keys they use and store the list…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Delete every service account in the organization and recreate only tho…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Set the constraint iam.allowServiceAccountCredentialLifetimeExtension …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-045",
@@ -416,12 +571,20 @@
       "Use Terraform only for new resources and leave the existing 150 resources unmanaged.",
       "Use gcloud beta resource-config bulk-export to generate Terraform configuration for the existing resources, then bring them under management with terraform import (or import blocks), and run terraform plan until it shows no changes."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "gcloud beta resource-config bulk-export (backed by Config Connector's resource model) generates HCL for existing Google Cloud resources across a project, folder, or organization; Terraform's import blocks or terraform import then associate those resources with state, and iterating until plan is clean confirms the code matches reality. Option A causes downtime and data loss risk for stateful resources such as Cloud SQL. Option B leads to unintended recreation and drift. Option C leaves critical infrastructure unmanaged, defeating the goal.",
     "refs": [
       "https://cloud.google.com/docs/terraform/resource-management/import",
       "https://cloud.google.com/sdk/gcloud/reference/beta/resource-config/bulk-export"
-    ]
+    ],
+    "hint": "Core Rule (Importing existing resources into Terraform): gcloud beta resource-config bulk-export (backed by Config Connector's resource model) generates HCL for existing Google Cloud resources across a project, folder, or organization; Terraform's import blocks or terraform import then associate those resources with state, and iterating until plan is clean confirms the code matches reality.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Destroy the existing resources during a maintenance window and recreat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Write the resource blocks manually from console screenshots and run te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Terraform only for new resources and leave the existing 150 resour…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-046",
@@ -439,13 +602,23 @@
       "Remove the API key fallback entirely, since API keys do not authenticate a principal and are inappropriate for IAM-protected services; implement truncated exponential backoff with jitter for retryable errors.",
       "Grant the pod's identity the Owner role on the project to avoid permission errors during development."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "Google's guidance for workloads on Google Cloud is: authenticate with the attached identity (Workload Identity Federation on GKE) through ADC instead of downloadable keys; use the Cloud Client Libraries, which encapsulate auth, transport, and retry best practices; retry only retryable errors with truncated exponential backoff and jitter; and use API keys only for public-data APIs or quota attribution, never as an authentication fallback for IAM-protected services. Option B does not remove the long-lived key (base64 is not encryption). Option D keeps an aggressive retry pattern that amplifies overload. Option F violates least privilege.",
     "refs": [
       "https://cloud.google.com/docs/authentication",
       "https://cloud.google.com/apis/docs/cloud-client-libraries",
       "https://cloud.google.com/docs/authentication/api-keys"
-    ]
+    ],
+    "hint": "Core Rule (Accessing Google APIs best practices): Google's guidance for workloads on Google Cloud is: authenticate with the attached identity (Workload Identity Federation on GKE) through ADC instead of downloadable keys; use the Cloud Client Libraries, which encapsulate auth, transport, and retry best practices; retry only retryable errors with truncated exponential backoff and jitter; and use API keys only for public-data APIs or quota attribution, never as an authentication fallback for IAM-protected services.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Keep the key but move it from a ConfigMap to a Kubernetes Secret, sinc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Add a fixed 50 ms delay between the five immediate retries.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (Grant the pod's identity the Owner role on the project to avoid permis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-047",
@@ -461,12 +634,20 @@
       "Store the password in a variables.tf default value so it is versioned alongside the code.",
       "Use terraform state rm after every apply to remove the password from state."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Terraform state can contain sensitive values, so Google's guidance is to protect the state bucket (IAM, CMEK, versioning) and to keep secrets out of logs and code: mark values as sensitive, prefer ephemeral/write-only arguments where available so the value is not persisted, hand the secret to Secret Manager, and let applications retrieve it at runtime with their attached identity. Option A exposes the secret in build logs and encourages copying it into other configurations. Option C commits a secret to source control. Option D breaks Terraform's ability to manage the resource and must be repeated after every apply.",
     "refs": [
       "https://cloud.google.com/docs/terraform/best-practices/security",
       "https://cloud.google.com/secret-manager/docs/best-practices"
-    ]
+    ],
+    "hint": "Core Rule (Secrets in Terraform): Terraform state can contain sensitive values, so Google's guidance is to protect the state bucket (IAM, CMEK, versioning) and to keep secrets out of logs and code: mark values as sensitive, prefer ephemeral/write-only arguments where available so the value is not persisted, hand the secret to Secret Manager, and let applications retrieve it at runtime with their attached identity.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Print the password as a Terraform output so teams can copy it from the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Store the password in a variables.tf default value so it is versioned …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use terraform state rm after every apply to remove the password from s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-048",
@@ -482,12 +663,20 @@
       "Enable Cloud Audit Logs and rely on replaying admin activity logs to recreate resources.",
       "Export a billing report each month so the list of resources is documented."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Infrastructure as code is the foundation of the operational excellence pillar: declarative Terraform in version control gives a reproducible definition of the environment, pull requests provide review and history, and a pipeline ensures the code is the only path for changes, so rebuilding in a new project becomes an apply. Option A documents but cannot rebuild anything. Option C is useful for forensics but audit logs are not replayable provisioning instructions. Option D lists SKUs, not configurations.",
     "refs": [
       "https://cloud.google.com/docs/terraform",
       "https://cloud.google.com/architecture/framework/operational-excellence"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure as Code adoption): Infrastructure as code is the foundation of the operational excellence pillar: declarative Terraform in version control gives a reproducible definition of the environment, pull requests provide review and history, and a pipeline ensures the code is the only path for changes, so rebuilding in a new project becomes an apply.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Take weekly screenshots of every console page and store them in Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable Cloud Audit Logs and rely on replaying admin activity logs to r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export a billing report each month so the list of resources is documen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-049",
@@ -503,12 +692,20 @@
       "Switch all read-write transactions to stale reads so they cannot be aborted.",
       "Catch ABORTED and return a success response to the user, then run a nightly job to repair inconsistencies."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "In Spanner, ABORTED is an expected outcome of its optimistic concurrency control under contention; the Cloud Client Libraries' transaction runners detect it and retry the whole transaction function with backoff, which is why Google recommends using them rather than hand-written loops. Because the function may execute multiple times, it must be idempotent and must not perform non-transactional side effects like sending email — those belong after a successful commit. Option B misreads the error; aborts are about contention, not capacity. Option C changes semantics — stale reads cannot perform writes. Option D lies to the user and creates data inconsistency.",
     "refs": [
       "https://cloud.google.com/spanner/docs/transactions#rw_transaction_semantics",
       "https://cloud.google.com/spanner/docs/reference/rest/v1/Code"
-    ]
+    ],
+    "hint": "Core Rule (Client library transaction retries): In Spanner, ABORTED is an expected outcome of its optimistic concurrency control under contention; the Cloud Client Libraries' transaction runners detect it and retry the whole transaction function with backoff, which is why Google recommends using them rather than hand-written loops.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Increase Spanner processing units until ABORTED errors disappear, sinc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Switch all read-write transactions to stale reads so they cannot be ab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Catch ABORTED and return a success response to the user, then run a ni…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-prg-050",
@@ -524,11 +721,19 @@
       "Implement the three-legged OAuth 2.0 authorization code flow with the narrowest Drive scope needed (for example drive.file or drive.readonly), store refresh tokens securely (Secret Manager or encrypted database), and call the Drive API on behalf of the consenting user.",
       "Ask users to share their Drive folders with the service account's email address."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Accessing a user's own data requires the user's consent, which is what OAuth 2.0 (three-legged, user-delegated) provides; the application requests only the minimum scopes (scopes govern what a user token may do, while IAM governs Google Cloud resource permissions) and uses the resulting tokens on the user's behalf. Option A is wrong because a service account has no access to user Drive data and ADC does not represent the end user. Option B is for Google Workspace administrators to authorize organization-wide access to all users' data — overly broad and inappropriate for a consumer app. Option D is a workaround that breaks the requirement of per-user consented access and leaks data to a shared identity.",
     "refs": [
       "https://cloud.google.com/docs/authentication#user-accounts",
       "https://developers.google.com/identity/protocols/oauth2/web-server"
-    ]
+    ],
+    "hint": "Core Rule (OAuth 2.0 user consent vs service accounts): Accessing a user's own data requires the user's consent, which is what OAuth 2.0 (three-legged, user-delegated) provides; the application requests only the minimum scopes (scopes govern what a user token may do, while IAM governs Google Cloud resource permissions) and uses the resulting tokens on the user's behalf.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use the Cloud Run service's attached service account and grant it Driv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Enable domain-wide delegation for a service account so it can read any…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask users to share their Drive folders with the service account's emai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

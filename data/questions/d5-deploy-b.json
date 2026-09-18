@@ -13,12 +13,20 @@
       "Write a Dataflow pipeline with the JDBC-to-BigQuery template to copy the tables into Cloud SQL and switch over when the pipeline completes.",
       "Export each table to CSV with SELECT INTO OUTFILE, use Storage Transfer Service to move the files, and load them into Cloud SQL with gcloud sql import csv."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Database Migration Service (DMS) is the managed, serverless path for MySQL to Cloud SQL: a continuous migration job performs the initial dump/load and then streams binary-log changes so the Cloud SQL instance stays in sync; you can inspect and test the replica, then promote it in a cutover that only requires stopping writes for the few minutes needed to drain replication lag. Option A's one-time dump of 2 TB would take hours of write downtime, exceeding the 15-minute limit. Option C misuses a BigQuery template (and Dataflow is not a database-migration tool with CDC to Cloud SQL). Option D is manual, error-prone, and also incurs long downtime with no change replication.",
     "refs": [
       "https://cloud.google.com/database-migration/docs/mysql/quickstart",
       "https://cloud.google.com/database-migration/docs/mysql/migration-job-statuses"
-    ]
+    ],
+    "hint": "Core Rule: Database Migration Service (DMS) is the managed, serverless path for MySQL to Cloud SQL: a continuous migration job performs the initial dump/load and then streams binary-log changes so the Cloud SQL instance stays in sync; you can inspect and test the replica, then promote it in a cutover that only requires stopping writes for the few minutes needed to drain replication lag.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Take a mysqldump during a maintenance window, upload it to Cloud Stora…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Write a Dataflow pipeline with the JDBC-to-BigQuery template to copy t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export each table to CSV with SELECT INTO OUTFILE, use Storage Transfe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-027",
@@ -34,12 +42,20 @@
       "Use Datastream to stream Oracle changes to Cloud Storage and write a Dataflow job that transforms and inserts the rows into AlloyDB.",
       "Use Database Migration Service for Oracle to AlloyDB: create a conversion workspace (with Gemini-assisted conversion) to translate the schema and code, review and fix issues, then run a continuous migration job with CDC and cut over."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "DMS supports heterogeneous Oracle to PostgreSQL/AlloyDB migrations end to end. Its conversion workspace converts DDL and stored code, flags objects needing manual attention, and offers Gemini-assisted code conversion and explanation to help teams without deep PostgreSQL skills; the migration job then does an initial load plus continuous CDC via Oracle logs so downtime is limited to the cutover. Option A does not address the Oracle-to-PostgreSQL conversion at all (pg_dump cannot read Oracle). Option B is manual, slow for hundreds of packages, and requires full downtime. Option C is a plausible custom CDC pipeline, but it still leaves schema/PL-SQL conversion unsolved and requires building and operating Dataflow code, which is more overhead than the managed DMS path.",
     "refs": [
       "https://cloud.google.com/database-migration/docs/oracle-to-alloydb/quickstart",
       "https://cloud.google.com/database-migration/docs/oracle-to-alloydb/conversion-workspace"
-    ]
+    ],
+    "hint": "Core Rule (Heterogeneous database migration): DMS supports heterogeneous Oracle to PostgreSQL/AlloyDB migrations end to end.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use Migrate to Virtual Machines to lift the Oracle VM into Compute Eng…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Export the Oracle schema with Data Pump, hand-translate the DDL to Pos…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Datastream to stream Oracle changes to Cloud Storage and write a D…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-028",
@@ -55,12 +71,20 @@
       "Use BigQuery federated queries against Cloud SQL and build the dashboards directly on the federated views.",
       "Enable Cloud SQL automatic backups and use the BigQuery Data Transfer Service to load each backup file as it is created."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Datastream is a serverless change data capture service that reads the PostgreSQL logical replication slot and writes changes directly into BigQuery with a configurable staleness (as low as seconds), handling upserts and deletes without any code to operate. Option B is a batch approach; per-minute full exports do not scale, stress the source, and cannot capture deletes without extra logic. Option C queries the operational database on every dashboard load, which affects production performance and does not scale for analytics. Option D is not a supported pattern — the BigQuery Data Transfer Service does not ingest Cloud SQL backups, and backups are far too infrequent for near-real-time needs.",
     "refs": [
       "https://cloud.google.com/datastream/docs/overview",
       "https://cloud.google.com/datastream/docs/quickstart-replication-to-bigquery"
-    ]
+    ],
+    "hint": "Core Rule (Datastream CDC): Datastream is a serverless change data capture service that reads the PostgreSQL logical replication slot and writes changes directly into BigQuery with a configurable staleness (as low as seconds), handling upserts and deletes without any code to operate.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Schedule a Cloud Composer DAG that runs every minute to run a full exp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use BigQuery federated queries against Cloud SQL and build the dashboa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable Cloud SQL automatic backups and use the BigQuery Data Transfer …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-029",
@@ -76,12 +100,20 @@
       "Deploy the Migrate to Virtual Machines connector in vSphere, replicate the VMs continuously to Google Cloud, launch test-clones for validation, and perform cut-over when ready.",
       "Use Transfer Appliance to ship the VMDK files to Google, then create disks from the files and boot them."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Migrate to Virtual Machines (part of Migration Center) is Google's tool for lift-and-shift: an on-premises connector continuously replicates VM disks to Google Cloud while the source stays running, you can launch a test-clone in an isolated network to validate the workload without affecting the source, and cut-over performs a final incremental sync so downtime is a short reboot. Option A is a one-time image import requiring the VM to be shut down for the export/upload of the full disk, giving long downtime and no repeatable test. Option B changes the applications' build process and is a large project when applications cannot be modified. Option D moves bulk data but provides no replication, test clone, or short cutover — VMs would be stale by the time the appliance arrives.",
     "refs": [
       "https://cloud.google.com/migrate/virtual-machines/docs/5.0/discover/migration-lifecycle",
       "https://cloud.google.com/migrate/virtual-machines/docs/5.0/migrate/test-clone"
-    ]
+    ],
+    "hint": "Core Rule: Migrate to Virtual Machines (part of Migration Center) is Google's tool for lift-and-shift: an on-premises connector continuously replicates VM disks to Google Cloud while the source stays running, you can launch a test-clone in an isolated network to validate the workload without affecting the source, and cut-over performs a final incremental sync so downtime is a short reboot.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Export each VM as an OVA file, upload it to Cloud Storage, and import …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rebuild each server from scratch on Compute Engine using Packer and a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Transfer Appliance to ship the VMDK files to Google, then create d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-030",
@@ -97,12 +129,20 @@
       "Use Migrate to Virtual Machines to move the VMs to Compute Engine and run them there indefinitely, since the source code cannot change.",
       "Package each VM's full disk as a container image with docker import and run the resulting images as privileged pods on GKE."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Migrate to Containers (M2C) is designed for exactly this workload: it discovers the application on the VM, extracts the application artifacts and runtime, and generates a Dockerfile, container image, and Kubernetes deployment specs — with specific plugins for Tomcat, WebSphere, JBoss, and Linux/Windows IIS apps — so no source changes are required and the OS layer is no longer yours to patch. Option A is a rewrite that is impossible without source access and exceeds the timeline. Option C keeps VM patching effort, missing the primary goal. Option D produces huge, insecure privileged containers that include the whole OS and init system, which is an anti-pattern rather than modernization.",
     "refs": [
       "https://cloud.google.com/migrate/containers/docs/m2c-cli/migrate-tomcat",
       "https://cloud.google.com/migrate/containers/docs/getting-started"
-    ]
+    ],
+    "hint": "Core Rule: Migrate to Containers (M2C) is designed for exactly this workload: it discovers the application on the VM, extracts the application artifacts and runtime, and generates a Dockerfile, container image, and Kubernetes deployment specs — with specific plugins for Tomcat, WebSphere, JBoss, and Linux/Windows IIS apps — so no source changes are required and the OS layer is no longer yours to patch.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rewrite each application as Spring Boot microservices and deploy them …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Migrate to Virtual Machines to move the VMs to Compute Engine and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Package each VM's full disk as a container image with docker import an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-031",
@@ -118,12 +158,20 @@
       "Order a Partner Interconnect connection and use it to transfer the data once it is provisioned.",
       "Order Transfer Appliances, copy the data locally to the appliances, and ship them to Google for upload into the Cloud Storage bucket."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "At 100 Mbps, even with 100% utilization, 800 TB would take roughly two years to upload, so any network-based approach (options A and B) cannot meet a four-week deadline. Transfer Appliance is Google's offline transfer service for exactly this situation: high-capacity, tamper-evident appliances are shipped to you, filled at local network speed, and returned for Google to load into your bucket, typically within weeks. Option C — provisioning an Interconnect — usually takes weeks by itself and would still need a very high-bandwidth link to move 800 TB in the remaining time; it also becomes an ongoing cost for a one-time transfer.",
     "refs": [
       "https://cloud.google.com/transfer-appliance/docs/4.0/overview",
       "https://cloud.google.com/architecture/migration-to-google-cloud-transferring-your-large-datasets"
-    ]
+    ],
+    "hint": "Core Rule (Transfer Appliance): At 100 Mbps, even with 100% utilization, 800 TB would take roughly two years to upload, so any network-based approach (options A and B) cannot meet a four-week deadline.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run gcloud storage rsync from several workstations in parallel over th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Set up Storage Transfer Service with on-premises agents and throttle b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Order a Partner Interconnect connection and use it to transfer the dat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-032",
@@ -139,12 +187,20 @@
       "Deploy a Dataflow streaming pipeline that lists the S3 bucket continuously and copies new objects to Cloud Storage.",
       "Ask the partner to ship a Transfer Appliance each week containing the new objects."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Storage Transfer Service is the managed service for cloud-to-cloud transfers: it natively supports S3 as a source, hourly (or more frequent) schedules, incremental transfers based on object metadata, automatic retries, filtering, and Pub/Sub notifications on completion — with no infrastructure to manage. Option B works but relies on a VM you must patch and monitor, and the process is single-threaded and fragile at this volume. Option C is custom code for a problem that already has a managed solution and would be more expensive to run continuously. Option D is an offline method suited to one-time bulk moves, not hourly ongoing sync.",
     "refs": [
       "https://cloud.google.com/storage-transfer/docs/overview",
       "https://cloud.google.com/storage-transfer/docs/create-transfers"
-    ]
+    ],
+    "hint": "Core Rule: Storage Transfer Service is the managed service for cloud-to-cloud transfers: it natively supports S3 as a source, hourly (or more frequent) schedules, incremental transfers based on object metadata, automatic retries, filtering, and Pub/Sub notifications on completion — with no infrastructure to manage.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Run a cron job on a Compute Engine VM that executes gcloud storage rsy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy a Dataflow streaming pipeline that lists the S3 bucket continuo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask the partner to ship a Transfer Appliance each week containing the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-033",
@@ -160,12 +216,20 @@
       "Use the BigQuery Data Transfer Service for Teradata, installing the on-premises migration agent that extracts tables, stages them in Cloud Storage, and loads them into BigQuery on a schedule with incremental support.",
       "Use Storage Transfer Service to copy Teradata's backup files into Cloud Storage and query them with BigQuery external tables."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The BigQuery Data Transfer Service includes a Teradata connector: a migration agent runs on-premises, extracts data via Teradata utilities, stages it in Cloud Storage, creates BigQuery tables with schema conversion (optionally with a custom schema file), and supports scheduled incremental transfers for coexistence periods — exactly the managed, low-code path required. Option A is manual and fragile at 60 TB and provides no incremental support. Option B is incorrect because Datastream does not support Teradata as a source. Option D fails because BigQuery cannot read Teradata's proprietary backup format via external tables.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/migration/teradata-overview",
       "https://cloud.google.com/bigquery/docs/dts-introduction"
-    ]
+    ],
+    "hint": "Core Rule: The BigQuery Data Transfer Service includes a Teradata connector: a migration agent runs on-premises, extracts data via Teradata utilities, stages it in Cloud Storage, creates BigQuery tables with schema conversion (optionally with a custom schema file), and supports scheduled incremental transfers for coexistence periods — exactly the managed, low-code path required.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Export every Teradata table to CSV manually and load the files with bq…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use Datastream with Teradata as the source to stream changes into BigQ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Storage Transfer Service to copy Teradata's backup files into Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-034",
@@ -181,12 +245,20 @@
       "Create a Cloud Run function triggered by each message that calls the BigQuery streaming insert API row by row.",
       "Schedule a Cloud Composer DAG that pulls messages every five minutes and runs bq load on the batch."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Google-provided Dataflow templates let you run common pipelines such as Pub/Sub to BigQuery by supplying parameters in the console or gcloud, with no Beam code; for this simple case, a Pub/Sub BigQuery subscription achieves the same with even less infrastructure. Both are Google-recommended, low-ops answers. Option A requires learning Beam and maintaining code, contradicting the constraint. Option C works but creates a function invocation per message and handles retries, dead-lettering, and batching poorly at IoT scale. Option D introduces latency of minutes and an orchestration service that is unnecessary for streaming ingestion.",
     "refs": [
       "https://cloud.google.com/dataflow/docs/guides/templates/provided/pubsub-to-bigquery",
       "https://cloud.google.com/pubsub/docs/bigquery"
-    ]
+    ],
+    "hint": "Core Rule: Google-provided Dataflow templates let you run common pipelines such as Pub/Sub to BigQuery by supplying parameters in the console or gcloud, with no Beam code; for this simple case, a Pub/Sub BigQuery subscription achieves the same with even less infrastructure.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Write a custom Apache Beam pipeline in Java, containerize it, and run …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a Cloud Run function triggered by each message that calls the B…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Schedule a Cloud Composer DAG that pulls messages every five minutes a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-035",
@@ -202,12 +274,20 @@
       "Ask each application owner to fill in a spreadsheet of CPU, memory, and disk sizes and use the Google Cloud pricing calculator for each server.",
       "Run a Dataflow job to parse hypervisor logs into BigQuery and build your own utilization dashboards in Looker Studio."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Migration Center is Google Cloud's unified assessment and planning service: its discovery client (or file imports from RVTools, CMDBs, or other tools) collects inventory and time-series utilization, it can map dependencies, and it produces right-sized machine recommendations plus TCO and cost estimate reports so you can group assets into migration waves. Option B skips assessment and risks poor sizing and missed dependencies. Option C is manual, error-prone, and uses nominal rather than observed utilization, leading to over-provisioning. Option D reinvents tooling that the managed service already provides.",
     "refs": [
       "https://cloud.google.com/migration-center/docs/migration-center-overview",
       "https://cloud.google.com/migration-center/docs/discovery-client-overview"
-    ]
+    ],
+    "hint": "Core Rule: Migration Center is Google Cloud's unified assessment and planning service: its discovery client (or file imports from RVTools, CMDBs, or other tools) collects inventory and time-series utilization, it can map dependencies, and it produces right-sized machine recommendations plus TCO and cost estimate reports so you can group assets into migration waves.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Start migrating the least critical servers with Migrate to Virtual Mac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Ask each application owner to fill in a spreadsheet of CPU, memory, an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run a Dataflow job to parse hypervisor logs into BigQuery and build yo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-036",
@@ -223,12 +303,20 @@
       "Deploy VMware Engine in a Google Cloud region and use the existing vSphere tooling to move VMs via VMware HCX, then evaluate re-platforming individual workloads later.",
       "Deploy the vSphere environment on Compute Engine VMs with nested virtualization and migrate the workloads onto it."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Google Cloud VMware Engine provides a fully managed, native VMware SDDC (vSphere, vSAN, NSX-T, HCX) in Google Cloud. It preserves vMotion, distributed switching, and vCenter-integrated third-party tools, and HCX enables bulk or live migrations with minimal change — the fastest, lowest-risk way to meet a hard exit deadline with an existing VMware-skilled team. Option A is a modernization project that is unrealistic for 400 VMs in five months. Option B is feasible but drops vSphere-specific features and requires retraining under time pressure. Option D — nested virtualization — is unsupported for production vSphere and not a Google-recommended pattern.",
     "refs": [
       "https://cloud.google.com/vmware-engine/docs/overview",
       "https://cloud.google.com/vmware-engine/docs/workloads/howto-migrate-vms-using-hcx"
-    ]
+    ],
+    "hint": "Core Rule: Google Cloud VMware Engine provides a fully managed, native VMware SDDC (vSphere, vSAN, NSX-T, HCX) in Google Cloud.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use Migrate to Containers to convert the VMs into containers and run t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use Migrate to Virtual Machines to convert every VM to Compute Engine …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the vSphere environment on Compute Engine VMs with nested virtu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-037",
@@ -245,12 +333,21 @@
       "After promoting Cloud SQL, configure reverse replication from Cloud SQL back to the on-premises PostgreSQL instance and keep it running during the 48-hour observation window.",
       "Run the application against both databases simultaneously with dual writes from the application code for 48 hours."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "A safe cutover pairs a fast repointing mechanism with data continuity in reverse. Externalizing the connection endpoint (low DNS TTL, configuration in Secret Manager, or a proxy) makes switching back an operational step rather than a redeploy. Reverse replication from the new primary (Cloud SQL) to the old on-premises instance keeps the legacy database current, so rolling back does not lose transactions committed in Google Cloud — Google's migration guidance explicitly recommends this for the observation period. Option A destroys the rollback target. Option C explicitly loses post-cutover transactions, violating the requirement. Option E (dual writes) introduces consistency problems and requires application changes; it is an anti-pattern compared to replication.",
     "refs": [
       "https://cloud.google.com/architecture/database-migration-concepts-principles-part-2",
       "https://cloud.google.com/database-migration/docs/postgres/promote-migration"
-    ]
+    ],
+    "hint": "Core Rule (Cutover and rollback strategy): A safe cutover pairs a fast repointing mechanism with data continuity in reverse.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Delete the on-premises database immediately after promotion to prevent…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Plan to restore the latest on-premises backup taken before cutover if …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Run the application against both databases simultaneously with dual wr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-038",
@@ -266,12 +363,20 @@
       "Run the Firestore emulator in a Cloud Build step (using the gcloud builder with the emulators component) and point the tests at it with the FIRESTORE_EMULATOR_HOST environment variable.",
       "Mock every Firestore client call in the unit tests so no database, real or emulated, is required."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The Firestore emulator provides a local, in-memory implementation that the official client libraries automatically target when FIRESTORE_EMULATOR_HOST is set, so each build gets an isolated, fast, no-cost datastore with no changes to application logic beyond configuration. This is the Google-recommended approach for CI. Option A still shares state across concurrent builds by the same developer and creates cloud resources to manage. Option B does not fix concurrency (parallel builds still collide) and still depends on network access and IAM. Option D is valid for pure unit tests, but rewriting every test to use mocks is a significant change and loses coverage of actual query semantics that the emulator provides.",
     "refs": [
       "https://cloud.google.com/firestore/docs/emulator",
       "https://cloud.google.com/build/docs/configuring-builds/run-bash-scripts"
-    ]
+    ],
+    "hint": "Core Rule (Testing in CI): The Firestore emulator provides a local, in-memory implementation that the official client libraries automatically target when FIRESTORE_EMULATOR_HOST is set, so each build gets an isolated, fast, no-cost datastore with no changes to application logic beyond configuration.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a separate Firestore database per developer and pass the databa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add a build step that deletes all Firestore collections before the tes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Mock every Firestore client call in the unit tests so no database, rea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-039",
@@ -287,12 +392,20 @@
       "Run unit and integration tests with a higher concurrency setting in Cloud Build to simulate additional load.",
       "Increase Cloud SQL to the largest machine type and the GKE node pool maximum, and rely on autoscaling instead of testing."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Meaningful load testing requires a load generator that can itself scale (distributed Locust or k6 workers on GKE), realistic scenarios rather than a single URL, and a target environment that mirrors production sizing and configuration — including database connection limits and cache sizing, which is exactly where last year's failure hid. Ramping load stepwise while watching golden signals and saturation metrics in Cloud Monitoring identifies the next bottleneck. Option A's single Cloud Shell client cannot generate 20x traffic and testing on production risks customer impact. Option C conflates functional tests with performance tests. Option D is over-provisioning without evidence, is costly, and does not address pool or configuration limits that autoscaling cannot fix.",
     "refs": [
       "https://cloud.google.com/architecture/distributed-load-testing-using-gke",
       "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
-    ]
+    ],
+    "hint": "Core Rule: Meaningful load testing requires a load generator that can itself scale (distributed Locust or k6 workers on GKE), realistic scenarios rather than a single URL, and a target environment that mirrors production sizing and configuration — including database connection limits and cache sizing, which is exactly where last year's failure hid.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run Apache Bench from a single Cloud Shell session against production …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run unit and integration tests with a higher concurrency setting in Cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Increase Cloud SQL to the largest machine type and the GKE node pool m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-040",
@@ -308,12 +421,20 @@
       "Freeze the Pricing API and require a change-advisory board meeting for every modification.",
       "Introduce consumer-driven contract tests (for example Pact): the Booking team publishes the interactions it relies on, and the Pricing team's Cloud Build pipeline verifies the provider against those contracts on every change."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Consumer-driven contract testing verifies, in seconds and without deploying both services, that the provider still satisfies the exact requests and response shapes the consumer relies on; it fits naturally in each team's Cloud Build pipeline and gives immediate feedback on breaking changes. Option A pushes a slow, brittle end-to-end suite into every PR, which increases lead time and flakiness. Option B couples services through a shared database, an anti-pattern for microservices. Option C adds process overhead and slows delivery rather than providing automated validation, contrary to the operational excellence pillar's emphasis on automation.",
     "refs": [
       "https://cloud.google.com/architecture/microservices-architecture-interservice-communication",
       "https://cloud.google.com/architecture/devops/devops-tech-test-automation"
-    ]
+    ],
+    "hint": "Core Rule: Consumer-driven contract testing verifies, in seconds and without deploying both services, that the provider still satisfies the exact requests and response shapes the consumer relies on; it fits naturally in each team's Cloud Build pipeline and gives immediate feedback on breaking changes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Require the Pricing team to run the two-hour end-to-end suite on every…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Have both services share a single Cloud SQL database so that schema ch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Freeze the Pricing API and require a change-advisory board meeting for…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-041",
@@ -329,12 +450,20 @@
       "Configure a Cloud Monitoring alerting policy that pages the engineer more loudly when the error rate rises during a rollout.",
       "Lower the first canary phase to 1% so that any regression affects fewer users and manual verification becomes less important."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Cloud Deploy supports deployment verification: a verify phase runs a user-defined container after each canary phase, and a non-zero exit fails the rollout (which can trigger automatic rollback). Querying Cloud Monitoring SLIs from that container turns manual dashboard watching into automated canary analysis, and Cloud Deploy automation rules can advance phases when verification passes. Option B removes the managed progressive-delivery capabilities and replaces them with a timer, not analysis. Option C keeps a human in the loop, which is the failure mode described. Option D reduces blast radius but still promotes bad releases when no one checks.",
     "refs": [
       "https://cloud.google.com/deploy/docs/verify-deployment",
       "https://cloud.google.com/deploy/docs/automation"
-    ]
+    ],
+    "hint": "Core Rule (Canary analysis): Cloud Deploy supports deployment verification: a verify phase runs a user-defined container after each canary phase, and a non-zero exit fails the rollout (which can trigger automatic rollback).",
+    "whyWrong": {
+      "1": "Incorrect distractor (Replace Cloud Deploy with a Cloud Build pipeline that applies manifest…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure a Cloud Monitoring alerting policy that pages the engineer m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Lower the first canary phase to 1% so that any regression affects fewe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-042",
@@ -351,12 +480,21 @@
       "Increase the size of the shared staging environment so more tests can run at once without interfering.",
       "Run all integration tests against production behind a feature flag to guarantee parity."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Ephemeral environments solve isolation and drift together: provisioning them from the same versioned Terraform modules used for production ensures parity, and creating them per pull request removes cross-test interference. Tearing them down at the end of the pipeline, with a safety-net cleanup schedule and cost labels, controls spend and provides FinOps visibility — the cost optimization pillar in action. Option B addresses the symptom with excessive privilege. Option D increases cost and does not address interference or drift. Option E risks production data and stability and is not an acceptable test practice.",
     "refs": [
       "https://cloud.google.com/docs/terraform/best-practices/general-style-structure",
       "https://cloud.google.com/architecture/devops/devops-tech-test-environments"
-    ]
+    ],
+    "hint": "Core Rule (Ephemeral test environments): Ephemeral environments solve isolation and drift together: provisioning them from the same versioned Terraform modules used for production ensures parity, and creating them per pull request removes cross-test interference.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Give each developer Owner on the staging project so they can fix confl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Increase the size of the shared staging environment so more tests can …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Run all integration tests against production behind a feature flag to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-043",
@@ -372,12 +510,20 @@
       "Replace all automated tests with a mandatory manual QA sign-off before each deployment.",
       "Run the end-to-end suite in parallel across 20 Cloud Build workers on every commit to bring feedback time under 15 minutes."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The test pyramid (favored in Google's DevOps and SRE guidance) puts the bulk of coverage in fast, deterministic unit tests that give feedback in seconds to minutes, complements them with a moderate number of integration tests (using emulators, containers, or fakes), and reserves slow, brittle end-to-end tests for a few high-value paths. Option B still leaves a one-hour, flaky feedback loop. Option C removes automation, slowing delivery and reducing reliability. Option D throws compute at the problem, is costly, and does not address the intermittent failures inherent in large end-to-end suites.",
     "refs": [
       "https://cloud.google.com/architecture/devops/devops-tech-test-automation",
       "https://cloud.google.com/architecture/framework/operational-excellence"
-    ]
+    ],
+    "hint": "Core Rule (Test strategy): The test pyramid (favored in Google's DevOps and SRE guidance) puts the bulk of coverage in fast, deterministic unit tests that give feedback in seconds to minutes, complements them with a moderate number of integration tests (using emulators, containers, or fakes), and reserves slow, brittle end-to-end tests for a few high-value paths.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Keep only the end-to-end suite but run it on a larger Cloud Build mach…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Replace all automated tests with a mandatory manual QA sign-off before…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run the end-to-end suite in parallel across 20 Cloud Build workers on …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-044",
@@ -393,12 +539,20 @@
       "Export all cluster logs to BigQuery and write SQL queries to search for error messages.",
       "Start a Gemini Cloud Assist investigation from the failing resource in the console, which correlates logs, events, configuration changes, and metrics and proposes ranked hypotheses and remediation steps in natural language."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Gemini Cloud Assist investigations (Cloud Assist Investigations) can be launched from an alert, log entry, or resource; they automatically gather relevant logs, Kubernetes events, recent configuration changes, and metrics, then present likely causes with suggested fixes in natural language, which is well suited to an engineer who does not yet know the query languages. Option A is slow for a first step and Customer Care would ask for the same diagnostic data. Option B is destructive and disproportionate to a single failing Deployment. Option C is valid for deep analysis but requires SQL skills and time that the engineer does not have during an incident.",
     "refs": [
       "https://cloud.google.com/gemini/docs/cloud-assist/investigations",
       "https://cloud.google.com/gemini/docs/cloud-assist/overview"
-    ]
+    ],
+    "hint": "Core Rule (Gemini Cloud Assist troubleshooting): Gemini Cloud Assist investigations (Cloud Assist Investigations) can be launched from an alert, log entry, or resource; they automatically gather relevant logs, Kubernetes events, recent configuration changes, and metrics, then present likely causes with suggested fixes in natural language, which is well suited to an engineer who does not yet know the query languages.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Open a P1 support case with Google Cloud Customer Care and wait for th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Delete and recreate the GKE cluster from the Terraform configuration t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Export all cluster logs to BigQuery and write SQL queries to search fo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-045",
@@ -415,12 +569,21 @@
       "Delete every VM that has not been touched in 30 days without further review, since idle resources are the most likely cause.",
       "Move all workloads to Spot VMs immediately to offset the increase."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "FinOps hub aggregates Active Assist recommendations (idle VMs, oversized disks, committed use discount opportunities) and utilization insights across the billing account with a FinOps score, giving a cross-project view without custom dashboards. Gemini Cloud Assist adds a natural-language interface to cost and billing data — you can ask what drove the increase and receive explanations and optimization suggestions. Option B disables the very source of savings recommendations and Recommender APIs have no meaningful cost. Option D is destructive without validation; recommendations should be reviewed before action. Option E is a blanket change that is unsafe for stateful or fault-intolerant workloads and does not diagnose the root cause.",
     "refs": [
       "https://cloud.google.com/billing/docs/how-to/finops-hub",
       "https://cloud.google.com/gemini/docs/cloud-assist/overview"
-    ]
+    ],
+    "hint": "Core Rule (Gemini Cloud Assist cost insights): FinOps hub aggregates Active Assist recommendations (idle VMs, oversized disks, committed use discount opportunities) and utilization insights across the billing account with a FinOps score, giving a cross-project view without custom dashboards.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Disable all Recommender APIs to stop the recommendation engine from co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Delete every VM that has not been touched in 30 days without further r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Move all workloads to Spot VMs immediately to offset the increase.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-046",
@@ -436,12 +599,20 @@
       "Gemini Code Assist (Enterprise edition) with code customization connected to the company's private repositories, enabling enterprise-grade data governance and indemnification.",
       "Gemini Cloud Assist, which is accessed through the Google Cloud console chat panel."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Gemini Code Assist is Google's AI coding assistant for IDEs (VS Code, JetBrains, Cloud Shell Editor, Cloud Workstations). The Enterprise edition adds code customization, which grounds suggestions in your private codebase, and provides enterprise data governance (prompts and responses are not used to train models), IP indemnification, and admin management. Option A is an editor, not an AI assistant, and does not meet the IDE requirement. Option B is a large self-managed undertaking with no indemnification. Option D — Gemini Cloud Assist — targets cloud design, operations, and troubleshooting in the console, not in-IDE code generation.",
     "refs": [
       "https://cloud.google.com/gemini/docs/codeassist/overview",
       "https://cloud.google.com/gemini/docs/codeassist/code-customization-overview"
-    ]
+    ],
+    "hint": "Core Rule: Gemini Code Assist is Google's AI coding assistant for IDEs (VS Code, JetBrains, Cloud Shell Editor, Cloud Workstations).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cloud Shell Editor, because it is browser-based and already integrated…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (A self-hosted open-source LLM deployed on GKE with a community IDE plu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Gemini Cloud Assist, which is accessed through the Google Cloud consol…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-047",
@@ -457,12 +628,20 @@
       "Import the paragraph into Migration Center and use its TCO report as the architecture proposal.",
       "Use the Google Cloud pricing calculator to price several arbitrary configurations and pick the cheapest."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Application Design Center, with Gemini Cloud Assist, is built for solution design: you describe the application in natural language, Gemini proposes an architecture that you can edit on a canvas, it provides cost estimates, and the design can be exported as infrastructure as code (Terraform) or deployed directly. Option A returns operational recommendations for existing resources, not a new design. Option C is an assessment tool for migrating existing servers, not for greenfield design. Option D prices configurations but produces no architecture, diagram, or code.",
     "refs": [
       "https://cloud.google.com/application-design-center/docs/overview",
       "https://cloud.google.com/gemini/docs/cloud-assist/overview"
-    ]
+    ],
+    "hint": "Core Rule (Gemini Cloud Assist design): Application Design Center, with Gemini Cloud Assist, is built for solution design: you describe the application in natural language, Gemini proposes an architecture that you can edit on a canvas, it provides cost estimates, and the design can be exported as infrastructure as code (Terraform) or deployed directly.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run gcloud recommender commands across existing projects to derive a t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Import the paragraph into Migration Center and use its TCO report as t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use the Google Cloud pricing calculator to price several arbitrary con…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-048",
@@ -478,12 +657,20 @@
       "Take a single full backup, upload it to Cloud Storage, import it into Cloud SQL, and accept the downtime required for the restore.",
       "Use Database Migration Service for SQL Server: upload a full backup followed by continuous transaction log backups to a Cloud Storage bucket, let DMS restore them into Cloud SQL, then promote once the final log is applied."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "DMS for SQL Server to Cloud SQL works from backup files: the DBAs place a full backup and then ongoing transaction-log backups in Cloud Storage (pushed outbound from on-premises, so no inbound firewall opening is needed), DMS restores them continuously, and promotion after the last log backup keeps downtime to minutes. Option A is incorrect because Datastream's SQL Server source targets BigQuery and Cloud Storage analytics destinations, not Cloud SQL for SQL Server migrations. Option B requires network connectivity from Cloud SQL into the on-premises publisher/distributor, which the policy prohibits, and is not a supported managed path. Option C's restore of a 1.5 TB full backup implies hours of downtime.",
     "refs": [
       "https://cloud.google.com/database-migration/docs/sqlserver/quickstart",
       "https://cloud.google.com/database-migration/docs/sqlserver/configure-source-database"
-    ]
+    ],
+    "hint": "Core Rule (SQL Server migration): DMS for SQL Server to Cloud SQL works from backup files: the DBAs place a full backup and then ongoing transaction-log backups in Cloud Storage (pushed outbound from on-premises, so no inbound firewall opening is needed), DMS restores them continuously, and promotion after the last log backup keeps downtime to minutes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Set up a Datastream connection to SQL Server and replicate into Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure SQL Server transactional replication with Cloud SQL as a sub…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Take a single full backup, upload it to Cloud Storage, import it into …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-049",
@@ -500,12 +687,21 @@
       "Rewrite each HiveQL script manually and validate the result by running it on a Dataproc cluster.",
       "Use Transfer Appliance to ship the HDFS metadata (NameNode) so BigQuery can read the Parquet files in place."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Storage Transfer Service supports HDFS as a source: agents deployed near the cluster read from HDFS and write to Cloud Storage with managed scheduling, retries, and monitoring — no DistCp jobs to babysit. BigQuery Migration Service includes a SQL translation service that converts Hive (and Teradata, Snowflake, Redshift, etc.) dialects to GoogleSQL in batch or interactively and highlights statements needing manual review. Option B moves servers rather than data and uses a manual copy afterwards. Option D is exactly the custom, manual translation effort the team wants to avoid. Option E misunderstands the architecture: BigQuery cannot read HDFS in place, and shipping NameNode metadata is meaningless without the blocks.",
     "refs": [
       "https://cloud.google.com/storage-transfer/docs/hdfs-transfers",
       "https://cloud.google.com/bigquery/docs/migration/batch-sql-translator"
-    ]
+    ],
+    "hint": "Core Rule (Data warehouse and lake migration): Storage Transfer Service supports HDFS as a source: agents deployed near the cluster read from HDFS and write to Cloud Storage with managed scheduling, retries, and monitoring — no DistCp jobs to babysit.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use Migrate to Virtual Machines to move the Hadoop DataNodes to Comput…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Rewrite each HiveQL script manually and validate the result by running…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Use Transfer Appliance to ship the HDFS metadata (NameNode) so BigQuer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-050",
@@ -521,11 +717,19 @@
       "Create a separate staging project provisioned from the same infrastructure code as production, with smaller instance sizes and a sanitized copy of production data, and promote the same container image from staging to production through the CI/CD pipeline.",
       "Skip staging and instead extend the end-to-end test suite that runs on developer machines to cover database migrations."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "A staging environment that is built from the same IaC as production, differs only in sizing, and uses sanitized production-like data catches configuration, schema, and dependency problems that local containers cannot, and promoting the identical image guarantees what was tested is what ships. Smaller sizes keep cost low. Option A is what failed already: local environments diverge from production. Option B tests against the production database, which risks corrupting production data during schema tests. Option D still relies on laptop environments and misses infrastructure differences.",
     "refs": [
       "https://cloud.google.com/architecture/devops/devops-tech-test-environments",
       "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy"
-    ]
+    ],
+    "hint": "Core Rule (Staging environments): A staging environment that is built from the same IaC as production, differs only in sizing, and uses sanitized production-like data catches configuration, schema, and dependency problems that local containers cannot, and promoting the identical image guarantees what was tested is what ships.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Test each release on the developers' laptops with Docker Compose using…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy each release to a tagged Cloud Run revision in the production p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Skip staging and instead extend the end-to-end test suite that runs on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

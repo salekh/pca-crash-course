@@ -1,0 +1,1325 @@
+TITLE: Real GCP Cloud Architect Exam Questions | Mastering GKE, SRE & DevOps | Part 11
+URL: https://www.youtube.com/watch?v=kVbonvF2mtA
+DESCRIPTION:
+Ready to tackle the real-world architecture challenges on the Google Cloud Professional Architect exam? This video is Part 11 of our deep dive series, covering critical exam questions **211-230** that focus on advanced concepts in Kubernetes, Site Reliability Engineering (SRE), and secure DevOps practices.
+
+Passing the exam in 2025 requires more than just knowing services; you must apply them to solve complex operational and security problems. This session is designed to sharpen those exact skills.
+
+In this deep dive, you will master how to architect solutions for:
+✅ **Google Kubernetes Engine (GKE) & DevOps:** Designing secure CI/CD pipelines, implementing multi-cluster ingress for global apps, managing secrets with Workload Identity, and recovering safely from failed deployments.
+✅ **Site Reliability Engineering (SRE) & Operations:** Choosing user-centric SLIs (Service Level Indicators) like Latency and Error Rate, troubleshooting GCE kernel failures, and gracefully handling pre-emptible VMs.
+✅ **Security & Governance:** Architecting secure multi-tier applications with VPC firewall rules, sanitizing sensitive data with the Cloud DLP API, and structuring your organization with Folders for central IAM control.
+✅ **Networking & Hybrid Cloud:** Deciding when to use Dedicated Interconnect over Cloud VPN for high-throughput, low-latency database replication.
+
+We don't just give you the answers—we teach you the architectural mindset needed to solve any scenario question thrown at you.
+
+▶️ **WATCH THE FULL 250+ QUESTION PLAYLIST HERE:**
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+--
+**RESOURCES & SUPPORT**
+🤝 If you find this in-depth analysis valuable, please like, share, and subscribe! It tells us to make more content like this.
+
+Which of these topics—SRE, DevOps, or Security—do you find most challenging? Let us know in the comments!
+
+#gcp #googlecloud #cloudarchitect #gcpexamquestions #gke #sre #devops #cicd #security #mountkirkgames
+
+CHAPTERS:
+
+TRANSCRIPT:
+Nice to see you again. In this video, we
+continue to review 20 questions from 211
+to 230 in the series of 250 questions of
+the Google Cloud Professional Cloud
+Architect exam. Let's get started.
+Question 211.
+You are implementing Fire Store for
+Mount Kirk Games. Mount Kirk Games wants
+to give a new game programmatic access
+to a legacy game Fire Store database.
+Access should be as restricted as
+possible. What should you do?
+Create a service account essay in the
+legacy games Google Cloud project. Add a
+second essay in the new games IM page
+and then give the organization admin
+role to both essays. B. Create a service
+account essay in the legacy games Google
+Cloud project. Give the essay the
+organization admin role and then give it
+the Firebase admin role in both
+projects. C. Create a service account
+essay in the legacy games Google cloud
+project. Add this essay in the new games
+IM page and then give it the Firebase
+admin role in both projects. D. Create a
+service account essay in the legacy
+games Google cloud project. Give it the
+Firebase admin role and then migrate the
+new game to the legacy games project.
+Okay, this question from the Mount Kirk
+games case study is about securely
+connecting two different applications
+running in separate Google Cloud
+projects. The main goal is to give the
+new game access to the old game's
+database, but to do so with the most
+restricted permissions possible,
+following the principle of least
+privilege. With that in mind, let's look
+at our options. Let's start by looking
+at the options that are immediately
+wrong because they are not secure.
+Options A and B both suggest granting
+the organization admin role. This is the
+most powerful permission in all of
+Google Cloud and you should almost never
+grant it to a service account for an
+application. This is a major security
+violation and the exact opposite of as
+restricted as possible. Next, let's look
+at option D. It suggests migrating the
+new game into the legacy games project.
+This is also incorrect. This is a huge
+disruptive architectural change and
+doesn't solve the problem of granting
+secure access between two separate
+projects which is what the question asks
+for. This brings us to option C which is
+the correct solution. This describes the
+standard pattern for secure cross
+project access. You create a single
+service account to act as the identity
+for your application. You then grant
+that specific service account the
+permissions it needs in both the new
+project and the legacy project. By using
+a dedicated service account and a
+specific role like Firebase admin, you
+are granting only the necessary
+permissions for the application to do
+its job without giving it excessive
+power like an organization admin. This
+is the best practice for a secure
+leastprivilege architecture. Therefore,
+the correct thing to do is C create a
+service account in the legacy games
+Google Cloud project. Add this essay in
+the new games IM page and then give it
+projects. Question 212. Mount Kirk Games
+wants to limit the physical location of
+resources to their operating Google
+Cloud regions. What should you do? A.
+Configure an organizational policy which
+constrains where resources can be
+deployed. B. Configure IM conditions to
+limit what resources can be configured.
+C. Configure the quotas for resources in
+the regions not being used to zero. D.
+Configure a custom alert in cloud
+monitoring so you can disable resources
+as they are created in other regions.
+Okay, this question is about cloud
+governance. The goal is to enforce a
+rule across your company's Google Cloud
+environment that restricts where
+developers can create new resources
+limiting them to only your approved
+operating regions. With that in mind,
+let's look at our options. Let's start
+with option D, which suggests creating
+an alert to find and disable resources
+after they are created. This is a
+reactive approach, not a preventative
+one. The best security practice is to
+prevent non-compliant resources from
+being created in the first place rather
+than cleaning them up after the fact.
+Next, option C suggests setting quotas
+for all resources to zero in the regions
+you don't want to use. While this might
+work in theory, it would be an enormous
+and unmanageable amount of manual work
+to configure this for every resource
+type in every disallowed region. Option
+B proposes using IM conditions. While IM
+conditions are useful for adding context
+to permissions, they are not the primary
+tool for enforcing location-based
+restrictions on resources. There is a
+more specific and appropriate service
+for that. This brings us to option A,
+which is the correct and Google
+recommended solution. The organization
+policy service is designed for exactly
+this purpose. It allows you to set broad
+constraints on your cloud resources.
+There is a specific constraint called
+resource location constraint that lets
+you define a list of allowed or denied
+locations. By setting this policy at a
+high level like a folder or the entire
+organization, you can ensure that no one
+can create resources outside of your
+approved regions. This is a proactive,
+preventative and centrally managed
+solution. Therefore, the correct thing
+to do is a configure an organizational
+policy which constrains where resources
+can be deployed. Question 213.
+You need to implement a network ingress
+for a new game that meets the defined
+business and technical requirements.
+Mount Kirk Games wants each regional
+game instance to be located in multiple
+Google Cloud regions. What should you
+do? A. Configure a global load balancer
+connected to a managed instance group
+running compute engine instances. B.
+Configure cabm with a global load
+balancer and Google kubernetes engine.
+C. Configure a global load balancer with
+Google kubernetes engine. D. Configure
+ingress for Anthos with a global load
+games case study is about setting up
+networking for a global multi-reion
+application running on Google Kubernetes
+Engine. The key challenge is to have a
+single entry point that can
+intelligently route users to the GKE
+cluster in the region closest to them.
+With that in mind, let's look at our
+options. Let's start with option A. This
+is incorrect because the modern
+recommended platform for this kind of
+scalable microservices-based game is
+Google Kubernetes Engine not standalone
+compute engine instances. Next, let's
+look at option B, which suggests using
+Kubmpy. This is also incorrect. While
+KAMC was the original tool for this
+purpose, it is now considered legacy and
+has been replaced by a more modern
+integrated solution. Option C is close,
+but it's missing a critical component. A
+standard GKE ingress object is only
+aware of services within its own single
+cluster. It doesn't know how to route
+traffic to other clusters in different
+regions. You need a special controller
+to manage this. This brings us to option
+D, which is the correct and recommended
+solution. The modern way to handle
+traffic across multiple GKE clusters in
+different regions is called ingress for
+Anthos, which used to be called
+multicluster ingress. This is a special
+controller that works with the global
+load balancer to send traffic to the
+correct GKE cluster based on your
+configuration. This is the purpose-built
+feature for creating a single global
+front end for a multi-reion GKE
+application. Therefore, the correct
+thing to do is D. Configure ingress for
+Anthos with a global load balancer and
+Google Kubernetes Engine. Question 214.
+Your development teams release new
+versions of games running on Google
+Kubernetes Engine GKE daily. You want to
+create service level indicators SLIS to
+evaluate the quality of the new versions
+from the user's perspective. What should
+you do? A create CPU utilization and
+request latency as service level
+indicators. B create GKE CPU utilization
+and memory utilization as service level
+indicators. Create
+request latency and error rate as
+service level indicators. D create
+server uptime and error rate as service
+level indicators. Okay, this is a
+question about site reliability
+engineering or S sur principles. The
+goal is to choose good service level
+indicators or SLIS for a user-facing
+application. The most important part of
+the question is that the SLIS must be
+from the user's perspective. A good SLI
+measures what your user actually
+experiences. You should avoid using
+internal system metrics like CPU or
+memory usage because a user doesn't care
+about those. They only care if the
+application is fast and if it works.
+options. Let's look at option A. It
+includes CPU utilization. This is an
+internal metric, not something a user
+experiences directly, so it's not a good
+SLI. Option B is also incorrect because
+both CPU and memory utilization are
+internal system metrics. They are
+important for your team to watch, but
+they are not user-facing SLIs. Next,
+let's look at option D. It includes
+server uptime. This is also an internal
+metric. In a modern resilient system, a
+single server can fail without the user
+ever noticing. What matters to the user
+is whether their own request succeeds,
+not whether a specific server is online.
+This brings us to option C, which is the
+correct answer. This option lists two
+classic usercentric SLIs. Request
+latency directly measures how fast the
+application feels to the user. Error
+rate directly measures how often the
+application fails for the user.
+Together, these two metrics give you a
+clear and accurate picture of the
+quality of service your users are
+actually experiencing. Therefore, the
+correct SLI to create are C, request
+latency, and error rate. Question 215.
+Mount Kirk Games wants you to secure the
+connectivity from the new gaming
+application platform to Google Cloud.
+You want to streamline the process and
+follow Google recommended practices.
+What should you do? A. Configure
+workload identity and service accounts
+to be used by the application platform.
+B. Use Kubernetes secrets which are
+obfuscated by default. Configure these
+secrets to be used by the application
+platform. C. Configure Kubernetes
+secrets to store the secret. Enable
+application layer secrets encryption and
+use cloud key management service cloud
+KMS to manage the encryption keys.
+Configure these secrets to be used by
+the application platform. Deconfigure
+Hashi Cororp vault on compute engine and
+use customer managed encryption keys and
+cloud key management service cloud KMS
+to manage the encryption keys. Configure
+these secrets to be used by the
+application platform. Okay, this
+question from the Mount Kirk games case
+study is about securing how your
+Engine authenticates to other Google
+Cloud services. The key here is to find
+the most streamlined and Google
+recommended practice, which means we
+should look for a native managed
+solution. With that in mind, let's look
+at our options. Let's start with option
+B, which suggests using standard
+Kubernetes secrets. This is incorrect
+because by default Kubernetes secrets
+are only base 64 encoded which is not a
+secure encryption method. It's just a
+way to hide the text. Option C is a much
+more secure way to use Kubernetes
+secrets by enabling application layer
+encryption with cloud KMS. While this is
+a great practice for storing secrets
+within Kubernetes, the best practice for
+authenticating to Google Cloud APIs is
+to avoid needing to store GCP credential
+files in Kubernetes at all. Option D
+suggests using a third-party tool, Hashi
+Corp Vault. While vault is an excellent
+tool, setting up and managing a separate
+vault cluster is not the most
+streamlined approach and isn't the
+native Google recommended practice the
+question is looking for. This brings us
+to option A, which is the correct and
+Google recommended solution. The modern
+way to handle this is by using a feature
+called workload identity. Workload
+identity allows you to securely link
+your application's identity inside
+Kubernetes, which is a Kubernetes
+service account directly to a Google
+Cloud service account. This means your
+application pods can automatically get
+the permissions they need to talk to
+Google Cloud APIs without you ever
+having to create, download, or manage
+any sensitive key files. It's the most
+secure and streamlined approach.
+Therefore, the correct thing to do is a
+configure workload identity and service
+accounts to be used by the application
+platform. Question 216.
+Your development team has created a
+mobile game app. You want to test the
+new mobile app on Android and iOS
+devices with a variety of
+configurations. You need to ensure that
+testing is efficient and cost effective.
+What should you do?
+Upload your mobile app to the Firebase
+test lab and test the mobile app on
+Android and iOS devices. B. Create
+Android and iOS VMs on Google Cloud.
+Install the mobile app on the VMs and
+test the mobile app. C. Create Android
+and iOS containers on Google Kubernetes
+Engine GKE. Install the mobile app on
+the containers and test the mobile app.
+D. Upload your mobile app with different
+configurations to Firebase hosting and
+test each configuration. Okay, this is a
+question about testing a mobile
+application. The key requirements are
+that we need to test on a wide variety
+of both Android and iOS devices and we
+need to do it in a way that is both
+efficient and cost effective. With that
+in mind, let's look at our options.
+Let's start with the options that are
+technically not feasible, which are B
+and C. Google Cloud does not offer
+standard Android or iOS virtual machines
+or containers that you can just create
+and use for testing. So these options
+are not possible. Next, let's look at
+option D, which suggests using Firebase
+hosting. This is incorrect because
+Firebase hosting is a service for
+deploying and hosting web applications.
+It is not a tool for testing native
+mobile apps. This brings us to option A
+recommended solution. Firebase Testl Lab
+is a specific service designed for this
+exact purpose. It's a cloud-based app
+testing infrastructure that gives you
+access to a wide range of real and
+virtual Android and iOS devices. You can
+upload your app and run automated tests
+across many different device
+configurations, screen sizes, and OS
+versions simultaneously. This is highly
+efficient and cost effective because you
+don't have to buy and maintain your own
+physical device lab. Therefore, the
+correct thing to do is a upload your
+mobile app to the Firebase test lab and
+test the mobile app on Android and iOS
+devices. Question 217.
+Your company has decided to build a
+backup replica of their on premises user
+authentication PostgresQL database on
+Google Cloud Platform. The database is 4
+TB and large updates are frequent.
+Replication requires private address
+space communication. Which networking
+approach should you use?
+Google Cloud dedicated interconnect. B.
+Google CloudVPN connected to the data
+center network. C. ANAT and TLS
+translation gateway installed on
+premises. D. A Google Compute Engine
+instance with a VPN server installed
+connected to the data center network.
+Okay, this is a hybrid cloud networking
+question. The key requirements are that
+we need to replicate a large 4 terbte
+database that has frequent updates and
+the connection must be private. This
+combination of large data volume and
+frequent updates means we need a
+connection with very high consistent
+bandwidth and low latency. A standard
+connection over the public internet is
+unlikely to be sufficient. With that in
+mind, let's look at our options. Let's
+look at the options that rely on the
+public internet which are B and D. While
+CloudVPN provides a secure tunnel, its
+performance is limited by the public
+internet which is not ideal for this
+demanding workload. Building your own
+VPN server on a compute engine instance
+has the same limitations and adds extra
+management overhead. Option C suggests a
+custom NAT and TLS gateway. This is not
+a standard Google Cloud solution and
+would be complex to implement and
+maintain without solving the underlying
+performance requirements. This brings us
+to option A which is the correct and
+Google recommended solution for this
+scenario. Google Cloud dedicated
+interconnect provides a direct private
+physical connection between your data
+center and Google's network. It bypasses
+the public internet entirely. This
+guarantees the high bandwidth and low
+latency required to reliably replicate a
+large active database. It also operates
+over a private address space meeting all
+the requirements of the question.
+Therefore, the networking approach you
+should use is a Google cloud dedicated
+interconnect. Question 218. Auditors
+visit your teams every 12 months and ask
+to review all the Google Cloud identity
+and access management cloud IM policy
+changes in the previous 12 months. You
+want to streamline and expedite the
+analysis and audit process. What should
+you do?
+Create custom Google stack driver alerts
+and send them to the auditor. B. Enable
+logging export to Google BigQuery and
+use ACL's and views to scope the data
+shared with the auditor. C. Use cloud
+functions to transfer log entries to
+Google Cloud SQL and use ACL and views
+to limit an auditor's view. D. Enable
+Google Cloud Storage GCS log export to
+audit logs into a GCS bucket and
+delegate access to the bucket. Okay,
+this is a question about auditing and
+log management in Google Cloud. The goal
+is to create a process that is both
+efficient for analyzing a year's worth
+of IM policy changes and secure for
+sharing that information with auditors.
+options. Let's start with option A which
+suggests using stack driver alerts. This
+is incorrect because alerts are for
+notifying you about events as they
+happen in real time. They are not a tool
+for storing and performing historical
+analysis on a large volume of logs.
+Next, let's look at option C. This
+suggests using cloud functions to move
+logs to Cloud SQL. This is not the best
+approach. Cloud SQL is a transactional
+database, not a data warehouse, and it's
+not optimized for the kind of
+large-scale log analysis required for a
+year-long audit. BigQuery is the
+superior tool for this. Option D
+proposes exporting the logs to a cloud
+storage bucket. While this is a good way
+to archive logs for long-term storage,
+it's not efficient for analysis. Trying
+to search and analyze raw log files in a
+bucket is much slower and more difficult
+than running SQL queries in a dedicated
+data analytic service. This brings us to
+option B, which is the correct and
+Google recommended solution. This is a
+two-part strategy. First, you enable
+logging export to Google BigQuery. This
+automatically sends your IM audit logs
+to BigQuery, which is designed to handle
+and query massive amounts of data very
+quickly. This makes the analysis fast
+and easy. Second, you use ACL's and
+views to scope the data shared with the
+auditor. This is the security component.
+You can create a big query view that
+only shows the exact logs the auditors
+need to see and then grant them readonly
+access just to that view. This is the
+most streamlined, secure, and efficient
+way to handle the audit process.
+Therefore, the best thing to do is be
+enable logging export to Google BigQuery
+and use ACL's and views to scope the
+data shared with the auditor. Question
+219.
+You are designing a large distributed
+application with 30 microservices. Each
+of your distributed microservices needs
+to connect to a database backend. You
+want to store the credentials securely.
+Where should you store the credentials?
+In the source code, B. in an environment
+variable, C. In a secret management
+system, D in a config file that has
+restricted access through ACL's. Okay,
+this is a fundamental security question
+for any application, especially a large
+distributed one with many microservices.
+The core task is to find the most secure
+and manageable way to handle sensitive
+credentials. With that in mind, let's
+look at our options. Let's start with
+option A. Storing credentials in the
+source code. This is a major security
+anti-attern and should never be done.
+Hard- coding secrets makes them easily
+accessible to anyone who can read the
+code and they can be accidentally
+committed to source control
+repositories. Next, option B suggests
+using environment variables. This is
+slightly better than hard- coding, but
+it's still not considered a secure best
+practice. Environment variables can be
+leaked through application logs,
+monitoring tools, or if another process
+on the same machine is compromised.
+Option D, using a config file with
+restricted access is an improvement but
+still falls short. While restricting
+access with ACL's helps, the credentials
+are still stored in a file on the file
+system which could be compromised.
+Managing updates and rotation for 30
+services this way would also be very
+difficult. This brings us to option C
+which is the correct and recommended
+solution. A dedicated secret management
+system like Google Cloud Secret Manager
+is purpose-built for this task. It
+stores credentials in an encrypted
+highly available vault. It provides fine
+grained access control using IM so you
+can define exactly which micros service
+can access which secret. The services
+then fetch the credentials securely at
+runtime via an API. Meaning the secrets
+are never stored in the code config
+files or environment variables.
+Therefore, the most secure and
+manageable place to store the
+credentials is C. In a secret management
+system, question 220. A lead engineer
+wrote a custom tool that deploys virtual
+machines in the legacy data center. He
+wants to migrate the custom tool to the
+new cloud environment. You want to
+advocate for the adoption of Google
+Cloud Deployment Manager. What are two
+business risks of migrating to Cloud
+Deployment Manager? Choose two. A. Cloud
+Deployment Manager uses Python. B. Cloud
+Deployment Manager APIs could be
+deprecated in the future. C. Cloud
+Deployment Manager is unfamiliar to the
+company's engineers. D. Cloud Deployment
+Manager requires a Google API service
+account to run. E. Cloud deployment
+manager can be used to permanently
+delete cloud resources. F. Cloud
+deployment manager only supports
+automation of Google Cloud resources.
+Okay, this question asks us to think
+about the potential business risks of
+adopting a new standard tool cloud
+deployment manager to replace a custom
+in-house tool. Business risks are
+different from technical features. They
+relate to things like productivity,
+cost, and strategic limitations. With
+that in mind, let's look at our options.
+First, let's look at the options that
+describe technical characteristics
+rather than business risks. Options A
+and D stating that deployment manager
+uses Python and requires a service
+account are simply implementation
+details of how the service works, not
+inherent business risks. Option E, that
+the tool can delete resources, is a
+necessary function of any infrastructure
+management tool. This is an operational
+risk that is managed with proper
+permissions. And option B that APIs
+could be deprecated is a generic risk
+that applies to any software or service,
+not a specific risk related to this
+adoption decision. This brings us to the
+two correct answers. Option C states
+that cloud deployment manager is
+unfamiliar to the company's engineers.
+This is a real business risk. A new
+unfamiliar tool means there will be a
+learning curve for the team which can
+lead to a temporary decrease in
+productivity and a higher potential for
+errors during the transition. It also
+implies a cost for training. The other
+correct answer is option F that cloud
+automation of Google cloud resources.
+This is a strategic business risk. The
+company's existing custom tool might
+manage resources outside of Google
+Cloud. By adopting a tool that is locked
+to a single vendor, they may be creating
+a new technology silo and limiting their
+flexibility if they have a hybrid or
+multicloud strategy in the future.
+Therefore, the two main business risks
+are C and F. Question 221.
+A development manager is building a new
+application. He asks you to review his
+requirements and identify what cloud
+technologies he can use to meet them.
+The application must be based on
+open-source technology for cloud
+portability. Dynamically scale compute
+capacity based on demand. Support
+continuous software delivery. Run
+multiple segregated copies of the same
+application stack. Deploy application
+bundles using dynamic templates. route
+network traffic to specific services
+based on URL. Which combination of
+technologies will meet all of his
+requirements? A. Google Kubernetes
+Engine, Jenkins, and Helm. B. Google
+Kubernetes Engine and Cloud Load
+Balancing. C. Google Kubernetes Engine
+and Cloud Deployment Manager. D. Google
+Kubernetes Engine Jenkins and Cloud Load
+Balancing. Okay, this is an
+architectural question that asks us to
+assemble a complete technology stack to
+meet a list of modern cloudnative
+requirements. We need a solution that
+covers container orchestration,
+continuous delivery, and application
+packaging. Let's first break down the
+requirements. The need for open- source
+technology, dynamic scaling, segregated
+copies, and URL-based routing all point
+directly to using Kubernetes, which is
+provided as a managed service by Google
+Kubernetes Engine or GKE. The need for
+continuous delivery points to a CI/CD
+tool like Jenkins, and the need to
+deploy using dynamic templates points to
+a package manager for Kubernetes with
+the most common one being Helm. Now,
+let's look at the options. Options B, C,
+and D are all incomplete. Option B is
+missing a CI/CD tool and a templating
+tool. Option C is missing a CI/CD tool.
+And option D is missing a templating
+tool like Helm. They don't provide all
+the capabilities required by the
+question. This brings us to option A,
+which is the correct answer. This
+combination of technologies covers all
+the requirements. Google Kubernetes
+Engine provides the scalable open-source
+platform. Jenkins provides the
+continuous delivery pipeline and Helm
+provides the templating and packaging
+needed for dynamic application
+deployments. Together, they form a
+complete modern application delivery
+platform. Therefore, the combination of
+technologies that will meet all of his
+requirements is a Google Kubernetes
+engine, Jenkins, and Helm. Question 222.
+You have created several preemptable
+Linux virtual machine instances using
+Google Compute Engine. You want to
+properly shut down your application
+before the virtual machines are
+preempted. What should you do?
+Create a shutdown script named
+k99.shutdown
+in the / etc/rc.6.d/
+directory. B. Create a shutdown script
+registered as a Zinit service in Linux
+and configure a stack driver endpoint
+check to call the service. C. Create a
+shutdown script and use it as the value
+for a new metadata entry with the key
+shutdown script in the cloud platform
+console when you create the new virtual
+machine instance. D. Create a shutdown
+script registered as a Zenit service in
+Linux and use the cloud compute
+instances add metadata command to
+specify the service URL as the value for
+a new metadata entry with the key
+shutdown script URL. Okay, this question
+is about managing the life cycle of
+preemptable VMs on Google Cloud. The
+core of the problem is knowing the
+specific built-in mechanism that Google
+provides to allow for a graceful
+shutdown before a VM is taken away. With
+Let's start with option A. While using a
+script in the / etc/rc.6
+6. D/ directory is a standard way to
+handle shutdowns in Linux. It's not the
+specific method that Google Cloud uses
+to trigger a script during a preeemption
+event. There's a more direct cloudnative
+way to do this. Options B and D are also
+incorrect because they suggest using a
+complex and unnecessary setup with a
+Zenit service. This is not how Google
+Cloud handles this process.
+Additionally, option D uses the wrong
+metadata key. The correct key is
+shutdown script, not shutdown script
+URL. This brings us to option C, which
+is the correct and recommended solution.
+Google Compute Engine provides a special
+metadata key called shutdown script.
+Here's how it works. You write a script
+that performs the graceful shutdown of
+your application. Then you provide the
+content of the script as the value for
+the shutdown script metadata entry on
+your virtual machine. When Google Cloud
+is about to preempt the instance, it
+gives a 30- secondond warning and during
+this time, it automatically executes the
+script you provided. This gives your
+application a chance to save its state
+and shut down cleanly. Therefore, the
+correct way to properly shut down your
+application is C. Create a shutdown
+script and use it as the value for a new
+metadata entry with the key shutdown
+script in the cloud platform console
+when you create the new virtual machine
+instance. Question 223.
+Your organization has a three- tier web
+application deployed in the same network
+on Google Cloud Platform. Each tier web,
+API, and database scales independently
+of the others. Network traffic should
+flow through the web to the API tier and
+then onto the database tier. Traffic
+should not flow between the web and the
+database tier. How should you configure
+the network?
+Add each tier to a different subnet
+network. B. Set up softwarebased
+firewalls on individual VMs. C. Add tags
+to each tier and set up routes to allow
+the desired traffic flow. D. Add tags to
+each tier and set up firewall rules to
+allow the desired traffic flow. Okay,
+this is a very common network security
+question for multi-tered applications on
+Google Cloud. The main goal is to
+control the flow of traffic between the
+different layers of our application,
+making sure they can only talk to each
+other in a specific secure way, even
+when the application is autoscaling.
+options. Let's start with option A,
+adding each tier to a different subnet
+network. While this is a good way to
+organize your resources, it doesn't
+solve the security problem by itself. By
+default, traffic is allowed between all
+subnets within the same VPC network. You
+would still need to add firewall rules
+to actually restrict the traffic. Option
+B suggests setting up softwarebased
+firewalls on each individual VM. This is
+incorrect because it's a very manual and
+difficult to manage approach, especially
+in an environment that scales
+automatically. The cloudnative way is to
+use the centralized VPC firewall service
+provided by Google Cloud. Next, option C
+mentions using tags and routes. This is
+incorrect because it confuses the
+purpose of routes and firewall rules.
+Routes are used to direct traffic to its
+destination like a traffic cop directing
+cars down a specific street. Firewall
+rules act as a security guard deciding
+whether that traffic is allowed to enter
+or not. To block traffic, we need
+firewall rules, not routes. This brings
+us to option D, which is the correct and
+recommended solution. Here's how it
+works. First, you add a unique network
+tag to all the VMs in each tier. For
+example, web tier, API tier, and DB
+tier. Then, you create specific VPC
+firewall rules that use these tags. You
+would create one rule to allow traffic
+from sources with the web tier tag to
+destinations with the API tier tag.
+You'd create another rule to allow
+traffic from the API tier tag to the DB
+tier tag because the firewall implicitly
+denies any traffic that isn't explicitly
+allowed. This setup automatically blocks
+the forbidden traffic from the web tier
+directly to the database tier. This
+works perfectly with autoscaling because
+new VMs inherit the tags from their
+instance templates. Therefore, the best
+way to configure the network is D. Add
+tags to each tier and set up firewall
+rules to allow the desired traffic flow.
+Question 224.
+Your development team has installed a
+new Linux kernel module on the batch
+servers in Google Compute Engine GCE
+virtual machines VMs to speed up the
+nightly batch process. 2 days after the
+installation, 50% of the batch servers
+failed the nightly batch run. You want
+to collect details on the failure to
+pass back to the development team. Which
+three actions should you take? Choose
+three.
+Use stack driver logging to search for
+the module log entries. B. Read the
+debug GCE activity log using the API or
+cloud console. C. Use cloud or cloud
+console to connect to the serial console
+and observe the logs. D. Identify
+whether a live migration event of the
+failed server occurred using the
+activity log. E. Adjust the Google stack
+driver timeline to match the failure
+time and observe the batch server
+metrics. F. Export a debug VM into an
+image and run the image on a local
+server where kernel log messages will be
+displayed on the native screen. Okay,
+this is a troubleshooting question that
+requires us to find the best ways to
+diagnose a problem at the operating
+system level on a GCE virtual machine.
+The key clue is that the failure started
+after a new Linux kernel module was
+installed. We need to choose three
+actions. Let's start by evaluating the
+correct options. Option A, using cloud
+logging to search for module log entries
+is a correct first step. Cloud logging
+collects the system logs from your VMs.
+And it's very likely that the new kernel
+module or the kernel itself wrote error
+messages to these logs when the failure
+occurred. Option C, connecting to the
+serial console, is another correct and
+very powerful troubleshooting technique.
+The serial console allows you to see
+low-level system and kernel messages,
+which is especially useful if the VM is
+having trouble booting or is
+unresponsive over the network. Any
+kernel panic or critical error messages
+would likely appear here. Option E is
+also a correct action by adjusting the
+timeline in cloud monitoring to the time
+of the failure. You can observe the VM's
+performance metrics. A sudden spike in
+CPU, a drop in available memory, or
+strange disk activity could give you
+valuable clues about how the kernel
+module was misbehaving and causing the
+system to fail. Now, let's look at the
+incorrect options. Option B, reading the
+GC activity log, is wrong because the
+activity log only tracks administrative
+actions on the VM like starting or
+stopping it. It doesn't contain any logs
+from inside the operating system. Option
+D, checking for a live migration event
+is generally a less likely cause. While
+it's a piece of information you might
+check, it's not one of the primary
+direct ways you would investigate a
+specific kernel module failure. Finally,
+option F, exporting the VM and running
+it locally, is incorrect because it's an
+extremely slow and inefficient way to
+debug a problem. The cloudnative tools
+like cloud logging and the serial
+console are designed for exactly this
+kind of remote troubleshooting.
+Therefore, the three best actions to
+take to collect details on the failure
+are A, C, and E. Question 225.
+Your company wants to try out the cloud
+with low risk. They want to archive
+approximately 100 terabytes of their log
+data to the cloud and test the analytics
+features available to them there while
+also retaining that data as a long-term
+disaster recovery backup. Which two
+steps should you take? Choose two. Load
+logs into Google BigQuery. B. Load logs
+into Google Cloud SQL. C. Import logs
+into Google Stack driver. D. Insert logs
+into Google Cloud Bigtable. E. Upload
+log files into Google Cloud Storage.
+Okay, this is a question about a very
+common big data architecture problem. We
+need a solution that can handle two
+different goals. First, cheap long-term
+storage for a massive amount of data.
+and second a powerful way to run
+analytics on that data. With that in
+start by looking at the options that are
+not a good fit for this scale of data.
+Option B, Cloud SQL, is a relational
+database that isn't designed to handle
+100 terabytes of data for analytics.
+Option C, cloud logging, is a tool for
+viewing recent logs, not for long-term
+archival of such a large data set. And
+option D, cloud bigtable is a high
+performance NoSQL database, but it's
+optimized for real-time applications,
+not for the kind of analytical SQL
+queries required here. This brings us to
+the two correct answers, which represent
+a standard and powerful pattern in
+Google Cloud. Let's look at option E,
+uploading the log files into Google
+Cloud Storage. This is a correct step
+because cloud storage is the ideal place
+for lowcost long-term archival. It's
+highly durable and can store virtually
+unlimited amounts of data, which
+perfectly fulfills the long-term
+disaster recovery backup requirement.
+The other correct step is option A,
+loading the logs into Google BigQuery.
+This directly addresses the requirement
+to test the analytics features. BigQuery
+is Google Cloud's serverless data
+warehouse designed to run very fast SQL
+queries on massive data sets. By loading
+the data here, the teams can easily
+perform their analysis. Therefore, the
+two steps you should take are A and E.
+Question 226.
+You created a pipeline that can deploy
+your source code changes to your
+infrastructure in instance groups for
+self-healing. One of the changes
+negatively affects your key performance
+indicator. You are not sure how to fix
+it. An investigation could take up to a
+week. What should you do? A. Log in to a
+server and iterate on the fix locally.1
+B. Revert the source code change and
+rerun the deployment pipeline point 2.
+C. Log into the servers with the bad
+code change and swap in the previous
+code. 3 D. Change the instance group
+template to the previous one and delete
+all instan 4 CES. Okay, this is a
+question about incident recovery and
+DevOps best practices. A bad code change
+has made it to production and the fix
+will take a long time. The top priority
+in this situation is to restore the
+service to a stable state as quickly and
+safely as possible. With that in mind,
+with options A and C, which both suggest
+logging into a server to make a change
+locally. This is a major anti-attern and
+should be avoided. Manually changing
+things on production servers leads to an
+inconsistent and unmanageable
+environment and it bypasses all the
+safety checks of your deployment
+pipeline. Next, let's look at option D.
+While changing the instance group
+template back to a previous version is a
+valid idea, the action of deleting all
+instances is incorrect and would cause a
+major outage. A properly configured
+instance group would perform a rolling
+update to the new template, gracefully
+replacing instances without a complete
+service interruption. This brings us to
+option B, which is the correct and most
+professional way to handle this
+situation. The process is simple and
+safe. First, you revert the problematic
+change in your source code repository
+like using git revert. This creates a
+new commit that undoes the bad code.
+Second, you simply rerun your existing
+deployment pipeline. The automated
+pipeline will then build and deploy this
+known good version of the code safely
+returning your application to a stable
+state. The long investigation into the
+bug can then happen in a development
+environment without impacting users.
+Therefore, the best course of action is
+rerun the deployment pipeline. Question
+227.
+Your organization wants to control IM
+policies for different departments
+independently but centrally. Which
+approach should you take?
+Multiple organizations with multiple
+folders. B. Multiple organizations, one
+for each department. C. A single
+organization with folder 4s for each
+department. D. A single organization
+with multiple projects each with a
+central owner. Okay, this is a
+foundational question about how to
+structure your resources in Google Cloud
+for effective governance. The key is to
+find a structure that allows you to
+manage policies for different
+departments both independently and
+centrally. With that in mind, let's look
+at our options. Let's start with options
+A and B, which both suggest using
+multiple organizations. This is
+incorrect because it goes against the
+requirement for central management. The
+organization is the top level route for
+your entire company. Creating multiple
+organizations would make central
+governance incredibly difficult. Next,
+let's look at option D, which suggests
+using a single organization but managing
+everything at the project level. While
+using a single organization is correct,
+this approach isn't scalable. If a
+department has dozens of projects, you
+would have to apply the same permissions
+to every single project individually.
+This is inefficient and can lead to
+mistakes. This brings us to option C
+approach. The Google Cloud resource
+hierarchy is designed for this exact
+scenario. You use a single organization
+for your entire company which provides
+that central point of management. Within
+the organization, you create folders for
+each department. You can then apply
+specific IM policies directly to a
+department's folder and all the projects
+inside that folder will automatically
+inherit those policies. This allows each
+department to have its own set of
+permissions managed independently while
+the overall structure is still
+controlled centrally. Therefore, the
+best approach is C. A single
+organization with folders for each
+department. Question 228.
+As part of implementing their disaster
+recovery plan, your company is trying to
+replicate their production MySQL
+database from their private data center
+to their GCP project using a Google
+CloudVPN connection. They are
+experiencing latency issues and a small
+amount of packet loss that is disrupting
+the replication. What should you do? A
+configure their replication to use UDP.
+B configure a Google Cloud dedicated
+interconnect. C. Restore their database
+daily using Google Cloud SQL. D. Add
+additional VPN connections and load
+balance them. E. Send the replicated
+transaction to Google Cloud Pub/Sub.
+question focused on a troubleshooting
+scenario. The core problem is that a
+cloudVPN connection which runs over the
+public internet is proving to be
+unreliable for a critical database
+replication task due to latency and
+packet loss. With that in mind, let's
+option A. Configuring the replication to
+use UDP. This is incorrect and would
+make the problem worse. Database
+replication requires a reliable protocol
+like TCP to ensure all data arrives
+correctly. Switching to the unreliable
+UDP protocol would lead to even more
+data loss. Option C suggests restoring
+the database daily. This is not a
+replication solution. It's a backup
+strategy. It doesn't provide the
+continuous synchronization needed for a
+disaster recovery replica. Option D.
+Adding and load balancing more VPN
+connections also doesn't solve the
+fundamental problem. While it might
+increase the total available bandwidth,
+each individual connection still travels
+over the unpredictable public internet,
+meaning they are all still susceptible
+to the same latency and packet loss
+issues. Option E suggests using cloud
+pub/sub. This is incorrect because
+pub/sub is an application messaging
+service, not a database replication tool
+or a network connectivity solution. It
+doesn't address the unstable network
+connection. This brings us to option B
+which is the correct answer. The issues
+of high latency and packet loss are
+characteristic of using the public
+internet. To solve this, you need a
+dedicated private connection. Google
+Cloud dedicated interconnect provides a
+direct physical link between your data
+center and Google's network completely
+bypassing the public internet. This
+provides the high bandwidth, low
+latency, and reliability needed for a
+production database replication
+workload. Therefore, the best way to
+resolve the latency and packet loss
+issues is B. Configure a Google Cloud
+dedicated interconnect. Question 229.
+Your customer support tool logs all
+email and chat conversations to cloud
+bigtable for retention and analysis.
+What is the recommended approach for
+sanitizing this data of personally
+identifiable information or payment card
+information before initial storage?
+Hash all data using SHA 256. B. Encrypt
+all data using elliptic curve
+cryptography. C. To identify the data
+with the cloud data loss prevention API.
+D. Use regular expressions to find and
+redact phone numbers, email addresses,
+and credit card numbers. Okay, this is a
+data security and compliance question
+about the best way to handle sensitive
+information found in logs. You've noted
+that B is the correct answer, but it's
+worth taking a closer look at the
+specific requirement as the Google
+recommended best practice for this
+scenario is actually a different option.
+The goal is to sanitize the data, which
+means to remove or mask just the
+sensitive parts, allowing the rest of
+the conversation to be analyzed safely.
+With that in mind, let's evaluate the
+options based on that goal. Let's look
+at option B first, which suggests
+encrypting all data. Encryption is a
+great tool for confidentiality,
+meaning it makes the entire log
+unreadable without a key. However, it
+doesn't sanitize or deidentify the data.
+To analyze the chat logs, an analyst
+would have to decrypt them, which would
+reexpose all the sensitive information.
+This doesn't quite meet the goal of
+safely analyzing the nonsensitive parts
+of the conversation. Now, let's consider
+the other options. Option A, hashing all
+data, would make the logs completely
+unreadable and useless for any
+meaningful analysis. Option D, using
+regular expressions, is a manual
+approach that is very difficult to
+maintain and is likely to miss some
+types of sensitive information. This
+brings us to option C, which is the
+problem. The cloud data loss prevention
+API or DLP is a service that is
+specifically designed to find and
+sanitize sensitive data within large
+blocks of text. It can automatically
+detect things like credit card numbers
+and phone numbers and then deidentify
+them through methods like redaction or
+tokenization. This leaves you with a
+clean, sanitized version of the logs
+that your team can safely analyze
+without being exposed to sensitive
+personal or payment information.
+Therefore, the most accurate and
+recommended approach that directly
+solves the problem of sanitizing data
+for analysis is C to identify the data
+Question 230. You are building a
+continuous deployment pipeline for a
+project stored in a git source
+repository and want to ensure that code
+changes can be verified before deploying
+to production. What should you do?
+Use Spker to deploy builds to production
+using the red/black deployment strategy
+so that changes can easily be rolled
+back. B. Use Spre to deploy builds to
+production and run tests on production
+deployments. C. Use Jenkins to build the
+staging branches and the master branch.
+Build and deploy changes to production
+for 10% of users before doing a complete
+roll out. D. Use Jenkins to monitor tags
+in the repository. Deploy staging tags
+to a staging environment for testing.
+After testing, tag the repository for
+production and deploy that to the
+production environment. Okay, this is a
+question about designing a safe and
+reliable CI/CD or continuous integration
+and continuous deployment pipeline. The
+most important requirement in the
+question is that changes must be
+verified before being deployed to
+production. With that in mind, let's
+option A. While using a tool like Sper
+with a red/black deployment strategy is
+a great way to make production
+deployment safer and easier to roll
+back. This option completely misses the
+required verification step before the
+code gets to production. Option B is
+also incorrect because it suggests
+running tests on production deployments.
+This is a very risky practice. The goal
+of a good pipeline is to catch bugs
+before they reach production and impact
+real users, not to test for them live.
+Next option C. This option describes a
+Canary release which is an advanced
+deployment strategy. However, it doesn't
+explicitly mention the crucial step of
+testing and verifying the changes in a
+dedicated staging environment first
+which was the core requirement of the
+question. This brings us to option D
+which describes a complete safe and
+standard CI/CD workflow. First, it uses
+Jenkins to monitor git tags, which is a
+best practice for triggering deployments
+of specific versions. Second, it deploys
+a version with a staging tag to a
+separate staging environment
+specifically for testing. This is the
+critical verification step. Finally,
+only after the changes have been
+successfully verified in staging, the
+version is given a production tag and
+deployed to the live environment. This
+is a controlled, safe and reliable
+process. Therefore, the best approach is
+D. Use Jenkins to monitor tags in the
+repository. Deploy staging tags to a
+staging environment for testing. After
+testing, tag the repository for
+production environment. Thanks for
+watching. If you found this video
+interesting and helpful, please like,
+share, and subscribe to our channel. See
+you in the next video. Happy learning.

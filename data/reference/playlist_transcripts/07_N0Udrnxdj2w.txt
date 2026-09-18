@@ -1,0 +1,1451 @@
+TITLE: Real Google Cloud Professional Cloud Architect Exam Questions & Answers | Part 7 (Questions 121-140)
+URL: https://www.youtube.com/watch?v=N0Udrnxdj2w
+DESCRIPTION:
+Master the Google Cloud Professional Architect exam with Part 7 of our comprehensive practice series! This video breaks down real exam questions 121-140, focusing on critical scenarios you'll face on test day. If you want to pass the GCP certification in 2025, this is the series for you.
+
+In this session, we dive deep into complex topics, including:
+✅ **VPC & Network Design:** Mastering complex Virtual Private Cloud configurations.
+✅ **Google Kubernetes Engine (GKE):** Architecting scalable and resilient containerized applications.
+✅ **Advanced Cost Optimization:** Strategies to manage and reduce cloud spending effectively.
+✅ **High-Availability Solution Architecture:** Designing systems that meet reliability and uptime goals.
+
+Our mission is not just to give you answers, but to help you build the core problem-solving skills of a true Cloud Architect. We explain the "why" behind every correct and incorrect option.
+
+
+▶️ **WATCH THE FULL 250+ QUESTION PLAYLIST HERE:**
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+
+--
+**RESOURCES & SUPPORT**
+🤝 Support the channel by liking, sharing, and subscribing! Your support allows us to create more free, high-quality content for the cloud community.
+
+Got a question? Drop it in the comments below! We read every single one. Good luck with your studies!
+
+#gcp #googlecloud #cloudarchitect #professionalcloudarchitect #gcpexamquestions #itcertification #googlecloudplatform #gke #vpc #costoptimization
+
+CHAPTERS:
+
+TRANSCRIPT:
+It's great to see you again. Let's move
+on to the next set of 20 questions.
+Question 121. You need to develop
+procedures to test a disaster plan for a
+mission critical application. You want
+to use Google recommended practices and
+native capabilities within GCP. What
+should you do? A. Use deployment manager
+to automate service provisioning. Use
+activity logs to monitor and debug your
+tests. B. Use deployment manager to
+automate service provisioning. Use stack
+driver to monitor and debug your tests.
+C. Use cloud scripts to automate service
+provisioning. Use activity logs to
+monitor and debug your tests. D. Use
+cloud scripts to automate service
+provisioning. Use stack driver to
+monitor and debug your tests. Okay, this
+is a question about the best practices
+for testing a disaster recovery plan on
+Google Cloud. We need to identify two
+key components. The right tool for
+automating the setup of our test
+environment and the right tool for
+monitoring and debugging the test
+itself. With that in mind, let's
+evaluate our options. Let's first look
+at the monitoring part. Options A and C
+suggest using activity logs. This is
+incorrect. Activity logs or cloud audit
+logs are for tracking administrative
+changes like who created a VM. They
+aren't designed for monitoring
+application performance or viewing
+system logs to find the cause of a
+failure during a test. The comprehensive
+tool for that is the stack driver suite,
+now known as Google Cloud's operations
+suite. This leaves us with options B and
+D, which both correctly identify stack
+driver as the right tool for monitoring.
+Now, we just need to choose the best
+tool for automating the service
+provisioning. Option D suggests using
+cloud scripts while option B suggests
+using deployment manager. While you can
+certainly automate things with cloud
+scripts, it's not the Google recommended
+best practice for managing complex
+infrastructure. Cloud scripts are
+imperative, meaning you tell them what
+to do step by step. Deployment manager
+is a declarative infrastructure as code
+service. You tell it what you want the
+final state to be and it figures out how
+to get there. This is a more robust,
+reliable and consistent way to manage
+infrastructure. Therefore, the best
+combination is using the recommended IA
+tool deployment manager for provisioning
+and the recommended monitoring suite
+stack driver for debugging. The correct
+answer is B. Use deployment manager to
+automate service provisioning and use
+stack driver to monitor and debug your
+tests. Question 122. Your company
+acquired a healthcare startup and must
+retain its customers medical information
+for up to four more years depending on
+when it was created. Your corporate
+policy is to securely retain this data
+and then delete it as soon as
+regulations allow. Which approach should
+you take?
+Store the data in Google Drive and
+manually delete records as they expire.
+B. Anonymize the data using the cloud
+data loss prevention API and store it
+indefinitely. C. Store the data in cloud
+storage and use life cycle management to
+delete files when they expire. D. Store
+the data in cloud storage and run a
+nightly batch script that deletes all
+expired data. Okay, this question is
+about data life cycle management and
+compliance. We need a solution that can
+both securely store sensitive medical
+information for a fixed period and then
+reliably and automatically delete it
+once that period is over. With that in
+mind, let's look at our options. Let's
+start with option A. Storing this kind
+of data in Google Drive and relying on
+manual deletion is not a good solution.
+Google Drive is not designed for this
+scale of application data and a manual
+process is unreliable and prone to human
+error. Next, option B suggests
+anonymizing the data and storing it
+indefinitely. This is incorrect because
+it violates a key requirement of the
+question which is to delete the data
+after the retention period expires.
+Option D suggests running a nightly
+batch script to delete the data. While
+this is a possible solution, it's not
+the best practice. It requires you to
+set up and manage a server or schedule
+job to run the script which adds
+complexity and operational overhead.
+There is a much simpler built-in way to
+do this. This brings us to option C
+which is the correct and Google
+recommended solution. First, cloud
+storage is the right service for
+securely storing this type of data
+archive. Second, it has a powerful
+built-in feature called object life
+cycle management. You can create a
+simple rule on your storage bucket that
+says automatically delete any file that
+is older than 4 years. This is a
+serverless, reliable and automated way
+to enforce your data retention policy
+without any manual work or custom
+scripts. Therefore, the best approach is
+C. Store the data in cloud storage and
+use life cycle management to delete
+files when they expire. Question 123.
+You are deploying a PHP app engine
+standard service with cloud SQL as the
+backend. You want to minimize the number
+of queries to the database. What should
+you do? A. Set the memake service level
+to dedicated. Create a key from the hash
+of the query and return database values
+from memake before issuing a query to
+cloud SQL. B. Set the memake service
+level to dedicated. Create a cron task
+that runs every minute to populate the
+cache with keys containing query
+results. C. Set the memake service level
+to shared. Create a cron task that runs
+every minute to save all expected
+queries to a key called cached
+underscore queries. D. Set the memake
+service level to shared. Create a key
+called cached queries and return
+database values from the key before
+using a query to cloud SQL. Okay, this
+question is about application
+performance optimization. Specifically,
+how to use caching to reduce the number
+of queries sent to a database? The goal
+is to find the most effective caching
+strategy for an app engine application.
+With that in mind, let's look at our
+options. Let's start by looking at
+options C and D. Both are incorrect
+because they suggest using a single key
+called cached queries for all results.
+This is a flawed design as you would
+constantly be overwriting the cache with
+different query results making it
+ineffective. Each unique query result
+needs its own unique key in the cache.
+Next, let's look at option B. It
+suggests using a cron task to
+prepopulate the cache every minute.
+While this can be a valid strategy in
+some cases, it's generally less
+efficient than caching data on demand.
+This approach only works for a
+predefined set of queries and might fill
+the cache with data that users never
+actually request. This brings us to
+option A which describes the correct and
+most standard caching pattern. First, it
+suggests using a dedicated memake
+service for better performance. Then it
+describes the cach aside pattern. Your
+application logic first creates a unique
+key based on the query it's about to
+run. It checks the cache for this key.
+If the result is found, it's returned
+immediately and the database is never
+touched. If the result is not in the
+cache, the application then queries the
+database, saves the result to the cache
+using that key for next time, and
+finally returns the data. This ondemand
+approach is highly effective at
+minimizing database queries. Therefore,
+the best thing to do is a set the memake
+service level to dedicated, create a key
+from the hash of the query, and return
+database values from memake before
+issuing a query to cloud SQL. Question
+124. You need to ensure reliability for
+your application and operations by
+supporting reliable task scheduling for
+compute on GCP leveraging Google best
+practices. What should you do? A. Using
+the cron service provided by app engine,
+publish messages directly to a message
+processing utility service running on
+compute engine instances. B. Using the
+cron service provided by app engine,
+publish messages to a cloud
+pub/subtopic.
+subscribe to that topic using a message
+compute engine instances. C. Using the
+cron service provided by Google
+Kubernetes engine GKE, publish messages
+directly to a message processing utility
+service running on compute engine
+instances. D. Using the cron service
+provided by GKE, publish messages to a
+cloud pub/subtopic.
+compute engine instances. Okay, this is
+a question about designing a reliable
+distributed system. The most important
+word in the question is reliable. This
+means we need an architecture that can
+tolerate failures ensuring that a
+scheduled task is never lost even if the
+processing service is temporarily
+unavailable. The best practice for this
+is to decouple your components using a
+message cue. With that in mind, let's
+evaluate our options. Let's look at
+option A where the cron service sends a
+message directly to the compute engine
+service. This is incorrect because it's
+a tightly coupled design. If the compute
+engine instance is down for any reason,
+the message from the cron service will
+be lost. This is not reliable. Options C
+and D are incorrect because they refer
+to a cron service provided by Google
+Kubernetes Engine. GKE doesn't have a
+native service with this name like App
+Engine does. You would use a Kubernetes
+cron job. Furthermore, option C makes
+the same mistake as option A by
+connecting directly. This brings us to
+option B which describes the correct and
+Google recommended architecture. The app
+engine cron service acts as the reliable
+scheduler. Instead of calling the
+processor directly, it publishes a
+message to a cloud pub/subtopic.
+Pub/sub is a durable message cue that
+will hold onto that message safely. The
+message processing service on compute
+engine then subscribes to that topic and
+pulls the message when it's ready. If
+the processor is down, pub/sub simply
+keeps the message until the processor
+comes back online, guaranteeing that the
+task will not be lost. This is a loosely
+coupled and highly reliable design.
+Therefore, the best way to ensure
+reliable task scheduling is B. Using the
+cron service provided by App Engine,
+publish messages to a cloud pub/subtopic
+and subscribe to that topic using a
+message processing utility service
+running on compute engine instances.
+Question 125. Your company is building a
+new architecture to support its
+datacentric business focus. You are
+responsible for setting up the network.
+Your company's mobile and web-f facing
+applications will be deployed on
+premises and all data analysis will be
+conducted in GCP. The plan is to process
+and load 7 years of archived CSV files
+totaling 900 tab of data and then
+continue loading 10 terabytes of data
+daily. You currently have an existing
+100 megbytes internet connection. What
+actions will meet your company's needs?
+Compress and upload both archived files
+and files uploaded daily using the
+pseudo option. B. Lease a transfer
+appliance. Upload archived files to it
+and send it to Google to transfer
+archive data to cloud storage. Establish
+a connection with Google using a
+dedicated interconnect or direct peering
+connection and use it to upload files
+daily. C. Lease a transfer appliance.
+upload archived files to it and send it
+to Google to transfer archive data to
+cloud storage. Establish one cloudVPN
+tunnel to VPC networks over the public
+internet and compress and upload files
+daily using the pseudo option. D lease a
+transfer appliance upload archived files
+to it and send it to Google to transfer
+a cloudVPN tunnel to VPC networks over
+the public internet and compress and
+upload files daily. Okay, this is a
+large-scale data migration question that
+has two distinct parts we need to solve.
+First, how to handle the massive
+one-time transfer of 900 tab of archived
+data. Second, how to handle the large
+ongoing transfer of 10 terabytes of new
+data every day. With that in mind, let's
+evaluate our options. Let's start with
+option A. which suggests using the
+pseudo tool over your internet
+connection for everything. This is
+incorrect. Trying to upload 900 terb
+over a 100 megbit connection would take
+an impractically long time, likely
+several years, and would be very
+unreliable. Now, let's look at options C
+and D. They both correctly identify that
+a transfer appliance should be used for
+the initial 900 TBTE archive. However,
+they both suggest using a cloudVPN for
+the ongoing 10 TBTE daily uploads. This
+is incorrect because a cloudVPN still
+runs over your existing public internet
+connection, which is too slow to handle
+that much data every day. This brings us
+to option B, which provides the correct
+two-part solution. For the initial
+massive 900 TBTE archive, you use a
+transfer appliance. This is a physical
+device that Google sends you for a fast
+and reliable offline data transfer. For
+the ongoing 10 terabyte daily uploads,
+you need a much faster connection than
+your current internet. The solution is
+to establish a high bandwidth link to
+Google's network using either a
+dedicated interconnect for a private
+connection or direct peering for a
+public one. This provides the necessary
+speed and reliability for the daily data
+loads. Therefore, the set of actions
+that meets your company's needs is B.
+Lease a transfer appliance for the
+archived files and establish a dedicated
+interconnect or direct peering
+connection for the daily uploads.
+Question 126. Your company is planning
+to perform a lift and shift migration of
+their Linux RH 6.5 plus virtual
+machines. The virtual machines are
+running in an on premises VMware
+environment. You want to migrate them to
+compute engine following Google
+recommended practices. What should you
+do? One, define a migration plan based
+on the list of the applications and
+their dependencies. Two, migrate all
+virtual machines into compute engine
+individually with migrate for compute
+engine. B1, perform an assessment of
+virtual machines running in the current
+VMware environment. Two, create images
+of all disks. Import disks on compute
+engine. Three, create standard virtual
+machines where the boot discs are the
+ones you have imported. See, one,
+perform an assessment of virtual
+machines running in the current VMware
+environment. Two, define a migration
+plan. Prepare a migrate for compute
+engine migration runbook and execute the
+migration. D1, perform an assessment of
+VMware environment. Two, install a third
+party agent on all selected virtual
+machines. Three, migrate all virtual
+machines into Compute Engine. Okay, this
+is a question about the process of
+migrating virtual machines from an
+on-remise VMware environment to Google
+Compute Engine. The key here is to
+follow the Google recommended practices
+which involves a structured process and
+using the right tools. With that in
+mind, let's evaluate our options. Let's
+start with option A. This option is on
+the right track by mentioning the
+correct tool migrate for compute engine,
+but it misses the essential first step
+of any migration, which is to perform a
+thorough assessment of the current
+environment before making a plan. Next,
+option B suggests a manual migration
+process of creating and importing disk
+images. This is incorrect because it's a
+very time-conuming and errorprone
+approach. Google provides a specialized
+tool to automate this and using it is
+the recommended practice. Option D is
+also incorrect. While migration tools
+often use agents, it suggests using a
+generic third party agent. The Google
+recommended practice is to use Google's
+own tool migrate for compute engine
+which has its own specific components
+for this task. This brings us to option
+C which describes the complete and
+correct Google recommended process. It
+starts with the most important first
+step. Perform an assessment of your
+current VMware environment. Based on
+that assessment, you define a migration
+plan and prepare a detailed runbook.
+Finally, you execute the migration using
+the purpose-built tool migrate for
+compute engine which automates the
+process of moving your VMs to the cloud.
+Therefore, the correct approach is C1,
+migration. Question 127. You are
+designing a large distributed
+application with 30 microservices. Each
+of your distributed microservices needs
+to connect to a database backend. You
+want to store the credentials securely.
+Where should you store the credentials?
+Use a managed instance group with
+instances in multiple zones. Use Cloud
+Fire Store and use an HTTP load balancer
+in front of the instances. B. Use a
+managed instance group with instances in
+multiple zones. Use Cloud Fire Store and
+use a network load balancer in front of
+the instances. C. Use an unmanaged
+instance group with an active and
+standby instance in different zones. Use
+a regional persistent disk and use an
+HTTP load balancer in front of the
+instances. D. Use an unmanaged instance
+group with an active and standby
+instance in different zones. Use a
+regional persistent disk and use a
+network load balancer in front of the
+instances. Okay, this is a detailed
+architectural design question. We need
+to build a high availability solution
+for a very specific type of application,
+one that doesn't scale horizontally and
+relies on a traditional file system.
+With that in mind, let's evaluate our
+options. Let's start with options A and
+B. Both are incorrect because they
+suggest using a managed instance group
+and cloud fire store. A managed instance
+group is for horizontally scalable
+applications, which the question says
+this is not. and cloud fire store is a
+database while the application needs to
+read and write to a file system. Next,
+let's look at option C. This option gets
+a lot of things right. The
+active/standby model in different zones
+is correct for high availability and
+using a regional persistent disk is the
+right way to share the file system data.
+However, it's incorrect because it
+suggests using an HTTP load balancer.
+The question states the application
+receives TCP traffic and an HTTP load
+balancer can only handle HTTP and HTTPS.
+This brings us to option D which is the
+correct architecture. It correctly uses
+an active and standby instance in
+different zones to provide high
+availability for a non-scalable
+application. It uses a regional
+persistent disk which provides a
+synchronously replicated block storage
+that can be accessed from either zone
+solving the shared file system
+requirement. Finally, it uses a network
+load balancer which is a layer 4 load
+balancer capable of handling the
+required TCP traffic and failing over
+between the active and standby instances
+if an issue occurs. Therefore, the
+correct way to design this architecture
+is D. Use an unmanaged instance group
+with an active and standby instance in
+different zones. Use a regional
+persistent disk and use a network load
+balancer in front of the instances.
+Question 128. Your company has an
+application running on multiple compute
+engine instances. You need to ensure
+that the application can communicate
+with an on- premises service that
+requires high throughput via internal
+IPs while minimizing latency. What
+should you do? A. Use OpenVPN to
+configure a VPN tunnel between the on-
+premises environment and Google Cloud.
+B. Configure a direct peering connection
+between the on- premises environment and
+Google Cloud. C. Use CloudVPN to
+D. Configure a cloud dedicated
+interconnect connection between the on-
+Okay, this is a hybrid cloud networking
+question that's all about performance.
+The key requirements we need to meet are
+high throughput, low latency, and the
+ability to communicate using private
+internal IP addresses. With that in
+start with option A, which suggests
+setting up your own OpenVPN server. This
+is not the recommended approach because
+it's a self-managed solution that would
+be complex and likely less performant
+and reliable than a native Google Cloud
+service. Next, let's look at option B, a
+direct peering connection. This is
+incorrect for this use case. Direct
+peering connects your network to
+Google's public edge, which is for
+accessing public Google services. It
+does not provide a private connection
+for your internal VMs to talk to your
+internal on-remise servers. Option C
+suggests using CloudVPN. While CloudVPN
+does provide a secure and private
+tunnel, it runs over the public
+internet. Because of that, it cannot
+guarantee the high throughput and
+minimized latency that the question
+requires. Its performance is subject to
+the conditions of the public internet.
+This brings us to option D, which is the
+correct answer. Cloud dedicated
+interconnect is the solution for this
+requirement. It provides a direct
+private physical connection between your
+data center and Google's network
+completely bypassing the public
+internet. This ensures you get the high
+throughput and low latency needed and it
+allows for direct communication between
+your internal IP addresses on premise
+and in your VPC. Therefore, the best way
+to meet these performance and security
+requirements is D. Configure a cloud
+dedicated interconnect connection
+Google cloud. Question 129. You are
+implementing a single CloudSQL MySQL
+second generation database that contains
+business critical transaction data. You
+want to ensure that the minimum amount
+of data is lost in case of catastrophic
+failure. Which two features should you
+implement? Choose two. Sharding B read
+replicas C. binary logging D. Automated
+backups, E. Semi-synchronous
+replication. Okay, this question is
+about data durability and disaster
+recovery for a critical cloud SQL
+database. The main goal is to find the
+features that best protect your data and
+minimize data loss in a worst case
+scenario. With that in mind, let's
+option A. Sharding. This is incorrect.
+Shardang is a technique for scaling a
+database by splitting data across
+multiple servers. It's a performance and
+scaling strategy, not a data loss
+prevention feature. Next option B, read
+replicas. This is also incorrect. Read
+replicas are for offloading read queries
+to improve performance. While they are
+part of a high availability strategy,
+their primary purpose is not to
+guarantee minimal data loss in a
+catastrophic failure. Option E,
+semi-synchronous replication is
+incorrect as well. This is a feature
+used in high availability configurations
+to ensure consistency between a primary
+and a replica. It's not a direct feature
+for minimizing data loss in a disaster
+recovery context. This brings us to
+option D, automated backups. This is a
+correct answer. Automated backups are a
+core feature of Cloud SQL that create
+daily full snapshots of your database.
+This gives you a solid point to recover
+from. However, a daily backup isn't
+enough on its own. To minimize data
+loss, you also need option C, binary
+logging. The binary log or bin log
+records every single data change that
+happens in your database. When you
+combine the daily automated backup with
+the continuous record from the binary
+log, you can perform what's called a
+point in time recovery. This allows you
+to restore your database to the exact
+moment right before the failure occurred
+which is the best way to ensure a
+minimum amount of data is lost.
+Therefore, the two features you should
+implement are C and D. Question 130. You
+are working at a sports association
+whose members range in age from 8 to 30.
+The association collects a large amount
+of health data such as sustained
+injuries. Current legislation requires
+you to delete such information upon
+request of the subject. You want to
+design a solution that can accommodate
+such a request. What should you do?
+Use a unique identifier for each
+individual. Upon a deletion request,
+delete all rows from BigQuery with this
+identifier. B. When ingesting new data
+in BigQuery, run the data through the
+data loss prevention DLP API to identify
+any personal information. As part of the
+DLP scan, save the result to data
+catalog. Upon a deletion request, query
+data catalog to find the column with
+personal information. C. Create a big
+query view over the table that contains
+all data. Upon a deletion request,
+exclude the rows that affect the
+subject's data from this view. Use this
+view instead of the source table for all
+analysis tasks. D. Use a unique
+identifier for each individual. Upon a
+deletion request, overwrite the column
+with the unique identifier with a salted
+SHA 256 of its value. Okay, this is a
+question about data security and legal
+compliance. The main challenge is to
+handle requests to delete a person's
+information as required by law,
+especially when the data is stored in
+BigQuery, a system built for large-scale
+analysis rather than frequent deletions.
+options. Let's start with option A.
+While it's possible to delete rows from
+BigQuery using an identifier, it's a
+very inefficient and costly operation on
+a large table. BigQuery is not designed
+for frequent rowle modifications. So
+this is not a best practice. Next option
+C suggests creating a big query view to
+hide the data. This is incorrect because
+a view is just a filter over the
+original data. The actual information
+still exists in the source table which
+does not satisfy the legal requirement
+to actually delete the information.
+Option D suggests overwriting the
+identifier with a hash. This is a form
+of anonymization,
+not deletion. The hash data can still be
+used to identify records related to a
+specific person. So this also fails to
+comply with the legal requirement to
+delete the data. This brings us to
+option B which describes a proper and
+compliant data governance strategy.
+First, as you ingest data, you run it
+through the cloud data loss prevention
+or DLP API. DLP is designed to
+automatically find and classify
+sensitive information. Second, you save
+these findings as metadata in data
+catalog. This allows you to easily keep
+track of where all your sensitive data
+is stored. Finally, when a deletion
+request comes in, you can query data
+catalog to quickly find all the columns
+containing that person's information,
+which you can then address. This
+approach provides an effective way to
+manage and govern sensitive data across
+your system. Therefore, the best
+solution to design is B. When ingesting
+new data in BigQuery, run the data
+through the data loss prevention DLP API
+to identify any personal information. As
+part of the DLP scan, save the result to
+data catalog. Upon a deletion request,
+query data catalog to find the column
+with personal information. Question 131.
+Your company has announced that they
+will be outsourcing operations
+functions. You want to allow developers
+to easily stage new versions of a
+cloud-based application in the
+production environment and allow the
+outsourced operations team to
+autonomously promote staged versions to
+production. You want to minimize the
+operational overhead of the solution.
+Which Google cloud product should you
+migrate to? App Engine, B, GKE onrem, C.
+Compute Engine, D. Google Kubernetes
+Engine. Okay, this is a question about
+choosing the right application platform
+on Google Cloud to support a modern
+DevOps workflow. The key requirements
+are to have a clear process for
+developers to stage new versions and for
+an operations team to promote them all
+while keeping the management work as
+simple as possible. With that in mind,
+let's look at our options. Let's start
+with option C, compute engine. This is
+incorrect because it's just basic
+infrastructure. you would have to build,
+configure and maintain the entire
+deployment and promotion platform
+yourself, which would be a massive
+amount of operational overhead. Next
+option B is GKE onrem. This is also
+incorrect because it's for running
+Kubernetes in your own data center, not
+for migrating to the cloud. It would
+also increase your operational workload,
+not minimize it. Option A is App Engine.
+While App Engine is a managed platform
+with versioning capabilities, Google
+Kubernetes Engine is generally the more
+powerful and flexible choice for
+building the kind of sophisticated
+containerbased deployment pipelines
+described in the question. This brings
+us to option D, which is the correct
+answer. Google Kubernetes Engine or GKE
+is a managed container orchestration
+platform that is ideal for this
+scenario. It provides a standard way for
+developers to package and deploy their
+new versions for staging. The operations
+team can then use standard Kubernetes
+tools or CI/CD systems to easily promote
+those exact versions to production.
+Because GKE is a managed service, Google
+handles much of the underlying
+complexity, which minimizes the
+operational overhead for your outsource
+team, allowing them to focus on the
+application. Therefore, the Google Cloud
+product you should migrate to is D
+Google Kubernetes Engine. Question 132.
+Your company is running its application
+workloads on compute engine. The
+applications have been deployed in
+production, acceptance and development
+environments. The production environment
+is business critical and is used 24/7
+while the acceptance and development
+environments are only critical during
+office hours. Your CFO has asked you to
+optimize these environments to achieve
+cost savings during idle times. What
+should you do? Hey, create a shell
+script that uses the cloud command to
+change the machine type of the
+development and acceptance instances to
+a smaller machine type outside of office
+hours. Schedule the shell script on one
+of the production instances to automate
+the task. B. Use clouduler to trigger a
+cloud function that will stop the
+development and acceptance environments
+after office hours and start them just
+before office hours. C. Deploy the
+development and acceptance applications
+on a managed instance group and enable
+autoscaling. D. Use regular compute
+engine instances for the production
+environment and use preemptable VMs for
+the acceptance and development
+environments. Okay, this is a very
+practical cost optimization question.
+The goal is to save money on development
+and acceptance environments that are
+only used during business hours. The
+most effective way to save money on
+virtual machines is to turn them off
+completely when they're not needed. With
+that in mind, let's look at our options.
+Let's start with option A. It suggests
+resizing the VMs to a smaller machine
+type. This isn't the best approach
+because you'd still be paying for a
+running machine. Stopping the instances
+entirely saves much more money. Also,
+running the script from a production
+server is a bad practice that could put
+your critical environment at risk. Next,
+let's look at option C. Using an
+autoscaled managed instance group. While
+autoscaling is great for handling
+variable load, it's not designed to
+scale down to zero instances. You would
+likely still have at least one VM
+running at all times, which means you'd
+still be incurring costs. Option D
+suggests using preemptable VMs. This is
+also not a good fit. Preemptable VMs can
+be shut down by Google at any time with
+very little warning which would be very
+disruptive for developers and testers
+who need a stable environment to work in
+during the day. This brings us to option
+B which describes the correct and Google
+recommended serverless solution. You use
+clouduler which is a fully managed cron
+service to trigger an event at a
+specific time like at the end of the
+workday. That trigger invokes a cloud
+function which is a small serverless
+piece of code that you write to stop all
+the development and acceptance VMs. You
+would schedule another event to trigger
+a similar function to start them up
+again before the workday begins. This
+approach is fully automated, has minimal
+operational overhead and provides the
+maximum cost savings. Therefore, the
+best thing to do is B. Use clouduler to
+trigger a cloud function that will stop
+the development and acceptance
+environments after office hours and
+start them just before office hours.
+Question 133. You are migrating your on
+premises data center to Google Cloud. As
+part of the migration, you want to
+integrate Google Kubernetes Engine GKE
+for workload orchestration. Parts of
+your architecture must also be PCIDSS
+compliant. Which of the following is
+most accurate? One, set up CloudVPN to
+provide private network connectivity
+between the compute engine application
+and the on- premises MySQL server. Two,
+stop the on- premises application.
+Three, create a MSL dump of the on-
+premises MySQL server. Four, upload the
+dump to a cloud storage bucket. Five,
+import the dump into cloud SQL. Six,
+modify the source code of the
+application to write queries to both
+databases and read from its local
+database. Seven, start the compute
+engine application. Eight, stop the on-
+premises application. B1, set up cloud
+SQL proxy and MySQL proxy. Two, create a
+MSL dump of the on premises MySQL
+server. Three, upload the dump to a
+cloud storage bucket. Four, import the
+dump into cloud SQL. Five, stop the on-
+premises application. Six, start the
+compute engine application. See, one,
+set up CloudVPN to provide private
+network connectivity between the compute
+engine application and the on- premises
+MySQL server. Two, stop the on- premises
+application. Three, start the compute
+engine application configured to read
+and write to the on- premises MySQL
+server. Four, create the replication
+configuration in cloud SQL. Five,
+configure the source database server to
+accept connections from the cloud SQL
+replica. Six, finalize the cloud SQL
+replica configuration. Seven, when
+replication has been completed, stop the
+compute engine application. Eight,
+promote the CloudSQL replica to a
+standalone instance. Nine, restart the
+Compute Engine application configured to
+read and write to the CloudSQL
+standalone instance. D1, stop the on
+premises application. Two, create a MSL
+dump of the on- premises MySQL server.
+Three, upload the dump to a cloud
+storage bucket. Four, import the dump
+into Cloud SQL. Five, start the
+application on compute engine. Okay,
+this is a detailed database migration
+question. The most important
+requirements are minimal downtime and no
+data loss. This tells us that we need a
+strategy that doesn't involve taking the
+application offline for a long period to
+copy data. With that in mind, let's look
+at the options that use miscll dump,
+which are A, B, and D. A miscal dump is
+a point in time backup. To get a
+consistent backup without losing data,
+you have to stop the application first.
+This would cause significant downtime
+which violates the main requirement of
+the question. Therefore, any strategy
+that relies on stopping the application
+to take a dump is incorrect. Option A
+also has another problem. It requires
+modifying the application to write to
+both databases at once. This is a major
+code change and violates the minimal
+modification requirement. This brings us
+to option C which describes the correct
+and Google recommended procedure for a
+minimal downtime database migration. The
+strategy is based on continuous
+replication. First, you set up a private
+network connection using CloudVPN. Then
+you can start your new application on
+Compute Engine but have it continue to
+talk to the old onremise database. While
+the application is still running, you
+configure your new cloud SQL instance as
+a replica of the on-remise one and let
+it sync all the data. Once the replica
+is fully caught up, you can perform a
+very quick cut over. You briefly stop
+the application, promote the cloud SQL
+replica to be the new master database
+and reconfigure your application to
+point to it. The only downtime is the
+very short time it takes to perform this
+final switch. Therefore, the cut over
+strategy that meets all the requirements
+is C. Question 134. Your organization
+has decided to restrict the use of
+external IP addresses on instances to
+only approved instances. You want to
+enforce this requirement across all of
+your virtual private clouds VPCs. What
+should you do?
+Remove the default route on all VPCs.
+Move all approved instances into a new
+subnet that has a default route to an
+internet gateway. B. Create a new VPC in
+custom mode. Create a new subnet for the
+approved instances and set a default
+route to the internet gateway on this
+new subnet. C. Implement a cloud NAT
+solution to remove the need for external
+IP addresses entirely. D. Set an
+organization policy with a constraint on
+constraints/mputee.vm
+external IP access. List the approved
+instances in the allowed values list.
+Okay, this is a question about
+governance and security at a large scale
+in Google Cloud. The core challenge is
+to enforce a specific rule restricting
+the use of external IP addresses across
+the entire organization, not just in one
+project or VPC. With that in mind, let's
+options A and B. Both of these suggest
+making manual network changes either by
+removing routes or creating new VPCs.
+These are incorrect because they are not
+scalable solutions. They would require
+you to manually configure every single
+VPC and they wouldn't prevent someone
+from creating a new non-compliant
+network in the future. Next, option C
+suggests implementing cloud NAT. This is
+also incorrect. Cloud NAT is a service
+that allows private instances to access
+the internet. It is not a policy tool
+used to prevent other instances from
+having public IPs. This brings us to
+option D which is the correct and Google
+recommended solution for this type of
+problem. The organization policy service
+is designed specifically to enforce
+these kinds of guardrails across your
+entire cloud environment. There is a
+specific policy constraint called
+compute.vm external IP access that
+controls whether VMs are allowed to have
+external IP addresses. You can set this
+policy at the organization level to deny
+external IPs for everyone and then
+specify a list of your approved
+instances as exceptions. This is the
+only method that is centralized,
+automated and scalable. Therefore, the
+best way to enforce this requirement is
+D. Set an organization policy with a
+constraint on constraints/mputee.
+VM external IP access and list the
+approved instances in the allowed values
+list. Question
+135. Your company uses the firewall
+insights feature in the Google network
+intelligence center. You have several
+firewall rules applied to compute engine
+instances. You need to evaluate the
+efficiency of the applied firewall rule
+set. When you bring up the firewall
+insights page in the Google Cloud
+Console, you notice that there are no
+log rows to display. What should you do
+to troubleshoot the issue? A. Enable
+virtual private cloud VPC flow logging.
+B. Enable firewall rules logging for the
+firewall rules you want to monitor. C.
+Verify that your user account is
+assigned the compute.network admin
+identity and access management IM role.
+D. Install the Google Cloud SDK and
+verify that there are no firewall logs
+in the command line output. Okay, this
+is a troubleshooting question for a
+specific networking tool called firewall
+insights. The core problem is that the
+tool isn't showing any data. To solve
+this, we need to understand where
+firewall insights gets its data from.
+options. Let's start with option A,
+enabling VPC flow logging. This is
+incorrect. While VPC flow logs are
+useful for network analysis, they are a
+separate feature. Firewall Insights is
+specifically designed to analyze logs
+generated by the firewall rules
+themselves, not the general network
+flow. Next, let's look at option C,
+verifying your IM role. This is also
+incorrect for this specific problem.
+While you do need the right permissions
+to see the page, the issue described is
+that there are no log rows to display,
+which means no data is being generated.
+This is a data source problem, not a
+permissions problem. Option D suggests
+installing the Google Cloud SDK. This is
+incorrect because the SDK is a tool for
+your local computer to manage cloud
+resources. Installing it has no effect
+on whether the firewall service in the
+cloud is generating logs. This brings us
+to option B, which is the correct
+solution. Firewall insights relies on
+data from firewall rules logging. For
+performance reasons, this logging is not
+enabled by default on your firewall
+rules. You must explicitly go to the
+firewall rules you want to monitor and
+turn on logging for each one. Once
+logging is enabled, Google Cloud will
+start generating logs whenever those
+rules are matched. And this data will
+then flow into firewall insights for you
+to analyze. Therefore, the thing you
+should do to troubleshoot the issue is
+firewall rules you want to monitor.
+Question 136. Your company has sensitive
+data in cloud storage buckets. Data
+analysts have identity access management
+IM permissions to read the buckets. You
+want to prevent data analysts from
+retrieving the data in the buckets from
+outside the office network. What should
+you do? One, create a VPC service
+controls perimeter that includes the
+projects with the buckets. Two, create
+an access level with the CI of the
+office network. B one create a firewall
+rule for all instances in the virtual
+private cloud VPC network for source
+range. Two use the classless interd
+domain routing CIR of the office
+network. See one create a cloud function
+to remove IM permissions from the
+buckets and another cloud function to
+add IM permissions to the buckets. Two,
+schedule the cloud functions with
+clouduler to add permissions at the
+start of business and remove permissions
+at the end of business. D1, create a
+cloud VPN to the office network. Two,
+configure private Google access for on
+premises hosts. Okay, this is a data
+security question about controlling
+access based on the user's location. The
+core challenge is that standard IM
+permissions grant access from anywhere.
+But we need to add another layer of
+security to ensure data can only be
+accessed from the office network. With
+that in mind, let's evaluate our
+options. Let's start with option B,
+which suggests using VPC firewall rules.
+This is incorrect because firewall rules
+apply to traffic going to and from your
+compute engine virtual machines. They
+don't control access to managed services
+like cloud storage. Next, option C
+proposes a complicated solution using
+cloud functions to add and remove IM
+permissions on a schedule. This is not a
+good idea. It's a brittle workaround
+that is difficult to manage and doesn't
+provide real-time security. Option D
+suggests using CloudVPN and private
+Google access. While these are important
+networking tools, they are not designed
+to solve this specific access control
+problem. They don't enforce access
+policies on users based on their network
+location. This brings us to option A
+recommended solution for this scenario.
+This approach uses two key components.
+First, you create a VPC service controls
+perimeter. Think of this as a virtual
+wall you build around your sensitive
+services like your cloud storage
+buckets. Second, you create an access
+level that defines the trusted office
+network based on its IP address range.
+By applying this access level to the
+perimeter, you are telling Google Cloud
+to block any attempt to access the data
+from outside that trusted network, even
+if the user has the correct IM
+permissions. This is the standard way to
+implement contextaware security.
+Therefore, the correct thing to do is a
+create a VPC service controls parimeter
+that includes the projects with the
+buckets and create an access level with
+the CI of the office network. Question
+137. You have developed a non-critical
+update to your application that is
+running in a managed instance group and
+have created a new instance template
+with the update that you want to
+release. To prevent any possible impact
+to the application, you don't want to
+update any running instances. You want
+any new instances that are created by
+the managed instance group to contain
+the new update. What should you do?
+Start a new rolling restart operation.
+B. Start a new rolling replace
+operation. C. Start a new rolling
+update. Select the proactive update
+mode. D. Start a new rolling update.
+Select the opportunistic update mode.
+Okay. This question is about how to
+manage updates in a managed instance
+group or MIG in a very specific and safe
+way. The goal is to apply an update for
+all future instances without disturbing
+the ones that are currently running.
+B. A rolling restart or a rolling
+replace. Both of these are incorrect
+because they are disruptive actions that
+would immediately begin restarting or
+replacing your currently running
+instances, which is exactly what the
+question asks to avoid. Next, let's look
+at option C, which suggests a rolling
+update in proactive mode. This is also
+incorrect. The proactive update mode is
+designed to actively and automatically
+replace your old instances with new
+ones. While this is a common way to
+update, it violates the requirement to
+leave the running instances untouched.
+correct solution. It suggests a rolling
+update using the opportunistic update
+mode. This mode is designed for exactly
+this scenario. It tells the instance
+group about the new version, but does
+not actively replace any running
+instances. Instead, it waits for an
+opportunity to apply the update. This
+means any new instance created by the
+autoscaler or any instance recreated by
+the autohealer will be created using the
+new updated template. This perfectly
+meets both requirements. The existing
+instances are not affected and all new
+instances will have the update.
+Therefore, the correct thing to do is D.
+Start a new rolling update and select
+the opportunistic update mode. Question
+138. Your company is designing its
+application landscape on compute engine.
+Whenever a zonal outage occurs, the
+application should be restored in
+another zone as quickly as possible with
+the latest application data. You need to
+design the solution to meet this
+requirement. What should you do? A
+create a snapshot schedule for the disk
+containing the application data.
+Whenever a zonal outage occurs, use the
+latest snapshot to restore the disk in
+the same zone. B. Configure the compute
+engine instances with an instance
+template for the application and use a
+regional persistent disk for the
+application data. Whenever a zonal
+outage occurs, use the instance template
+to spin up the application in another
+zone in the same region. Use the
+application data. C. Create a snapshot
+schedule for the disk containing the
+outage occurs, use the latest snapshot
+to restore the disk in another zone
+within the same region. D. Configure the
+compute engine instances with an
+instance template for the application
+and use a regional persistent disk for
+the application data. Whenever a zonal
+region. Use the regional persistent disk
+for the application data. Okay, this is
+a question about designing a high
+availability architecture for a stateful
+application on compute engine. The two
+most important requirements are to
+recover from a zone failure as quickly
+as possible and with the most recent
+data. With that in mind, let's evaluate
+our options. Let's start with option A.
+It's incorrect because it suggests
+restoring the disk in the same zone that
+has the outage, which wouldn't work.
+Next, let's look at option C. While
+restoring a snapshot to another zone is
+a valid disaster recovery technique,
+it's not the best solution here.
+Restoring from a snapshot can take time
+which doesn't meet the as quickly as
+possible requirement. Also, a snapshot
+is a point in time backup, so it might
+not have the absolute latest application
+data. Option D is incorrect because it
+describes something that isn't possible.
+A regional persistent disk exists only
+within one region and cannot be used by
+an application in a different region.
+This brings us to option B which is the
+correct and recommended solution. This
+architecture uses a regional persistent
+disk. This type of disk automatically
+and synchronously replicates your data
+across two zones within the same region.
+This means if your primary zone goes
+down, an identical up to the second copy
+of your data is already waiting in the
+second zone. In the event of an outage,
+you would simply use your instance
+template to quickly launch a new
+application instance in the healthy zone
+and attach the already synced regional
+disk. This is the fastest way to recover
+with the latest data. Therefore, the
+best design to meet these requirements
+is B. Configure the compute engine
+instances with an instance template for
+the application and use a regional
+persistent disk for the application
+data. Whenever a zonal outage occurs,
+use the instance template to spin up the
+application in another zone in the same
+for the application data. Question 139.
+Your company has just acquired another
+company and you have been asked to
+integrate their existing Google Cloud
+environment into your company's data
+center. Upon investigation, you discover
+that some of the RFC1918
+IP ranges being used in the new
+company's virtual private cloud VPC
+overlap with your data center IP space.
+What should you do to enable
+connectivity and make sure that there
+are no routing conflicts when
+connectivity is established?
+Create a cloudVPN connection from the
+new VPC to the data center. Create a
+cloud router and apply new IP addresses
+so there is no overlapping IP space. B.
+new VPC to the data center and create a
+cloud NAT instance to perform NAT on the
+overlapping IP space. C. Create a
+cloudVPN connection from the new VPC to
+the data center. Create a cloud router
+and apply a custom route advertisement
+to block the overlapping IP space. D.
+create a cloudVPN connection from the
+new VPC to the data center and apply a
+firewall rule that blocks the
+overlapping IP space. Okay, this is a
+very common and important networking
+problem that occurs during company
+mergers or integrations. The core issue
+is an overlapping IP space which means
+both the on-remise network and the new
+Google Cloud VPC are trying to use the
+same IP addresses. The fundamental rule
+of networking is that when you connect
+two networks, every IP address must be
+unique. If you have the same IP address
+in two different places, the network
+routers get confused and don't know
+where to send traffic, which leads to a
+routing conflict. The only way to truly
+fix this is to change the IP addresses
+on one of the networks so there is no
+overlap. With that fundamental rule in
+mind, let's look at the options. Option
+D suggests using a firewall rule. This
+is incorrect because a firewall can only
+block traffic. It can't fix a broken
+route. The routing problem happens
+before the firewall rule is even
+evaluated. Option C, using a custom
+route advertisement to block the
+overlapping space is also incorrect.
+This just prevents the networks from
+trying to talk to each other. It doesn't
+actually solve the underlying address
+conflict that would allow them to
+communicate. Next, option B suggests
+using cloud NAT. This is not the right
+tool for this job. Cloud NAT is used to
+allow private VMs to access the public
+internet. It's not designed to resolve
+routing conflicts between two private
+networks. This brings us to option A,
+which is the correct solution. It's the
+only option that addresses the root
+cause of the problem. It states that you
+must apply new IP addresses so there is
+no overlapping IP space. This step,
+readressing one of the networks, is the
+essential prerequisite to establishing a
+working connection. Once the IP conflict
+is resolved, you can then proceed to
+create the cloudVPN and cloud router to
+connect the two environments. Therefore,
+the correct thing to do is a create a
+the data center, create a cloud router,
+and apply new IP addresses so there is
+no overlapping IP space. Question 140.
+You need to migrate Hadoop jobs for your
+company's data science team without
+modifying the underlying infrastructure.
+You want to minimize costs and
+infrastructure management effort. What
+should you do? A. Create a data proc
+cluster using standard worker instances.
+B. Create a data proc cluster using
+preemptable worker instances. C.
+Manually deploy a Hadoop cluster on
+Compute Engine using standard instances.
+D. Manually deploy a Hadoop cluster on
+Compute Engine using preemptable
+instances. Okay, this is a question
+about migrating a big data workload to
+Google Cloud. The key requirements are
+to minimize both the cost and the amount
+of work required to manage the
+infrastructure while being able to run
+existing Hadoop jobs without changes.
+options. Let's first look at the options
+that involve manually deploying a Hadoop
+cluster on compute engine which are C
+and D. Both of these are incorrect
+because they would require a massive
+amount of infrastructure management. You
+would be responsible for installing,
+configuring, and maintaining the entire
+Hadoop cluster yourself which directly
+contradicts the requirement to minimize
+operations work. Now let's compare
+options A and B which both correctly
+suggest using data proc. Data proc is
+Google's managed service for Hadoop and
+Spark, which is the perfect choice to
+minimize management effort and run your
+existing jobs without modification. The
+only difference is the type of worker
+instances they use. Option A suggests
+using standard worker instances. While
+this would work, it's not the most
+cost-effective solution. Hadoop jobs are
+often batch workloads that can tolerate
+interruptions. This brings us to option
+B which is the correct and most optimal
+answer. It uses data proc to minimize
+the management effort and it uses
+preemptable worker instances.
+Preemptable VMs are much cheaper than
+standard VMs and are ideal for fault
+tolerant batch jobs. This combination
+perfectly satisfies all the
+requirements. It's a managed service
+that runs Hadoop jobs and it uses the
+most cost effective compute option.
+Therefore, the best thing to do is be
+Create a data proc cluster using
+preemptable worker instances. Thanks for
+watching. If you found this video
+interesting and helpful, please like,
+share, and subscribe to our channel. See
+you in the next video. Happy learning.

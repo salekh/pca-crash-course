@@ -1,0 +1,904 @@
+[
+  {
+    "id": "pl-v0104-001",
+    "domain": 2,
+    "topic": "Linux Kernel Network Tuning & Socket Buffer Ceilings on Compute Engine",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A media streaming service running on Google Compute Engine Linux VMs transmits high-bitrate video feeds over long-haul intercontinental links with a high Bandwidth-Delay Product (BDP). Engineers tuned net.ipv4.tcp_wmem to increase the maximum TCP send window to 32 MB, yet packet captures show TCP connections never scale their send window above 212 KB. Which kernel parameter must you modify to remove this ceiling?",
+    "options": [
+      "net.core.rmem_max",
+      "net.core.wmem_max",
+      "net.ipv4.tcp_rmem",
+      "net.core.somaxconn"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "In the Linux kernel networking stack, net.core.wmem_max enforces the absolute global upper bound on all socket send buffers, overriding higher values configured in net.ipv4.tcp_wmem.",
+    "explanation": "Option B (net.core.wmem_max) is correct because in Linux networking, protocol-specific TCP send buffer settings (net.ipv4.tcp_wmem) are strictly capped by the global kernel socket send buffer maximum defined by net.core.wmem_max. Until net.core.wmem_max is raised to at least 32 MB, the kernel silently clamps outbound TCP send windows at the default net.core.wmem_max value.",
+    "whyWrong": {
+      "0": "net.core.rmem_max sets the global ceiling for socket receive buffers (inbound data), not outbound send buffers.",
+      "2": "net.ipv4.tcp_rmem controls TCP receive buffer autotuning for incoming packets and has no effect on outbound send window clamping.",
+      "3": "net.core.somaxconn limits the listen queue backlog for pending TCP SYN connections rather than socket buffer memory size."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=BMr-po8LpM0",
+      "https://cloud.google.com/compute/docs/networking/tcp-optimization-for-network-performance-in-gcp-and-hybrid"
+    ]
+  },
+  {
+    "id": "pl-v0104-002",
+    "domain": 1,
+    "topic": "Stateless Horizontal Scaling & Externalizing Session State on App Engine",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "An e-commerce web application deployed on Google App Engine Standard experiences flash-sale traffic spikes. During peak load when App Engine scales from 2 instances to 45 instances, customers report that items added to their shopping cart randomly disappear or revert to earlier cart states on subsequent page refreshes. What architectural change should you implement to resolve this issue?",
+    "options": [
+      "Move user shopping cart and session state out of in-memory instance variables into Memorystore for Redis or Firestore.",
+      "Configure HTTP Cache-Control: no-store headers on all App Engine responses.",
+      "Switch the App Engine scaling configuration from automatic scaling to manual scaling with 1 large instance.",
+      "Increase the idle timeout on the external HTTP(S) Load Balancer."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Horizontally autoscaled compute platforms (App Engine, Cloud Run, MIGs) require stateless application instances backed by an external shared state store like Memorystore for Redis or Firestore.",
+    "explanation": "Option A is correct because App Engine distributes incoming HTTP requests across dynamically scaled instances. When shopping cart or session state is stored in local process memory on one instance, subsequent requests routed to any of the other 44 instances see empty or stale local memory. Externalizing session state into Memorystore for Redis or Firestore ensures all instances read and write consistent state.",
+    "whyWrong": {
+      "1": "HTTP Cache-Control headers only govern browser/proxy response caching and do not synchronize server-side memory across App Engine instances.",
+      "2": "Pinning all traffic to a single manually scaled instance creates a single point of failure and bottlenecks flash-sale throughput.",
+      "3": "Load balancer idle keep-alive timeouts control TCP connection reuse and do not prevent requests from routing across stateless App Engine instances."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=BMr-po8LpM0",
+      "https://cloud.google.com/appengine/docs/standard/designing-for-scale"
+    ]
+  },
+  {
+    "id": "pl-v0104-003",
+    "domain": 3,
+    "topic": "Zero-Trust Bastion Isolation with IAP TCP Forwarding & Scoped VPC Peering",
+    "difficulty": "hard",
+    "type": "multi",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A regulated healthcare platform runs sensitive workloads in a private production VPC with no external IP addresses. An external third-party auditor requires temporary SSH access to inspect a single compliance VM inside the production VPC without exposing the production network to broad VPN access or public internet ingress. Which three architectural steps should you combine to grant secure least-privilege access? Choose three.",
+    "options": [
+      "Provision a dedicated temporary VPC containing a bastion VM with no external IP address.",
+      "Establish VPC Network Peering between the temporary VPC and the production VPC with firewall rules allowing SSH only from the bastion VM to the single compliance VM.",
+      "Grant the external auditor the IAP-Secured Tunnel User IAM role on the bastion VM to tunnel SSH over Identity-Aware Proxy (IAP).",
+      "Configure a Site-to-Site IPsec Cloud VPN tunnel directly between the auditor's office router and the production VPC.",
+      "Assign ephemeral public IP addresses to all VMs in the production VPC and open port 22 to 0.0.0.0/0."
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "hint": "Combine an isolated bastion VPC, tightly scoped VPC Peering + tag-based firewall rules, and Identity-Aware Proxy (IAP) TCP forwarding to grant zero-trust third-party SSH access without public IPs.",
+    "explanation": "Options A, B, and C implement defense-in-depth zero-trust access: isolating the jump host in a dedicated temporary VPC (Option A), peering it to the production VPC with firewall rules restricting lateral movement strictly to port 22 on the single target VM (Option B), and authenticating the external auditor via Identity-Aware Proxy TCP forwarding without any public IP exposure (Option C).",
+    "whyWrong": {
+      "3": "Terminating a third-party VPN directly into the production VPC exposes the production address space to an untrusted external network.",
+      "4": "Assigning public IP addresses and opening port 22 to the entire internet creates a severe security vulnerability."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=BMr-po8LpM0",
+      "https://cloud.google.com/iap/docs/using-tcp-forwarding"
+    ]
+  },
+  {
+    "id": "pl-v0104-004",
+    "domain": 2,
+    "topic": "API Versioning & Path-Based Routing on Global External HTTP(S) Load Balancers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your engineering organization is launching v2 of its public REST API built on Cloud Run while legacy enterprise customers continue calling v1 running on Compute Engine Managed Instance Groups. Both API versions must be served under the exact same domain name (api.example.com) and single TLS certificate while allowing independent deployments and autoscaling for v1 and v2. How should you architect the ingress layer?",
+    "options": [
+      "Deploy two separate External Passthrough Network Load Balancers with distinct anycast IPs and use round-robin DNS records.",
+      "Configure a single Global External Application Load Balancer with URL map host/path rules routing /v1/* to the MIG backend service and /v2/* to the Cloud Run Serverless NEG backend service.",
+      "Package both v1 and v2 codebases into the same Compute Engine VM image and deploy them in a single shared Managed Instance Group.",
+      "Require all external API clients to connect over Cloud VPN and use internal DNS forwarding zones."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "A Global External Application Load Balancer (HTTP/S) uses URL maps to route different URL paths (/v1/* vs /v2/*) to completely independent backend services (MIGs, GKE, or Cloud Run Serverless NEGs) behind a single IP and SSL certificate.",
+    "explanation": "Option B is correct because Google Cloud's Global External Application Load Balancer terminates TLS at the edge using a single certificate and hostname, then evaluates URL map path matchers to route /v1/* traffic to the Compute Engine MIG backend service and /v2/* traffic to the Cloud Run Serverless Network Endpoint Group (NEG).",
+    "whyWrong": {
+      "0": "Passthrough Network Load Balancers operate at Layer 4 (TCP/UDP) and cannot inspect HTTP URL paths or terminate TLS certificates.",
+      "2": "Coupling v1 and v2 into a single VM image and shared instance group prevents independent scaling, deployment velocity, and fault isolation.",
+      "3": "Forcing public REST API consumers onto private IPsec VPN tunnels is operationally unfeasible for external developer ecosystems."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=BMr-po8LpM0",
+      "https://cloud.google.com/load-balancing/docs/url-map-concepts"
+    ]
+  },
+  {
+    "id": "pl-v0104-005",
+    "domain": 2,
+    "topic": "Hybrid Connectivity Selection Matrix: Direct Peering vs Interconnect",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A university campus network wants to connect its border routers directly to Google's edge network to optimize employee and student access to Google Workspace, YouTube, and public Google Cloud APIs. They do not need private RFC 1918 connectivity to VPC networks, do not require a financially backed uptime SLA, and have zero budget for monthly Google Cloud port charges. Which connectivity option meets all of these constraints?",
+    "options": [
+      "Dedicated Interconnect",
+      "Partner Interconnect",
+      "Direct Peering",
+      "HA VPN with Cloud Router"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "Direct Peering provides free BGP peering with Google's edge PoPs for public Google services (Workspace and public APIs) when private VPC RFC 1918 routing and a formal SLA are not required.",
+    "explanation": "Option C (Direct Peering) is correct because Direct Peering establishes a direct BGP session between customer border routers and Google's edge network at a public peering facility for $0 Google Cloud fee. It routes traffic to all public Google IP addresses (Google Workspace and public APIs) without providing private VPC RFC 1918 routing or an enterprise Interconnect SLA.",
+    "whyWrong": {
+      "0": "Dedicated Interconnect charges monthly port and VLAN attachment fees and is designed for private RFC 1918 VPC connectivity with a 99.99% SLA.",
+      "1": "Partner Interconnect incurs both Google Cloud VLAN attachment fees and carrier service provider charges.",
+      "3": "HA VPN incurs hourly tunnel charges and egress bandwidth charges while encrypting traffic into a private VPC rather than peering for public Workspace traffic."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=BMr-po8LpM0",
+      "https://cloud.google.com/network-connectivity/docs/direct-peering"
+    ]
+  },
+  {
+    "id": "pl-v0104-006",
+    "domain": 6,
+    "topic": "Diagnosing MIG Autohealing Reboot Loops Behind HTTP(S) Load Balancers",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You deployed a private web tier inside a Managed Instance Group (MIG) with no external IP addresses behind a Global External Application Load Balancer. Although SSHing into a VM via IAP and running 'curl localhost:8080/healthz' returns HTTP 200 OK, the MIG continuously marks every VM unhealthy and terminates/recreates all instances every 90 seconds. What configuration change will stop the reboot loop?",
+    "options": [
+      "Add an ingress VPC firewall rule allowing TCP port 8080 from Google health check source ranges 35.191.0.0/16 and 130.211.0.0/22 targeting the MIG network tags.",
+      "Assign ephemeral public IPv4 addresses to every VM in the instance template.",
+      "Change the load balancer backend protocol from HTTP to TCP.",
+      "Enable Private Google Access on the subnet hosting the Managed Instance Group."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Global and Regional Application Load Balancer health check probers originate from 35.191.0.0/16 and 130.211.0.0/22; if ingress firewall rules block those CIDRs, MIG autohealing enters an infinite recreation loop.",
+    "explanation": "Option A is correct because Google Cloud load balancer health check probes originate from centralized prober IP blocks (35.191.0.0/16 and 130.211.0.0/22). Because VPC ingress is denied by default, missing firewall rules for these probe ranges cause health checks to time out even when the local web server responds 200 OK, triggering MIG autohealing to recreate the VMs repeatedly.",
+    "whyWrong": {
+      "1": "Private VMs behind Google Cloud Application Load Balancers do not need public IP addresses; GFE proxies reach private VM IPs directly over Google's network.",
+      "2": "Switching protocols does not bypass VPC ingress firewall filtering against the health check probe IP ranges.",
+      "3": "Private Google Access allows private VMs to make outbound calls to Google APIs; it does not allow inbound health check probes into VMs."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=BMr-po8LpM0",
+      "https://cloud.google.com/load-balancing/docs/health-check-concepts#ip-ranges"
+    ]
+  },
+  {
+    "id": "pl-v0104-007",
+    "domain": 3,
+    "topic": "Automated PII Discovery, Tagging & De-Identification at Scale",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A multinational retailer ingests terabytes of customer order logs and support transcripts into Cloud Storage and BigQuery daily. To comply with GDPR and CCPA, the compliance team requires an automated architecture that (1) continuously discovers and catalogs columns/files containing sensitive PII and (2) de-identifies PII fields in streaming and batch pipelines before data reaches analytics tables. Which two architectural components should you implement? Choose two.",
+    "options": [
+      "Configure Sensitive Data Protection (Cloud DLP) inspection jobs to scan Cloud Storage and BigQuery and publish classification tags to Dataplex / Data Catalog.",
+      "Execute Dataflow pipelines that invoke Sensitive Data Protection (Cloud DLP) de-identification transformation templates (such as cryptographic format-preserving encryption or masking).",
+      "Write custom Python regular expression scripts on a single Compute Engine VM to scan all BigQuery tables nightly.",
+      "Use Cloud Armor WAF rules to redact PII fields from BigQuery storage files at rest."
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "hint": "Pair Sensitive Data Protection (Cloud DLP) inspection + Data Catalog tagging for automated governance visibility with Dataflow pipelines executing DLP de-identification templates for petabyte-scale sanitization.",
+    "explanation": "Options A and B provide Google Cloud's reference privacy architecture: Sensitive Data Protection inspection jobs automatically classify PII across storage repositories and attach governance metadata tags in Data Catalog/Dataplex (Option A), while serverless Dataflow pipelines call DLP de-identification templates to mask or tokenize sensitive fields at scale (Option B).",
+    "whyWrong": {
+      "2": "Custom regex scripts on a single VM fail to scale to terabyte datasets and miss complex contextual PII entities detected by Cloud DLP infoTypes.",
+      "3": "Cloud Armor is an edge network WAF/DDoS service for HTTP(S) load balancers and cannot inspect or transform data at rest in BigQuery or Cloud Storage."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=BMr-po8LpM0",
+      "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data"
+    ]
+  },
+  {
+    "id": "pl-v0104-008",
+    "domain": 3,
+    "topic": "Governance Guardrails: Organization Policy Constraints vs IAM Policies",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A European financial institution requires that no engineer—not even Project Owners—can provision Compute Engine VMs, Cloud Storage buckets, or Cloud SQL instances outside the europe-west1 and europe-west4 regions across 120 Google Cloud projects. How should you enforce this requirement with minimal administrative overhead?",
+    "options": [
+      "Define an Organization Policy constraint (constraints/gcp.resourceLocations) at the Organization or Folder node restricting allowed locations to in:europe-west1-locations and in:europe-west4-locations.",
+      "Create a custom IAM role that excludes region parameters and assign it to all users.",
+      "Deploy a Cloud Function that runs every hour to delete resources created outside Europe.",
+      "Configure VPC firewall egress rules to block traffic to non-European IP ranges."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Organization Policy constraints govern resource configuration guardrails (like allowed physical regions or public IP creation) across the entire resource hierarchy, overriding even Project Owner IAM permissions.",
+    "explanation": "Option A is correct because Organization Policy Service constraints (specifically constraints/gcp.resourceLocations) enforce preventive guardrails across all descendant folders and projects. Even principals holding the Project Owner IAM role are blocked by the Google Cloud API server if they attempt to create resources in disallowed regions.",
+    "whyWrong": {
+      "1": "IAM roles grant permissions on actions/resource types (who can act) but cannot restrict the geographic region attribute passed in resource creation API calls.",
+      "2": "Reactive hourly cleanup scripts allow non-compliant data residency violations to occur in the interim and risk deleting stateful production data.",
+      "3": "VPC firewall rules control data-plane packet routing and have no effect on control-plane API calls that provision cloud resources."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations"
+    ]
+  },
+  {
+    "id": "pl-v0104-009",
+    "domain": 2,
+    "topic": "Data Processing Engine Trade-Offs: Cloud Dataflow vs Cloud Dataproc",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A logistics company is building a brand-new real-time parcel tracking platform from scratch. The engineering team needs a single serverless processing framework that can execute identical business logic on both unbounded real-time Pub/Sub event streams and bounded historical Cloud Storage backfill files without managing cluster master/worker nodes. Which Google Cloud service should you recommend?",
+    "options": [
+      "Google Cloud Dataproc",
+      "Google Cloud Dataflow",
+      "Google BigQuery BI Engine",
+      "Google Cloud Composer"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Choose Cloud Dataflow (Apache Beam) for greenfield unified stream + batch pipelines with serverless autoscaling; choose Cloud Dataproc when lifting and shifting existing Apache Spark/Hadoop code.",
+    "explanation": "Option B (Google Cloud Dataflow) is correct because Dataflow implements the Apache Beam unified programming model, allowing a single pipeline codebase to process both real-time unbounded streams (Pub/Sub) and historical bounded batch files (Cloud Storage) with fully automated serverless worker provisioning and dynamic work rebalancing.",
+    "whyWrong": {
+      "0": "Cloud Dataproc is a managed Apache Spark/Hadoop cluster service ideal for migrating existing Spark/Hadoop workloads rather than greenfield serverless Apache Beam pipelines.",
+      "2": "BigQuery BI Engine is an in-memory SQL query acceleration layer for dashboards, not a stream/batch ETL pipeline engine.",
+      "3": "Cloud Composer (managed Apache Airflow) orchestrates workflow schedules and task dependencies but does not execute high-volume data transformations itself."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/dataflow/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0104-010",
+    "domain": 3,
+    "topic": "Shielded VM Integrity Monitoring & vTPM Baseline Management",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your operations team manages a fleet of Shielded Compute Engine VMs with Secure Boot, vTPM, and Integrity Monitoring enabled. After applying an emergency Linux kernel security patch and rebooting the VMs, Cloud Monitoring fires Integrity Monitoring alerts reporting lateBootReportEvent validation failures on every patched VM. You have verified that the kernel update was authorized. What action should you take?",
+    "options": [
+      "Update the Shielded VM integrity policy baseline on each patched VM to record the new trusted boot measurements.",
+      "Permanently disable vTPM and Integrity Monitoring on all production VMs.",
+      "Delete the VMs and recreate them from an unpatched OS image.",
+      "Add an IAM Deny policy blocking Cloud Monitoring from reading vTPM logs."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Whenever authorized kernel or bootloader updates modify boot measurements on a Shielded VM, update the vTPM integrity policy baseline so future boots validate against the new trusted state.",
+    "explanation": "Option A is correct because Shielded VM Integrity Monitoring compares cryptographic PCR measurements captured by the virtual Trusted Platform Module (vTPM) during boot against the stored policy baseline. Legitimate kernel patches alter boot measurements; updating the integrity policy baseline (via gcloud compute instances update --shielded-learn-integrity-policy) establishes the updated kernel state as the new trusted baseline.",
+    "whyWrong": {
+      "1": "Disabling vTPM and Integrity Monitoring blinds security operations to real bootkit or rootkit compromises.",
+      "2": "Rolling back to an unpatched kernel reintroduces the security vulnerability that the emergency patch fixed.",
+      "3": "Suppressing monitoring alerts leaves the integrity baseline out of sync and hides future unauthorized boot modifications."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/compute/shielded-vm/docs/integrity-monitoring#updating-baseline"
+    ]
+  },
+  {
+    "id": "pl-v0104-011",
+    "domain": 6,
+    "topic": "SRE Incident Response: Traffic Rollback Before Root-Cause Debugging",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Five minutes after deploying release v4.12 to Google App Engine, your SLO burn-rate alerts page the on-call engineer: p99 latency has jumped from 120 ms to 8,400 ms and HTTP 500 errors exceed 18%. What is the Google SRE-recommended sequence of actions?",
+    "options": [
+      "Keep v4.12 serving 100% of traffic while attaching Cloud Debugger breakpoints and running load tests against production.",
+      "Immediately shift 100% of App Engine traffic back to the last known good release (v4.11) to restore service, then analyze Cloud Trace and Cloud Logging data in staging.",
+      "Increase the App Engine maximum instance count to 500 and wait 2 hours to see if latency stabilizes.",
+      "Delete the App Engine application and redeploy all microservices from scratch."
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "In SRE incident management, always mitigate customer impact first (immediate rollback to the last known good version) before investigating root causes in non-production environments.",
+    "explanation": "Option B is correct because SRE incident management prioritizes minimizing Mean Time to Recovery (MTTR) by immediately mitigating user-facing impact. Splitting or migrating traffic back to the previous healthy App Engine version restores SLO compliance within seconds, after which engineers can inspect distributed traces (Cloud Trace) and logs (Cloud Logging) without impacting customers.",
+    "whyWrong": {
+      "0": "Leaving a severely broken release serving 100% of live traffic while debugging prolongs customer outage and burns error budget.",
+      "2": "Throwing more compute instances at a code regression or deadlock wastes money and leaves HTTP 500 error rates unresolved.",
+      "3": "Deleting an entire App Engine application causes catastrophic downtime and permanent loss of service configuration."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/architecture/framework/reliability/incident-management"
+    ]
+  },
+  {
+    "id": "pl-v0104-012",
+    "domain": 3,
+    "topic": "PCI DSS Scope Reduction via Tokenization Architecture",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A SaaS billing platform on Google Cloud processes customer credit card payments and stores transaction histories in BigQuery for revenue forecasting and churn ML models. To minimize the cost and complexity of annual PCI DSS audits, the security architect wants to remove BigQuery, Dataflow, and Vertex AI completely from the PCI DSS Cardholder Data Environment (CDE) scope. What architecture achieves this?",
+    "options": [
+      "Route incoming payment requests through an isolated PCI-scoped tokenization microservice that replaces Primary Account Numbers (PANs) with non-sensitive tokens before sending records to Dataflow, BigQuery, and Vertex AI.",
+      "Store raw Primary Account Numbers (PANs) in BigQuery encrypted with Customer-Managed Encryption Keys (CMEK) in Cloud KMS.",
+      "Enable VPC Flow Logs on all subnets and keep raw card numbers in BigQuery tables.",
+      "Apply BigQuery column-level IAM access control on the raw credit card number column."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Replacing Primary Account Numbers (PANs) with irreversible or vaulted tokens at the edge ensures downstream data warehouses and ML pipelines never touch cardholder data, removing them entirely from PCI DSS audit scope.",
+    "explanation": "Option A is correct because any system that stores, processes, or transmits raw Primary Account Numbers (PANs)—even if encrypted—remains within PCI DSS audit scope. Isolating PAN ingestion inside a tightly bounded tokenization service and emitting only format-preserving or random tokens downstream completely removes BigQuery, Dataflow, and Vertex AI from the PCI CDE.",
+    "whyWrong": {
+      "1": "Encrypting raw PANs at rest with CMEK still stores cardholder data inside BigQuery, keeping BigQuery and its administrators inside PCI DSS audit scope.",
+      "2": "VPC Flow Logs provide network telemetry but do not remove stored PANs from BigQuery.",
+      "3": "Column-level security restricts query access to PANs but the underlying BigQuery table still stores cardholder data and remains in PCI scope."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/architecture/pci-dss-compliance-in-gcp"
+    ]
+  },
+  {
+    "id": "pl-v0104-013",
+    "domain": 2,
+    "topic": "GKE Enterprise (Anthos) Governance: Config Connector vs Policy Controller vs Service Mesh",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your platform engineering team wants application developers to provision Google Cloud managed resources—such as Cloud SQL instances, Pub/Sub topics, and Cloud Storage buckets—using the exact same declarative Kubernetes YAML manifests and GitOps pipelines they use to deploy Kubernetes Pods. Which Google Cloud / GKE Enterprise component provides this capability?",
+    "options": [
+      "Config Connector",
+      "Policy Controller",
+      "Cloud Service Mesh (Anthos Service Mesh)",
+      "Binary Authorization"
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Config Connector lets teams manage Google Cloud infrastructure resources via Kubernetes Custom Resource Definitions (CRDs); Policy Controller enforces admission rules; Service Mesh manages runtime microservice traffic.",
+    "explanation": "Option A (Config Connector) is correct because Config Connector is a Kubernetes add-on that provides Custom Resource Definitions (CRDs) for Google Cloud services. When developers apply YAML manifests for Cloud SQL, Pub/Sub, or IAM resources to the Kubernetes API server, Config Connector reconciles and provisions the corresponding Google Cloud infrastructure automatically.",
+    "whyWrong": {
+      "1": "Policy Controller acts as an admission webhook validating Kubernetes API requests against compliance constraints rather than provisioning GCP infrastructure.",
+      "2": "Cloud Service Mesh (Istio) manages east-west microservice traffic routing, mTLS encryption, and observability.",
+      "3": "Binary Authorization enforces deploy-time container image attestation policies on GKE clusters."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/config-connector/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0104-014",
+    "domain": 2,
+    "topic": "Storage Selection: Cloud Bigtable vs BigQuery vs Cloud Spanner vs Cloud SQL",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "An ad-tech platform ingests 120,000 real-time bid impression events per second from global edge servers. Each event consists of a composite row key (campaign_id#reverse_timestamp) and 1 KB of impression metadata. Real-time bidding engines must read the most recent 100 impressions for a campaign within 5 milliseconds, while nightly Spark jobs scan billions of rows for attribution modeling. Which storage service should you choose?",
+    "options": [
+      "Google Cloud SQL for PostgreSQL",
+      "Google Cloud Bigtable",
+      "Google Cloud Storage Standard class",
+      "Google Firestore in Datastore mode"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Cloud Bigtable is Google Cloud's wide-column NoSQL engine designed for >10,000 writes/sec, sub-10ms key-range reads, and high-throughput Hadoop/Spark/Dataflow analytical scans.",
+    "explanation": "Option B (Google Cloud Bigtable) is correct because 120,000 writes/second with single-digit millisecond key-range reads and massive batch analytical scans matches Cloud Bigtable's wide-column LSM-tree architecture and native HBase/Spark/Dataflow connectors.",
+    "whyWrong": {
+      "0": "Cloud SQL is a regional relational OLTP database that cannot sustain 120,000 writes/sec or petabyte-scale wide-column scans.",
+      "2": "Cloud Storage is an object store with high per-object write latency and no millisecond row-key range scan index.",
+      "3": "Firestore is a document database optimized for mobile/web sync and multi-document ACID transactions rather than 120,000 writes/sec time-series telemetry."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/bigtable/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0104-015",
+    "domain": 2,
+    "topic": "Compute Engine vCPU Sizing Math: Physical Cores vs Hardware Hyperthreads",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "You are planning a lift-and-shift migration of an on-premises HPC simulation cluster to Google Compute Engine standard N2 virtual machines. The on-premises cluster consists of 6 physical servers, each equipped with 2 quad-core Intel Xeon processors with hyperthreading enabled. How many total vCPUs must you provision across your Compute Engine instances to match the on-premises hardware thread capacity?",
+    "options": [
+      "24 vCPUs",
+      "48 vCPUs",
+      "96 vCPUs",
+      "192 vCPUs"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "In Google Compute Engine, 1 vCPU equals 1 hardware hyperthread (2 vCPUs per physical CPU core): Total vCPUs = Servers × Sockets/Server × Cores/Socket × 2.",
+    "explanation": "Option C (96 vCPUs) is correct because each server has 2 sockets × 4 cores/socket = 8 physical cores per server. Across 6 servers, that equals 6 × 8 = 48 physical cores. Because Google Compute Engine defines 1 vCPU as a single hardware hyperthread (2 threads per physical core), 48 physical cores × 2 vCPUs/core = 96 vCPUs.",
+    "whyWrong": {
+      "0": "24 counts only half the physical cores (6 × 4) and omits both the second socket per server and hyperthreading.",
+      "1": "48 equals the total number of physical CPU cores (6 × 2 × 4) but forgets that 1 physical core equals 2 GCE vCPUs.",
+      "3": "192 double-multiplies the hyperthreading factor (48 × 4 instead of 48 × 2)."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/compute/docs/cpu-platforms"
+    ]
+  },
+  {
+    "id": "pl-v0104-016",
+    "domain": 2,
+    "topic": "Persistent Disk IOPS & Throughput Scaling with Provisioned Capacity",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A PostgreSQL database runs on a Compute Engine n2-standard-16 VM with a 100 GB Balanced Persistent Disk (pd-balanced). During peak ETL write windows, Cloud Monitoring shows disk write IOPS and throughput hitting 100% of the disk's provisioned ceiling while VM CPU utilization remains below 25%. How can you immediately increase disk write IOPS and throughput with zero database downtime?",
+    "options": [
+      "Dynamically increase the Persistent Disk capacity (for example from 100 GB to 1,000 GB) online and expand the filesystem with resize2fs.",
+      "Stop the VM, change the machine type to n2-highmem-32, and restart the VM.",
+      "Enable Cloud CDN in front of the PostgreSQL VM.",
+      "Create a daily Persistent Disk snapshot schedule."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Persistent Disk IOPS and throughput scale linearly per GB of provisioned disk size up to the VM's per-instance network egress cap; expanding disk capacity online immediately increases IOPS without rebooting.",
+    "explanation": "Option A is correct because Compute Engine Persistent Disk read/write IOPS and throughput limits scale directly with provisioned disk size (GB). Increasing the disk from 100 GB to 1,000 GB online immediately multiplies provisioned IOPS and throughput limits without stopping the VM or interrupting database connections.",
+    "whyWrong": {
+      "1": "Changing the machine type requires stopping the VM (causing database downtime) and does not raise the per-GB IOPS ceiling of a small 100 GB disk.",
+      "2": "Cloud CDN caches HTTP/HTTPS web content and cannot accelerate block storage writes on a database VM.",
+      "3": "Taking snapshots backs up disk blocks to Cloud Storage and does not increase runtime disk IOPS."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/compute/docs/disks/performance"
+    ]
+  },
+  {
+    "id": "pl-v0104-017",
+    "domain": 6,
+    "topic": "Chaos Engineering & Synthetic Load Testing for High-Availability SLAs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your team operates a regional e-commerce checkout service deployed across three zones in us-east1 using autoscaled GKE node pools and Cloud SQL High Availability. Before Black Friday, leadership requires empirical proof that the architecture will maintain its 99.99% availability SLA even if traffic surges 5x while random compute nodes or zonal database primaries fail. What testing methodology should you execute?",
+    "options": [
+      "Run synthetic load generators that ramp traffic until Horizontal Pod Autoscaler and Cluster Autoscaler trigger, while injecting chaos experiments that randomly terminate GKE nodes and trigger Cloud SQL HA failovers across zones.",
+      "Review Terraform configuration files manually and verify that multi-zone flags are set to true.",
+      "Wait until Black Friday peak traffic arrives and manually reboot production database instances.",
+      "Run a 5-minute load test at 10% of current baseline traffic in a single zone without injecting any failures."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Prove high-availability SLAs empirically by pairing realistic synthetic load testing (above autoscaling thresholds) with automated chaos fault injection across multiple zones.",
+    "explanation": "Option A is correct because validating a 99.99% SLA under compound stress requires testing both dynamic scaling and failure recovery simultaneously. Driving synthetic load past autoscaling thresholds while injecting chaos (terminating nodes and triggering HA database failovers) uncovers connection-pool storms, retry amplification, and scaling lag before live traffic hits.",
+    "whyWrong": {
+      "1": "Static configuration review cannot uncover runtime failure modes such as connection pool exhaustion, slow pod startup, or retry storms during failover.",
+      "2": "Injecting unverified chaos experiments for the first time during peak Black Friday revenue hours risks catastrophic customer outages.",
+      "3": "Testing below baseline traffic without fault injection never exercises autoscaling or failover recovery paths."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=hmefMrX6fQw",
+      "https://cloud.google.com/architecture/framework/reliability/test-reliability"
+    ]
+  },
+  {
+    "id": "pl-v0104-018",
+    "domain": 5,
+    "topic": "Dockerfile Layer Caching & Container Image Optimization on Cloud Build",
+    "difficulty": "medium",
+    "type": "multi",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your CI pipeline on Cloud Build takes 14 minutes to build a Python microservice container image every time a developer edits a single line of application code. Inspecting the Dockerfile reveals that it starts from 'ubuntu:latest', copies the entire repository on line 2 ('COPY . /app'), and then compiles 85 pip packages from source ('RUN pip install -r /app/requirements.txt'). Which two Dockerfile optimizations will dramatically reduce build time and image size? Choose two.",
+    "options": [
+      "Switch the base image from ubuntu:latest to a minimal python:3.11-slim or Alpine/distroless base image.",
+      "Copy only requirements.txt and run 'pip install' before executing 'COPY . /app' for the application source code.",
+      "Add 'RUN apt-get dist-upgrade -y' as the final instruction in the Dockerfile.",
+      "Split every individual Python source file into a separate COPY instruction."
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "hint": "Maximize Docker layer cache hits by copying dependency manifests (requirements.txt / package.json) and installing packages BEFORE copying frequently edited application source files.",
+    "explanation": "Options A and B directly solve both problems: copying requirements.txt and installing dependencies before copying application code ensures Docker reuses the cached dependency layer whenever source code changes (Option B), while switching to a slim/Alpine base image shrinks image pull and push times (Option A).",
+    "whyWrong": {
+      "2": "Running apt-get dist-upgrade at the end of a Dockerfile bloats the final image layer and slows down every build.",
+      "3": "Creating dozens of separate COPY layers increases image layer count without fixing the invalidated pip install step."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=JlfnjTHPDcA",
+      "https://cloud.google.com/build/docs/optimize-builds/speeding-up-builds"
+    ]
+  },
+  {
+    "id": "pl-v0104-019",
+    "domain": 6,
+    "topic": "Microservices Latency Troubleshooting with Cloud Trace vs Cloud Debugger",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A checkout request in your GKE microservices platform traverses 14 internal gRPC and REST microservices before returning a response. Approximately 2% of checkout requests experience end-to-end latency exceeding 6 seconds, while CPU and memory metrics across all 14 services look normal. Which tool should you use to identify the exact downstream microservice call causing the 6-second delay?",
+    "options": [
+      "Cloud Trace",
+      "Error Reporting",
+      "VPC Flow Logs",
+      "Artifact Registry Vulnerability Scanning"
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Use Cloud Trace to analyze distributed request latency waterfalls across microservices; use Cloud Logging for discrete events; use Cloud Monitoring for aggregate metrics.",
+    "explanation": "Option A (Cloud Trace) is correct because distributed tracing propagates trace IDs across all 14 gRPC/REST hops and records exact start/end timestamps for every span, allowing engineers to filter for slow (>6s) requests and immediately pinpoint which downstream service or database query caused the tail latency.",
+    "whyWrong": {
+      "1": "Error Reporting captures unhandled exceptions and crash stack traces, not slow HTTP/gRPC requests that eventually return 200 OK.",
+      "2": "VPC Flow Logs sample network packet headers at the VM NIC level and do not correlate application-level RPC spans across 14 microservices.",
+      "3": "Vulnerability Scanning inspects container images for package CVEs and has nothing to do with runtime latency."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=JlfnjTHPDcA",
+      "https://cloud.google.com/trace/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0104-020",
+    "domain": 3,
+    "topic": "Multi-Tenant Data Sharing: BigQuery Authorized Views & Table-Level IAM",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A healthcare analytics provider stores a consolidated 80 TB clinical outcomes table in BigQuery containing records for 250 hospital networks. Each hospital network's data analysts must be able to run ad-hoc SQL queries against their own hospital's rows in real time without seeing any other hospital's records and without duplicating the 80 TB table 250 times. What is the Google-recommended architecture?",
+    "options": [
+      "Create authorized views (or row-level access policies) filtering on SESSION_USER() / hospital_id in a separate dataset and grant each hospital's Google group roles/bigquery.dataViewer on their authorized view.",
+      "Export 250 separate CSV files to Cloud Storage every night via cron jobs.",
+      "Grant all hospital analysts roles/bigquery.dataOwner on the consolidated 80 TB dataset.",
+      "Replicate the 80 TB dataset into 250 separate Cloud SQL instances."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "BigQuery Authorized Views and Row-Level Security allow multi-tenant SQL access against a single shared table without duplicating storage or exposing underlying base tables.",
+    "explanation": "Option A is correct because BigQuery Authorized Views (or Row-Level Security policies) let you maintain a single source-of-truth 80 TB table while granting external tenants read access strictly to a filtered SQL view without granting them direct permissions on the underlying base table.",
+    "whyWrong": {
+      "1": "Nightly CSV exports add batch staleness, storage duplication, and operational overhead.",
+      "2": "Granting roles/bigquery.dataOwner on the base dataset exposes all 250 hospitals' PHI/clinical records to every tenant.",
+      "3": "Cloud SQL cannot store an 80 TB analytical dataset per tenant and duplicating 80 TB 250 times is prohibitively expensive."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=JlfnjTHPDcA",
+      "https://cloud.google.com/bigquery/docs/authorized-views"
+    ]
+  },
+  {
+    "id": "pl-v0104-021",
+    "domain": 2,
+    "topic": "Global Relational Strong Consistency: Cloud Spanner vs Cloud SQL",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A global fintech payment ledger processes financial transfers initiated simultaneously by users in Tokyo, London, Frankfurt, and New York. The database must enforce strict serializable ACID transactions across continents with zero stale reads, scale horizontally to hundreds of thousands of writes per second, and provide a 99.999% availability SLA. Which Google Cloud database satisfies all of these requirements?",
+    "options": [
+      "Cloud SQL Enterprise Plus with cross-region read replicas",
+      "Cloud Spanner multi-region configuration",
+      "Cloud Bigtable multi-cluster replication",
+      "BigQuery Omni"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "Cloud Spanner is the only Google Cloud database offering multi-region horizontal write scaling, external strong consistency (TrueTime), full relational SQL/ACID transactions, and a 99.999% SLA.",
+    "explanation": "Option B (Cloud Spanner multi-region configuration) is correct because Cloud Spanner uses Google's TrueTime API to guarantee globally synchronized, externally consistent ACID transactions across continents while scaling writes horizontally and delivering a 99.999% multi-region availability SLA.",
+    "whyWrong": {
+      "0": "Cloud SQL cross-region read replicas replicate asynchronously (causing stale reads) and writes are bottlenecked on a single regional primary instance.",
+      "2": "Cloud Bigtable uses eventual consistency across multi-cluster replication and does not support multi-row relational SQL ACID transactions.",
+      "3": "BigQuery Omni is a multi-cloud OLAP analytics engine, not an operational transactional ledger database."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=JlfnjTHPDcA",
+      "https://cloud.google.com/spanner/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0104-022",
+    "domain": 2,
+    "topic": "Graceful Shutdown Handling on Spot / Preemptible VMs",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "Your batch rendering farm runs on Compute Engine Spot (Preemptible) VMs to save 70% on compute costs. When Compute Engine reclaims a Spot VM, in-flight video frames stored in RAM are corrupted unless the worker process flushes its checkpoint file to Cloud Storage before the VM powers off. How should you configure the VM template to guarantee checkpoint flushing on preemption?",
+    "options": [
+      "Attach a shutdown script via the 'shutdown-script' (or 'shutdown-script-url') instance metadata key that flushes checkpoints to Cloud Storage upon receiving the preemption ACPI signal.",
+      "Attach a startup script via the 'startup-script' metadata key.",
+      "Configure a VPC firewall rule blocking Compute Engine control-plane preemption signals.",
+      "Enable deletion protection on the Spot VM instance."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "When Compute Engine preempts a Spot/Preemptible VM, it sends an ACPI G2 Soft Off signal and executes the script defined in the 'shutdown-script' metadata key for up to 30 seconds.",
+    "explanation": "Option A is correct because Compute Engine provides a 30-second preemption warning window during which the guest agent executes any script registered under the 'shutdown-script' or 'shutdown-script-url' metadata key, allowing workers to flush state and exit cleanly.",
+    "whyWrong": {
+      "1": "Startup scripts run only when the instance boots up, not during preemption shutdown.",
+      "2": "Preemption is a hypervisor-level operation that cannot be blocked by guest VPC firewall rules.",
+      "3": "Deletion protection prevents accidental user deletion of a VM resource but does not prevent Spot capacity preemption."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=JlfnjTHPDcA",
+      "https://cloud.google.com/compute/docs/instances/create-start-preemptible-instance#handle_preemption"
+    ]
+  },
+  {
+    "id": "pl-v0104-023",
+    "domain": 3,
+    "topic": "Data Exfiltration Defense: VPC Service Controls Perimeter",
+    "difficulty": "hard",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A wealth management firm stores sensitive client portfolios in BigQuery and Cloud Storage. The CISO is concerned that a departing employee or compromised contractor who still holds valid IAM read permissions could copy client data from their personal home laptop or exfiltrate datasets to an external personal Google Cloud project. Which security control prevents this data exfiltration?",
+    "options": [
+      "VPC Service Controls",
+      "Cloud Armor",
+      "Cloud NAT",
+      "Shielded VM Secure Boot"
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "VPC Service Controls wraps managed Google Cloud APIs (BigQuery, Cloud Storage, Datastore) in a context-aware security perimeter that blocks data exfiltration even when an attacker holds valid IAM credentials.",
+    "explanation": "Option A (VPC Service Controls) is correct because IAM alone verifies identity ('who you are'), whereas VPC Service Controls enforces context-aware service perimeters ('where you are calling from and which project data can flow to'). Even with valid IAM credentials, API calls from unauthorized external networks or copies to external GCP projects are blocked.",
+    "whyWrong": {
+      "1": "Cloud Armor protects HTTP(S) Load Balancers from web/DDoS attacks and does not govern direct Google Cloud API calls to BigQuery or Cloud Storage.",
+      "2": "Cloud NAT provides outbound internet SNAT for private VMs and does not restrict Google Cloud API data exfiltration.",
+      "3": "Shielded VM Secure Boot protects VM boot firmware integrity and does not control BigQuery or Cloud Storage API access."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=JlfnjTHPDcA",
+      "https://cloud.google.com/vpc-service-controls/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0104-024",
+    "domain": 2,
+    "topic": "Disaster Recovery Architecture: Global Snapshots vs Regional Persistent Disks",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "An enterprise architect is designing a warm-standby disaster recovery plan for Compute Engine workloads running in us-central1 with failover to us-east4. A stakeholder worries that if us-central1 suffers a complete regional outage, restoring Persistent Disk snapshots in us-east4 will fail unless snapshots were manually exported to Cloud Storage buckets in us-east4 beforehand. How should you respond?",
+    "options": [
+      "Explain that Compute Engine Persistent Disk snapshots are global resources accessible from any region by default, allowing new disks to be created directly in us-east4 from existing snapshots.",
+      "Agree and build a custom Dataflow pipeline to copy every snapshot across regions every hour.",
+      "Explain that Persistent Disk snapshots can only be restored inside the exact same zone where the source disk resided.",
+      "Recommend storing all production database files on ephemeral Local SSDs instead of Persistent Disks."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Compute Engine Persistent Disk snapshots are global resources by default; any region can immediately create a new Persistent Disk from an existing snapshot without prior cross-region export.",
+    "explanation": "Option A is correct because Persistent Disk snapshots are global control-plane resources in Compute Engine. Once a snapshot completes, it is immediately visible and usable across all Google Cloud regions to create new zonal or regional Persistent Disks in your failover region (us-east4).",
+    "whyWrong": {
+      "1": "Building custom pipelines to export and copy snapshots across regions wastes engineering effort and storage cost because snapshots are already global.",
+      "2": "Snapshots are global resources and can be restored into any region or zone, not just the original source zone.",
+      "3": "Local SSDs are ephemeral host-attached storage whose data is permanently lost if the host VM stops or fails."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=6qTlGQ9Mnpw",
+      "https://cloud.google.com/compute/docs/disks/snapshots"
+    ]
+  },
+  {
+    "id": "pl-v0104-025",
+    "domain": 3,
+    "topic": "Resource Hierarchy & Delegated IAM Administration with Folders",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A conglomerate with four autonomous business units (Retail, Banking, Logistics, and Media) is onboarding to Google Cloud under a single Organization node. Each business unit has its own IT security team that must independently manage IAM policies, folders, and project creation for its own division without being able to view or modify resources belonging to the other three business units. How should you structure the Resource Manager hierarchy?",
+    "options": [
+      "Create a top-level Folder for each of the four business units under the Organization node and grant each division's IT security group Folder Admin / IAM Admin roles scoped strictly to their respective Folder.",
+      "Place all projects from all four business units directly under the Organization root node and grant all four IT teams Organization Administrator.",
+      "Put all four business units into a single shared Google Cloud Project separated only by naming conventions.",
+      "Create separate unmanaged consumer Gmail accounts for each business unit."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Folders in Google Cloud Resource Manager provide administrative isolation boundaries for delegating IAM and Organization Policy governance to distinct departments or business units.",
+    "explanation": "Option A is correct because Google Cloud Folders create hierarchical administrative boundaries beneath the Organization node. Granting each business unit's security team IAM roles scoped to their dedicated Folder ensures full autonomy over child projects while enforcing complete isolation between divisions.",
+    "whyWrong": {
+      "1": "Granting Organization Administrator at the root node gives every team full control over all four business units, violating least privilege.",
+      "2": "Sharing a single project destroys IAM boundaries, quota isolation, and billing separation.",
+      "3": "Consumer Gmail accounts forfeit centralized Cloud Identity governance, audit logging, and Organization Policy enforcement."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=6qTlGQ9Mnpw",
+      "https://cloud.google.com/resource-manager/docs/creating-managing-folders"
+    ]
+  },
+  {
+    "id": "pl-v0104-026",
+    "domain": 3,
+    "topic": "Secure File Distribution with Cloud Storage Signed URLs",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A medical imaging portal generates 2 GB MRI scan archives stored in a private Google Cloud Storage bucket. Authenticated physicians who click 'Download MRI' in the web portal must be able to download the archive directly from Cloud Storage over HTTPS without proxying 2 GB through the backend API servers, and the download link must automatically expire after 15 minutes. Which mechanism should you implement?",
+    "options": [
+      "Generate a V4 Signed URL with a 15-minute expiration using the backend service account credentials and redirect the physician's browser to the Signed URL.",
+      "Grant allUsers the Storage Object Viewer role on the bucket for 15 minutes using a cron job.",
+      "Stream the entire 2 GB archive through the App Engine web server memory buffer on every download request.",
+      "Create a new Google Cloud IAM user account for every physician download click."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "V4 Signed URLs grant time-limited, cryptographically signed direct access to specific Cloud Storage objects without requiring public bucket permissions or proxying large payloads through backend compute.",
+    "explanation": "Option A is correct because V4 Signed URLs embed a cryptographic signature and explicit expiration timestamp directly in the query string. The client browser downloads the 2 GB object directly from Google Cloud Storage's global edge while the link automatically becomes invalid after 15 minutes.",
+    "whyWrong": {
+      "1": "Temporarily making a medical bucket public to allUsers exposes sensitive patient MRI scans to anyone on the internet during that window.",
+      "2": "Proxying multi-gigabyte downloads through application compute instances exhausts memory and network bandwidth.",
+      "3": "Creating IAM user accounts per download violates Google Cloud identity architecture and hits IAM policy size limits."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=6qTlGQ9Mnpw",
+      "https://cloud.google.com/storage/docs/access-control/signed-urls"
+    ]
+  },
+  {
+    "id": "pl-v0104-027",
+    "domain": 3,
+    "topic": "Cryptographic Non-Repudiation & Digital Signatures with Asymmetric PKI",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "An automated stock trading gateway receives signed trade execution orders from institutional client applications over HTTPS. To satisfy financial regulatory audits, the gateway must cryptographically verify that each order originated from the specific institutional client and was not tampered with in transit or forged by an insider. Which cryptographic mechanism satisfies this requirement?",
+    "options": [
+      "Require each client to sign order payloads using their private asymmetric key (PKI), and verify signatures on the gateway using the client's registered public key.",
+      "Encode all trade payloads using Base64 encoding before sending over HTTPS.",
+      "Encrypt all trade payloads using the gateway's public key without client signing.",
+      "Compute an unkeyed SHA-256 checksum of the payload and append it to the HTTP header."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Asymmetric digital signatures (signing with the sender's private key and verifying with the sender's public key) guarantee sender authenticity, data integrity, and non-repudiation.",
+    "explanation": "Option A is correct because in Public Key Infrastructure (PKI), only the sole holder of the private key can generate a valid digital signature that verifies against their public key. This provides mathematical proof of sender identity (authenticity), payload integrity, and non-repudiation.",
+    "whyWrong": {
+      "1": "Base64 is a plaintext binary-to-text encoding scheme offering zero cryptographic confidentiality, integrity, or authentication.",
+      "2": "Encrypting with the gateway's public key ensures confidentiality (only the gateway can read it), but since the public key is public, anyone could forge and encrypt a fake order.",
+      "3": "Anyone who alters the payload can simply recompute a new unkeyed SHA-256 hash, so an unkeyed hash provides zero authenticity against active tampering."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=6qTlGQ9Mnpw",
+      "https://cloud.google.com/kms/docs/asymmetric-keys"
+    ]
+  },
+  {
+    "id": "pl-v0104-028",
+    "domain": 5,
+    "topic": "Cloud Shell Persistent Storage & Environment Customization",
+    "difficulty": "easy",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A site reliability engineer uses Google Cloud Shell daily for incident response and compiles a custom Go diagnostic CLI tool named 'gcp-diag'. Where in the Cloud Shell filesystem should the binary be placed so that it persists across Cloud Shell VM restarts next month AND can be executed from any working directory without specifying its full path?",
+    "options": [
+      "~/bin/gcp-diag",
+      "/usr/local/bin/gcp-diag",
+      "/opt/tools/gcp-diag",
+      "/tmp/gcp-diag"
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "In Google Cloud Shell, only $HOME is backed by persistent 5 GB disk storage across sessions, and ~/bin is preconfigured in the default shell $PATH.",
+    "explanation": "Option A (~/bin/gcp-diag) is correct because Cloud Shell mounts a persistent 5 GB disk exclusively at $HOME (/home/<user>), wiping all system directories (/usr, /opt, /etc, /tmp) when the session recycles. Furthermore, Cloud Shell automatically adds $HOME/bin to the default $PATH environment variable.",
+    "whyWrong": {
+      "1": "/usr/local/bin resides on the ephemeral root container filesystem and is wiped whenever the Cloud Shell session ends.",
+      "2": "/opt/tools is stored on ephemeral root storage and is not persisted across Cloud Shell sessions.",
+      "3": "/tmp is wiped on session termination and is not in the execution $PATH."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=6qTlGQ9Mnpw",
+      "https://cloud.google.com/shell/docs/how-cloud-shell-works#persistent_disk_storage"
+    ]
+  },
+  {
+    "id": "pl-v0104-029",
+    "domain": 3,
+    "topic": "Container Supply Chain Security: Vulnerability Scanning + Binary Authorization",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "A healthcare SaaS provider deploys microservices to Google Kubernetes Engine (GKE). Following a supply chain security audit, leadership mandates an automated control that scans every container image pushed to Artifact Registry for known OS/package CVEs and cryptographically blocks any image with Critical or High severity vulnerabilities from being deployed onto production GKE clusters—even if a developer runs 'kubectl apply' manually. What combination of services enforces this?",
+    "options": [
+      "Artifact Analysis Vulnerability Scanning paired with Binary Authorization admission policies requiring vulnerability scan attestations.",
+      "Cloud Armor WAF policies paired with VPC Flow Logs.",
+      "Cloud NAT paired with Private Google Access.",
+      "Compute Engine Shielded VMs paired with Persistent Disk CMEK."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "Artifact Analysis Vulnerability Scanning detects CVEs in container images, while Binary Authorization acts as the GKE admission gatekeeper that blocks deployment of unattested or vulnerable images.",
+    "explanation": "Option A is correct because container supply chain security requires pairing detection (Artifact Analysis Vulnerability Scanning inspecting layers in Artifact Registry) with admission enforcement (Binary Authorization verifying cryptographic attestations at GKE Pod creation time and rejecting non-compliant images).",
+    "whyWrong": {
+      "1": "Cloud Armor and VPC Flow Logs inspect network traffic and do not scan container image packages or block Kubernetes Pod admissions.",
+      "2": "Cloud NAT and Private Google Access govern network routing and have no role in container image vulnerability enforcement.",
+      "3": "Shielded VMs and CMEK protect host boot integrity and disk encryption at rest, not container image CVE admission control."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=6qTlGQ9Mnpw",
+      "https://cloud.google.com/binary-authorization/docs/overview"
+    ]
+  },
+  {
+    "id": "pl-v0104-030",
+    "domain": 3,
+    "topic": "Google Cloud IAM Policy Evaluation: Hierarchical Union of Allow Policies",
+    "difficulty": "medium",
+    "type": "single",
+    "caseStudy": null,
+    "officialSample": true,
+    "question": "In your Google Cloud Organization, a security auditor notices that user alice@example.com holds no IAM roles directly on Project 'prod-payments', yet Alice is able to read every Cloud Storage bucket inside 'prod-payments'. Upon inspecting the Resource Manager hierarchy (Organization -> Folder 'Finance' -> Project 'prod-payments'), where could Alice's effective permission originate?",
+    "options": [
+      "Alice was granted Storage Object Viewer (or Editor/Viewer) at either the Organization node or the 'Finance' Folder node, and effective IAM Allow policies at any node equal the union of direct and inherited ancestor policies.",
+      "IAM policies at child nodes automatically override and delete policies granted at parent Folder or Organization nodes.",
+      "Effective IAM Allow policies equal the intersection of permissions defined at Organization, Folder, and Project levels.",
+      "Cloud Storage buckets ignore IAM hierarchy inheritance by default."
+    ],
+    "answer": [
+      0
+    ],
+    "hint": "In Google Cloud IAM, Allow policies inherit downward additively: the effective Allow policy on any resource is the union of permissions granted directly on that resource and all ancestor nodes (Project, Folders, Organization).",
+    "explanation": "Option A is correct because Google Cloud IAM Allow policies are strictly additive down the resource hierarchy. The effective Allow policy at Project 'prod-payments' is the union of bindings on the project itself plus all bindings inherited from the parent 'Finance' Folder and root Organization node.",
+    "whyWrong": {
+      "1": "Child nodes cannot revoke or override IAM Allow bindings inherited from parent Folders or the Organization node (only IAM Deny policies can explicitly block inherited allows).",
+      "2": "Effective IAM Allow permissions form a union (any level granting access suffices), not an intersection.",
+      "3": "All Google Cloud resources—including Cloud Storage buckets—inherit IAM policies from their parent Project, Folders, and Organization."
+    },
+    "refs": [
+      "https://www.youtube.com/watch?v=6qTlGQ9Mnpw",
+      "https://cloud.google.com/iam/docs/policy-inheritance"
+    ]
+  }
+]

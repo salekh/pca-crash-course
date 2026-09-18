@@ -13,11 +13,19 @@
       "Add a sequence number to each message and have the subscriber buffer and reorder messages in Memorystore.",
       "Set the subscription to exactly-once delivery so messages are delivered in publish order."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Pub/Sub ordering keys guarantee that messages with the same key, published from the same region, are delivered to a subscription (with message ordering enabled) in the order they were published, while messages with different keys are delivered in parallel. This matches the per-account ordering requirement with no custom code. Option A does not scale to millions of accounts and quotas would be exceeded. Option C re-implements ordering in application code and adds a state store to operate. Option D controls duplicate delivery, not order; exactly-once delivery and ordering are independent features.",
     "refs": [
       "https://cloud.google.com/pubsub/docs/ordering"
-    ]
+    ],
+    "hint": "Core Rule: Pub/Sub ordering keys guarantee that messages with the same key, published from the same region, are delivered to a subscription (with message ordering enabled) in the order they were published, while messages with different keys are delivered in parallel.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create one topic per account and have the subscriber process each topi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Add a sequence number to each message and have the subscriber buffer a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Set the subscription to exactly-once delivery so messages are delivere…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-027",
@@ -33,11 +41,19 @@
       "Switch the subscription from push to pull and process messages in larger batches.",
       "Configure a dead-letter topic on the subscription with a maximum delivery attempt count, and subscribe an analysis tool to that topic."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A dead-letter topic moves a message that fails a configured number of delivery attempts to a separate topic, so the main subscription continues processing healthy messages while the poison messages are preserved for investigation. Option A only delays redelivery; the message still loops forever. Option B keeps the pipeline flowing but silently loses the message, defeating the retention requirement. Option C changes the delivery mechanism but does nothing about the unprocessable message.",
     "refs": [
       "https://cloud.google.com/pubsub/docs/handling-failures"
-    ]
+    ],
+    "hint": "Core Rule (Pub/Sub dead-letter topics): A dead-letter topic moves a message that fails a configured number of delivery attempts to a separate topic, so the main subscription continues processing healthy messages while the poison messages are preserved for investigation.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the acknowledgement deadline to 10 minutes so the subscriber …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Have the subscriber catch the exception and acknowledge the message im…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Switch the subscription from push to pull and process messages in larg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-028",
@@ -53,11 +69,19 @@
       "Reduce the subscription's message retention duration so duplicates expire before they can be redelivered.",
       "Change the subscription to push delivery to a Cloud Run service, which automatically deduplicates messages."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Pub/Sub exactly-once delivery, available on pull subscriptions (including StreamingPull), guarantees that no redelivery occurs once a message is successfully acknowledged and that acknowledgements return a status the subscriber can verify, which is exactly the protection required. Option B controls ordering, not duplication; ordered delivery can still redeliver messages. Option C affects how long unacknowledged messages are stored, not redelivery behaviour. Option D is incorrect because push delivery does not support exactly-once delivery and Cloud Run does not deduplicate on its own.",
     "refs": [
       "https://cloud.google.com/pubsub/docs/exactly-once-delivery"
-    ]
+    ],
+    "hint": "Core Rule: Pub/Sub exactly-once delivery, available on pull subscriptions (including StreamingPull), guarantees that no redelivery occurs once a message is successfully acknowledged and that acknowledgements return a status the subscriber can verify, which is exactly the protection required.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Enable message ordering on the subscription so each reading is deliver…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Reduce the subscription's message retention duration so duplicates exp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Change the subscription to push delivery to a Cloud Run service, which…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-029",
@@ -73,12 +97,20 @@
       "Session windows with a 30-minute gap duration, event-time watermark triggering, and allowed lateness of 10 minutes.",
       "A global window with a repeating trigger every 30 minutes, keyed by viewer ID."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Session windows group events per key that are separated by less than a gap duration (30 minutes), which precisely models activity sessions of variable length. Using event time with allowed lateness lets heartbeats that arrive up to 10 minutes late be merged into the right session and re-fire the result. Option A chops long sessions into arbitrary 30-minute pieces and processing-time triggers ignore late data attribution. Option B produces overlapping fixed-size windows that do not follow session boundaries and double-count events. Option D never closes windows in a session-aware manner, so it requires custom state logic to detect inactivity.",
     "refs": [
       "https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines#windowing",
       "https://beam.apache.org/documentation/programming-guide/#session-windows"
-    ]
+    ],
+    "hint": "Core Rule (Dataflow windowing): Session windows group events per key that are separated by less than a gap duration (30 minutes), which precisely models activity sessions of variable length.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Fixed 30-minute windows with a processing-time trigger and discarding …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Sliding windows of 60 minutes every 30 minutes with allowed lateness o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A global window with a repeating trigger every 30 minutes, keyed by vi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-030",
@@ -94,12 +126,20 @@
       "Keep 40 workers but move to larger machine types so the peak can be absorbed.",
       "Split the topic into ten subscriptions and run ten separate fixed-size pipelines."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Streaming Engine offloads shuffle and state to a managed backend, which allows smaller workers, more responsive horizontal autoscaling, and lower resource consumption; combined with autoscaling and a sensible maximum, the pipeline grows on paydays and shrinks afterward. Option A changes a low-latency streaming workload into micro-batches, increases latency, and adds scheduling complexity. Option C increases cost on ordinary days and still lacks elasticity. Option D multiplies operational overhead and each fixed pipeline still cannot scale.",
     "refs": [
       "https://cloud.google.com/dataflow/docs/streaming-engine",
       "https://cloud.google.com/dataflow/docs/horizontal-autoscaling"
-    ]
+    ],
+    "hint": "Core Rule (Dataflow autoscaling): Streaming Engine offloads shuffle and state to a managed backend, which allows smaller workers, more responsive horizontal autoscaling, and lower resource consumption; combined with autoscaling and a sensible maximum, the pipeline grows on paydays and shrinks afterward.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rewrite the pipeline as a batch job that runs every 5 minutes on a sch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Keep 40 workers but move to larger machine types so the peak can be ab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Split the topic into ten subscriptions and run ten separate fixed-size…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-031",
@@ -115,12 +155,20 @@
       "Wrap the pipeline in a Cloud Run job and pass parameters as environment variables.",
       "Package the pipeline and its dependencies as a Flex template container image in Artifact Registry and share the template spec file."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Flex templates package the pipeline code and all dependencies in a Docker image, so anyone with permission can launch the job from the console, gcloud, or the REST API with runtime parameters and no local SDK. This is the recommended templating approach and supports private libraries cleanly. Option A requires analysts to manage a Python environment and does not control dependencies. Option B (classic templates) has limitations with dynamic parameters and custom dependencies and is superseded by Flex templates. Option C would launch a Dataflow job from a container but still requires the SDK inside the job and is not a native, discoverable template.",
     "refs": [
       "https://cloud.google.com/dataflow/docs/concepts/dataflow-templates",
       "https://cloud.google.com/dataflow/docs/guides/templates/using-flex-templates"
-    ]
+    ],
+    "hint": "Core Rule (Dataflow Flex templates): Flex templates package the pipeline code and all dependencies in a Docker image, so anyone with permission can launch the job from the console, gcloud, or the REST API with runtime parameters and no local SDK.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Publish the pipeline code in a shared Git repository and ask analysts …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a classic template by staging the compiled pipeline graph in Cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Wrap the pipeline in a Cloud Run job and pass parameters as environmen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-032",
@@ -136,12 +184,20 @@
       "Purchase a 3-year committed use discount for the 50 nodes.",
       "Migrate the job to BigQuery and rewrite the Spark logic as SQL."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The Dataproc best practice is to decouple storage from compute by keeping data in Cloud Storage (via the Cloud Storage connector) and creating job-scoped ephemeral clusters, so you pay only for the 3 hours of actual processing; workflow templates automate create-run-delete. Option B still leaves a cluster running 21 idle hours a day. Option C locks in payment for idle capacity for three years. Option D violates the constraint of not changing the code and may not fit all Spark logic.",
     "refs": [
       "https://cloud.google.com/dataproc/docs/concepts/workflows/overview",
       "https://cloud.google.com/architecture/hadoop/hadoop-gcp-migration-jobs"
-    ]
+    ],
+    "hint": "Core Rule (Dataproc ephemeral clusters): The Dataproc best practice is to decouple storage from compute by keeping data in Cloud Storage (via the Cloud Storage connector) and creating job-scoped ephemeral clusters, so you pay only for the 3 hours of actual processing; workflow templates automate create-run-delete.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Reduce the cluster to 25 nodes and enable Dataproc autoscaling.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Purchase a 3-year committed use discount for the 50 nodes.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Migrate the job to BigQuery and rewrite the Spark logic as SQL.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-033",
@@ -157,11 +213,19 @@
       "Have the scientists submit batch workloads to Google Cloud Serverless for Apache Spark.",
       "Convert the PySpark jobs to BigQuery stored procedures."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Serverless for Apache Spark (formerly Dataproc Serverless) runs Spark batch workloads and interactive sessions without any cluster to create, size, or tune; resources are allocated automatically per job and billed only while it runs. Option A still requires the platform team to size and maintain a cluster and shares resources among all users. Option B pushes cluster management onto the scientists, which is the burden they want to remove. Option D requires rewriting PySpark logic and does not suit iterative data science work.",
     "refs": [
       "https://cloud.google.com/dataproc-serverless/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: Serverless for Apache Spark (formerly Dataproc Serverless) runs Spark batch workloads and interactive sessions without any cluster to create, size, or tune; resources are allocated automatically per job and billed only while it runs.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Provide a long-running shared Dataproc cluster with autoscaling enable…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Give the scientists permission to create their own Dataproc clusters w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Convert the PySpark jobs to BigQuery stored procedures.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-034",
@@ -177,12 +241,20 @@
       "BigQuery scheduled queries with dependencies defined in a control table.",
       "Workflows with a single YAML definition and Cloud Tasks for retries."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Composer is managed Apache Airflow; DAGs express complex dependency graphs, provide built-in retries, operators for SFTP, Dataflow, BigQuery and HTTP, and a UI with run history. Since the team already knows Airflow, it also matches the skills constraint. Option A produces fragile, hard-to-observe chains with no dependency graph or history. Option C cannot orchestrate Dataflow, SFTP, or Looker steps. Option D is a good serverless choice for simple API sequencing but lacks Airflow's operator ecosystem, and the team's existing Airflow skills favor Composer.",
     "refs": [
       "https://cloud.google.com/composer/docs/concepts/overview",
       "https://cloud.google.com/workflows/docs/choose-orchestration"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Composer is managed Apache Airflow; DAGs express complex dependency graphs, provide built-in retries, operators for SFTP, Dataflow, BigQuery and HTTP, and a UI with run history.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cloud Scheduler triggering a chain of Cloud Run functions that call ea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (BigQuery scheduled queries with dependencies defined in a control tabl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Workflows with a single YAML definition and Cloud Tasks for retries.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-035",
@@ -198,12 +270,20 @@
       "Deploy a Data Fusion pipeline that queries the tables every minute and appends deltas to BigQuery.",
       "Export the tables nightly with Data Pump and load them into BigQuery with a batch load job."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Datastream is a serverless change data capture service that reads Oracle redo logs (log-based CDC), so it imposes negligible query load on the source and streams changes to BigQuery with low latency using a built-in destination. Option B and Option C both poll the database with queries, adding load and missing deletes without extra design. Option D delivers data only once a day, far outside the minutes-level freshness requirement.",
     "refs": [
       "https://cloud.google.com/datastream/docs/overview",
       "https://cloud.google.com/datastream/docs/destination-bigquery"
-    ]
+    ],
+    "hint": "Core Rule (Datastream CDC): Datastream is a serverless change data capture service that reads Oracle redo logs (log-based CDC), so it imposes negligible query load on the source and streams changes to BigQuery with low latency using a built-in destination.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Schedule a Dataproc Sqoop job every 5 minutes to copy changed rows usi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy a Data Fusion pipeline that queries the tables every minute and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export the tables nightly with Data Pump and load them into BigQuery w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-036",
@@ -219,11 +299,19 @@
       "Cloud Composer with custom Python operators for each source",
       "Cloud Data Fusion with its visual pipeline designer and prebuilt connectors"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Cloud Data Fusion is a fully managed, code-free data integration service (based on CDAP) with a visual designer, more than 150 prebuilt connectors including SAP and Salesforce, and built-in lineage, which matches the team's skills and requirements. Options A and B require writing Java or Python code. Option C is an orchestration tool, not a data integration tool, and would still need code for each extraction.",
     "refs": [
       "https://cloud.google.com/data-fusion/docs/concepts/overview"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Data Fusion is a fully managed, code-free data integration service (based on CDAP) with a visual designer, more than 150 prebuilt connectors including SAP and Salesforce, and built-in lineage, which matches the team's skills and requirements.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Dataflow with pipelines written in Apache Beam Java): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Dataproc with PySpark scripts and the JDBC connector): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Cloud Composer with custom Python operators for each source): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-037",
@@ -239,12 +327,20 @@
       "Organize the assets into Dataplex Universal Catalog lakes and zones, enable data-quality scans, and use Dataplex lineage and metadata search.",
       "Tag every table and bucket with labels and rely on Cloud Asset Inventory queries for discovery."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Dataplex Universal Catalog provides a unified data fabric: lakes and zones group distributed BigQuery and Cloud Storage assets into logical domains with domain-level access control, and it offers built-in metadata search, automated data-quality and profiling scans, and lineage. This satisfies both the auditors and the data owners with a managed service (security and operational-excellence pillars). Option A recreates a catalog that already exists as a product and lacks quality and lineage. Option B forces a massive, unnecessary data migration and breaks project-level ownership. Option D provides only coarse discovery with no quality, lineage, or business metadata.",
     "refs": [
       "https://cloud.google.com/dataplex/docs/introduction",
       "https://cloud.google.com/dataplex/docs/auto-data-quality-overview"
-    ]
+    ],
+    "hint": "Core Rule: Dataplex Universal Catalog provides a unified data fabric: lakes and zones group distributed BigQuery and Cloud Storage assets into logical domains with domain-level access control, and it offers built-in metadata search, automated data-quality and profiling scans, and lineage.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Build a custom metadata catalog in Cloud SQL and populate it with Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Export all data to a single BigQuery project so IAM can be managed cen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Tag every table and bucket with labels and rely on Cloud Asset Invento…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-038",
@@ -260,11 +356,19 @@
       "Export the datasets to Cloud Storage daily and give customers signed URLs to download them.",
       "Create authorized views for each customer in the company's project and bill customers for the query costs."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Analytics Hub lets a publisher share BigQuery datasets in place; subscribers get a read-only linked dataset in their own project, queries run against live data with no copies, subscribers pay for their own compute, and removing a subscription instantly revokes access. Option A works technically but does not scale to hundreds of external organizations, offers no subscription management, and leaks the source project structure. Option C reintroduces copies and staleness. Option D keeps query costs in the publisher's project and requires per-customer view maintenance.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/analytics-hub-introduction"
-    ]
+    ],
+    "hint": "Core Rule: Analytics Hub lets a publisher share BigQuery datasets in place; subscribers get a read-only linked dataset in their own project, queries run against live data with no copies, subscribers pay for their own compute, and removing a subscription instantly revokes access.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant each customer's service account the BigQuery Data Viewer role on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Export the datasets to Cloud Storage daily and give customers signed U…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create authorized views for each customer in the company's project and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-039",
@@ -280,12 +384,20 @@
       "Connected Sheets with a shared BigQuery view per business unit",
       "BigQuery authorized views with metric formulas documented in a wiki"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Looker's LookML semantic layer defines metrics once in a Git-versioned model so every dashboard and explore uses the same governed definition, access filters implement row-level security, and Looker supports embedded analytics. This directly addresses metric inconsistency, which is a governance problem more than a visualization problem. Option B is a lightweight visualization tool without a central, version-controlled semantic layer, so each report can still define metrics differently. Option C keeps business logic in spreadsheets. Option D secures data but does not enforce a single metric definition in the analytics layer.",
     "refs": [
       "https://cloud.google.com/looker/docs/what-is-lookml",
       "https://cloud.google.com/looker/docs/intro"
-    ]
+    ],
+    "hint": "Core Rule: Looker's LookML semantic layer defines metrics once in a Git-versioned model so every dashboard and explore uses the same governed definition, access filters implement row-level security, and Looker supports embedded analytics.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Looker Studio reports connected directly to BigQuery tables): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Connected Sheets with a shared BigQuery view per business unit): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (BigQuery authorized views with metric formulas documented in a wiki): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-040",
@@ -301,12 +413,20 @@
       "A temporary Partner Interconnect connection used only for the migration.",
       "Transfer Appliance devices shipped to the data center and returned to Google for upload."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "At 100 Mbps, 1 PB (8 x 10^15 bits) would take roughly 8 x 10^7 seconds, about 925 days at full line rate, so any online method is infeasible within two months. Transfer Appliance is Google's recommended option when data exceeds what the network can move in time (generally more than 20 TB or when the transfer would take over a week). Options A and B are both online transfers limited by the same 100 Mbps link. Option C would require ordering a circuit through a partner, which typically takes weeks and still might not reach the bandwidth needed to move a petabyte in the remaining time, at significant cost for a one-time transfer.",
     "refs": [
       "https://cloud.google.com/transfer-appliance/docs/4.0/overview",
       "https://cloud.google.com/architecture/migration-to-google-cloud-transferring-your-large-datasets"
-    ]
+    ],
+    "hint": "Core Rule (Transfer Appliance): At 100 Mbps, 1 PB (8 x 10^15 bits) would take roughly 8 x 10^7 seconds, about 925 days at full line rate, so any online method is infeasible within two months.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Storage Transfer Service for on-premises data with agents running in t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (gsutil with parallel composite uploads running continuously from sever…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A temporary Partner Interconnect connection used only for the migratio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-041",
@@ -322,12 +442,20 @@
       "Create a recurring Storage Transfer Service job from the S3 bucket to the Cloud Storage bucket that copies only new or changed objects.",
       "Run gsutil rsync on a Compute Engine VM in a cron job."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Storage Transfer Service natively supports S3 as a source, runs on a schedule, transfers only new or changed objects on each run, and is fully managed, which is ideal for keeping a cloud-to-cloud copy in sync during a migration window. Option A is designed for on-premises data and cannot keep up with ongoing changes. Options B and D are custom solutions that require code or a VM to maintain, monitor, and secure, and they are slower and less reliable than the managed service for large object counts.",
     "refs": [
       "https://cloud.google.com/storage-transfer/docs/overview",
       "https://cloud.google.com/storage-transfer/docs/create-transfers"
-    ]
+    ],
+    "hint": "Core Rule: Storage Transfer Service natively supports S3 as a source, runs on a schedule, transfers only new or changed objects on each run, and is fully managed, which is ideal for keeping a cloud-to-cloud copy in sync during a migration window.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Order a Transfer Appliance, export the S3 bucket to it from an EC2 ins…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Write a Dataflow pipeline that lists S3 objects and copies new ones ev…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run gsutil rsync on a Compute Engine VM in a cron job.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-042",
@@ -343,12 +471,20 @@
       "Set up an external replica manually using the Cloud SQL external server replication feature.",
       "Create a Cloud SQL instance, run the application in dual-write mode against both databases, and switch reads after a week."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Database Migration Service provides a managed, continuous (CDC-based) migration for MySQL to Cloud SQL: it performs the initial load, keeps the target in sync via binlog replication that it configures for you, and lets you cut over with only minutes of downtime, which fits the 15-minute window and the team's limited replication experience. Option A requires downtime for the entire dump and import of 2 TB, far longer than 15 minutes. Option C achieves a similar result but requires manual binlog configuration and expertise the team lacks. Option D introduces application-level consistency risk and code changes.",
     "refs": [
       "https://cloud.google.com/database-migration/docs/mysql",
       "https://cloud.google.com/database-migration/docs/mysql/quickstart"
-    ]
+    ],
+    "hint": "Core Rule: Database Migration Service provides a managed, continuous (CDC-based) migration for MySQL to Cloud SQL: it performs the initial load, keeps the target in sync via binlog replication that it configures for you, and lets you cut over with only minutes of downtime, which fits the 15-minute window and the team's limited replication experience.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Take a mysqldump during a maintenance window, upload it to Cloud Stora…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Set up an external replica manually using the Cloud SQL external serve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Cloud SQL instance, run the application in dual-write mode ag…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-043",
@@ -365,13 +501,22 @@
       "Deploy new versions using the Dataflow update option or drain the old job before starting the new one, so buffered data is processed.",
       "Switch the sink from BigQuery to Cloud Storage so schema mismatches do not matter."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Handling bad records with a dead-letter side output is the standard Beam pattern: the pipeline stays healthy and the bad data is preserved for analysis. For deployments, Dataflow's in-place update replaces the pipeline while preserving state, and draining stops intake and finishes processing buffered data before the job ends, so no in-flight data is lost. Option B does not stop the crash-retry loop. Option C reduces throughput without addressing failures. Option E moves the problem elsewhere and breaks downstream analytics.",
     "refs": [
       "https://cloud.google.com/dataflow/docs/guides/updating-a-pipeline",
       "https://cloud.google.com/dataflow/docs/guides/stopping-a-pipeline#drain",
       "https://cloud.google.com/blog/products/data-analytics/handling-invalid-inputs-in-dataflow"
-    ]
+    ],
+    "hint": "Core Rule (Dataflow reliability): Handling bad records with a dead-letter side output is the standard Beam pattern: the pipeline stays healthy and the bad data is preserved for analysis.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Increase the Pub/Sub acknowledgement deadline so retries occur less fr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Lower the pipeline's maximum number of workers so failures affect fewe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Switch the sink from BigQuery to Cloud Storage so schema mismatches do…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-044",
@@ -387,11 +532,19 @@
       "Use Google Cloud Managed Service for Apache Kafka and repoint the applications to the managed cluster.",
       "Use Pub/Sub with the Kafka Connect Pub/Sub connector as a bridge and gradually rewrite consumers."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Managed Service for Apache Kafka is a fully managed, Kafka-protocol-compatible service, so existing producers, consumers, Kafka Streams applications, and Connect workers can be repointed with configuration changes only, satisfying the no-rewrite constraint while removing broker operations. Option A requires rewriting 200+ applications. Option B removes the AWS brokers but keeps the company operating Kafka themselves on GKE. Option D still ends with a large rewrite effort and leaves Kafka Streams applications without a home.",
     "refs": [
       "https://cloud.google.com/managed-service-for-apache-kafka/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: Managed Service for Apache Kafka is a fully managed, Kafka-protocol-compatible service, so existing producers, consumers, Kafka Streams applications, and Connect workers can be repointed with configuration changes only, satisfying the no-rewrite constraint while removing broker operations.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate all producers and consumers to Pub/Sub and rewrite the Kafka S…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run Kafka on GKE using the Strimzi operator managed by the platform te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Pub/Sub with the Kafka Connect Pub/Sub connector as a bridge and g…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-045",
@@ -407,12 +560,20 @@
       "Sliding 1-hour windows advancing every minute with the default trigger and no allowed lateness.",
       "Session windows with a 1-hour gap, a trigger on watermark, and allowed lateness of 2 hours."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "This is the classic Beam early/on-time/late trigger pattern: fixed event-time windows give hourly buckets, an early-firing trigger emits provisional results every minute, the watermark firing produces the final count, and allowed lateness of 2 hours with late firings re-emits corrected results when late impressions arrive; accumulating mode ensures each pane contains the full updated count so downstream systems can overwrite. Option B uses processing time, so late events land in the wrong hour, and it provides no early updates. Option C produces overlapping windows that do not represent discrete hourly counts and drops late data. Option D groups by inactivity gaps, not calendar hours.",
     "refs": [
       "https://beam.apache.org/documentation/programming-guide/#triggers",
       "https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines#triggers"
-    ]
+    ],
+    "hint": "Core Rule (Dataflow triggers and late data): This is the classic Beam early/on-time/late trigger pattern: fixed event-time windows give hourly buckets, an early-firing trigger emits provisional results every minute, the watermark firing produces the final count, and allowed lateness of 2 hours with late firings re-emits corrected results when late impressions arrive; accumulating mode ensures each pane contains the full updated count so downstream systems can overwrite.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Fixed 1-hour processing-time windows with a trigger at window close an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Sliding 1-hour windows advancing every minute with the default trigger…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Session windows with a 1-hour gap, a trigger on watermark, and allowed…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-046",
@@ -428,12 +589,20 @@
       "Reduce the number of replicated tables to only those referenced by the dashboards.",
       "Set the Datastream stream's BigQuery data freshness (max_staleness) to 30 minutes so changes are applied in batches."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Datastream's BigQuery destination exposes a data freshness setting that maps to the BigQuery table's max_staleness option; raising it to 30 minutes lets BigQuery apply buffered CDC changes in fewer, larger merge operations, significantly reducing cost while staying within the dashboards' freshness requirement, and it is a configuration change only. Option A abandons CDC and moves freshness to 24 hours. Option B adds a whole pipeline to build and operate. Option C may help marginally but does not address the per-change merge cost pattern and risks removing tables other consumers need.",
     "refs": [
       "https://cloud.google.com/datastream/docs/destination-bigquery#data-freshness",
       "https://cloud.google.com/bigquery/docs/change-data-capture"
-    ]
+    ],
+    "hint": "Core Rule (Datastream to BigQuery): Datastream's BigQuery destination exposes a data freshness setting that maps to the BigQuery table's max_staleness option; raising it to 30 minutes lets BigQuery apply buffered CDC changes in fewer, larger merge operations, significantly reducing cost while staying within the dashboards' freshness requirement, and it is a configuration change only.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Replace Datastream with a nightly Cloud SQL export to Cloud Storage an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Route Datastream to Cloud Storage and build a Dataflow job that merges…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Reduce the number of replicated tables to only those referenced by the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-047",
@@ -449,12 +618,20 @@
       "Move the jobs to Serverless for Apache Spark, which does not use preemptible capacity.",
       "Increase the primary worker count and store shuffle data on local SSDs."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Spot VMs offer the deepest compute discount for fault-tolerant batch work. The failures seen before were caused by shuffle data being lost when preempted workers disappeared; Dataproc Enhanced Flexibility Mode (EFM) writes shuffle data to primary workers or Cloud Storage so secondary Spot workers can be reclaimed without recomputing whole stages. Option A gives a smaller discount and forgoes Spot savings. Option C removes cluster management but not necessarily cost, and does not address the stated cost goal as directly for long-running batch. Option D increases cost and local SSD does not help when a worker is preempted.",
     "refs": [
       "https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/flex",
       "https://cloud.google.com/dataproc/docs/concepts/compute/secondary-vms"
-    ]
+    ],
+    "hint": "Core Rule (Dataproc cost optimization): Spot VMs offer the deepest compute discount for fault-tolerant batch work.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use only primary workers on committed-use discounts and stop using pre…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Move the jobs to Serverless for Apache Spark, which does not use preem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Increase the primary worker count and store shuffle data on local SSDs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-048",
@@ -470,11 +647,19 @@
       "Create a BigQuery subscription on the topic with 'use topic schema' enabled so Pub/Sub writes directly to the table.",
       "Use a Cloud Storage subscription and schedule hourly BigQuery load jobs from the bucket."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "BigQuery subscriptions let Pub/Sub write messages straight into a BigQuery table, using the topic schema to map fields to columns, with no Dataflow job or custom service and no additional compute charges beyond Pub/Sub. Option A works but introduces a continuously running Dataflow job with its own cost and operations when no transformation is needed. Option B is custom code to write, secure, scale, and maintain. Option D adds latency (hourly) and a second pipeline step, contradicting the as-it-arrives requirement.",
     "refs": [
       "https://cloud.google.com/pubsub/docs/bigquery"
-    ]
+    ],
+    "hint": "Core Rule (Pub/Sub BigQuery subscriptions): BigQuery subscriptions let Pub/Sub write messages straight into a BigQuery table, using the topic schema to map fields to columns, with no Dataflow job or custom service and no additional compute charges beyond Pub/Sub.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy a streaming Dataflow job from the Pub/Sub to BigQuery Google-pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Write a Cloud Run service that pulls messages and calls the BigQuery S…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use a Cloud Storage subscription and schedule hourly BigQuery load job…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-049",
@@ -490,12 +675,20 @@
       "A Dataflow batch pipeline launched from a template",
       "A Dataproc workflow template with a single-node cluster"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Workflows is a serverless orchestrator for HTTP-based services and Google Cloud APIs, billed per step executed, so it costs essentially nothing when idle and fits a simple four-step API sequence without Airflow knowledge. Option B has an always-on environment with a significant fixed monthly cost and is designed for complex data pipelines. Options C and D are data-processing engines, not general service orchestrators, and would be both expensive and awkward for calling REST APIs and sending notifications.",
     "refs": [
       "https://cloud.google.com/workflows/docs/choose-orchestration",
       "https://cloud.google.com/workflows/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Workflows vs Composer): Workflows is a serverless orchestrator for HTTP-based services and Google Cloud APIs, billed per step executed, so it costs essentially nothing when idle and fits a simple four-step API sequence without Airflow knowledge.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Cloud Composer with a small environment): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A Dataflow batch pipeline launched from a template): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A Dataproc workflow template with a single-node cluster): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "mx-dat-050",
@@ -512,12 +705,21 @@
       "Register the assets in Dataplex Universal Catalog to capture lineage and manage metadata across engines.",
       "Create a separate copy of the bucket per analyst group with only the permitted columns."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "BigLake tables decouple storage access from table access: analysts never need bucket permissions, and BigQuery's column-level security and row-level access policies are enforced consistently whether the table is read through BigQuery, the Storage Read API from Spark, or from notebooks. Dataplex Universal Catalog provides the lineage and metadata management that make derived tables traceable to source files. Option A gives direct object access that bypasses any table-level control. Option C is the wrong storage engine for analytical Parquet scans and does not provide policy-based column security. Option E multiplies copies and creates a data-sync and consistency burden.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/biglake-intro",
       "https://cloud.google.com/bigquery/docs/column-level-security-intro",
       "https://cloud.google.com/dataplex/docs/about-data-lineage"
-    ]
+    ],
+    "hint": "Core Rule (Data lake governance): BigLake tables decouple storage access from table access: analysts never need bucket permissions, and BigQuery's column-level security and row-level access policies are enforced consistently whether the table is read through BigQuery, the Storage Read API from Spark, or from notebooks.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant analysts the Storage Object Viewer role on the bucket and enforc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Load the Parquet files into Bigtable and use app profiles to restrict …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Create a separate copy of the bucket per analyst group with only the p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

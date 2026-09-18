@@ -13,12 +13,20 @@
       "Enable Security Command Center Premium and remediate every finding before making structural changes.",
       "Create a new organization and recreate all workloads manually with the correct settings."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "The enterprise foundations blueprint is Google's opinionated, codified landing zone: it establishes the folder hierarchy, baseline organization policies, centralized logging and monitoring projects, IAM groups and Shared VPC through Terraform pipelines, giving a small team an auditable foundation into which existing projects can be moved. Option B produces documentation but not a repeatable control framework. Option C addresses findings symptom by symptom without fixing the structural causes. Option D is enormously disruptive; projects can be moved within an organization, so a new organization is unnecessary.",
     "refs": [
       "https://cloud.google.com/architecture/security-foundations",
       "https://cloud.google.com/architecture/landing-zones"
-    ]
+    ],
+    "hint": "Core Rule (Landing zone / enterprise foundations): The enterprise foundations blueprint is Google's opinionated, codified landing zone: it establishes the folder hierarchy, baseline organization policies, centralized logging and monitoring projects, IAM groups and Shared VPC through Terraform pipelines, giving a small team an auditable foundation into which existing projects can be moved.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Hire an external auditor to document the current 60 projects and fix f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable Security Command Center Premium and remediate every finding bef…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a new organization and recreate all workloads manually with the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-077",
@@ -34,12 +42,20 @@
       "Top-level folders per business unit, each containing dev, staging and prod subfolders, with the stricter organization policies applied to the insurance folder and IAM delegated at the business-unit folder.",
       "A separate organization for each business unit, each with its own Cloud Identity account."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Folders are the unit for both IAM delegation and organization policy inheritance; grouping by business unit first lets each unit administer its own subtree and lets the insurance-specific residency and audit policies be applied once on that folder and inherited by all its environments. Option A offers no inheritance boundaries, so policies would have to be managed per project. Option B makes it impossible to scope the insurance unit's stricter policies without repeating them in every environment folder and complicates business-unit IAM delegation. Option D fragments identity, billing and policy administration and prevents shared services from operating across units.",
     "refs": [
       "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy",
       "https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy"
-    ]
+    ],
+    "hint": "Core Rule (Resource hierarchy design): Folders are the unit for both IAM delegation and organization policy inheritance; grouping by business unit first lets each unit administer its own subtree and lets the insurance-specific residency and audit policies be applied once on that folder and inherited by all its environments.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A flat structure with all projects directly under the organization, di…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Top-level folders per environment (dev, staging, prod) with the three …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A separate organization for each business unit, each with its own Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-078",
@@ -55,12 +71,20 @@
       "Create a separate billing account per research group and consolidate invoices manually.",
       "Use the Cloud Billing reports page filtered by project and email screenshots to the finance office each month."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Detailed billing export to BigQuery provides resource-level usage and cost including credits and committed use discounts, and labels flow through into the export so costs can be attributed to groups even when they share projects; Looker Studio gives finance a self-service view. Option A is manual and inaccurate. Option C multiplies billing administration, prevents pooling of discounts, and still cannot split shared projects. Option D cannot allocate shared projects and is not queryable or automatable.",
     "refs": [
       "https://cloud.google.com/billing/docs/how-to/export-data-bigquery",
       "https://cloud.google.com/billing/docs/how-to/bq-examples"
-    ]
+    ],
+    "hint": "Core Rule (Billing export and chargeback): Detailed billing export to BigQuery provides resource-level usage and cost including credits and committed use discounts, and labels flow through into the export so costs can be attributed to groups even when they share projects; Looker Studio gives finance a self-service view.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Ask each research group to download the monthly invoice PDF and self-r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a separate billing account per research group and consolidate i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use the Cloud Billing reports page filtered by project and email scree…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-079",
@@ -76,12 +100,20 @@
       "Send a weekly report from billing export listing unlabeled VMs to team leads.",
       "Create a custom organization policy constraint on compute.googleapis.com/Instance that requires the cost_center label to be present on create and update, and enforce it at the organization level."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Custom organization policy constraints use Common Expression Language to evaluate resource attributes, including labels, at create and update time, and they are enforced by the API regardless of the client used, so they provide the preventive control the team wants. Option A is detective and reactive: the VM is created (and billed) before it is stopped, and stopping it may disrupt workloads. Option B only catches VMs created through Terraform. Option C is a reporting mechanism that does not prevent the problem.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/organization-policy/creating-managing-custom-constraints",
       "https://cloud.google.com/compute/docs/labeling-resources"
-    ]
+    ],
+    "hint": "Core Rule (Label enforcement): Custom organization policy constraints use Common Expression Language to evaluate resource attributes, including labels, at create and update time, and they are enforced by the API regardless of the client used, so they provide the preventive control the team wants.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a Cloud Run function triggered by Cloud Asset Inventory feeds t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add a Terraform validation rule that fails the plan if the cost_center…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Send a weekly report from billing export listing unlabeled VMs to team…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-080",
@@ -97,12 +129,20 @@
       "Move the projects to a separate organization so that engineers cannot see them.",
       "Enable the organization policy that disables project deletion across the organization."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A project lien is a lightweight, purpose-built guardrail: while the lien exists, the project cannot be deleted, and removing it requires a distinct permission and a deliberate action, which prevents accidental deletion without disrupting daily administration. Option B removes necessary access for operations and still leaves one person able to delete by accident. Option C is a disproportionate change that breaks Shared VPC and logging integration. Option D does not exist as a standard organization policy constraint; liens are the mechanism Google provides.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/project-liens",
       "https://cloud.google.com/resource-manager/docs/creating-managing-projects#shutting_down_projects"
-    ]
+    ],
+    "hint": "Core Rule (Project liens): A project lien is a lightweight, purpose-built guardrail: while the lien exists, the project cannot be deleted, and removing it requires a distinct permission and a deliberate action, which prevents accidental deletion without disrupting daily administration.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Remove the Owner role from all engineers and grant it only to the CTO.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Move the projects to a separate organization so that engineers cannot …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable the organization policy that disables project deletion across t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-081",
@@ -118,12 +158,20 @@
       "Restore the project with gcloud projects undelete (the project is still in the 30-day pending-deletion window), re-attach a billing account, and retrieve the bucket contents.",
       "Create a new project with the same project ID so that the bucket is automatically reattached."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "When a project is shut down it enters a pending-deletion state for roughly 30 days, during which an owner can restore it; because billing was detached, a billing account must be re-linked before the storage can be accessed and billed. Option A is wrong for the first 30 days. Option B is wrong because Google does not restore customer data from internal backups on request. Option D is impossible because a project ID remains reserved during and after deletion and cannot be reused to reattach resources.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/creating-managing-projects#restoring_a_project",
       "https://cloud.google.com/resource-manager/docs/creating-managing-projects#shutting_down_projects"
-    ]
+    ],
+    "hint": "Core Rule (Project lifecycle): When a project is shut down it enters a pending-deletion state for roughly 30 days, during which an owner can restore it; because billing was detached, a billing account must be re-linked before the storage can be accessed and billed.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Explain that deletion is immediate and irreversible, and offer to rest…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Open a support case asking Google to restore the bucket from Google's …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a new project with the same project ID so that the bucket is au…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-082",
@@ -139,12 +187,20 @@
       "Create a Cloud Monitoring alerting policy that forwards all Google emails to the security team.",
       "Ask Cloud Support to update the primary contact for the organization to the security team."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Essential Contacts lets you specify contacts for notification categories such as security, legal, billing, suspension and technical, and contacts set at the organization or folder level are inherited by all child projects, replacing reliance on the project creator or Owner mailboxes. Option A grants unnecessary privileged access and does not cover all notification categories reliably. Option C is not possible; Google notifications are not Monitoring events. Option D is not how notification routing is managed; Essential Contacts is self-service.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/managing-notification-contacts",
       "https://cloud.google.com/resource-manager/docs/managing-notification-contacts#notification-categories"
-    ]
+    ],
+    "hint": "Core Rule: Essential Contacts lets you specify contacts for notification categories such as security, legal, billing, suspension and technical, and contacts set at the organization or folder level are inherited by all child projects, replacing reliance on the project creator or Owner mailboxes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add the security team's group as an Owner on every project so that the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a Cloud Monitoring alerting policy that forwards all Google ema…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask Cloud Support to update the primary contact for the organization t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-083",
@@ -160,12 +216,20 @@
       "Use Resource Manager tags with a governance-managed tag key such as environment, bound at the folder level and inherited by projects and resources, and reference them in IAM Conditions, organization policies and firewall policies.",
       "Use Data Catalog policy tags and attach them to projects."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Tags are the governance-grade classification mechanism: tag keys and values are IAM-controlled resources, bindings inherit down the hierarchy, and tags can be referenced in IAM Conditions, organization policy scoping and network firewall policies, none of which labels support. Option A is wrong because IAM Conditions cannot evaluate resource labels and labels are freely editable by anyone with resource edit access. Option B is brittle and unenforceable. Option D is wrong because policy tags apply to BigQuery columns for column-level security, not to projects or infrastructure resources.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/tags/tags-overview",
       "https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing"
-    ]
+    ],
+    "hint": "Core Rule (Tags vs labels): Tags are the governance-grade classification mechanism: tag keys and values are IAM-controlled resources, bindings inherit down the hierarchy, and tags can be referenced in IAM Conditions, organization policy scoping and network firewall policies, none of which labels support.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Continue using labels, and add an IAM condition that checks the resour…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use project naming conventions and parse the project ID in IAM conditi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Data Catalog policy tags and attach them to projects.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-084",
@@ -181,12 +245,20 @@
       "Write a Cloud Run function that reacts to project creation events and applies the correct role binding based on the parent folder.",
       "Grant roles/editor on the nonprod subfolder and roles/viewer on the engineering folder, and add a label environment=prod to production projects."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Tag bindings on the subfolders are inherited by every current and future project beneath them, and an IAM condition using resource.matchTag evaluates the effective tag on the resource, so a single conditional grant at the engineering folder yields editor on non-production projects and viewer elsewhere with zero per-project maintenance. Option B is wrong because IAM Deny conditions cannot match on project names in that way and name-based rules are brittle. Option C is a custom automation that duplicates a built-in capability and creates drift risk. Option D achieves the outcome for the folder grants but the label is meaningless for access control; the tag-based approach is the recommended pattern that also supports future policy reuse.",
     "refs": [
       "https://cloud.google.com/iam/docs/tags-access-control",
       "https://cloud.google.com/iam/docs/conditions-overview"
-    ]
+    ],
+    "hint": "Core Rule (IAM Conditions with tags): Tag bindings on the subfolders are inherited by every current and future project beneath them, and an IAM condition using resource.matchTag evaluates the effective tag on the resource, so a single conditional grant at the engineering folder yields editor on non-production projects and viewer elsewhere with zero per-project maintenance.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Grant developers roles/editor at the engineering folder and add an IAM…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Write a Cloud Run function that reacts to project creation events and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Grant roles/editor on the nonprod subfolder and roles/viewer on the en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-085",
@@ -203,13 +275,22 @@
       "Enforce multi-factor authentication either through Entra ID conditional access for the Google Cloud SAML app or by enforcing 2-Step Verification in Cloud Identity for all users.",
       "Use consumer Gmail accounts for clinicians who do not have a corporate mailbox."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Federating Cloud Identity with the existing IdP via SAML gives users single sign-on with corporate credentials, and automated provisioning ensures leavers lose access promptly, while MFA can be enforced at the IdP for the federated app or through Cloud Identity 2-Step Verification policies, satisfying the MFA requirement for console access. Option A duplicates identities and breaks lifecycle automation. Option C violates least privilege and is unrelated to authentication. Option E introduces unmanaged consumer identities that cannot be governed or deprovisioned by the hospital.",
     "refs": [
       "https://cloud.google.com/architecture/identity/single-sign-on",
       "https://cloud.google.com/architecture/identity/federating-gcp-with-azure-active-directory",
       "https://support.google.com/cloudidentity/answer/9176657"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Identity SSO and MFA): Federating Cloud Identity with the existing IdP via SAML gives users single sign-on with corporate credentials, and automated provisioning ensures leavers lose access promptly, while MFA can be enforced at the IdP for the federated app or through Cloud Identity 2-Step Verification policies, satisfying the MFA requirement for console access.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create Google accounts for each user manually in the Admin console and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Grant all users the Owner role so that they can access any project aft…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Use consumer Gmail accounts for clinicians who do not have a corporate…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-086",
@@ -225,12 +306,20 @@
       "Require security keys for the entire organization, since Cloud Identity 2-Step Verification policies cannot be scoped to subsets of users.",
       "Create a Cloud Identity 2-Step Verification policy that enforces the Only security key method for the group or organizational unit containing privileged administrators, and enforce any 2-Step Verification method for everyone else."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Cloud Identity 2-Step Verification enforcement is configurable per organizational unit or group, including the enforcement method, so privileged administrators can be required to use FIDO security keys (the phishing-resistant option) while other users keep less strict methods. Option A relies on voluntary compliance, which is not enforcement. Option B is wrong because IAM Conditions cannot evaluate the authentication method used. Option C is factually wrong about scoping and would impose unnecessary friction on the entire workforce.",
     "refs": [
       "https://support.google.com/cloudidentity/answer/9176657",
       "https://cloud.google.com/resource-manager/docs/super-admin-best-practices"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Identity 2-Step Verification enforcement is configurable per organizational unit or group, including the enforcement method, so privileged administrators can be required to use FIDO security keys (the phishing-resistant option) while other users keep less strict methods.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable 2-Step Verification for all users in Cloud Identity and ask adm…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add an IAM condition to the administrative role bindings that checks w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Require security keys for the entire organization, since Cloud Identit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-087",
@@ -246,12 +335,20 @@
       "Time-based one-time passwords from an authenticator app with 30-second rotation.",
       "Backup codes printed and stored in each administrator's locked drawer."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "FIDO2 security keys bind the authentication to the legitimate origin, so a fake login page cannot relay the credential, which is why they are considered phishing-resistant; Titan Security Keys offer USB, NFC and Bluetooth models for laptops and mobile devices. Option B is vulnerable to SIM swapping and code phishing. Option C still produces a code the user can be tricked into typing into a fake page, as happened here. Option D is a recovery mechanism, not a primary factor, and equally phishable.",
     "refs": [
       "https://cloud.google.com/security/products/titan-security-key",
       "https://support.google.com/cloudidentity/answer/9176657"
-    ]
+    ],
+    "hint": "Core Rule (Phishing-resistant authentication): FIDO2 security keys bind the authentication to the legitimate origin, so a fake login page cannot relay the credential, which is why they are considered phishing-resistant; Titan Security Keys offer USB, NFC and Bluetooth models for laptops and mobile devices.",
+    "whyWrong": {
+      "1": "Incorrect distractor (SMS one-time passcodes sent to registered corporate phone numbers.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Time-based one-time passwords from an authenticator app with 30-second…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Backup codes printed and stored in each administrator's locked drawer.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-088",
@@ -267,12 +364,20 @@
       "Cloud KMS keys created with the HSM protection level (Cloud HSM), which are generated and used within FIPS 140-2 Level 3 validated HSMs and integrate with CMEK-capable services.",
       "Secret Manager with automatic replication, which stores secrets in hardware-backed storage."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud HSM is a fully managed service that hosts keys in a cluster of FIPS 140-2 Level 3 validated HSMs; keys never leave the HSM boundary, and they are used as CMEK for services like Cloud Storage and Cloud SQL just like software keys. Option A meets only Level 1. Option B keeps keys on premises but CSEK is supported only by a few services (not Cloud SQL) and imposes heavy operational overhead. Option D is for storing application secrets, not for performing CMEK encryption operations.",
     "refs": [
       "https://cloud.google.com/kms/docs/hsm",
       "https://cloud.google.com/kms/docs/cmek"
-    ]
+    ],
+    "hint": "Core Rule: Cloud HSM is a fully managed service that hosts keys in a cluster of FIPS 140-2 Level 3 validated HSMs; keys never leave the HSM boundary, and they are used as CMEK for services like Cloud Storage and Cloud SQL just like software keys.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cloud KMS keys with the software protection level, which is FIPS 140-2…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Customer-supplied encryption keys generated on an on-premises HSM and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Secret Manager with automatic replication, which stores secrets in har…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-089",
@@ -288,12 +393,20 @@
       "Cloud KMS does not support automatic rotation for symmetric keys; a Cloud Scheduler job must call the API every 90 days.",
       "Rotation is only available for keys with the HSM protection level; software keys must be recreated manually."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "In Cloud KMS, rotation sets a new primary version that is used for new encrypt operations, while data encrypted with previous versions can still be decrypted only as long as those versions remain enabled, so destroying them immediately would make existing data unreadable; automatic rotation schedules satisfy the 90-day policy. Option A misdescribes rotation, which never re-encrypts data. Option C is wrong because automatic rotation periods are a native property of symmetric keys. Option D is wrong because rotation works with all protection levels.",
     "refs": [
       "https://cloud.google.com/kms/docs/key-rotation",
       "https://cloud.google.com/kms/docs/rotating-keys"
-    ]
+    ],
+    "hint": "Core Rule (Key rotation): In Cloud KMS, rotation sets a new primary version that is used for new encrypt operations, while data encrypted with previous versions can still be decrypted only as long as those versions remain enabled, so destroying them immediately would make existing data unreadable; automatic rotation schedules satisfy the 90-day policy.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rotation re-encrypts all existing data with the new version automatica…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Cloud KMS does not support automatic rotation for symmetric keys; a Cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Rotation is only available for keys with the HSM protection level; sof…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-090",
@@ -309,13 +422,21 @@
       "Cloud External Key Manager with keys hosted in the lab's own key manager and Cloud KMS holding only a reference.",
       "Customer-supplied encryption keys (CSEK), where the lab generates the keys and provides them with each Compute Engine disk and Cloud Storage request, and Google keeps the key only in memory for the duration of the operation."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "CSEK is the option in which Google never stores the key: the customer supplies the raw AES-256 key with each request, Google uses it transiently to wrap the data encryption keys and then discards it, and CSEK is supported precisely by Compute Engine disks and Cloud Storage, the two services in use. Option A stores keys in Google's managed HSMs, which the clause forbids. Option B does not address key custody at all. Option C is close, since the key material stays outside Google, but Cloud EKM still relies on a key resource managed within Cloud KMS and is not supported for Compute Engine CSEK-style usage in the same way; more importantly the lab's clause is met most directly by CSEK, which is the documented use case when a customer will not allow any provider-side key persistence.",
     "refs": [
       "https://cloud.google.com/docs/security/encryption/customer-supplied-encryption-keys",
       "https://cloud.google.com/compute/docs/disks/customer-supplied-encryption",
       "https://cloud.google.com/storage/docs/encryption/customer-supplied-keys"
-    ]
+    ],
+    "hint": "Core Rule (Customer-supplied encryption keys): CSEK is the option in which Google never stores the key: the customer supplies the raw AES-256 key with each request, Google uses it transiently to wrap the data encryption keys and then discards it, and CSEK is supported precisely by Compute Engine disks and Cloud Storage, the two services in use.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Customer-managed encryption keys in Cloud KMS with the HSM protection …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Google-managed default encryption combined with VPC Service Controls t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Cloud External Key Manager with keys hosted in the lab's own key manag…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-091",
@@ -331,12 +452,20 @@
       "Use customer-supplied encryption keys for BigQuery and Cloud Storage, passing the key with each query.",
       "Encrypt data client-side with the on-premises HSM before uploading and decrypt it in the BigQuery client after querying."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Cloud EKM lets CMEK-integrated services such as BigQuery and Cloud Storage use keys whose material never leaves the customer's external key manager; every use is brokered through the external key, and Key Access Justifications let the bank approve or deny each request based on the stated reason. Option B moves key material into Google Cloud, which the regulator prohibits. Option C is wrong because BigQuery does not support customer-supplied encryption keys. Option D makes the data opaque to BigQuery, defeating the purpose of analyzing it there.",
     "refs": [
       "https://cloud.google.com/kms/docs/ekm",
       "https://cloud.google.com/assured-workloads/key-access-justifications/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Cloud External Key Manager): Cloud EKM lets CMEK-integrated services such as BigQuery and Cloud Storage use keys whose material never leaves the customer's external key manager; every use is brokered through the external key, and Key Access Justifications let the bank approve or deny each request based on the stated reason.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Import the HSM keys into Cloud KMS using key import so that they are u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use customer-supplied encryption keys for BigQuery and Cloud Storage, …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Encrypt data client-side with the on-premises HSM before uploading and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-092",
@@ -353,12 +482,21 @@
       "Store the key material in Secret Manager and reference it from BigQuery configuration.",
       "Disable Admin Activity audit logs on the key project to reduce noise for the security team."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Google's recommended separation-of-duties pattern is to host keys in a project controlled by a different team than the one that owns the data, and to grant service agents only the encrypt/decrypt role on the specific keys they need, so data administrators cannot manage the key lifecycle and key administrators do not have access to the data. Option B reintroduces the conflict the audit flagged. Option D is wrong because CMEK requires Cloud KMS keys; Secret Manager cannot serve as a key service for BigQuery. Option E removes the audit trail that separation of duties depends on, and Admin Activity logs cannot be disabled anyway.",
     "refs": [
       "https://cloud.google.com/kms/docs/separation-of-duties",
       "https://cloud.google.com/bigquery/docs/customer-managed-encryption"
-    ]
+    ],
+    "hint": "Core Rule (Separation of duties for key management): Google's recommended separation-of-duties pattern is to host keys in a project controlled by a different team than the one that owns the data, and to grant service agents only the encrypt/decrypt role on the specific keys they need, so data administrators cannot manage the key lifecycle and key administrators do not have access to the data.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Grant the data warehouse engineers the roles/cloudkms.admin role on th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Store the key material in Secret Manager and reference it from BigQuer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Disable Admin Activity audit logs on the key project to reduce noise f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-093",
@@ -376,12 +514,22 @@
       "gcp.resourceLocations, restricting resource creation to the locations approved by the bank's residency policy.",
       "compute.vmExternalIpAccess set to allow all, so that teams can debug VMs from the internet during onboarding."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "The enterprise foundations blueprint recommends a baseline of preventive organization policies applied at the top of the hierarchy: disabling service account key creation removes the most common credential leakage path, domain restricted sharing prevents granting access to external or personal identities, and resource locations enforce residency before any data lands. Option B and Option F weaken security defaults rather than strengthen them. Option D leaves public access prevention to individual project owners, which is exactly the kind of inconsistency a landing zone should avoid; it should be enforced at the organization.",
     "refs": [
       "https://cloud.google.com/architecture/security-foundations/preventative-controls",
       "https://cloud.google.com/resource-manager/docs/organization-policy/org-policy-constraints"
-    ]
+    ],
+    "hint": "Core Rule (Organization policy baseline): The enterprise foundations blueprint recommends a baseline of preventive organization policies applied at the top of the hierarchy: disabling service account key creation removes the most common credential leakage path, domain restricted sharing prevents granting access to external or personal identities, and resource locations enforce residency before any data lands.",
+    "whyWrong": {
+      "1": "Incorrect distractor (compute.requireShieldedVm set to not enforced, to preserve compatibili…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (storage.publicAccessPrevention set to inherited, so that project owner…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (compute.vmExternalIpAccess set to allow all, so that teams can debug V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-094",
@@ -397,12 +545,20 @@
       "Grant the roles/owner role at the organization node to the five users instead of super administrator, since Owner is a lesser privilege.",
       "Move the super administrator accounts to a consumer Gmail domain so that a compromise of the corporate domain does not affect them."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Google recommends discouraging daily use of super admin accounts: keep a few dedicated, individually attributable accounts with security keys enforced, use them only when necessary, delegate routine work to less privileged administrator roles, and monitor their activity. Option A creates a shared credential, which destroys accountability and is itself a critical finding. Option C confuses Google Cloud IAM roles with Cloud Identity super admin, and organization-level Owner is also excessive for daily use. Option D moves the keys to the kingdom outside the managed domain, which cannot be governed or monitored.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/super-admin-best-practices",
       "https://support.google.com/a/answer/9011373"
-    ]
+    ],
+    "hint": "Core Rule (Super administrator practices): Google recommends discouraging daily use of super admin accounts: keep a few dedicated, individually attributable accounts with security keys enforced, use them only when necessary, delegate routine work to less privileged administrator roles, and monitor their activity.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Reduce to a single super administrator account shared by the security …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Grant the roles/owner role at the organization node to the five users …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move the super administrator accounts to a consumer Gmail domain so th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-095",
@@ -418,12 +574,20 @@
       "Create a per-project budget for each sandbox with a Pub/Sub notification, and have a Cloud Run function that disables billing on that project when the budget is exceeded.",
       "Apply a quota reduction on Compute Engine CPUs in each sandbox project to limit spend."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud Billing budgets do not stop spending by themselves, but scoping a budget to a single project and publishing threshold notifications to Pub/Sub lets a Cloud Run function detach billing from just that project, which halts charges without touching other projects on the same account; this is the documented pattern for capping spend. Option A only notifies and depends on the student acting. Option B is wrong because there is no billing-account-level spending cap for self-serve accounts, and suspending everything would also take down research projects. Option D limits one resource type but not overall spend on services like BigQuery or Cloud Storage.",
     "refs": [
       "https://cloud.google.com/billing/docs/how-to/disable-billing-with-notifications",
       "https://cloud.google.com/billing/docs/how-to/budgets"
-    ]
+    ],
+    "hint": "Core Rule (Budget controls for sandbox projects): Cloud Billing budgets do not stop spending by themselves, but scoping a budget to a single project and publishing threshold notifications to Pub/Sub lets a Cloud Run function detach billing from just that project, which halts charges without touching other projects on the same account; this is the documented pattern for capping spend.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a budget on the billing account with a 100 percent threshold an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Set a spending cap on the billing account so that Google suspends all …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Apply a quota reduction on Compute Engine CPUs in each sandbox project…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-096",
@@ -439,12 +603,20 @@
       "Create a Cloud Run function that deletes any project that does not have the required labels within one hour of creation.",
       "Grant all employees the Billing Account User role so that at least billing is always linked."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "By default all users in the domain may create projects; the enterprise foundations blueprint recommends removing that default grant and using a project factory pipeline as the only path for project creation so that folder placement, labels, billing, logging and IAM are applied consistently and are auditable in version control. Option B relies on voluntary compliance. Option C is destructive and reactive, and it cannot fix missing sinks or IAM baselines. Option D addresses one attribute and broadens billing permissions unnecessarily.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/default-access-control",
       "https://cloud.google.com/architecture/security-foundations/deployment-methodology"
-    ]
+    ],
+    "hint": "Core Rule (Project creation governance): By default all users in the domain may create projects; the enterprise foundations blueprint recommends removing that default grant and using a project factory pipeline as the only path for project creation so that folder placement, labels, billing, logging and IAM are applied consistently and are auditable in version control.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Send a company-wide email documenting the standard and ask employees t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a Cloud Run function that deletes any project that does not hav…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Grant all employees the Billing Account User role so that at least bil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-097",
@@ -460,12 +632,20 @@
       "Set the constraints/iam.allowedPolicyMemberDomains organization policy at the organization node, listing the company's Cloud Identity customer ID and approved partner customer IDs, and remediate existing external bindings.",
       "Require all contractors to use Google Workspace accounts from their own companies."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The domain restricted sharing constraint prevents any IAM policy in the organization from adding principals outside the listed Cloud Identity or Workspace customer IDs, providing a preventive control with a built-in way to allow approved partner domains; existing non-compliant bindings must be cleaned up separately because the policy does not retroactively remove them. Option A only addresses public (allUsers) access to buckets, not sharing with specific external accounts. Option B is a detective control that leaves a window of exposure. Option D does not prevent Gmail addresses from being added and still requires a technical control.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/organization-policy/restricting-domains",
       "https://cloud.google.com/policy-intelligence/docs/policy-analyzer-overview"
-    ]
+    ],
+    "hint": "Core Rule: The domain restricted sharing constraint prevents any IAM policy in the organization from adding principals outside the listed Cloud Identity or Workspace customer IDs, providing a preventive control with a built-in way to allow approved partner domains; existing non-compliant bindings must be cleaned up separately because the policy does not retroactively remove them.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable the constraints/storage.publicAccessPrevention organization pol…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run a weekly Policy Analyzer query for external identities and remove …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Require all contractors to use Google Workspace accounts from their ow…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-098",
@@ -482,12 +662,21 @@
       "Add the studio's domain as a secondary domain in the group's Cloud Identity account, or federate identities, so studio staff retain access after the projects move.",
       "Replace all of the studio's service accounts with user accounts before migration to simplify permissions."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Resource Manager supports migrating projects between organizations, so the studio's projects can be moved intact into a folder that already inherits the group's policies, and identity must be reconciled in advance, either by adding the studio's domain to the group's Cloud Identity account or federating, so that existing IAM bindings continue to resolve. Option B is an unnecessary rebuild with downtime and data movement. Option C is factually wrong about project migration. Option E would break workloads and weaken security by replacing workload identities with human accounts.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/project-migration",
       "https://cloud.google.com/architecture/identity/best-practices-for-planning"
-    ]
+    ],
+    "hint": "Core Rule (Organization consolidation): Resource Manager supports migrating projects between organizations, so the studio's projects can be moved intact into a folder that already inherits the group's policies, and identity must be reconciled in advance, either by adding the studio's domain to the group's Cloud Identity account or federating, so that existing IAM bindings continue to resolve.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Export all of the studio's data to Cloud Storage, delete the studio or…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Keep the two organizations separate permanently and share reports manu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Replace all of the studio's service accounts with user accounts before…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-099",
@@ -503,12 +692,20 @@
       "Create a new key version and update the Cloud SQL instance to use it; Cloud SQL will automatically re-encrypt the data.",
       "Open a support case; Google retains a copy of all customer key material for 90 days and can restore it."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud KMS does not destroy key material immediately: a scheduled version remains recoverable for the key's destroy-scheduled duration (30 days by default and configurable at key creation down to 24 hours), so restoring the version returns it to the disabled state and it can be re-enabled, letting Cloud SQL decrypt again. Option A is wrong because destruction is not immediate. Option C is wrong because existing data can only be decrypted with the version that encrypted it, and a new version does not re-encrypt existing data. Option D is wrong because Google does not keep copies of destroyed customer key material and cannot recover a version after the scheduled period has elapsed.",
     "refs": [
       "https://cloud.google.com/kms/docs/destroy-restore",
       "https://cloud.google.com/kms/docs/key-states"
-    ]
+    ],
+    "hint": "Core Rule (Key version destruction): Cloud KMS does not destroy key material immediately: a scheduled version remains recoverable for the key's destroy-scheduled duration (30 days by default and configurable at key creation down to 24 hours), so restoring the version returns it to the disabled state and it can be re-enabled, letting Cloud SQL decrypt again.",
+    "whyWrong": {
+      "0": "Incorrect distractor (The key version is already destroyed and the data is permanently unrec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a new key version and update the Cloud SQL instance to use it; …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Open a support case; Google retains a copy of all customer key materia…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d3-cmp-100",
@@ -524,11 +721,19 @@
       "Use Privileged Access Manager to create entitlements on the production folder that let engineers request time-bound roles with a justification, require approver sign-off, and log every grant and activation to Cloud Audit Logs.",
       "Ask engineers to submit a ticket and have a platform administrator add and remove IAM bindings manually."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Privileged Access Manager provides just-in-time, temporary elevation with justification, optional approver workflow, maximum duration, and audit logging, which directly matches the auditors' requirement without custom tooling. Option A still grants standing Owner access during business hours and lacks justification and approval. Option B relies on shared long-lived keys, which is an anti-pattern that destroys accountability. Option D is manual, error prone and frequently leaves access in place longer than intended.",
     "refs": [
       "https://cloud.google.com/iam/docs/pam-overview",
       "https://cloud.google.com/iam/docs/best-practices-for-securing-service-accounts"
-    ]
+    ],
+    "hint": "Core Rule (Just-in-time privileged access): Privileged Access Manager provides just-in-time, temporary elevation with justification, optional approver workflow, maximum duration, and audit logging, which directly matches the auditors' requirement without custom tooling.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant engineers roles/owner on production projects with an IAM conditi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create a break-glass service account with an Owner role and share its …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask engineers to submit a ticket and have a platform administrator add…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

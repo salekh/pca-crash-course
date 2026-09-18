@@ -1,0 +1,2227 @@
+TITLE: Real GCP Cloud Architect Exam Questions | 3 Case Study Deep Dive (TerramEarth, JencoMart) | Part 9
+URL: https://www.youtube.com/watch?v=2A_SZ1BRAQ4
+DESCRIPTION:
+Ready to master the most challenging part of the Google Cloud Professional Architect exam? This video is a dedicated deep dive into three official case studies: **TerramEarth**, **JencoMart**, and **Dress4Win**, covering real exam questions **159-187**.
+
+Passing the exam in 2025 requires a deep understanding of how to apply GCP services to complex business problems. This session is designed to give you that exact skill.
+
+In this deep dive, you will master how to architect solutions for:
+✅ **TerramEarth (Manufacturing/IoT):** Designing scalable IoT data ingestion pipelines, building predictive maintenance models with BigQuery, and managing massive datasets for heavy equipment fleets.
+✅ **JencoMart (Global Retail):** Architecting modern data warehousing solutions, designing for peak retail traffic, and creating platforms for business analytics and reporting.
+✅ **Dress4Win (E-commerce):** Building resilient, scalable microservices architectures, implementing robust CI/CD pipelines for a web-based company, and selecting the right database services.
+
+We don't just give you the answers—we teach you the architectural mindset needed to solve any case study scenario thrown at you.
+
+▶️ **WATCH THE FULL 250+ QUESTION PLAYLIST HERE:**
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+--
+**RESOURCES & SUPPORT**
+🤝 If you find this multi-case study breakdown valuable, please like, share, and subscribe! It tells us to make more content like this.
+
+Which case study is the hardest for you? Let us know in the comments!
+
+#gcp #googlecloud #cloudarchitect #gcpexamquestions #casestudy #terramearth #jencomart #dress4win #iot #retailanalytics #ecommerce
+
+CHAPTERS:
+
+TRANSCRIPT:
+Nice to see you again. In the previous
+section, I introduced you to case study
+one Mount Kirk Games. In this section, I
+will continue to introduce three case
+studies and questions related to these
+three case studies. Now, let's get
+started. Case study two, company
+overview. TerramEarth manufactures heavy
+equipment for the mining and
+agricultural industries.
+About 80% of their business is from
+mining and 20% from agriculture. They
+currently have over 500 dealers and
+service centers in 100 countries. Their
+mission is to build products that make
+their customers more productive. Company
+background. TerramEarth formed in 1946
+when several small family-owned
+companies combined to retool after World
+War II. The company cares about their
+employees and customers and considers
+them to be extended members of their
+family. TerramEarth is proud of their
+ability to innovate on their core
+products and find new markets as their
+customers needs change. For the past 20
+years, trends in the industry have been
+largely toward increasing productivity
+by using larger vehicles with a human
+operator. Solution concept. There are 20
+million TerramEarth vehicles in
+operation that collect 120 fields of
+data per second. Data is stored locally
+on the vehicle and can be accessed for
+analysis when a vehicle is serviced. The
+data is downloaded via a maintenance
+port. This same port can be used to
+adjust operational parameters, allowing
+the vehicles to be upgraded in the field
+with new computing modules.
+Approximately 200,000 vehicles are
+connected to a cellular network,
+allowing TerramEarth to collect data
+directly at a rate of 120 fields of data
+per second with 22 hours of operation
+per day. TerramEarth collects a total of
+about 9 terabytes per day from these
+connected vehicles. Existing technical
+environment. TerramEarth's existing
+architecture is composed of Linux-based
+systems that reside in a data center.
+These systems gzip CSV files from the
+field and upload via FTP, transform and
+aggregate them, and place the data in
+their data warehouse. Because this
+process takes time, aggregated reports
+are based on data that is 3 weeks old.
+With this data, TerramEarth has been
+able to preemptively stock replacement
+parts and reduce unplanned downtime of
+their vehicles by 60%. However, because
+the data is stale, some customers are
+without their vehicles for up to 4 weeks
+while they wait for replacement parts.
+Business requirements. Decrease
+unplanned vehicle downtime to less than
+1 week without increasing the cost of
+carrying surplus inventory. Support the
+dealer network with more data on how
+their customers use their equipment IP
+better position new products and
+services. Have the ability to partner
+with different companies, especially
+with seed and fertilizer suppliers in
+the fast-growing agricultural business
+to create compelling joint offerings for
+their customers. CEO statement. We have
+been successful in capitalizing on the
+trend toward larger vehicles to increase
+the productivity of our customers.
+Technological change is occurring
+rapidly and TerramEarth has taken
+advantage of connected devices
+technology to provide our customers with
+better services, such as our intelligent
+farming equipment. With this technology,
+we have been able to increase farmers'
+yields by 25% by using past trends to
+adjust how our vehicles operate. These
+advances have led to the rapid growth of
+our agricultural product line, which we
+expect will generate 50% of our revenues
+by 2020. CTO statement. Our competitive
+advantage has always been in the
+manufacturing process with our ability
+to build better vehicles for lower cost
+than our competitors. However, new
+products with different approaches are
+constantly being developed, and I'm
+concerned that we lack the skills to
+undergo the next wave of transformations
+in our industry. Unfortunately, our CEO
+doesn't take technology obsolescence
+seriously, and he considers the many new
+companies in our industry to be niche
+players. My goals are to build our
+skills while addressing immediate market
+needs through incremental innovations.
+Question 159.
+For this question, refer to the
+TerramEarth case study. TerramEarth's
+CTO wants to use the raw data from
+connected vehicles to help identify
+approximately when a vehicle in the
+development team will experience a
+component failure. You want to allow
+analysts to centrally query the vehicle
+data. Which architecture should you
+recommend?
+A. IoT device {dash} Google Cloud load
+balancing {dash} Google Kubernetes
+Engine {dash} Cloud Pub/Sub {dash} Cloud
+Dataflow {dash} BigQuery {dash}
+analysis. B.
+IoT device {dash} App Engine flexible
+environment {dash} Cloud Pub/Sub {dash}
+Cloud Dataflow {dash} BigQuery {dash}
+analysis. Okay, this question is based
+on the TerramEarth case study. The main
+goal is to replace their old, slow,
+FTP-based data pipeline with a modern,
+scalable, real-time analytics platform
+on Google Cloud. We need to choose the
+best architecture to do this. Both
+proposed architectures use the same core
+components for the real-time pipeline.
+Cloud Pub/Sub for ingesting the data
+stream, Cloud Dataflow for processing
+it, and BigQuery for storing and
+analyzing it. This is the standard
+Google recommended pattern. The only
+difference between the two options is
+the very first step.
+The ingestion layer that receives the
+FTP data from the vehicles. Option B
+suggests using the App Engine flexible
+environment. This is not the best
+choice. App Engine is a platform that is
+highly optimized for standard web
+applications using protocols like HTTP.
+While it can run custom containers,
+setting up a high-volume FTP server on
+it is less straightforward and offers
+less networking flexibility than the
+alternative. This brings us to option A,
+which is the correct and more robust
+solution. It suggests using a
+combination of a Google Cloud load
+balancer and Google Kubernetes Engine,
+or GKE, for the ingestion layer. This is
+a much better fit for handling a custom
+protocol like FTP from hundreds of
+thousands of devices. GKE provides the
+flexibility and scalability needed to
+run the custom FTP server containers,
+and the load balancer efficiently
+distributes the massive number of
+incoming connections. This data is then
+fed into the standard Pub/Sub, Dataflow,
+and BigQuery pipeline for processing and
+analysis. Therefore, the recommended
+architecture is A. IoT device {dash}
+Google Cloud load balancing {dash}
+Google Kubernetes Engine {dash} Cloud
+Pub/Sub {dash} Cloud Dataflow {dash}
+BigQuery {dash} analysis. Question 160.
+TerramEarth case study. The TerramEarth
+development team wants to create an API
+to meet the company's business
+requirements. You want the development
+team to focus their development effort
+on business value versus creating a
+custom framework. Which method should
+they use?
+Use Google App Engine with Google Cloud
+Endpoints. Focus on an API for dealers
+and partners. B.
+Use Google App Engine with a JAX-RS
+Jersey Java-based framework. Focus on an
+API for the public. C.
+Use Google App Engine with the Swagger
+Open API Specification Framework. Focus
+on an API for the public. D.
+Use Google Container Engine with a
+Django Python container. Focus on an API
+for the public. E. Use Google Container
+Engine with a Tomcat container with the
+Swagger Open API Specification
+Framework. Focus on an API for dealers
+and partners. Okay, this question is
+based on the TerramEarth case study and
+asks us to choose the best technology
+stack for building a new API. The two
+most important requirements are that the
+solution should have minimal operational
+overhead so the team can focus on
+business logic, and it must serve the
+correct audience mentioned in the case
+study. With that in mind, let's first
+identify the correct audience. The case
+study states the API is to support the
+dealer network and to partner with
+different companies. Therefore, any
+option that suggests focusing on an API
+for the public, like options B, C, and
+D, is incorrect. This leaves us with
+options A and E. The difference between
+them is the platform, App Engine versus
+Google Kubernetes Engine. The question
+requires a solution that allows the team
+to focus on business value instead of
+building a custom framework or managing
+infrastructure. Google Kubernetes
+Engine, or GKE, is a powerful container
+orchestrator, but it requires more
+operational management than App Engine.
+App Engine is a fully managed serverless
+platform where Google handles the
+infrastructure for you. Therefore, App
+Engine is the better choice for
+minimizing operational overhead. Let's
+look closer at option A. It combines the
+right platform, App Engine, with the
+right API tool, Google Cloud Endpoints.
+Cloud Endpoints is a managed API Gateway
+that provides many features like
+authentication and monitoring out of the
+box, which further reduces the amount of
+custom framework development needed. It
+also correctly identifies the target
+audience as dealers and partners.
+Therefore, the method that best meets
+all the requirements is A.
+Endpoints and focus on an API for
+dealers and partners. Question 161.
+TerramEarth case study. Your development
+team has created a structured API to
+retrieve vehicle data. They want to
+allow third parties to develop tools for
+dealerships that use this vehicle event
+data. You want to support delegated
+authorization against this data. What
+should you do? A.
+Build or leverage an OAuth compatible
+access control system. B.
+Build SAML 2.0 SSO compatibility into
+your authentication system. C.
+Restrict data access based on the source
+IP address of the partner systems. D.
+Create secondary credentials for each
+dealer that can be given to the trusted
+third-party. Okay, this is a security
+question from the TerramEarth case
+study. The most important phrase here is
+delegated authorization. This means we
+need a system that allows a user, in
+this case a dealership, to grant a
+third-party application limited access
+to their data without having to share
+their password. With that in mind, let's
+look at our options. Let's start with
+option B, which suggests using SAML.
+This is incorrect. SAML is a standard
+for authentication and single sign-on,
+which is about verifying a user's
+identity. It is not the right tool for
+authorizing a third-party application to
+act on a user's behalf. Next, option C,
+restricting access by IP address. This
+is a weak and inflexible security
+measure. It can't distinguish between
+different users from the same network
+and doesn't provide the granular,
+revocable permissions needed for this
+scenario. Option D suggests creating
+secondary credentials for the
+third-party to use. This is a very bad
+security practice. Sharing credentials
+of any kind is risky,
+difficult to manage, and makes it hard
+for the user to revoke access. This
+brings us to option A, which is the
+correct and industry-standard solution.
+OAuth 2.0 is the protocol specifically
+designed for delegated authorization.
+It's the same technology that allows you
+to click "Log in with Google" on a
+third-party website. It allows the
+dealer to grant the third-party
+application specific, limited
+permissions to their data for a limited
+time, without ever sharing their actual
+username and password. The dealer can
+also revoke this access at any time.
+Therefore, the correct thing to do is A,
+build or leverage an OAuth compatible
+access control system. Question 162.
+TerramEarth case study. TerramEarth
+plans to connect all 20 million vehicles
+in the field to the cloud. This
+increases the volume to 20 million
+600-byte records a second for 40
+terabytes an hour. How should you design
+the data ingestion?
+Vehicles write data directly to GCS. B.
+Vehicles write data directly to Google
+Cloud Pub/Sub. C.
+Vehicles stream data directly to Google
+BigQuery. D.
+Vehicles continue to write data using
+the existing system, FTP. Okay, this is
+a big data architecture question from
+the TerramEarth case study. The
+challenge here is to design a data
+ingestion system that can handle an
+absolutely massive amount of data,
+20 million records every single second.
+We need a service that is built for
+global scale and extreme throughput.
+With that in mind, let's look at our
+options. Let's start with option D,
+which suggests continuing to use the
+existing FTP system. This is incorrect
+because the case study makes it clear
+that the current FTP system is the core
+problem. It's slow, not scalable, and
+the reason they need a new solution.
+Next, let's look at option A,
+writing directly to Google Cloud
+Storage. This is also not a good fit.
+Cloud Storage is an object store, which
+is optimized for large files, not for
+millions of tiny, individual records
+being written every second. It would not
+be performant for this kind of workload.
+Option C suggests streaming data
+directly to BigQuery. While BigQuery
+does have a streaming API, using it as
+the front door for 20 million writes per
+second is not its intended purpose and
+would be very costly. The recommended
+practice is to use a dedicated ingestion
+service in front of BigQuery. This
+brings us to option B, which is the
+correct and recommended solution. Cloud
+Pub/Sub is a fully managed, global
+messaging service designed for exactly
+this scenario. It's built to ingest
+millions of events per second from
+devices all over the world. It acts as a
+highly scalable and reliable buffer,
+safely capturing all the incoming data
+and decoupling the vehicles from the
+back-end data processing systems. This
+is the perfect front door for a
+high-volume IoT data pipeline.
+Therefore, the way you should design the
+data ingestion is B,
+vehicles write data directly to Google
+Cloud Pub/Sub. Question 163.
+TerramEarth case study. You analyzed
+TerramEarth's business requirement to
+reduce downtime and found that they can
+achieve a majority of time saving by
+reducing customers' wait time for parts.
+You decided to focus on reduction of the
+3-weeks aggregate reporting time. Which
+modifications to the company's processes
+should you recommend? A.
+Migrate from CSV to binary format,
+migrate from FTP to SFTP transport, and
+develop machine learning analysis of
+metrics. B.
+Migrate from FTP to streaming transport,
+migrate from CSV to binary format, and
+metrics. C.
+Increase fleet cellular connectivity to
+80%, migrate from FTP to streaming
+transport, and develop machine learning
+analysis of metrics. D.
+Migrate from FTP to SFTP transport,
+metrics, and increase dealer local
+inventory by a fixed factor. Okay, this
+question is based on the TerramEarth
+case study. The central problem we need
+to solve is the massive 3-week delay in
+their data reporting, which is
+preventing them from predicting vehicle
+failures. We need a comprehensive
+solution that addresses the root causes
+of this delay. With that in mind, let's
+evaluate our options. Let's start with
+options A and D,
+which both suggest switching from FTP to
+SFTP. This is incorrect. SFTP is just a
+secure version of FTP.
+It's still a slow, batch-based file
+transfer protocol. This change would do
+nothing to reduce the 3-week delay.
+Option D also incorrectly suggests
+increasing dealer inventory, which the
+case study states they want to avoid.
+Next, let's look at option B. It
+correctly suggests migrating to a modern
+streaming transport, which is a good
+technical step. However, this alone is
+not enough. The case study mentions that
+only a tiny fraction of their vehicles
+have the cellular connectivity needed to
+stream data. A real-time pipeline is
+useless if you don't have real-time data
+to put into it. This brings us to option
+C, which is the correct and most
+complete solution. Tackles the problem
+from all angles. First and most
+importantly, it addresses the core data
+problem by increasing fleet cellular
+connectivity. This is the strategic
+change needed to get the real-time data
+required. Second, it implements the
+necessary technology change by migrating
+from FTP to streaming transport to
+handle this new data flow. Finally, with
+the new real-time data pipeline in
+place, they can develop machine learning
+analysis to predict failures, which was
+their ultimate business goal. Therefore,
+the set of modifications that would
+solve their problem is C,
+increase fleet cellular connectivity to
+analysis of metrics. Question 164.
+TerramEarth case study. Which of
+TerramEarth's legacy enterprise
+processes will experience significant
+change as a result of increased Google
+Cloud Platform adoption?
+Opex/Capex allocation, land changes,
+capacity planning. B.
+Capacity planning, TCO calculations,
+Opex/Capex allocation. C.
+Capacity planning, utilization
+measurement, data center expansion. D.
+Data center expansion, TCO calculations,
+utilization measurement. Okay, this
+question from the TerramEarth case study
+is about the business and financial
+impact of moving from a traditional
+on-premises data center to Google Cloud.
+We need to identify which core
+enterprise processes are most
+significantly changed by this shift.
+With that in mind, let's evaluate our
+options. Let's first look at the options
+that include data center expansion,
+which are C and D. These are incorrect
+because moving to the cloud doesn't just
+change the process of data center
+expansion, it effectively eliminates it.
+You no longer need to plan for and build
+out physical space. Next, let's look at
+option A. It mentions land changes.
+While you will need to manage the
+connection to the cloud, the day-to-day
+management of your local office network
+isn't one of the most fundamentally
+changed processes compared to the major
+shifts in financial and capacity
+planning. This brings us to option B,
+which is the correct answer. This option
+lists the three processes that are most
+profoundly transformed by adopting the
+cloud. Capacity planning changes from a
+long-term guessing game of buying
+hardware to an on-demand, elastic model.
+TCO calculations, or how you measure the
+total cost of ownership, are completely
+different when you're paying for
+services instead of physical assets,
+power, and cooling. Finally, Opex/Capex
+allocation
+represents the fundamental financial
+shift from capital expenditures,
+which is buying hardware, to operating
+expenditures, which is paying a
+recurring service bill. Therefore, the
+processes that will experience the most
+significant change are B,
+capacity planning, TCO calculations, and
+Opex/Capex allocation. Question 165.
+TerramEarth case study. To speed up data
+retrieval, more vehicles will be
+upgraded to cellular connections and be
+able to transmit data to the ETL
+process. The current FTP process is
+error-prone and restarts the data
+transfer from the start of the file when
+connections fail, which happens often.
+You want to improve the reliability of
+the solution and minimize data transfer
+time on the cellular connections. What
+Use one Google Container Engine cluster
+of FTP servers. Save the data to a
+multi-regional bucket. Run the ETL
+process using data in the bucket. B.
+Use multiple Google Container Engine
+clusters running FTP servers located in
+different regions. Save the data to
+multi-regional buckets in US, EU, and
+Asia. Run the ETL process using the data
+in the bucket. C.
+Directly transfer the files to different
+Google Cloud multi-regional storage
+bucket locations in US, EU, and Asia
+using Google APIs over HTTPs.
+Run the ETL process using the data in
+the bucket. D.
+Directly transfer the files to a
+different Google Cloud regional storage
+bucket location in US, EU, and Asia
+Run the ETL process to retrieve the data
+from each regional bucket. Okay, this
+is about fixing their data transfer
+process. We need a solution that is more
+reliable than their current error-prone
+FTP system and also minimizes the data
+transfer time for vehicles connecting
+over cellular networks around the world.
+options. Let's start by looking at
+options A and B. Both of these are
+incorrect because they continue to rely
+on the FTP protocol, which is the core
+of the problem. FTP is not inherently
+reliable for flaky connections, as it
+often has to restart transfers from the
+beginning when a connection fails, which
+happens often. let's look at option C.
+This option correctly suggests using the
+Google APIs over HTTP, which is a good
+step. However, it recommends using
+multi-regional buckets. This is not the
+best choice for minimizing transfer
+time. If a vehicle in Asia uploads to a
+US multi-region bucket, its data might
+have to travel across the ocean, which
+increases latency. This brings us to
+option D, which is the correct and most
+efficient solution. It solves both
+problems perfectly. To improve
+reliability, it uses the Google APIs
+over HTTP. These APIs support resumable
+uploads, which means if a cellular
+connection drops, the transfer can pick
+up where it left off instead of starting
+over. To minimize transfer time, it uses
+regional storage buckets in each
+continent. This allows a vehicle in
+Europe to upload to a European bucket
+and a vehicle in Asia to upload to an
+Asian bucket. Uploading to the nearest
+geographical location is the best way to
+reduce network latency and speed up
+transfers. Therefore, the best thing to
+do is D.
+from each regional bucket. Question 166.
+TerramEarth case study. TerramEarth's 20
+million vehicles are scattered around
+the world. Based on the vehicle's
+location, its telemetry data is stored
+in a Google Cloud Storage GCS regional
+bucket, US, Europe, or Asia. The CTO has
+asked you to run a report on the raw
+telemetry data to determine why vehicles
+are breaking down after 100K miles. You
+want to run this job on all the data.
+What is the most cost-effective way to
+run this job?
+Move all the data into one zone, then
+launch a Cloud DataProc cluster to run
+the job. B.
+Move all the data into one region, then
+launch a Google Cloud DataProc cluster
+to run the job. C. Launch a cluster in
+each region to pre-process and compress
+the raw data.
+Then move the data into a multi-region
+bucket and use a DataProc cluster to
+finish the job. D. Launch a cluster in
+Then move the data into a region bucket
+and use a Cloud DataProc cluster to
+finish the job. Okay, this is a big data
+architecture question from the
+TerramEarth case study. The most
+important requirement is to find the
+most cost-effective way to run a job on
+data that is spread all over the world.
+In Google Cloud, the biggest cost to
+watch out for in a scenario like this is
+network egress, which is the fee for
+moving data between regions. The best
+practice to minimize this cost is to
+bring your compute to your data. This
+means you should process the data as
+much as possible in the region where it
+already lives to reduce its size before
+you move it anywhere else. With that
+principle in mind, let's look at our
+options. Let's look at options A and B.
+Both suggest moving all of the raw data
+into a single zone or region before
+processing it. This would be incredibly
+expensive, as you would have to pay the
+high network egress fees to move
+terabytes of raw data across continents.
+Next, let's look at option C. It
+correctly starts by pre-processing the
+data in each region. However, it then
+suggests moving the results to a
+multi-regional bucket. This isn't the
+most cost-effective choice because
+multi-regional buckets have higher
+storage costs than standard regional
+buckets. This brings us to option D,
+which is the correct and most
+cost-effective solution. This approach
+follows the bring compute to the data
+principle perfectly. You first launch a
+small DataProc cluster in each region to
+pre-process and compress the raw data
+locally. This significantly reduces the
+amount of data that needs to be moved.
+Then, you only transfer this much
+smaller processed data to a single
+regional bucket for the final analysis.
+This method drastically reduces your
+network egress costs, making it the most
+cost-effective design. Therefore, the
+best way to run this job is D. Launch a
+cluster in each region to pre-process
+and compress the raw data. Then move the
+data into a region bucket and use a
+Cloud DataProc cluster to finish the
+job. Question 167.
+TerramEarth case study. TerramEarth has
+equipped unconnected trucks with servers
+and sensors to collect telemetry data.
+Next year, they want to use the data to
+train machine learning models. They want
+to store this data in the cloud while
+reducing costs. What should they do?
+Have the vehicle's computer compress the
+data in hourly snapshots and store it in
+a Google Cloud Storage GCS nearline
+bucket. B.
+Push the telemetry data in real time to
+a streaming Dataflow job that compresses
+the data and store it in Google
+BigQuery. C.
+the data and store it in Cloud Bigtable.
+D.
+a GCS coldline bucket. Okay, this
+is about choosing the right data
+collection and storage strategy. The two
+most important clues in the question are
+that the trucks are unconnected and the
+data will only be used for training next
+year with a goal of reducing costs. With
+that in mind, let's evaluate our
+options. Let's start with options B and
+C. Both of these are incorrect because
+they suggest pushing the data in real
+time. The question clearly states that
+the trucks are unconnected, so a
+real-time streaming solution is not
+possible. Now, let's compare options A
+and D. Both correctly suggest a
+reasonable collection method for an
+offline vehicle, compressing data into
+hourly snapshots, which can then be
+uploaded later. The only difference
+between them is the cloud storage class
+they recommend,
+nearline versus coldline. Option A
+suggests using a nearline bucket.
+Nearline is designed for data that you
+access infrequently, typically less than
+once a month. However, the requirement
+is to use the data next year, which
+means the access frequency is even
+lower. This brings us to option D, which
+is the correct and most cost-effective
+answer. It suggests using a coldline
+bucket. Coldline storage is specifically
+designed for long-term archival data
+that you expect to access less than once
+a year. Since the data will be stored
+until next year, coldline offers the
+lowest storage cost, perfectly matching
+the requirement to reduce costs.
+Therefore, the best thing to do is D.
+a GCS coldline bucket. Question 168.
+TerramEarth case study. Operational
+parameters such as oil pressure are
+adjustable on each of TerramEarth's
+vehicles to increase their efficiency,
+depending on their environmental
+conditions. Your primary goal is to
+increase the operating efficiency of all
+20 million cellular and unconnected
+vehicles in the field. How can you
+accomplish this goal? A.
+Have your engineers inspect the data for
+patterns and then create an algorithm
+with rules that make operational
+adjustments automatically. B.
+Capture all operating data, train
+machine learning models that identify
+ideal operations, and run locally to
+make operational adjustments
+automatically. C.
+Implement a Google Cloud Dataflow
+streaming job with a sliding window and
+use Google Cloud Messaging GCM to make
+operational adjustments automatically.
+D, capture all operating data, train
+ideal operations, and host in Google
+Cloud Machine Learning ML platform to
+automatically. Okay, this is a machine
+learning architecture question from the
+important constraint to pay attention to
+is that the solution must work for the
+entire fleet of 20 million vehicles,
+which includes both connected and
+crucially unconnected vehicles. With
+that in mind, let's look at our options.
+Let's first look at the options that
+require a continuous internet
+connection, which are C and D.
+Option C uses a streaming data flow job,
+and option D hosts the machine learning
+model in the cloud for predictions. Both
+of these would require the vehicles to
+be constantly connected to the internet
+to send data and receive instructions.
+This means they would not work for the
+unconnected part of the fleet, so they
+are incorrect. Next, let's look at
+option A, which suggests having
+engineers manually create a rule-based
+algorithm. This is also incorrect. With
+20 million vehicles operating in
+countless different environments, it
+would be impossible for humans to
+manually discover all the complex
+patterns needed for optimization. This
+is a problem that requires machine
+learning. This brings us to option B,
+which is the correct and most scalable
+solution. This describes a common and
+powerful pattern for IoT and edge
+computing. You first capture all the
+data from your entire fleet and use it
+to train a sophisticated machine
+learning model in the cloud. Then, you
+deploy that trained model to run locally
+on each vehicle's onboard computer. The
+model can then make real-time
+operational adjustments using the
+vehicle's own sensors without needing to
+be connected to the internet. This
+solution works for both connected and
+unconnected vehicles, as the unconnected
+ones can receive model updates during
+their maintenance stops. Therefore, the
+way you can accomplish this goal is B.
+ideal operations, and run them locally
+to make operational adjustments
+automatically. Question 169.
+Securing TerramEarth's autonomous
+vehicles. For this question, refer to
+the TerramEarth case study. Your
+agricultural division is experimenting
+with fully autonomous vehicles. You want
+your architecture to promote strong
+security during vehicle operation. Which
+two architectures should you consider?
+Choose two answers.
+Treat every microservice call between
+modules on the vehicle as untrusted. B,
+require IPv6 for connectivity to ensure
+a secure address space. C,
+use a trusted platform module TPM and
+verify firmware and binaries on boot. D,
+use a functional programming language to
+isolate code execution cycles. E,
+use multiple connectivity subsystems for
+redundancy. F,
+enclose the vehicle's drive electronics
+in a Faraday cage to isolate chips.
+Okay, this question from the TerramEarth
+case study is about designing a secure
+architecture for a complex system like
+an autonomous vehicle. We need to choose
+two distinct approaches that will
+provide strong security during
+operation. With that in mind, let's
+evaluate our options. First, let's look
+at the options that are incorrect.
+Option B suggests using IPv6 for
+security, but the version of the IP
+protocol doesn't inherently make it more
+secure. Option D mentions using a
+functional programming language, which
+is a software development choice, not a
+core security architecture principle.
+Option E, using multiple connectivity
+systems, is about improving reliability,
+not security. And option F, a Faraday
+cage, protects against electromagnetic
+interference, which is unrelated to
+software and network security. This
+brings us to the correct answers. Let's
+look at option C, which is to use a
+trusted platform module, or TPM, and
+verify firmware and binaries on boot.
+This is a critical foundational security
+measure. A TPM is a hardware chip that,
+as part of a secure boot process,
+cryptographically verifies that the
+software and firmware loading on the
+vehicle are authentic and haven't been
+tampered with by an attacker. The other
+correct answer is option A, to treat
+every microservice call between modules
+on the vehicle as untrusted. This is the
+core principle of a zero trust security
+model. In a complex system, you assume
+that an attacker might compromise one
+small component. By forcing every
+internal service-to-service call to be
+authenticated, you prevent an attacker
+from easily moving around inside the
+system after their initial breach.
+Therefore, the two architectural choices
+you should consider for strong security
+are A and C. That's all the questions
+related to case study two. Now, let's
+move on to case study three. Case study
+three. Company overview. JenkoMart is a
+global retailer with over 10,000 stores
+in 16 countries. The stores carry a
+range of goods, such as groceries,
+tires, and jewelry. One of the company's
+core values is excellent customer
+service. In addition, they recently
+introduced an environmental policy to
+reduce their carbon output by 50% over
+the next 5 years. Company background.
+JenkoMart started as a general store in
+1931
+and has grown into one of the world's
+leading brands known for great value and
+customer service. Over time, the company
+transitioned from only physical stores
+to a stores and online hybrid model,
+with 25% of sales online. Currently,
+JenkoMart has little presence in Asia,
+but considers that market key for future
+growth. Solution concept. JenkoMart
+wants to migrate several critical
+applications to the cloud, but has not
+completed a technical review to
+determine their suitability for the
+cloud and the engineering required for
+migration. They currently host all of
+these applications on infrastructure
+that is at its end of life and is no
+longer supported. Existing technical
+environment. JenkoMart hosts all of its
+applications in four data centers,
+three in North American and one in
+Europe. Most applications are
+dual-homed. JenkoMart understands the
+dependencies and resource usage metrics
+of their on-premises architecture.
+Location: customer loyalty portal. A
+LAMP Linux, Apache, MySQL, and PHP
+application served from the two
+JenkoMart-owned US data centers.
+Database. Oracle database stores user
+profiles. 20 terabytes. Complex table
+structure. Well-maintained clean data.
+Strong backup strategy. PostgreSQL
+database stores user credentials.
+Single-homed in US West. No redundancy.
+Backed up every 12 hours. 100% uptime
+service level agreement. SLA.
+Authenticates all users. Compute. 30
+machines in US West Coast. Each machine
+has twin dual-core CPUs, 32 GB of RAM,
+twin 250 GB HDD, RAID 1. 20 machines in
+US East Coast. Each machine has single
+dual-core CPU, 24 GB of RAM, twin 250 GB
+HDD, RAID 1. Storage. Access to shared
+100 TB SAN in each location. Tape backup
+every week. Business requirements.
+Optimize for capacity during peak
+periods and value during off-peak
+periods. Guarantee service availability
+and support. Reduce on-premises
+footprint and associated financial and
+environmental impact. Move to
+outsourcing model to avoid large upfront
+costs associated with infrastructure
+purchase. Expand services into Asia.
+Technical requirements. Assess key
+application for cloud suitability.
+JenkoMart case study continued from
+previous images. Modify application for
+the cloud. Move applications to a new
+infrastructure. Leverage managed
+services wherever feasible. Sunset 20%
+of capacity in existing data centers.
+Decrease latency in Asia. CEO statement.
+JenkoMart will continue to develop
+personal relationships with our
+customers as more people access the web.
+The future of our retail business is in
+the global market and the connection
+between online and in-store experiences.
+As a large global company, we also have
+a responsibility to the environment
+through green initiatives and policies.
+CTO statement. The challenges of
+operating data centers prevents focus on
+key technologies critical to our
+long-term success. Migrating our data
+services to a public cloud
+infrastructure will allow us to focus on
+big data and machine learning to improve
+our service customers. CFO statement.
+Since its founding, JenkoMart has
+invested heavily in our data services
+infrastructure. However, because of
+changing market trends, we need to
+outsource our infrastructure to ensure
+our long-term success. This model will
+allow us to respond to increasing
+customer demand during peak and reduce
+costs. Question 170.
+JenkoMart case study. The JenkoMart
+security team requires that all Google
+Cloud Platform infrastructure is
+deployed using a least privilege model
+with separation of duties for
+administration between production and
+development resources. What Google
+domain and project structure should you
+Create two G Suite accounts to manage
+users.
+One for development/test/staging
+and one for production. Each account
+should contain one project for every
+application. B.
+One with a single project for all
+development applications and one with a
+single project for all production
+applications. C.
+Create a single G Suite account to
+manage users with each stage of each
+application in its own project. D.
+manage users with one project for the
+development/test/staging
+environment and one project for the
+production environment. Okay, this
+question from the JencoMart case study
+is about setting up a proper Google
+Cloud resource structure. The main goals
+are security and manageability.
+Specifically, making sure there's a
+clear separation between the development
+and production environments. With that
+in mind, let's look at our options.
+Let's start by looking at options A and
+B,
+which both suggest creating two separate
+G Suite accounts. This is not the
+recommended practice. It's much simpler
+and more standard to manage all of your
+company's users in a single G Suite or
+Google Workspace account for central
+administration. Next, option C suggests
+creating a project for each stage of
+each application. This is also incorrect
+because it would lead to a huge number
+of projects that would become very
+difficult to manage over time. This
+brings us to option D, which describes
+the correct and recommended structure.
+It provides a good balance between
+security and manageability. You use a
+single G Suite account to manage all
+your users centrally. Then, you create
+one project to hold all of your
+non-production environments, like
+development, testing, and staging. This
+allows you to give developers more
+permissive access in one place. Most
+importantly, you create a completely
+separate project for the production
+environment. This creates a strong
+security boundary, allowing you to
+tightly restrict access to the
+production project, which is the core of
+a good separation of duties model.
+Therefore, the project and domain
+structure you should recommend is D.
+production environment. Question 171.
+JencoMart case study. The migration of
+JencoMart's application to Google Cloud
+Platform, GCP, is progressing too
+slowly. The infrastructure is shown in
+the diagram. You want to maximize
+throughput. What are three potential
+bottlenecks? Choose three answers.
+A single VPN tunnel, which limits
+throughput. B.
+A tier of Google Cloud Storage that is
+not suited for this task. C.
+A copy command that is not suited to
+operate over long distances. D.
+Fewer virtual machines, VMs, in GCP than
+on-premises machines. E.
+A separate storage layer outside the
+VMs, which is not suited for this task.
+F.
+Complicated internet connectivity
+between the on-premises infrastructure
+and GCP. Okay, this question from the
+JencoMart case study is a
+troubleshooting problem. The migration
+is too slow, and we need to identify
+three likely reasons or bottlenecks in
+the described architecture. With that in
+mind, let's evaluate our options. Let's
+first look at the incorrect options.
+Option B is incorrect because the
+scenario describes data moving to
+Compute Engine VMs, not Cloud Storage,
+so the storage tier is irrelevant.
+Option C is unlikely. While an
+inefficient command can be slow, the
+major bottlenecks in a large-scale data
+transfer are almost always in the
+network infrastructure, not the software
+command. Option E is also unlikely, as
+cloud services are designed for high
+throughput rights. Now, let's look at
+the correct answers. Option A points to
+the single VPN tunnel. This is a very
+likely bottleneck. A single VPN
+connection has a fixed amount of
+bandwidth and can easily become
+saturated when trying to move a large
+amount of data. Option F, complicated
+internet connectivity, is another
+correct answer. The Cloud VPN relies on
+the public internet, and the connection
+from the on-premise data center to the
+internet is often a major bottleneck
+itself due to its own bandwidth limits
+and complexity. Finally, option D,
+having fewer virtual machines in GCP, is
+the third correct answer. If you have
+many servers on-premise sending data,
+but only a few VMs on the GCP side to
+receive it, the receiving end can become
+overwhelmed and unable to process the
+incoming data stream fast enough,
+creating a bottleneck. Therefore, the
+three most likely bottlenecks are A, D,
+and F. Question 172.
+JencoMart case study. A few days after
+JencoMart migrates the user credentials
+database to Google Cloud Platform and
+shuts down the old server,
+the new database server stops responding
+to SSH connections. It is still serving
+database requests to the application
+servers correctly. What three steps
+should you take to diagnose the problem?
+Choose three answers.
+Delete the virtual machine, VM, and
+disks and create a new one. B.
+Delete the instance, attach the disk to
+a new VM, and investigate. C.
+Take a snapshot of the disk and connect
+to a new machine to investigate. D.
+Check inbound firewall rules for the
+network the machine is connected to. E.
+Connect the machine to another network
+with very simple firewall rules and
+investigate. F.
+Print the serial console output for the
+instance for troubleshooting.
+Activate the interactive console and
+investigate. Okay, this is a
+troubleshooting question from the
+JencoMart case study. The key here is
+that the database server is in a strange
+state.
+The database itself is working, but you
+can't connect to it with SSH. We need to
+find three safe, non-disruptive ways to
+diagnose the problem without taking the
+database offline. With that in mind,
+let's first look at what not to do.
+Options A and B are incorrect because
+they involve deleting the original
+virtual machine. This is a destructive
+action, not a diagnostic one,
+and would erase important evidence
+needed to find the root cause. Option E
+is also not a good first step. Changing
+the network of a live, production
+database server is a risky and
+disruptive action that could break the
+database connectivity that is currently
+working. Now, let's look at the correct
+diagnostic steps. Option D, checking the
+inbound firewall rules, is a perfect
+first step. An inability to SSH is very
+often caused by a firewall rule that is
+blocking traffic on port 22. This is a
+quick and easy check. Option F, using
+the serial console, is another correct
+and powerful tool. The serial console
+gives you low-level access to the VM
+even if SSH isn't working. It allows you
+to look at boot messages and system
+status directly to see if there's an
+issue with the OS, the network
+configuration, or an internal firewall.
+Finally, option C, taking a snapshot of
+the disk and connecting it to a new
+machine, is the third correct step. This
+is a safe way to perform a deep
+analysis. You can examine the file
+system and log files on the clone disk
+without any risk of affecting the
+original, still running database server.
+Therefore, the three best steps to
+diagnose the problem are C,
+D, and F. Question 173.
+JencoMart case study. The JencoMart
+Cloud Spanner. B.
+Google BigQuery. C.
+Google Cloud SQL. D.
+Google Cloud Datastore. Okay, this
+asks us to choose the best database for
+storing user profiles. The key to this
+is to think about the nature of user
+profile data. It often has a variety of
+fields and doesn't require the complex
+relationships of a traditional
+relational database, which makes it a
+great fit for a NoSQL solution. With
+Let's start with option B, Google
+BigQuery. This is incorrect because
+BigQuery is a data warehouse designed
+for running large analytical queries,
+not for serving as a live application
+database for reading and writing
+individual user profiles. Next, let's
+look at the relational options, A and C.
+Cloud Spanner is an incredibly powerful,
+globally scalable relational database,
+but it's overly complex and expensive
+for a simple use case like user
+profiles. Cloud SQL is a more standard
+relational database, but its rigid
+schema can be less flexible than a NoSQL
+database when it comes to storing user
+data, which can often change over time.
+This brings us to option D, which is the
+correct answer. Google Cloud Datastore,
+now part of Firestore, is a highly
+scalable, fully managed NoSQL database.
+It is specifically designed and
+recommended for use cases like user
+profiles, product catalogs, and game
+states. Its flexible, document-based
+model is perfect for storing user
+profile objects that may have different
+attributes. Therefore, the Google
+database they should use is D, Google
+Cloud Datastore. Question 174.
+JencoMart case study. JencoMart has
+decided to migrate user profile storage
+to Google Cloud Datastore and the
+application servers to Google Compute
+Engine, GCE. During the migration, the
+existing infrastructure will need access
+to Datastore to upload the data. What
+service account key management strategy
+Provision service account keys for the
+on-premises infrastructure and for the
+GCE virtual machines VMs. B.
+Authenticate the on-premises
+infrastructure with a user account and
+provision service account keys for the
+VMs. C.
+on-premises infrastructure and use
+Google Cloud Platform GCP managed keys
+for the VMs. D. Deploy a custom
+authentication service on GCE Google
+Container Engine GKE
+for the on-premises infrastructure and
+use GCP managed keys for the VMs. Okay,
+this question from the Jenko Mart case
+study is about how to securely
+authenticate applications in a hybrid
+environment. We have two different types
+of systems that need access.
+The old on-premise infrastructure and
+the new virtual machines on Google
+Cloud. The best practice is to use a
+different appropriate authentication
+method for each. With that in mind,
+let's look at our options. Let's start
+with option A. This is incorrect because
+it suggests creating and managing
+service account key files for the GCE
+virtual machines. This is not
+recommended because there's a more
+secure
+automated way to handle authentication
+for resources running inside Google
+Cloud. Option B is also incorrect. It
+suggests using a regular user account
+for the on-premise infrastructure.
+Service accounts are designed
+specifically for applications and
+automated workloads and should always be
+used instead of a human user's account.
+Option D proposes building a custom
+authentication service. This is overly
+complex and unnecessary. Google Cloud
+already provides robust and secure ways
+to handle this without requiring you to
+build and maintain your own
+authentication system. This brings us to
+option C, which is the correct and
+recommended solution. It addresses both
+environments correctly. For the
+on-premise infrastructure, which is
+outside Google Cloud, you must provision
+a downloadable service account key. This
+is the standard way for an external
+application to authenticate. For the new
+virtual machines running on GCE, you use
+what's called GCP managed keys. This
+simply means you attach a service
+account to the VM and Google
+automatically handles the credential
+delivery securely in the background
+without any key files. This is the most
+secure and modern approach. Therefore,
+the correct strategy is C. Provision
+service account keys for the on-premises
+infrastructure and use Google Cloud
+Platform GCP
+managed keys for the VMs. Question 175.
+For this question, refer to the Jenko
+Mart case study. Jenko Mart has built a
+version of their application on Google
+Cloud Platform that serves traffic to
+Asia. You want to measure success
+against their business and technical
+goals. Which metrics should you track?
+Error rates for requests from Asia. B.
+Latency difference between US and Asia.
+C.
+Total visits, error rates, and latency
+from Asia. D.
+Total visits and average latency for
+users in Asia. E.
+The number of character sets present in
+the database. Okay, this question is
+based on the Jenko Mart case study and
+asks us to pick the best metrics to
+measure the success of their expansion
+into Asia. The case study gives us two
+clear goals.
+A business goal to expand their service
+and a technical goal to reduce latency
+for Asian users. We need to find the
+metrics that directly track these two
+goals. With that in mind, let's look at
+our options. Let's look at the options
+that are incomplete. Option A, just
+tracking error rates is not enough
+because it doesn't tell us if they are
+attracting any users or if the
+performance is good. Option B, which
+only compares latency between the US and
+Asia, is also incomplete as it ignores
+the business goal of user adoption.
+Option E is incorrect because the number
+of character sets in a database is an
+implementation detail,
+not a key metric for measuring business
+success or user experience. Option C is
+close, but latency is a very general
+term. A more precise and standard metric
+for user experience is
+average latency. This brings us to
+option D, which is the correct answer.
+It perfectly aligns with the two main
+goals from the case study. Total visits
+is the key business metric that directly
+measures the success of the expansion
+into Asia. Average latency
+is the key technical metric that
+directly measures whether they have
+successfully reduced latency for those
+users. This pair of metrics gives a
+complete picture of both business and
+technical success. Therefore, the
+metrics you should track are D, total
+visits and average latency for users in
+Asia. That's all the questions related
+to case study three. Now, let's move on
+to case study four. Case study Dress for
+Win Company overview. Dress for Win is a
+web-based company that helps their users
+organize and manage their personal
+wardrobe using a website and mobile
+application. The company also cultivates
+an active social network that connects
+their users with designers and
+retailers. They monetize their services
+through advertising, e-commerce,
+referrals, and a freemium app model.
+Company background. Dress for Win's
+application has grown from a few servers
+in the founder's garage to several
+hundred servers and appliances in a
+co-located data center. However, the
+capacity of their infrastructure is now
+insufficient for the application's rapid
+growth. Because of this growth and the
+company's desire to innovate faster,
+Dress for Win is committing to a full
+migration to a public cloud. Solution
+concept. For the first phase of their
+migration to the cloud,
+Dress for Win is considering moving
+their development and test environments.
+They are also considering building a
+disaster recovery site because their
+current infrastructure is at a single
+location. They are not sure which
+components of their architecture they
+can migrate as is and which components
+they need to change before migrating
+them. Existing technical environment.
+The Dress for Win application is served
+out of a single data center location.
+Databases. MySQL user data, inventory,
+static data. Redis metadata, social
+graph. Caching. Application servers.
+Tomcat Java microservices. Jinx static
+content. Apache Beam batch processing.
+Storage appliances. iSCSI for VM hosts.
+Fiber Channel SAN MySQL databases. NAS
+image storage, logs, backups. Apache
+Hadoop Spark servers. Data analysis.
+Real-time trending calculations. MQ
+servers. Messaging. Social
+notifications. Events. Miscellaneous
+servers. Jenkins monitoring, bastion
+host, security scanners. Business
+requirements. Build a reliable and
+reproducible environment with scaled
+parity of production. Improve security
+by defining and adhering to a set of
+security and identity and access
+management IAM
+best practices for cloud. Improve
+business agility and speed of innovation
+through rapid provisioning of new
+resources. Analyze and optimize
+architecture for performance in the
+cloud. Migrate fully to the cloud if all
+other requirements are met. Technical
+requirements. Evaluate and choose an
+automation framework for provisioning
+resources in cloud. Support failover of
+the production environment to cloud
+during an emergency. Identify production
+services that can migrate to cloud to
+save capacity. Use managed services
+whenever possible. Encrypt data on the
+wire and at rest. Support multiple VPN
+connections between the production data
+center and cloud environment. CEO
+statement. Our investors are concerned
+about our ability to scale and contain
+costs with our current infrastructure.
+They are also concerned that a new
+competitor could use a public cloud
+platform to offset their upfront
+investment and freeing them to focus on
+developing better features. CTO
+statement. We have invested heavily in
+the current infrastructure,
+but much of the equipment is approaching
+the end of its useful life. We are
+consistently waiting weeks for new gear
+to be racked before we can start new
+projects. Our traffic patterns are
+highest in the mornings and weekend
+evenings.
+During other times,
+80% of our capacity is sitting idle. CFO
+statement. Our capital expenditure is
+now exceeding our quarterly projections.
+Migrating to the cloud will likely cause
+an initial increase in spending,
+but we expect to fully transition before
+our next hardware refresh cycle. Our
+total cost of ownership TCO
+analysis over the next 5 years puts a
+cloud strategy between 30 to 50% lower
+than our current model. Question 176.
+For this question, refer to the Dress
+for Win case study. At Dress for Win, an
+operations engineer wants to create a
+low-cost solution to remotely archive
+copies of database backup files. The
+database files are compressed tar files
+stored in their current data center. How
+should he proceed? A.
+Create a cron script using sudo to copy
+the files to a coldline storage bucket.
+B.
+the files to a regional storage bucket.
+Create a cloud storage transfer service
+job to copy the files to a coldline
+storage bucket. D.
+job to copy the files to a regional
+storage bucket. Okay, this question from
+the Dress for Win case study is about
+finding the most cost-effective and
+automated way to archive on premises
+backups to Google Cloud. To solve this,
+we need to choose the right tool for the
+transfer and the right storage class for
+the archival. With that in mind, let's
+look at our options. First, let's
+consider the storage class. The goal is
+a low-cost solution for archiving
+backups, which are rarely accessed.
+Coldline storage is the cheapest storage
+class designed for this exact purpose.
+Regional storage is more expensive and
+meant for data that is accessed more
+frequently. Therefore, we can eliminate
+options B and D because they use the
+less cost-effective regional storage.
+Now, we are left with options A and C,
+which both correctly use Coldline
+storage. The difference is the tool used
+for the transfer. Option C suggests
+using the Cloud Storage Transfer
+Service. This service is typically used
+for large-scale migrations from other
+cloud providers or between cloud storage
+buckets. For an ongoing scheduled task
+of copying files from an on-premise
+server, the simpler and more standard
+tool is gsutil. This brings us to option
+A, which is the correct solution. It
+combines the right tool with the right
+storage class. You would create a cron
+script on your on-premise server that
+uses the gsutil command-line tool to
+copy the backup files. This script would
+upload the files to a Coldline storage
+bucket, which provides the lowest
+storage cost for archival. This approach
+is automated, uses the standard tool for
+the job, and is the most cost-effective.
+Therefore, the way he should proceed is
+A.
+Create a cron script using gsutil to
+copy the files to a Coldline storage
+bucket. Question 177.
+Dress4Win case study. Dress4Win has
+asked you to recommend machine types
+they should deploy their application
+servers to. How should you proceed? A.
+Perform a mapping of the on-premises
+physical hardware cores and RAM to the
+nearest machine types in the cloud. B.
+Recommend that Dress4Win deploy
+application servers to machine types
+that offer the highest RAM to CPU ratio
+available. C.
+Recommend that Dress4Win deploy into
+production with the smallest instances
+available, monitor them over time, and
+scale the machine type up until the
+desired performance is reached. D.
+Identify the number of virtual cores and
+RAM associated with the application
+server virtual machines, align them to a
+custom machine type in the cloud,
+monitor performance, and scale the
+machine types up until the desired
+performance is reached. Okay, this
+question from the Dress4Win case study
+is about how to choose the right size
+for your virtual machines on Google
+Cloud. The goal is to find a process
+that gives you the performance you need
+without wasting money on oversized
+servers. With that in mind, let's look
+at our options. Let's start with option
+A,
+which suggests mapping from your
+on-premises physical hardware. This is
+not a good practice because it often
+leads to over-provisioning and spending
+too much money. Cloud instances are
+often more efficient than older physical
+hardware. Option B is also incorrect.
+Choosing the machine type with the
+highest RAM to CPU ratio without knowing
+if your application actually needs that
+much memory is a recipe for wasting
+resources. Next, let's look at option D.
+This is better than mapping from
+physical hardware, but mapping from your
+old on-premise virtual machines still
+carries the risk of over-provisioning.
+The best way is to validate your actual
+needs on the cloud platform itself. This
+brings us to option C, which describes
+the correct and most cost-effective
+approach. This is often called
+right-sizing. You start by deploying
+your application on small, inexpensive
+instances. Then, you monitor their
+performance under a real workload. Based
+on that data, you can gradually scale up
+the machine type until you find the
+perfect balance of performance and cost.
+This ensures you only pay for the
+resources your application actually
+uses. Therefore, the way you should
+proceed is C.
+desired performance is reached. Question
+178.
+asked you for advice on how to migrate
+their on-premises MySQL deployment to
+the cloud. They want to minimize
+downtime and performance impact to their
+on-premises solution during the
+migration. Which approach should you
+Create a dump of the on-premises MySQL
+master server, and then shut it down,
+upload it to the cloud environment, and
+load into a new MySQL cluster. B.
+Set up a MySQL replica server/slave in
+the cloud environment, and configure it
+for asynchronous replication from the
+MySQL master server on-premises until
+cutover. C.
+Create a new MySQL cluster in the cloud,
+configure applications to begin writing
+to both on-premises and cloud MySQL
+masters, and destroy the original
+cluster at cutover. D.
+Create a dump of the MySQL replica
+server into the cloud environment, load
+it into Google Cloud Datastore, and
+configure applications to read/write to
+Cloud Datastore at cutover. Okay, this
+is about migrating a live MySQL database
+to the cloud. The most important
+requirements are to do this with minimal
+downtime and without slowing down the
+current on-premises system during the
+process. With that in mind, let's look
+A. It suggests creating a dump of the
+database and then shutting it down. This
+is incorrect because shutting down the
+master database would cause a long
+period of downtime, which directly
+violates the main requirement. Next,
+let's look at option C, which suggests
+configuring the application to write to
+both the old and new databases at the
+same time. This is also not a good
+approach. A dual-write setup is very
+complex to implement and can easily lead
+to data consistency problems. Option D
+is incorrect because it suggests
+migrating the data to Google Cloud
+Datastore. This would be a move from a
+relational database to a NoSQL database,
+which is a major and complex
+re-architecture project, not a simple
+migration. This brings us to option B,
+which describes the correct and standard
+industry practice for this type of
+migration. You set up a new MySQL server
+in the cloud and configure it as a
+replica or slave of your on-premises
+master database. You then use
+asynchronous replication to continuously
+copy all the changes from the
+on-premises database to the cloud
+replica. This has very little
+performance impact on your live system.
+When you are ready to switch over, the
+only downtime required is a very brief
+window to stop the application,
+make sure the last few changes have been
+replicated, and then re-point your
+application to the new database in the
+cloud. Therefore, the approach you
+should recommend is B.
+cutover. Question 179.
+configured a new uptime check with
+Google Stackdriver for several of their
+legacy services. The Stackdriver
+dashboard is not reporting the services
+as healthy. What should they do? A.
+Install the Stackdriver agent on all of
+the legacy web servers. B.
+In the Cloud Platform console, download
+the list of the uptime servers' IP
+addresses and create an inbound firewall
+rule. C.
+Configure their load balancer to pass
+through the user agent HTTP header when
+the value matches Google Stackdriver
+monitoring uptime checks. D.
+Configure their legacy web servers to
+allow requests that contain the user
+agent HTTP header when the value matches
+Google Stackdriver monitoring uptime
+checks. Okay, this is a troubleshooting
+question from the Dress4Win case study.
+The problem is that a newly configured
+uptime check is failing, even though the
+service might be running. An uptime
+check works by having Google servers
+around the world try to connect to your
+application's public address. If they
+can't connect, the check fails. The most
+common reason they can't connect is
+because a firewall is blocking their
+request. With that in mind, let's look
+A, installing the Stackdriver agent.
+This is incorrect. The agent is for
+collecting metrics from inside your
+server. An uptime check is an external
+test and doesn't require an agent. Next,
+options C and D suggest configuring
+rules based on the user agent header.
+While it's true that the uptime checker
+uses a specific header, this is not the
+primary or most reliable way to solve
+the problem. The most common issue is a
+network firewall blocking the connection
+based on its source IP address. This
+correct and standard solution. Google's
+uptime checkers send requests from a
+well-defined public list of IP
+addresses. The most common reason for a
+check to fail is that your firewall is
+blocking traffic from these IPs. To fix
+this, you need to find that official
+list of Google's uptime server IPs and
+create an inbound firewall rule that
+allows traffic from those sources to
+reach your application. Therefore, the
+correct thing to do is B.
+rule. Question 180.
+Dress4Win case study. You want to ensure
+Dress4Win sales and tax records remain
+available for infrequent viewing by
+auditors for at least 10 years. Cost
+optimization is your top priority. Which
+cloud services should you choose?
+A. Google Cloud Storage Coldline to
+store the data and settle to access the
+data. B.
+Google Cloud Storage Nearline to store
+the data and settle to access the data.
+Google Bigtable with US or EU as
+location to store the data and cloud to
+access the data. D.
+BigQuery to store the data and a web
+server cluster in a managed instance
+group to access the data. Google Cloud
+SQL mirrored across two distinct regions
+to store the data and a Redis cluster in
+a managed instance group to access the
+data. Okay, this question from the Dress
+for Win case study is about choosing the
+right storage solution for long-term
+data archival. The most important
+requirements are that the data will be
+viewed very infrequently and that cost
+optimization is the top priority. With
+options. Let's start by looking at the
+options that suggest using a database,
+which are C and D. Both Bigtable and
+BigQuery are powerful data services, but
+they are designed for high-performance
+or analytical workloads, not for
+low-cost long-term archival. They would
+be far too expensive for this use case.
+This leaves us with options A and B,
+which both correctly identify Google
+Cloud Storage as the right service. The
+only difference is the storage class,
+Coldline versus Nearline. Option B
+suggests using Nearline storage.
+Nearline is designed for data you access
+infrequently, about once a month.
+However, option A suggests Coldline
+storage. Coldline is designed for true
+archival data that you expect to access
+less than once a year. Since the data is
+for auditors and needs to be kept for 10
+years, the access frequency will be very
+low. Coldline offers the lowest monthly
+storage cost, making it the most
+cost-effective choice and the correct
+answer. Both options correctly mention
+using gsutil, the standard command line
+tool, to access the data when needed.
+Therefore, the best choice to meet the
+cost optimization priority is A. Google
+Cloud Storage Coldline to store the data
+and gsutil to access the data. Question
+181.
+for Win case study. Dress for Win has
+end-to-end tests covering 100% of their
+endpoints. They want to ensure that the
+move to the cloud does not introduce any
+new bugs. Which additional testing
+methods should the developers employ to
+prevent an outage? A.
+They should enable Google Stackdriver
+debugger on the application code to show
+errors in the code. B.
+They should add additional unit tests
+and production-scale load tests on their
+cloud staging environment. C.
+They should run the end-to-end tests in
+the cloud staging environment to
+determine if the code is working as
+intended. D.
+They should add canary tests so
+developers can measure how much of an
+impact the new release causes to
+latency. Okay, this question from the
+Dress for Win case study is about
+building a comprehensive testing
+strategy. They already have good
+end-to-end tests, but the key here is to
+find what additional testing methods are
+needed to make sure their move to the
+cloud is successful and doesn't cause
+any outages. With that in mind, let's
+option A, which suggests using
+Stackdriver debugger. This is incorrect
+because the debugger is a tool you use
+to investigate problems in a live,
+running application. It's not a testing
+method you use to prevent bugs from
+getting to production in the first
+place. Next, option C suggests running
+their existing end-to-end tests in the
+new cloud environment. While this is
+absolutely something they must do, it
+doesn't count as an additional testing
+method. The question asks what else they
+should add. Option D suggests adding
+canary tests. This is also incorrect in
+this context. A canary test is a
+deployment strategy used in production,
+not a testing method used in a
+pre-production staging environment. It's
+one of the last steps in a release
+process, not an earlier testing phase.
+This brings us to option B, which is the
+correct answer. It adds two critical
+types of testing that are missing.
+First, additional unit tests are
+essential for checking the correctness
+of individual pieces of code at a
+granular level, which end-to-end tests
+don't do. Second, production-scale load
+tests are vital for a cloud migration.
+They are the only way to be confident
+that the new cloud infrastructure can
+handle the same amount of traffic as the
+old system without performance issues or
+crashing. Therefore, the additional
+testing methods the developers should
+employ are B.
+cloud staging environment. Question 182.
+for Win case study. As part of their new
+application experience, Dress for Win
+allows customers to upload images of
+themselves. The customer has exclusive
+over who may view these images.
+Customers should be able to upload
+images with minimal latency and also be
+shown their images quickly on the main
+application page when they log in. Which
+configuration should Dress for Win use?
+A. Store image files in a Google Cloud
+Storage bucket. Use Google Cloud
+Datastore to maintain metadata that maps
+each customer's ID and their image
+files. B. Store image files in a Google
+Cloud Storage bucket. Add custom
+metadata to the uploaded images in Cloud
+Storage that contains the customer's
+unique ID. C.
+Use a distributed file system to store
+customers' images. As storage needs
+increase, add more persistent disks and
+or nodes. Assign each customer a unique
+ID, which sets each file's owner
+attribute, ensuring privacy of images.
+or nodes. Use a Google Cloud SQL
+database to maintain metadata that maps
+each customer's ID to their image files.
+Okay, this question from the Dress for
+Win case study is about designing the
+best architecture for storing
+user-uploaded images. The key
+requirements are that it must be fast
+for both uploads and downloads, and
+there needs to be a secure way to manage
+which images belong to which user. With
+suggest using a distributed file system,
+because building and managing your own
+file system on top of virtual machines
+and persistent disks is a very complex
+and operationally intensive task. It's
+much better to use Google's fully
+managed storage services. Next, let's
+look at option B. It correctly suggests
+storing the image files in a cloud
+storage bucket, but it recommends using
+the object's custom metadata to store
+the customer's ID. This is not an
+efficient solution. Querying for all
+objects with a specific metadata tag is
+very slow compared to looking up data in
+a purpose-built database. This brings us
+to option A, which describes the correct
+and standard architecture for this use
+case. This pattern separates the storage
+of the large image files from the
+storage of their metadata. You store the
+actual image files in a Google Cloud
+Storage bucket, which is infinitely
+scalable and highly performant for this
+purpose. Then, you use a fast, scalable
+NoSQL database like Cloud Cloud
+Datastore to store the metadata, which
+is simply a map of each customer's ID to
+the list of their image files. This
+allows your application to very quickly
+query the database to find the images
+for a specific user and then display
+them. Therefore, the configuration Dress
+for Win should use is A. Store image
+files in a Google Cloud Storage bucket
+and use Google Cloud Datastore to
+maintain metadata that maps each
+customer's ID and their image files.
+Question 183.
+for Win case study. The Dress for Win
+security team has disabled external SSH
+access into production virtual machines,
+VMs, on Google Cloud Platform, GCP. The
+operations team needs to remotely manage
+the VMs, build and push Docker
+containers, and manage Google Cloud
+Storage objects. What can they do? A.
+Grant the operations engineers access to
+use Google Cloud Shell. B.
+Configure a VPN connection to GCP to
+allow SSH access to the cloud VMs. C.
+Develop a new access request process
+that grants temporary SSH access to
+cloud VMs when an operations engineer
+needs to perform a task. D.
+Have the development team build an API
+service that allows the operations team
+to execute specific remote procedure
+calls to accomplish their tasks. Okay,
+this question from the Dress for Win
+case study is about finding a secure way
+for an operations team to manage cloud
+resources when direct external SSH
+access has been disabled for security
+reasons. We need a solution that is
+secure, easy to use, and doesn't require
+a lot of complex setup. With that in
+mind, let's look at our options. Let's
+start by looking at the options that
+involve significant effort. Option B,
+configuring a VPN, is a valid but
+complex and costly solution. Option C,
+developing a new access request process,
+adds manual overhead. And option D,
+building a custom API, is an enormous
+engineering task. All of these are much
+more complicated than necessary. This
+correct and Google recommended solution.
+Google Cloud Shell is a managed,
+browser-based command line environment
+that runs within Google Cloud. It comes
+pre-installed with all the tools the
+operations team needs, like cloud,
+gsutil, and Docker, the operations team
+can access this secure environment from
+anywhere. Because Cloud Shell is inside
+Google's network, when they SSH from it
+to a production VM, it's considered
+internal traffic, so it doesn't violate
+the no external SSH policy. This is the
+simplest, most secure, and lowest
+overhead solution to the problem.
+Therefore, the best thing they can do is
+a
+grant the operations engineers access to
+use Google Cloud Shell. Question 184.
+for Win case study. Dress for Win would
+like to become familiar with deploying
+applications to the cloud by
+successfully deploying some applications
+quickly. As is, they have asked for your
+recommendation. What should you advise?
+Identify self-contained applications
+with external dependencies as a first
+move to the cloud. B.
+Identify enterprise applications with
+internal dependencies and recommend
+these as a first move to the cloud. C.
+Suggest moving their in-house databases
+to the cloud and continue serving
+requests to on-premise applications. D.
+Recommend moving their message queuing
+servers to the cloud and continue
+handling requests to on-premise
+applications. Okay, this question from
+migration strategy. The goal is to find
+the best type of application to move to
+the cloud first to ensure a quick and
+successful initial deployment that
+builds confidence. With that in mind,
+let's look at our options. Let's first
+look at option C and D, which suggest
+moving core back-end components like
+databases or message queues first while
+leaving the application on premises.
+This is not a good first step. It
+creates a split architecture that can
+introduce significant network latency
+between the application and its data,
+leading to major performance problems.
+suggests moving enterprise applications
+with many internal dependencies. This is
+also a bad idea for a first move. These
+are typically the most complex and risky
+applications to migrate, which is the
+opposite of the quick and successful
+goal. This brings us to option A, which
+is the correct advice. The best
+candidates for a first migration are
+self-contained applications that have
+few, if any, dependencies on other
+internal on-premise systems. Because
+they are self-contained, they are the
+easiest and least risky to move.
+Successfully migrating these
+applications provides a valuable quick
+win and allows the team to gain
+experience and confidence with the cloud
+before tackling more complex workloads.
+Therefore, the advice you should give is
+identify self-contained applications
+move to the cloud. Question 185.
+for Win case study. As part of Dress for
+Win's plans to migrate to the cloud,
+they want to be able to set up a managed
+logging and monitoring system so they
+can handle spikes in their traffic load.
+They want to ensure that * the
+infrastructure can be notified when it
+needs to scale up and down to handle the
+ebb and flow of usage throughout the
+day. * their administrators are notified
+automatically when their application
+reports errors. * they can filter their
+aggregated logs down in order to debug
+one piece of the application across many
+hosts. Which Google Stackdriver features
+should they use?
+Logging, alerts, insights, debug. B.
+Monitoring, trace, debug, logging. C.
+Monitoring, logging, alerts, error
+reporting. D.
+Monitoring, logging, debug, error
+report. Okay, this question from the
+Dress for Win case study asks us to pick
+the right set of tools from the Google
+Cloud's operations suite, formerly known
+as Stackdriver, to meet three specific
+needs: triggering auto scaling, alerting
+on errors, and debugging with logs. With
+Let's start with option A. This is
+incorrect because it's missing
+monitoring. The monitoring service is
+what collects the performance metrics
+like CPU utilization
+that are needed to inform the
+infrastructure when it's time to scale
+up or down. Next, let's look at option
+B. This option is incorrect because it's
+missing alerts and error reporting.
+These are the specific features used to
+automatically notify administrators when
+application errors occur,
+which is a key requirement of the
+question. Option D is also incorrect. It
+includes the debugger service instead of
+alerts. The debugger is a tool for
+inspecting the state of live code,
+not for sending automated notifications
+to the operations team. This brings us
+to option C, which is the correct
+answer. This set of features perfectly
+matches all the requirements. Monitoring
+is used to collect the metrics needed
+for auto scaling. Logging is used to
+collect and filter the aggregated logs
+for debugging. And alerts, often working
+with error reporting to group
+application errors, is the tool used to
+problems occur. Therefore, the
+Stackdriver features they should use are
+C: monitoring, logging, alerts, and
+error reporting. Question 186.
+end points. They want to ensure that the
+move of cloud does not introduce any new
+bugs. Which additional testing methods
+should the developers employ to prevent
+an outage?
+intended. B.
+errors in the code. C.
+and production scale load tests on their
+cloud staging environment. D.
+option A,
+which suggests running their existing
+end-to-end tests in the new cloud
+environment. While this is absolutely
+something they must do, it doesn't count
+as an additional testing method. The
+question asks what else they should add.
+Next, option B suggests using
+place. Option D suggests adding canary
+tests. This is also incorrect in this
+context. A canary test is a deployment
+strategy used in production, not a
+testing method used in a pre-production
+staging environment. It's one of the
+last steps in a release process, not an
+earlier testing phase. This brings us to
+option C, which is the correct answer.
+It adds two critical types of testing
+that are missing. First, additional unit
+tests are essential for checking the
+correctness of individual pieces of code
+at a granular level, which end-to-end
+tests don't do. Second, production scale
+load tests are vital for a cloud
+migration. They are the only way to be
+confident that the new cloud
+infrastructure can handle the same
+amount of traffic as the old system
+without performance issues or crashing.
+Therefore, the additional testing
+methods the developers should employ are
+C:
+cloud staging environment. Question 187.
+for Win case study. The current Dress
+for Win system architecture has high
+latency to some customers because it is
+located in one data center. As of a
+future evaluation and optimizing for
+performance in the cloud,
+Dress for Win wants to distribute its
+system architecture to multiple
+locations on Google Cloud Platform.
+Which approach should they use?
+Use regional managed instance groups and
+a global load balancer to increase
+performance because the regional managed
+instance group can grow instances in
+each region separately based on traffic.
+Use a global load balancer with a set of
+virtual machines that forward the
+requests to a closer group of virtual
+machines managed by your operations
+team. Use regional managed instance
+groups and a global load balancer to
+increase reliability by providing
+automatic failover between zones in
+different regions. D.
+machines as part of a separate managed
+instance groups. Okay, this question
+from the Dress for Win case study is
+about solving a classic performance
+problem:
+high latency for a global user base. The
+root of the issue is that their
+application is in a single data center,
+so users who are far away experience a
+slow response. The goal is to design an
+architecture that brings the application
+closer to all users. With that in mind,
+let's evaluate our options. Let's start
+by looking at options B and D. Both of
+these suggest a complex architecture
+where you have one set of virtual
+machines that just forwards requests to
+another set. This is incorrect because
+it's an unnecessary and inefficient
+design. A global load balancer is
+already intelligent enough to send
+traffic directly to the closest back-end
+servers. Next, let's look at option C.
+This option describes the correct
+architecture using a global load
+balancer and regional managed instance
+groups, but it gives the wrong primary
+reason. While this setup does improve
+reliability, the main goal stated in the
+question is to optimize for performance
+and reduce latency. This brings us to
+option A, which is the correct answer.
+It proposes the standard and best
+practice architecture for a global
+application. You use a global load
+balancer, which provides a single IP
+address for all users and automatically
+routes them to the Google Cloud region
+that is geographically closest to them.
+Then, in each of those regions, you have
+a regional managed instance group
+running your application. This setup
+ensures that users are always served by
+the servers nearest to them,
+which dramatically reduces latency. It
+also allows each region's instance group
+to scale independently based on its
+local traffic, which is very efficient.
+Therefore, the approach they should use
+is
+use regional managed instance groups and
+Thanks for watching. If you found this
+video interesting and helpful, please
+like, share, and subscribe to our
+channel. See you in the next video.
+Happy learning.

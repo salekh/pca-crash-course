@@ -1,0 +1,1419 @@
+TITLE: Real GCP Cloud Architect Exam Questions & Answers | Part 8 (Q141-158) Mountkirk Games & CI/CD
+URL: https://www.youtube.com/watch?v=U1PJhvVPqys
+DESCRIPTION:
+Master the Google Cloud Professional Architect exam with Part 8 of our comprehensive practice series! This video breaks down real exam questions **141-158**, with a special focus on the critical **Case Study 1** scenarios and **CI/CD** pipelines you'll face on test day.
+
+In this session, we dive deep into complex topics, including:
+✅ **Case Study Deep Dive:** Analyzing the business and technical requirements of the **[Mountkirk Games]** scenario.
+✅ **CI/CD Pipeline Design:** Architecting robust and automated workflows with Cloud Build, Cloud Deploy, and Artifact Registry.
+✅ **Automated Deployment Strategies:** Applying concepts like Blue/Green and Canary deployments to solve real-world problems.
+✅ **DevOps Principles on GCP:** Connecting theory to practical application for modern software delivery.
+
+Our mission is not just to give you answers, but to help you build the core problem-solving skills of a true Cloud Architect. We explain the "why" behind every correct and incorrect option.
+
+▶️ **WATCH THE FULL 250+ QUESTION PLAYLIST HERE:**
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+
+--
+**RESOURCES & SUPPORT**
+🔗 Official Google Cloud Case Studies: [https://services.google.com/fh/files/blogs/master_case_study_mountkirk_games.pdf]
+🤝 Support the channel by liking, sharing, and subscribing! Your support allows us to create more free, high-quality content for the cloud community.
+
+Got a question? Drop it in the comments below! We read every single one. Good luck with your studies!
+
+#gcp #googlecloud #cloudarchitect #professionalcloudarchitect #gcpexamquestions #itcertification #cicd #devops #casestudy #cloudbuild
+
+CHAPTERS:
+
+TRANSCRIPT:
+It's great to see you again. Let's move
+on to the next section. In this section,
+we'll focus on questions about CI/CD
+with questions related to case study 1
+from 153 to 158. Let's get started.
+Question 141. Your company has a project
+in Google Cloud with three virtual
+private clouds. VPCs. There is a compute
+engine instance on each VPC. Network
+subnets do not overlap and must remain
+separated. The network configuration is
+shown below. Instance number one is an
+exception and must communicate directly
+with both instance number two and
+instance number three via internal IPs.
+How should you accomplish this?
+Create a cloud router to advertise
+subnet number two and subnet number
+three to subnet number one. B. Add two
+additional NIC's to instance number one
+with the following configuration. NIC
+number two-vp
+VPC number two-ash subn network subnet
+number two NIC number 3-VPC
+VPC number 3- subn network subnet number
+three update firewall rules to enable
+traffic between instances C. Create two
+VPN tunnels via CloudVPN.
+One between VPC number one and VPC
+number two and one between VPC number
+two and VPC number three. Update
+firewall rules to enable traffic between
+the instances. D. Per all three VPCs.
+Per VPC number one with VPC number two
+and peer VPC number two with VPC number
+three. Update firewall rules to enable
+traffic between the instances. Okay,
+this is a network design question on
+Google Cloud. The core challenge is to
+allow one specific virtual machine to
+communicate with other VMs that are in
+completely separate VPC networks using
+their internal IP addresses. With that
+in mind, let's evaluate our options.
+Let's start with option A, which
+suggests using a cloud router. This is
+incorrect because cloud routers are used
+for establishing routes for hybrid
+connections like CloudVPN or
+interconnect. They are not used to
+connect different VPCs directly to each
+other. Next, let's look at option D
+which suggests using VPC network
+peering. This is also incorrect due to a
+key feature of peering. It is
+non-transitive. This means if you peer
+VPC 1 to VPC 2 and VPC 2 to VPC 3, VPC 1
+cannot talk to VPC 3. The connection
+doesn't pass through. So, this would not
+allow instance one to reach instance 3.
+Option C suggests using CloudVPN to
+connect the networks. While this could
+work, it's an overly complex and
+inefficient solution just to allow a
+single instance to communicate across
+networks. There is a much more direct
+method. This brings us to option B,
+which is the correct and most direct
+solution. A compute engine virtual
+machine can be configured with multiple
+network interfaces or NIC's. In this
+scenario, you would keep instance 1's
+primary NIC in VPC 1 and then you would
+add two additional NIC's to it. You
+would connect the second NIC to VPC 2
+and the third NIC to VPC 3. This
+effectively gives instance one an
+internal IP address in all three
+networks, allowing it to communicate
+directly with instance 2 and instance 3.
+Of course, you would still need to
+configure firewall rules to allow the
+specific traffic. Therefore, the best
+way to accomplish this is B. Add two
+number two-VPC
+VPC number two- subn network subnet
+traffic between instances. Question 142.
+You need to deploy an application on
+Google Cloud that must run on a Debian
+Linux environment. The application
+requires extensive configuration in
+order to operate correctly. You want to
+ensure that you can install Debian
+distribution updates with minimal manual
+intervention whenever they become
+available. What should you do? Hey,
+create a Compute Engine instance
+template using the most recent Debian
+image. Create an instance from this
+template and install and configure the
+application as part of the startup
+script. Repeat this process whenever a
+new Google managed Debian image becomes
+available. B. Create a Debian based
+compute engine instance. Install and
+configure the application and use OS
+patch management to install available
+updates. C. Create an instance with the
+latest available Debian image. Connect
+to the instance via SSH and install and
+configure the application on the
+instance. Repeat this process whenever a
+available. D. Create a Docker container
+with Debian as the base image. Install
+and configure the application as part of
+the Docker image creation process. Host
+the container on Google Kubernetes
+Engine and restart the container
+whenever a new update is available.
+Okay, this is a question about how to
+best manage the life cycle of a virtual
+machine on compute engine. Specifically,
+how to handle operating system updates
+with the least amount of manual work.
+With that in mind, let's evaluate our
+options. Let's start with option C,
+which suggests a completely manual
+process of connecting via SSH to install
+the application and repeating this every
+time an update is needed. This is
+incorrect because it involves the
+maximum amount of manual intervention
+which is the opposite of what the
+question asks for. Next, let's look at
+option A. This approach uses an instance
+template and a startup script which is
+good for initial deployment. However,
+its strategy for updates, recreating the
+entire template and instance from a new
+base image is a very manual and
+disruptive process, not a simple way to
+apply ongoing OS patches. Option D
+suggests containerizing the application
+and using Kubernetes. While this is a
+modern way to manage applications, the
+question specifically asks about
+handling Debian distribution updates,
+which points to a solution at the
+operating system level of the VM, not
+the container level. This brings us to
+option B, which is the correct and
+Google recommended solution. The process
+is to first set up your Debian VM and
+configure your application. Then you use
+a specific Google Cloud feature called
+OS patch management. This is a managed
+service that allows you to automate the
+process of applying OS updates like
+those for Debian to your virtual
+machines. You can schedule patch
+rollouts and manage the process across
+many VMs which directly meets the
+requirement for installing updates with
+minimal manual intervention. Therefore,
+the best thing to do is B create a
+Debian-based compute engine instance,
+install and configure the application
+and use OS patch management to install
+available updates. Question 143. You
+need to deploy a stateful workload on
+Google Cloud. The workload can scale
+horizontally, but each instance needs to
+read and write to the same Pussix file
+system. At high load, the stateful
+workload needs to support up to 100
+megabytes per second of writes. What
+should you do?
+Use a persistent disk for each instance.
+B. Use a regional persistent disk for
+each instance. C. Create a cloud file
+store instance and mount it in each
+instance. D. Create a cloud storage
+bucket and mount it in each instance
+using Xfuse. Okay, this is a storage
+question that requires us to find the
+right solution for a very specific need.
+A high performance shared file system.
+The key requirements are that multiple
+instances need to read and write to the
+same Pussix file system at the same time
+and it needs to be fast. With that in
+mind, let's look at our options. Let's
+start with options A and B, which
+suggest using a persistent disc or a
+regional persistent disc. These are
+incorrect. Persistent discs are a type
+of block storage, meaning they can only
+be attached to a single virtual machine
+in readwrite mode at any given time.
+They cannot be shared between multiple
+instances for simultaneous reads and
+writes. So they don't work for a
+horizontally scaled application. Next,
+let's look at option D, which suggests
+mounting a cloud storage bucket using
+Xfuse. While this is a useful tool for
+some scenarios, it's not the right
+choice here. Exfuse mount is not fully
+pix compliant and has performance
+limitations especially with high volume
+concurrent write operations. It would
+not be reliable or fast enough for this
+application. This brings us to option C
+which is the correct and recommended
+solution. Cloud file store is Google
+cloud's fully managed file storage
+service. It's designed for exactly this
+use case. It provides a PESIX compliant
+file system that can be mounted and
+shared across many compute engine
+instances simultaneously. It also offers
+different performance tiers that can
+easily support the 100 megabytes per
+second right throughput required by the
+application. Therefore, the correct
+thing to do is C. Create a cloud file
+instance. Question 144. Your company has
+an application deployed on Anthos
+clusters that is running multiple
+microservices. The cluster has both
+Anthos service mesh and Anthos config
+management configured. End users inform
+you that the application is responding
+very slowly. You want to identify the
+micros service that is causing the
+delay. What should you do? A. Use the
+service mesh visualization in the cloud
+console to inspect the telemetry between
+the microservices. B. Use Anthos config
+management to create a cluster selector.
+Selecting the relevant cluster on the
+Google Cloud Console page for Google
+Kubernetes Engine. View the workloads
+and filter on the cluster. Inspect the
+configurations of the filtered
+workloads. C. Use Anthos config
+management to create a namespace
+selector selecting the relevant cluster
+namespace. On the Google Cloud Console
+page for Google Kubernetes Engine, visit
+the workloads and filter on the
+namespace. Inspect the configurations of
+the filtered workloads. D. Reinstall
+using the default ISTTO profile in order
+to collect request latency. Evaluate the
+telemetry between the microservices in
+the cloud console. Okay, this is a
+troubleshooting question about finding
+the source of slowness or latency in a
+microservices application. The key piece
+of information is that the application
+is running on an Anthos cluster and
+already has Anthos service mesh
+installed. With that in mind, let's
+evaluate our options. Let's start by
+looking at options B and C, which both
+suggest using Anthos Config Management.
+This is incorrect. Anthos Config
+Management is a tool for managing the
+configuration and policies of your
+clusters. It is not a monitoring tool
+and cannot help you diagnose application
+performance issues like latency. Next,
+let's look at option D which suggests
+reinstalling ISTTO. This is also
+incorrect and would be a disruptive
+step. The question states that Anthos
+service mesh which is Google's managed
+ISTTO service is already running. This
+means the necessary telemetry data
+including latency information is already
+being collected. There is no need to
+reinstall anything. This brings us to
+option A which is the correct and most
+efficient solution. The primary benefit
+of using a service mesh like Anthos
+service mesh is that it automatically
+collects detailed telemetry about the
+communication between all of your
+microservices. This includes latency,
+error rates, and traffic volume. The
+Google Cloud Console provides a service
+mesh visualization dashboard where you
+can see a map of your services and
+inspect this telemetry data. By simply
+looking at this dashboard, you can
+quickly identify the specific connection
+or micros service that is introducing
+the delay. Therefore, the best thing to
+do is a use the service mesh
+visualization in the cloud console to
+inspect the telemetry between the
+microservices. Question 145. Your
+company has a project in Google Cloud
+with three virtual private clouds. VPCs.
+There is a compute engine instance on
+each VPC. Network subnets do not overlap
+and must remain separated. The network
+configuration is shown below. Instance
+number one is an exception and must
+communicate directly with both instance
+number two and instance number three via
+internal IPs. How should you accomplish
+this? A. Create a retention policy on
+the bucket for the duration of five
+years. Create a lock on the retention
+policy. B. Create the bucket with
+uniform bucket level access and grant a
+service account the role of object
+writer. Use the service account to
+upload new files. C. Use a
+customer-managed key for the encryption
+of the bucket. Rotate the key after 5
+years. D. Create the bucket with fine
+grained access control and grant a
+upload new files. Okay, this is a data
+compliance and security question. The
+core requirement is to make documents
+stored in cloud storage immutable which
+means they cannot be deleted or changed
+for a specific period of time. In this
+case 5 years with that in mind let's
+evaluate our options. Let's start with
+options B and D. Both of these are
+incorrect because they focus on IM
+permissions. While setting up a service
+account with the right permissions is
+good practice for uploading files, it
+doesn't solve the main problem. IM
+controls who can perform actions, but it
+doesn't prevent someone with
+administrative privileges from later
+deleting or overwriting the files. Next,
+let's look at option C, which suggests
+using a customer-managed encryption key.
+This is also incorrect. Encryption is
+about protecting the confidentiality of
+your data, meaning preventing
+unauthorized people from reading it. It
+does not have any effect on preventing
+authorized users from deleting or
+modifying the data. This brings us to
+option A, which is the correct and
+purpose-built solution for this
+requirement. This approach uses a
+feature called bucket lock. It's a
+two-step process. First, you create a
+retention policy on the bucket, setting
+the duration to 5 years. This policy
+prevents any object from being deleted
+or overwritten until it is 5 years old.
+The second and most critical step is to
+create a lock on the retention policy.
+Once the policy is locked, it becomes
+permanent and cannot be removed or
+shortened by anyone, not even the
+project owner. This provides the strong
+irreversible immutability that financial
+regulations often require. Therefore,
+the correct thing to do is a create a
+retention policy on the bucket for the
+duration of 5 years and create a lock on
+the retention policy. Question 146. Your
+team will start developing a new
+application using microservices
+architecture on Kubernetes engine. As
+part of the development life cycle, any
+code change that has been pushed to the
+remote develop branch on your GitHub
+repository should be built and tested
+automatically. When the build and test
+are successful, the relevant microser
+will be deployed automatically in the
+development environment. You want to
+ensure that all code deployed in the
+development environment follows this
+process. What should you do?
+Have each developer install a pre-commit
+hook on their workstation that tests the
+code and builds the container when
+committing on the development branch.
+After a successful commit, have the
+developer deploy the newly built
+container image on the development
+cluster. B. Install a post commit hook
+on the remote Git repository that tests
+the code and builds the container when
+code is pushed to the development
+branch. After a successful commit, have
+the developer deploy the newly built
+cluster. C. Create a cloud build trigger
+based on the development branch that
+tests the code, builds the container,
+and stores it in container registry.
+Create a deployment pipeline that
+watches for new images and deploys the
+new image on the development cluster.
+Ensure only the deployment tool has
+access to deploy new versions. D. Create
+a cloud build trigger based on the
+development branch to build a new
+container image and store it in
+container registry. Rely on
+vulnerability scanning to ensure the
+code tests succeed. As the final step of
+the cloud build process, deploy the new
+cluster. Ensure only cloud build has
+access to deploy new versions. Okay,
+this is a question about designing a
+secure and fully automated CI/CD
+pipeline which stands for continuous
+integration and continuous deployment.
+The goal is to create a reliable
+centralized process that automatically
+tests, builds, and deploys code changes
+without manual intervention. With that
+in mind, let's look at our options.
+Let's start with options A and B, which
+both rely on Git hooks and manual
+developer deployments. These are
+incorrect because they are not reliable
+or fully automated. A process that
+depends on individual developers
+machines or manual steps can be easily
+bypassed or can lead to inconsistent
+deployments. A proper CI/CD pipeline
+must be centralized. Next, let's look at
+option D. This option has two critical
+flaws. First, it suggests relying on
+vulnerability scanning to ensure code
+tests succeed. This is a
+misunderstanding of what these tools do.
+Vulnerability scanning looks for known
+security holes in your dependencies. It
+does not run your application's
+functional tests. Second, having the
+same process that builds the code also
+deploy it is a less secure pattern than
+separating those concerns. This brings
+us to option C, which describes a
+complete secure and automated CI/CD
+pipeline following best practices. It
+uses a cloud build trigger to handle the
+continuous integration part
+automatically testing the code and
+building the container image when a
+change is pushed. Then a separate
+deployment pipeline handles the
+continuous deployment part. It watches
+the container registry for new
+successfully built images and
+automatically deploys them to the GKE
+cluster. Finally, it correctly states
+that you should ensure only the
+deployment tool has permission to
+deploy, which is a key security
+principle. Therefore, the best approach
+is C. Create a cloud build trigger based
+on the development branch that tests the
+code, builds the container, and stores
+it in container registry. Create a
+deployment pipeline that watches for new
+images and deploys the new image on the
+development cluster. Ensure only the
+deployment tool has access to deploy new
+versions. Question 147. Your operations
+team has asked you to help diagnose a
+performance issue in a production
+application that runs on compute engine.
+The application is dropping requests
+that reach it when under heavy load. The
+process list for affected instances
+shows a single application process that
+is consuming all available CPU and
+autoscaling has reached the upper limit
+of instances. There is no abnormal load
+on any other related systems including
+the database. You want to allow
+production traffic to be served again as
+quickly as possible. Which action should
+you recommend?
+Change the autoscaling metric to
+agent.googleapis.com/memory/percback/c_used
+https/www.google.com/archquest
+google.com/archquest
+mark q equals sign https/
+aent googleis.com/memory/p%us
+used B restart the affected instances on
+a staggered schedule C SSH to each
+instance and restart the application
+process D increase the maximum number of
+instances in the autoscaling group okay
+this is an inst incident response
+question where we need to find the
+fastest way to restore service. The key
+symptoms are that the application is
+dropping requests because its processes
+are consuming all available CPU and
+crucially the autoscaler has already hit
+its configured maximum number of
+instances. This tells us the system is
+trying to scale up to handle the load
+but is being prevented by its own
+configuration. With that in mind, let's
+look at our options. Let's start with
+option A, which suggests changing the
+autoscaling metric to memory. This is
+incorrect because the problem is clearly
+stated to be high CPU usage, not high
+memory usage. Changing the metric won't
+solve the root cause, and in any case,
+the autoscaler is already at its limit
+and can't add more instances. Next,
+options B and C both suggest restarting
+either the instances or the application
+processes. These are also incorrect. The
+problem isn't that the application is
+frozen or has crashed. The problem is
+that it's completely overwhelmed by the
+high traffic. As soon as you restart it,
+it will immediately become overloaded
+again. This doesn't solve the underlying
+resource shortage. This brings us to
+option D, which is the correct and most
+direct solution. The root of the problem
+is that the autoscaler wants to add more
+virtual machines to handle the load, but
+is being blocked by the maximum instance
+limit. By simply increasing this maximum
+number, you allow the autoscaler to do
+its job. It will immediately begin
+creating new instances which will help
+distribute the load, reduce the CPU
+pressure on each individual machine, and
+allow the application to start serving
+traffic normally again. This is the
+fastest way to restore the service.
+Therefore, the action you should
+recommend is D. Increase the maximum
+number of instances in the autoscaling
+group. Question 148. You are developing
+an application using different
+microservices that should remain
+internal to the cluster. You want to be
+able to configure each micros service
+with a specific number of replicas. You
+also want to be able to address a
+specific micros service from any other
+microser in a uniform way regardless of
+the number of replicas the microser
+scales to. You need to implement this
+solution on Google Kubernetes engine.
+What should you do?
+Deploy each micros service as a
+deployment. Expose the deployment in the
+cluster using a service and use the
+service DNS name to address it from
+other microservices within the cluster.
+B. Deploy each micros service as a
+cluster using an ingress and use the
+ingress IP address to address the
+deployment from other microservices
+within the cluster. C. Deploy each
+micros service as a pod. Expose the pod
+in the cluster using a service and use
+the service DNS name to address the
+micros service from other microservices
+within the cluster. D. Deploy each
+in the cluster using an ingress and use
+the ingress IP address name to address
+the pod from other microservices within
+the cluster. Okay, this is a fundamental
+question about the standard design
+pattern for deploying microservices on
+Kubernetes. We need to choose the right
+combination of Kubernetes objects to
+manage our applications replicas and to
+allow them to communicate with each
+other inside the cluster. With that in
+mind, let's evaluate our options. Let's
+start with the options that suggest
+deploying each micros service as a pod,
+which are C and D. This is incorrect.
+You should almost never manage raw pods
+directly in Kubernetes. Pods are
+ephemeral. If one crashes, it's gone.
+You need a higher level controller like
+a deployment to manage the pods,
+ensuring the correct number of replicas
+are running and automatically replacing
+any that fail. Next, let's look at the
+options that suggest using an ingress
+for communication, which are B and D.
+This is also incorrect for this use
+case. An ingress is designed to manage
+traffic coming from outside the cluster
+into your services. For communication
+between services that are already inside
+the cluster, the standard tool is a
+Kubernetes service. This brings us to
+option A which describes the correct and
+standard pattern. You deploy each micros
+service using a deployment. This object
+is responsible for maintaining the
+desired number of replicas and handling
+updates. Then you expose that deployment
+internally using a service. The service
+provides a stable internal DNS name that
+other microservices can use to send
+requests. The service automatically
+handles load balancing the requests to
+whichever pods are currently healthy and
+running. This architecture is scalable,
+resilient, and provides a uniform way
+for services to discover and communicate
+with each other. Therefore, the correct
+thing to do is a deploy each micros
+service as a deployment, expose the
+deployment in the cluster using a
+service and use the service DNS name to
+address it from other microservices
+within the cluster. Question 149. Your
+company has a networking team and a
+development team. The development team
+runs applications on Compute Engine
+instances that contain sensitive data.
+The development team requires
+administrative permissions for compute
+engine. Your company requires all
+network resources to be managed by the
+networking team. The development team
+does not want the networking team to
+have access to the sensitive data on the
+instances. What should you do? One,
+create a project with a standalone VPC
+and assign the network admin role to the
+networking team. Two, create a second
+project with a standalone VPC and assign
+the compute admin role to the
+development team. Three, use CloudVPN to
+join the two VPCs. B1, create a project
+with a standalone virtual private cloud
+VPC. Assign the network admin role to
+the networking team and assign the
+compute admin role to the development
+team. Z one. Create a project with a
+shared VPC and assign the network admin
+role to the networking team. Two, create
+a second project without a VPC.
+Configure it as a shared VPC service
+project and assign the compute admin
+role to the development team. D1, create
+a project with a standalone VPC and
+assign the network admin role to the
+development team. Three, use VPC peering
+to join the two VPCs. Okay, this is a
+question about organizing your Google
+Cloud projects and permissions to create
+a secure separation of duties between a
+networking team and a development team.
+The main challenge is to let the
+networking team control the entire
+network while preventing them from
+accessing the sensitive data on the
+developer virtual machines. With that in
+start with option B, which suggests
+putting everyone in a single project.
+This is incorrect because it's a major
+security risk. A network admin in that
+project could potentially change
+firewall rules to give themselves access
+to the developer VMs, violating the core
+security requirement. Next, let's look
+at options A and D, which involve
+creating two separate projects with
+their own VPCs and connecting them with
+either a VPN or peering. These are also
+not ideal. CloudVPN is the wrong tool
+for connecting two VPCs. And while VPC
+peering would connect them, it doesn't
+achieve the goal of central network
+management. as each team would still be
+in charge of the network within their
+own project. This brings us to option C
+which describes the correct and Google
+recommended solution for this exact
+problem. Shared VPC. In this model, you
+create a central host project that
+contains the shared VPC. You give the
+networking team the network admin role
+on this project. Then you create a
+separate service project for the
+development team and attach it to the
+host projects network. The development
+team gets the compute admin role only on
+their service project. This creates a
+perfect separation of duties. The
+networking team controls the network
+from the host project but has no
+permissions to access the VMs in the
+service project. The development team
+can create and manage VMs in the service
+project but cannot change the shared
+networks configuration. Therefore, the
+correct way to design this is C1. Create
+a project with a shared VPC and assign
+the network admin role to the networking
+team. Two, create a second project
+without a VPC. Configure it as a shared
+VPC service project and assign the
+team. Question 150. Your company sends
+all Google Cloud logs to cloud logging.
+Your security team wants to monitor the
+logs. You want to ensure that the
+security team can react quickly if an
+anomaly such as an unwanted firewall
+change or server breach is detected. You
+want to follow Google recommended
+practices. What should you do? A.
+Schedule a cron job with clouduler. The
+schedule job queries the logs every
+minute for the relevant events. B.
+Export logs to BigQuery and trigger a
+query in BigQuery to process the log
+data for the relevant events. C. Export
+logs to a pub/subtopic
+and trigger a cloud function with the
+relevant log events. D. Export logs to a
+cloud storage bucket and trigger a cloud
+run with the relevant log events. Okay,
+this question is about building a
+real-time security monitoring pipeline.
+The most important requirement is the
+need to react quickly to security
+events, which means we need an
+event-driven low latency architecture.
+With that in mind, let's look at our
+options. Let's start with option A,
+which suggests a cron job that queries
+the logs every minute. This is a polling
+based approach and is incorrect because
+a delay of up to a minute is too slow
+when you need to respond to a security
+incident. Next, option B suggests
+exporting logs to BigQuery. This is also
+incorrect for this use case. BigQuery is
+a powerful tool for analyzing large data
+sets, but it's a batch oriented system.
+The process of exporting and then
+querying introduces a significant delay
+which is not suitable for real-time
+alerting. Option D, exporting to a cloud
+storage bucket is also not the best
+choice. This pattern is typically used
+for long-term archival or for batch
+processing jobs. The latency involved in
+writing a file to a bucket and then
+triggering a service is much higher than
+a real-time messaging solution. This
+brings us to option C which describes
+the standard and Google recommended
+architecture for this exact problem. The
+process is to first configure a log sync
+in cloud logging to export the relevant
+security logs to a cloud pub/subtopic.
+This happens in near real time. Then you
+have a cloud function that is triggered
+every time a new message arrives on that
+pub/subtopic.
+This event-driven serverless
+architecture provides the near
+instantaneous processing needed to react
+quickly to security anomalies.
+Therefore, the best way to do this is C.
+Export logs to a pub/ subtopic and
+trigger a cloud function with the
+relevant log events. Question 151. You
+have deployed several instances on
+compute engine. As a security
+requirement, instances cannot have a
+public IP address. There is no VPN
+connection between Google Cloud and your
+office and you need to connect via SSH
+into a specific machine without
+violating the security requirements.
+What should you do? A configure cloud
+NAT on the subnet where the instance is
+hosted. Create an SSH connection to the
+cloudnet IP address to reach the
+instance. B. Add all instances to an
+unmanaged instance group. Configure TCP
+proxy load balancing with the instance
+group as a backend. Connect to the
+instance using the TCP proxy IP. C.
+Configure identityware proxy AP for the
+instance and ensure that you have the
+role of AP secured tunnel user. Use the
+cloud command line tool to SSH into the
+instance. D. Create a bastion host in
+the network to SSH into the bastion host
+from your office location. from the
+bastion host SSH into the desired
+instance. Okay, this is a network
+security question about a very common
+problem. How to securely access a
+virtual machine that doesn't have a
+public IP address, especially when you
+don't have a VPN. We're looking for a
+solution that is secure and avoids
+complex network setups. With that in
+start with option A, which suggests
+using Cloud NAT. This is incorrect
+because cloud NAT only works for
+outbound traffic. It allows a private VM
+to reach the internet, but it does not
+allow you to make an inbound connection
+like SSH to the VM. Next, option B
+suggests using a TCP proxy load
+balancer. This is also not the right
+tool for the job. A load balancer is
+designed to distribute traffic across
+multiple servers, not to provide direct
+SSH access to a single specific machine.
+Option D proposes using a bastion host.
+While this is a traditional and valid
+pattern, it's not the best solution in
+this case. To connect to the bastion
+host from your office without a VPN, the
+bastion host itself would need a public
+IP address, which creates a new security
+risk that you would have to manage.
+There's a better, more modern way. This
+brings us to option C, which is the
+correct and Google recommended solution.
+This approach uses the identityaware
+proxy or AP. IAP for TCP forwarding
+allows you to create a secure encrypted
+tunnel directly to your private VM
+through Google's infrastructure. Access
+is controlled by your identity and IM
+permissions. Specifically, the AP
+secured tunnel user role, not by your
+network location or IP address. This is
+a zerorust approach that completely
+eliminates the need for VPNs or bastion
+hosts, making it both more secure and
+easier to manage. Therefore, the best
+thing to do is see configure identity
+aware proxy AP for the instance and
+ensure that you have the role of AP
+secured tunnel user. Use the cloud
+command line tool to SSH into the
+instance. Question 152. Your company is
+using Google Cloud. You have two folders
+under the organization finance and
+shopping. The members of the development
+team are in a Google group. The
+development team group has been assigned
+the project owner role on the
+organization. You want to prevent the
+development team from creating resources
+in projects in the finance folder. What
+Assign the development team group the
+project viewer role on the finance
+folder and assign the development team
+group the project owner role on the
+shopping folder. B. Assign the
+development team group only the project
+viewer role on the finance folder. C.
+project owner role on the shopping
+folder and remove the development team
+group project owner role from the
+organization. D. Assign the development
+team group only the project owner role
+on the shopping folder. Okay. This
+question is about how permissions are
+inherited in the Google cloud resource
+hierarchy. The core issue is that the
+development team has been given a very
+powerful role at the very top level the
+organization and we need to restrict
+their access to a specific folder. The
+key concept to remember is that IM
+permissions in Google cloud are additive
+and flow downwards. You cannot deny a
+permission at a lower level that has
+been granted at a higher level. With
+that in mind, let's look at our options.
+Let's start with options A and B. Both
+are incorrect. Since the development
+team already has the project owner role
+at the organization level, they inherit
+those powerful permissions on everything
+below it, including the finance folder.
+Adding a less powerful role like project
+viewer on the finance folder does not
+override or remove the inherited owner
+role. Next, let's look at option D. This
+is also incorrect because it only
+performs half of the necessary action.
+If you don't first remove the powerful
+project owner role at the organization
+level, any permissions you grant at a
+lower level are redundant and the team
+will still have access to the finance
+folder. This brings us to option C,
+which is the correct solution that
+follows the principle of lease
+privilege. The process involves two
+critical steps. First, you remove the
+project owner role from the development
+team at the organization level. This
+stops the overly broad permissions from
+being inherited everywhere. Second, you
+grant them the project owner role only
+on the specific resource where they need
+it, which is the shopping folder. By not
+granting them any role on the finance
+folder, they will have no access to it,
+which perfectly meets the requirement.
+Therefore, the correct thing to do is C.
+organization. Next, we will go through
+the background content of case study 1
+before going to the questions related to
+this case study. Case study one, company
+overview. Mount Kirk Games makes online
+session-based multiplayer games for the
+most popular mobile platforms. Company
+background. Mount Kirk Games builds all
+of their games with some serverside
+integration and has historically used
+cloud providers to lease physical
+servers. A few of their games were more
+popular than expected and they had
+problems scaling their application
+servers, MySQL databases, and analytics
+tools. Mount Kirk's current model is to
+write game statistics to files and send
+them through an ETL tool that loads them
+into a centralized MySQL database for
+reporting. Solution concept. Malkerk
+Games is building a new game which they
+expect to be very popular. They plan to
+deploy the game's backend on Google
+Compute Engine so they can capture
+streaming metrics, run intensive
+analytics, and take advantage of its
+autoscaling server environment and
+integrate with a managed NoSQL database.
+Technical requirements. Requirements for
+game backend platform. One, dynamically
+scale up or down based on game activity.
+Two, connect to a managed NoSQL database
+service. Three, run customized Linux DRO
+requirements for game analytics
+platform. One, dynamically scale up or
+down based on game activity. Two,
+process incoming data on the fly
+directly from the game servers. Three,
+process data that arrives late because
+of slow mobile networks. Four, allow SQL
+queries to access at least 10 terabytes
+of historical data. Five, process files
+that are regularly uploaded by users
+mobile devices. Six, use only fully
+managed services. Co statement, our last
+successful game did not scale well with
+our previous cloud provider, resulting
+in lower user adoption and affecting the
+game's reputation. Our investors want
+more key performance indicators, KPIs to
+evaluate the speed and stability of the
+game as well as other metrics that
+provide deeper insight into usage
+patterns so we can adapt the GAMS to
+target users. CTO statement. Our current
+technology stack cannot provide the
+scale we need. So we want to replace
+MySQL and move to an environment that
+provides autoscaling, low latency load
+balancing, and frees us up from managing
+physical servers. CFO statement. We are
+not capturing enough user demographic
+data, usage metrics and other KPIs. As a
+result, we do not engage the right
+users. We are not confident that our
+marketing is targeting the right users
+and we are not selling enough premium
+blast UPS inside the games which
+dramatically impacts our revenue.
+Question 153. For this question, refer
+to the Mount Kirk Games case study.
+Mount Kirk Games wants you to design
+their new testing strategy. How should
+the test coverage differ from their
+existing backends on the other platforms
+tests should scale well beyond the prior
+approaches? B. Unit tests are no longer
+required, only end-to-end tests. C.
+Tests should be applied after the
+release is in the production
+environment. D. test should include
+directly testing the Google Cloud
+Platform GCP infrastructure. Okay, this
+question is based on the Mount Kirk
+Games case study. The key piece of
+information from that study is that
+their previous systems failed because
+they couldn't scale to handle a large
+number of players. The new system is
+designed to autoscale, so the testing
+strategy must evolve to address that
+past failure. With that in mind, let's
+option B which suggests that unit tests
+are no longer required. This is
+incorrect and a very bad software
+development practice. Unit tests are
+essential for ensuring the quality and
+correctness of individual code
+components. Next option C suggests that
+tests should only be applied after the
+release is in production. This is also a
+bad practice and extremely risky. The
+purpose of testing is to find and fix
+problems before they impact your users.
+Option D says the test should directly
+test the GCP infrastructure. This is
+incorrect because it misunderstands the
+shared responsibility model. Google is
+responsible for testing their cloud
+infrastructure. Your responsibility as
+the customer is to test your application
+that runs on that infrastructure. This
+brings us to option A, which is the
+correct answer. Because the company's
+previous failure was directly related to
+scaling, their new testing strategy must
+be different by being able to test at a
+much larger scale than before. This
+means implementing performance, load,
+and stress tests that can simulate a
+huge number of users to verify that the
+new autoscaling architecture works as
+expected under pressure. Therefore, the
+way the test coverage should differ is a
+test should scale well beyond the prior
+approaches. Question 154. For this
+question, refer to the Mount Kirk Games
+case study. Mount Kirk Games has
+deployed their new backend on Google
+Cloud Platform GCP. You want to create a
+thorough testing process for new
+versions of the backend before they are
+released to the public. You want the
+testing environment to scale in an
+economical way. How should you design
+the process? A. Create a scalable
+environment in GCP for simulating
+production load. B. Use the existing
+infrastructure to test the GCP-based
+backend at scale. C. Build stress tests
+into each component of your application
+using resources internal to GCP to
+simulate load. D. Create a set of static
+environments in GCP to test different
+levels of load. For example, high,
+medium, and low. Okay, this question is
+a followup on the Mount Kirk Games case
+study. Now that they've built a new
+backend designed to scale dynamically,
+we need to figure out the best way to
+test it. The key is that the test
+environment must be able to properly
+simulate a large production load to see
+if the new scaling features actually
+work. With that in mind, let's look at
+our options. Let's start with option B,
+which suggests using their existing
+infrastructure. This is incorrect. The
+entire reason for the migration is that
+their existing infrastructure could not
+scale. You can't use a weak non-scalable
+system to properly test a new highly
+scalable one. Next, option C is too
+vague. While stress testing individual
+components is a part of a good test
+strategy, the main goal here is to test
+the entire systems ability to handle a
+production level load, which requires a
+complete environment. Option D suggests
+creating a set of static environments
+for different load levels. This is also
+incorrect because the application is
+designed to scale dynamically. A static
+test environment with a fixed amount of
+resources cannot properly test the
+automatic scaling behavior of the
+application. This brings us to option A,
+which is the correct answer. To properly
+test an application that is designed to
+autoscale, your testing environment must
+also be scalable. You need to be able to
+generate enough simulated user traffic
+to actually trigger the application's
+autoscaling rules. This is the only way
+to thoroughly verify that the new
+backend can handle the kind of load that
+caused the old system to fail and do so
+in a cost-effective ondemand way.
+Therefore, the way you should design the
+process is a create a scalable
+production load. Question 155. For this
+case study. Mount Kirk Games wants to
+set up a continuous delivery pipeline.
+Their architecture includes many small
+services that they want to be able to
+update and roll back quickly. Mount Kirk
+Games has the following requirements.
+Asterisk services are deployed
+redundantly across multiple regions in
+the US and Europe. Asterisk only
+front-end services are exposed on the
+public internet.
+They can provide a single front-end IP
+for their fleet of services. Asterisk
+deployment artifacts are immutable.
+Which set of products should they use?
+Google Cloud Storage, Google Cloud Dataf
+Flow, Google Compute Engine. B. Google
+Cloud Storage, Google App Engine, Google
+Network Load Balancer. C. Google
+Kubernetes registry, Google Container
+Engine, Google HTTPS load balancer. D.
+Google Cloud Functions, Google Cloud
+Pub/Sub,
+Google Cloud Deployment Manager. Okay,
+this question is based on the Mount Kirk
+games case study and asks us to choose
+the right set of Google Cloud products
+to build their modern global gaming
+platform. We need to find a combination
+that supports microservices, can be
+deployed in multiple regions, and has a
+single global IP address for users. With
+Let's start with option A. This is
+incorrect because it includes Google
+Cloud Dataf Flow which is a service for
+data processing not for hosting a
+microservices application. Next, let's
+look at option B. This is incorrect
+because it suggests using the Google
+network load balancer. The network load
+balancer is a regional service which
+means it cannot provide a single global
+IP address to serve traffic from both
+the US and Europe as the requirement
+state. Option D is also incorrect. This
+set of tools, cloud functions, and
+pub/sub is for building a serverless
+event-driven architecture. It's not the
+right platform for a complex multi-reion
+microservices application that needs a
+single front-end IP. This brings us to
+option C, which is the correct solution.
+This set of products works together
+perfectly. First, Google container
+engine or GKE is the ideal managed
+platform for running microservices and
+allows for the quick updates and
+rollbacks required. Second, a container
+registry like Google Kubernetes registry
+is where you store your immutable
+deployment artifacts which are your
+container images. Finally, the Google
+HTTPS
+load balancer is a global load balancer
+that can provide a single IP address and
+distribute traffic to your GKE clusters
+in different regions around the world.
+Therefore, the set of products they
+should use is C. Google Kubernetes
+registry, Google container engine, and
+Google HTTP s load balancer. Question
+156. For this question, refer to the
+Mount Kirk Games case study. Mount Kirk
+Games gaming servers are not
+automatically scaling properly. Last
+month, they rolled out a new feature
+which suddenly became very popular. A
+record number of users are trying to use
+the service, but many of them are
+getting 503 errors and very slow
+response times. What should they
+investigate first?
+Verify that the database is online. B.
+Verify that the project quota hasn't
+been exceeded. C. Verify that the new
+feature code did not introduce any
+performance bugs. D. Verify that the
+load testing team is not running their
+tool against production. Okay, this is a
+troubleshooting question from the Mount
+Kirk Games case study. We need to find
+the most likely root cause for a very
+specific set of symptoms. The
+application is slow and returning 503
+errors and at the same time the
+autoscaler has stopped working properly.
+options. Let's start with option A.
+Verifying that the database is online.
+This is unlikely to be the primary
+cause. A full database outage would
+probably cause a different type of error
+and would likely affect all users, not
+just many of them. A 503 error points to
+the application servers being
+unreachable or overwhelmed. Next, option
+C, a performance bug in the new code.
+While a bug could certainly cause slow
+response times, it doesn't explain why
+the autoscaling mechanism itself would
+fail to add new instances. The core of
+the problem is that the system is not
+getting the new resources it needs.
+Option D, a load test running against
+production is a possibility, but is less
+probable than hitting a natural resource
+limit. The most direct technical
+explanation that fits both symptoms
+should be investigated first. This
+brings us to option B which is the most
+likely cause. Every Google Cloud project
+has quotas which are limits on the
+number of resources you can use like the
+total number of CPUs in a region. When
+the application experienced a sudden
+spike in traffic, the autoscaler tried
+to create many new virtual machines. If
+this process caused the project to hit
+its CPU quota, Google Cloud would
+prevent any more VMs from being created.
+This perfectly explains both symptoms.
+The autoscaler is not scaling properly
+because it's being blocked by the quota
+and because no new servers can be added,
+the existing ones are overwhelmed
+leading to slow responses and 503
+errors. Therefore, the first thing you
+should investigate is B. Verify that the
+project quota hasn't been exceeded.
+Question 157. For this question, refer
+Mount Kirk Games needs to create a
+repeatable and configurable mechanism
+for deploying isolated application
+environments. Developers and testers can
+access each other's environments and
+resources, but they cannot access
+staging or production resources. The
+staging environment needs access to some
+services from production. What should
+you do to isolate development
+environments from staging and
+production?
+Create a project for development and
+test and another for staging and
+production. B. Create a network for
+development and test and another for
+staging and production. C. Create one
+subnet network for development and
+another for staging and production. D.
+Create one project for development, a
+second for staging and a third for
+production. Okay, this question is about
+the best way to structure your
+environments in Google Cloud. The goal
+is to create strong isolation between
+your development, staging, and
+production environments to ensure
+security and stability. With that in
+start with option A. This is incorrect
+and a very bad security practice. You
+should never group your staging and
+production environments in the same
+project. A mistake made in the staging
+environment could easily impact your
+live production users. Next, let's look
+at options B and C which suggest
+isolating the environments using
+separate networks or sub networks. These
+are also incorrect because they provide
+weak isolation. In Google Cloud, the
+primary boundary for resources billing
+and most importantly IM permissions is
+the project. If all your environments
+are in the same project, it becomes very
+difficult and errorprone to manage
+permissions to prevent developers from
+accessing production resources. This
+brings us to option D which is the
+correct and Google recommended best
+practice. You should create a separate
+dedicated project for each environment.
+One for development, one for staging and
+one for production. A project acts as a
+strong security boundary. This makes
+managing permissions very simple. You
+give your developers access to the
+development project and you don't give
+them access to the staging or production
+projects. The requirement for staging to
+access production can then be handled
+safely with a controlled connection like
+VPC peering between those two specific
+projects. Therefore, the best thing to
+do is D. Create one project for
+development, a second for staging, and a
+third for production. Question 158. For
+this question, refer to the Mount Kirk
+Games case study. Mount Kirk Games wants
+to set up a real-time analytics platform
+for their new game. The new platform
+must meet their technical requirements.
+Which combination of Google technologies
+will meet all of their requirements? A.
+Container engine, cloud pub/sub, and
+cloud SQL. B. Cloud dataf flow, cloud
+storage, cloud pub/sub, and bigquery. C.
+Cloud SQL, cloud storage, cloud pub/sub,
+and cloud dataf flow. D. Cloud data proc
+cloud pub/sub
+cloud SQL and cloud dataf flow e-cloud
+pub/sub compute engine cloud storage and
+cloud data proc okay this question based
+on the mount kirk games case study asks
+us to design a complete end-to-end
+platform for real-time analytics a
+typical real-time pipeline has three
+stages a way to ingest the stream of
+data a way to process it in real time
+and a place to store it for analysis
+with that in mind Let's evaluate our
+options. Let's look at the options that
+use the wrong storage for analytics.
+Options A, C, and D all include Cloud
+SQL. Cloud SQL is a relational database
+for transactional workloads. It is not
+designed to be a data warehouse for
+large-scale analytics. So any option
+including it for this purpose is
+incorrect. Option E is also incorrect
+because it's missing a proper data
+warehouse for analysis. While data proc
+can be used for processing, the final
+destination for analysis in a Google
+recommended architecture is typically
+BigQuery. This brings us to option B,
+which describes the classic Google
+recommended reference architecture for
+real-time analytics. Cloud pub/sub is
+used to ingest the high-volume stream of
+game events. Cloud dataf flow is used to
+process that stream in real time
+performing transformations,
+aggregations, and enrichments. The
+processed data is then loaded into
+BigQuery which is the serverless data
+warehouse designed for fast SQL analysis
+on massive data sets. Cloud storage is
+also included often used as a place to
+archive the raw data. This combination
+of services perfectly covers all the
+stages of a real-time analytics
+pipeline. Therefore, the combination of
+Google technologies that will meet all
+of their requirements is B. Cloud Dataf
+Flow, Cloud Storage, Cloud Pub/Sub, and
+BigQuery. Thanks for watching. If you
+found this video interesting and
+helpful, please like, share, and
+subscribe to our channel. See you in the
+next video. Happy learning.

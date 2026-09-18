@@ -1,0 +1,1707 @@
+TITLE: Google PCA Exam Questions | EHR Healthcare Case Study, GenAI, Well-Architected Framework | Part 16
+URL: https://www.youtube.com/watch?v=aJaNFvKyOAs
+DESCRIPTION:
+Get ready for the next level of your GCP certification journey! In Part 16 of our Google Cloud Professional Cloud Architect exam prep series, we are breaking down the EHR Healthcare Case Study, a cornerstone of the New Version 6.1 exam content.
+
+We cover questions 320-339, focusing on the rigorous architectural demands of the healthcare industry, ranging from mission-critical hybrid connectivity and HIPAA-compliant data security to the cutting-edge integration of Generative AI for clinical decision support.
+
+The EHR Healthcare case study tests your ability to balance legacy on-premises systems with modern, containerized cloud-native solutions. In this video, we analyze how to build resilient, secure, and cost-effective architectures that meet a 99.99% availability SLA while protecting sensitive patient data.
+
+In this session, you will master:
+✅ Hybrid Connectivity & High Availability: Designing for 99.99% SLA using Dedicated Interconnect across multiple metros and configuring Global Dynamic Routing for seamless failover. 
+✅ Generative AI & Data Sovereignty: Implementing Vertex AI Agent Builder for RAG-based search on medical manuals and using Adapter Tuning on Gemini to ensure private patient data is never used for training public models. 
+✅ Hybrid Kubernetes & GitOps: Achieving "single pane of glass" management with GKE Enterprise (Anthos), using Config Sync to prevent configuration drift and Policy Controller to enforce security guardrails. 
+✅ Data Governance & PII Protection: Securing BigQuery with VPC Service Controls to prevent exfiltration and applying Column-level security with policy tags to mask sensitive info like SSNs. 
+✅ Disaster Recovery & Migration: Architecting for a 30 minute RTO using Cloud SQL Cross-Region Read Replicas and migrating legacy SQL Server workloads using Managed Service for Microsoft Active Directory. 
+✅ FinOps & Operational Excellence: Optimizing costs by combining Committed Use Discounts (CUDs) with Spot VMs and automating storage tiers with Object Lifecycle Management. 
+
+Understanding the EHR Healthcare business requirements especially around "Buy vs. Build" and strict medical regulations is key to passing the 2026 exam. We go beyond the "what" and explain the "why" for every architectural choice.
+
+▶️ WATCH THE FULL PLAYLIST HERE: [https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+
+-- RESOURCES & SUPPORT
+📄 EHR Healthcare Case Study PDF: https://services.google.com/fh/files/misc/v6.1_pca_ehr_healthcare_case_study_english.pdf
+🤝 If this deep dive into the new case study helped you, please like, share, and subscribe!
+
+#gcp #googlecloud #cloudarchitect #ehrhealthcare #generativeai #vertexai #anthos #cybersecurity #bigquery #cloudsql #gcpexamquestions
+
+CHAPTERS:
+
+TRANSCRIPT:
+Hey everyone, Lee here. Previously, I
+shared a comprehensive breakdown of 250
+practice questions for the Google Cloud
+Professional Cloud Architect
+Certification, but I need to give you a
+critical update because as of October
+30th, 2025, the exam has undergone a
+major overhaul to version 6.1. The most
+significant changes are a massive shift
+in focus toward generative AI, a deeper
+integration of the wellarchchitected
+framework, and a complete replacement of
+the old case studies. To help you bridge
+this gap, my next three videos will walk
+you through the new questions for
+Altastrap Media, Symbol Retail, and
+Night Motives Automotive. And I'll be
+releasing the updated EHR healthcare
+content separately very soon. Just a
+quick heads up, the questions I'm
+sharing here are meant to help you get a
+feel for the actual exams difficulty and
+brush up on your knowledge. Google's
+question bank is massive, so I really
+don't recommend just memorizing these
+answers. focus on understanding the
+concepts instead. In our last video, we
+covered questions related to the night
+motives automotive case study. Today,
+we'll be focusing on the EHR healthcare
+case study. For detailed background
+information on the EHR healthcare case
+study, please refer to Google's public
+documentation. I have included the link
+in the video description below. My
+advice is to carefully read through all
+the sections. company overview, solution
+concept, existing technical environment,
+business requirements, technical
+requirements, and executive statement
+before diving into the questions. We've
+got a lot to cover, so let's not waste
+any more time and jump straight into the
+new questions for the HR healthcare case
+study right now. Question 320. HR
+Healthcare's legacy inventory and
+billing systems reside on premises and
+must communicate with the new
+containerized microservices on Google
+Cloud with high throughput and strictly
+consistent latency. The connection must
+be private and secure to comply with
+medical regulations. Which connectivity
+option should you choose? A. CloudVPN
+via the public internet. B. Partner
+interconnect. C. Dedicated interconnect.
+D. Direct peering. Okay, this question
+focuses on hybrid connectivity and
+network performance. The key phrases
+here are high throughput, strictly
+consistent latency, and medical
+regulations, implying strict security
+and reliability. We need a solution that
+guarantees performance, not just
+connectivity. Let's evaluate the options
+in order. Option A suggests using
+CloudVPN via the public internet. While
+VPNs are secure, encrypted, and easy to
+set up, they rely on the public internet
+for transport. The public internet is
+inherently unpredictable. Traffic can be
+routed through different hops, causing
+jitter and variable latency. This fails
+the strictly consistent latency
+requirement. Additionally, VPN
+throughput is limited by the internet
+bandwidth and the encryption overhead,
+which might not satisfy the high
+throughput need of a major healthcare
+provider. Option D suggests direct
+peering. This is a common distractor.
+Peering connects your network to
+Google's public network edge, not
+directly to your private VPC, RFC1918
+IP space. It is primarily designed to
+improve access to public Google services
+like YouTube or Google Workspace, not
+for private hybrid cloud traffic.
+Furthermore, peering does not offer an
+SLA for latency or availability, making
+it unsuitable for critical enterprise
+workloads. Option B suggests partner
+interconnect. This is a valid option for
+private connectivity, but it involves
+connecting through a third-party service
+provider. While it is better than VPN,
+it introduces an intermediary. Option C
+proposes dedicated interconnect. This is
+the correct answer. performance
+dedicated interconnect provides a direct
+physical link between the customer's on
+premises network and Google's network.
+It offers 10 Gbits per second or 100
+Gbits per second circuits satisfying the
+high throughput requirement. Consistency
+because the traffic traverses a
+dedicated physical line rather than the
+public internet. The latency is
+deterministic and strictly consistent
+security and compliance. Traffic flows
+privately and does not touch the public
+internet meeting the strict private and
+secure requirements for medical data. It
+is the enterprise standard for
+missionritical hybrid architectures.
+Therefore, the best approach is C.
+Dedicated interconnect. Question 321.
+You need to replace the existing
+open-source monitoring tools that
+generate too many ignored email alerts.
+The new solution must provide
+centralized visibility into system
+performance across both the on- premises
+and Google cloud environments and
+automatically notify the operations team
+of critical issues. What should you do?
+A install the cloud ops stack driver
+agent on all servers and configure cloud
+monitoring with uptime checks and
+alerting policies. B. Use BigQuery to
+analyze logs exported from the servers.
+C. Deploy Prometheus and Graph Anna on a
+GKE cluster. D. Use cloud logging to
+filter errors and export them to a
+pub/subtopic.
+Okay, this question focuses on hybrid
+observability and operational
+efficiency. The core problems are too
+many ignored alerts, alert fatigue, and
+the need for centralized visibility
+across a hybrid environment onrem plus
+GCP. We need a unified tool that
+collects metrics from everywhere and
+provides actionable intelligence. Let's
+evaluate the options in order. Option A
+suggests installing the cloud ops agent
+and configuring cloud monitoring. This
+is the correct answer. Centralized
+visibility. The cloud ops agent formerly
+stack driver agent can be installed on
+both Google compute engine VMs and on
+premises servers. It sends metrics, CPU,
+memory, disk to a single Google Cloud
+monitoring workspace, fulfilling the
+hybrid requirement. Proactive action. By
+configuring specific uptime checks and
+alerting policies, you can define clear
+thresholds for critical issues. Instead
+of flooding inboxes with raw noise,
+cloud monitoring groups incidents and
+sends targeted notifications, eg via
+SMS, slack, pager duty, directly solving
+the ignored email alerts problem. Option
+B proposes using BigQuery to analyze
+logs. While BigQuery is powerful for
+analytical queries on historical logs,
+it is not a monitoring or alerting
+system. It does not provide real-time
+dashboards for system performance
+metrics like CPU usage and does not have
+native capabilities to trigger instant
+notifications when a server goes down.
+It is a tool for retrospective analysis,
+not operational monitoring. Option C
+suggests deploying Prometheus and
+Graphana. While these are popular
+open-source tools, the prompt
+specifically mentions replacing the
+existing open-source monitoring tools
+that were ineffective. Setting up and
+managing a self-hosted Prometheus
+infrastructure on GKE adds operational
+overhead. You have to monitor the
+monitor. Google Cloud operations option
+A is a fully managed service that
+integrates natively with the platform
+aligning better with the goal of
+decreasing infrastructure administration
+costs mentioned in the case study.
+Option D suggests using cloud logging to
+export errors to pub/sub. This sets up a
+log pipeline but doesn't solve the
+monitoring problem. It captures logs,
+text events, not metrics, numerical
+performance data like RAM usage.
+Furthermore, exporting to pub/sub is
+just a transport mechanism. You would
+still need another tool to consume those
+messages and decide whether to alert the
+team adding unnecessary complexity.
+Therefore, the best approach is a
+install the cloud ops stack driver agent
+on all servers and configure cloud
+alerting policies. Question 322.
+EHR healthcare wants to introduce a new
+feature that uses generative AI to
+automatically summarize unstructured
+patient consultation notes into a
+standardized medical format. Soap notes
+for doctors to review. The data must
+remain within EHR's control and not be
+used to train public models. Which
+solution should you implement? A. Use
+the cloud natural language API to
+extract entities. B. Use Vert.Ex AI with
+a pre-trained large language model LLM
+like Gemini, ensuring the adapter tuning
+or prompt data is stored in your
+project. C. Build a custom transformer
+model from scratch using TensorFlow on
+compute engine. D. Use the vision API to
+read the handwritten notes. Okay, this
+question focuses on generative AI
+solutions and data privacy/s
+sovereignty. The core requirement is to
+summarize unstructured notes text
+generation into a specific format soap
+notes while strictly adhering to the
+constraint that data must remain within
+EHR's control and not be used to train
+public models. Let's evaluate the
+options in order. Option A suggests
+using the cloud natural language API.
+This is a discriminative AI tool
+designed for tasks like entity
+extraction, identifying aspirin as a
+drug or sentiment analysis. It is not
+designed for generative tasks like
+summarization or rewriting text into a
+new format. SOAP it would just return a
+list of keywords, not a coherent
+summary. Option D suggests using the
+vision API. This is for image processing
+OCR. While it might be a step in the
+process if the notes were handwritten
+images, the prompt implies we are
+dealing with unstructured patient
+consultation notes text and the primary
+task is summarization, not digitization.
+It doesn't solve the core problem of
+generating the summary. Option C
+proposes building a custom transformer
+model from scratch. While this offers
+maximum control, it is incredibly
+resource inensive and impractical.
+Training a high-quality LLM from scratch
+requires massive data sets, months of
+training on expensive GPU clusters and
+specialized expertise. This violates the
+general architectural principle of buy
+versus build. Don't reinvent the wheel
+when a managed service exists. Option B
+proposes using Vertex AI with a
+pre-trained LLM. This is the correct
+answer. Generative capability. Large
+language models. Llms like Gemini or
+Palm on Vertex AI are specifically
+designed for text summarization and
+formatting tasks. They can easily take
+raw notes and output a structured soap
+note. Data privacy. Google Cloud's
+Vert.Ex AI has a strict data privacy
+commitment. When you use an LLM on
+Vertex AI, even when using adapter
+tuning or prompt engineering, your data
+is not used to train the foundation
+models that are shared with other
+customers. Your prompts and tuning data
+are kept within your own Google Cloud
+project boundaries, satisfying the
+strict EHR control requirement.
+Therefore, the best approach is B. Use
+Vertex AI with a pre-trained large
+language model LLM like Gemini ensuring
+the adapter tuning or prompt data is
+stored in your project. Question 323.
+To meet the requirement of 99.9%
+availability and reduce latency for
+global customers, how should you
+architect the customer-f facing web
+application on GKE? A. Deploy the
+application to a single region with
+three zones and use an internal load
+balancer. B. Deploy the application to
+multiple regions and use a global
+external application load balancer to
+route traffic to the nearest healthy
+region. C. Deploy the application to
+multiple zones within the US central one
+region and use cloud DNS. D. Use cloud
+CDN to cache all dynamic content. Okay.
+This question focuses on global
+architecture, high availability, HA, and
+network latency. The key requirements
+are 99.9% availability, which implies
+surviving zonal or even regional
+failures, and reduce latency for global
+customers, bringing compute closer to
+the user. Let's evaluate the options in
+order. Option A suggests deploying to a
+single region with an internal load
+balancer. This is incorrect for two
+reasons. First, a single region
+represents a single point of failure. If
+that region goes down due to a natural
+disaster, the application goes offline,
+risking the 99.9% SLA. Second, an
+internal load balancer is designed for
+private traffic within the VPC, not for
+customerf facing traffic coming from the
+public internet. Option B proposes
+deploying to multiple regions and using
+a global external application load
+balancer. This is the correct answer.
+High availability. By running the GKE
+clusters in multiple geographic regions,
+eg US, Europe, Asia, the application can
+survive a complete regional outage. The
+global load balancer automatically fails
+over traffic to a healthy region,
+ensuring the 99.9% availability target
+is met. Low latency. The global load
+balancer uses anycast IP to route user
+traffic to the nearest Google edge point
+of presence pop and then to the closest
+backend region. This minimizes the
+physical distance data must travel
+significantly reducing latency for
+global users. Option C suggests
+deploying to multiple zones within US
+central one and using cloud DNS. While
+multiszone deployment protects against
+zonal failures, restricting the
+application to a single region, us
+central one means that a user in Tokyo
+or London will experience high latency
+because their request must travel
+halfway across the world. Cloud DNS
+resolves domain names but does not
+actively route traffic based on
+real-time latency or regional health in
+the same way a global load balancer
+does. Option D suggests using cloud CDN
+to cache all dynamic content. This is a
+misunderstanding of CDN capabilities.
+Cloud CDN is excellent for caching
+static assets, images, CSS, JS. However,
+dynamic content like personalized
+patient records or live inventory status
+changes frequently and cannot be safely
+cached for long periods without serving
+stale or incorrect data. Relying on
+caching for dynamic content is not a
+viable architecture for an interactive
+web application. Therefore, the best
+approach is B. Deploy the application to
+region. Question 324.
+HR healthcare requires a consistent way
+to manage the configuration and security
+policies of their Kubernetes clusters
+which are currently spread across on
+premises data centers and Google Cloud.
+You need to enforce a single pane of
+glass management strategy. What should
+you use?
+Use Terraform to provision all clusters
+and manage separate Kubernct contexts.
+B. Use GKE Enterprise Anthos with config
+management to synchronize policies
+across all clusters. C. Use cloud
+deployment manager to manage the cloud
+clusters and ensible for on premises. D.
+Use a single large GKE cluster in the
+cloud and connect on-prem nodes via VPN.
+cloud management and Kubernetes policy
+enforcement. The key challenge here is
+cluster sprawl, managing multiple
+clusters in different environments onrem
+and cloud without creating operational
+silos. The critical requirements are
+consistency, security policies, and a
+single pane of glass. Let's evaluate the
+using Terraform for provisioning and
+managing separate Kubernct contexts.
+While Terraform is excellent for
+provisioning infrastructure,
+infrastructure is code, it is not
+designed for continuous policy
+enforcement inside the clusters.
+Managing separate Kubernct CLL contexts
+is a manual errorprone process that
+scales poorly. It relies on the operator
+to switch contexts correctly and apply
+manifests manually failing the single
+pane of glass automated strategy. Option
+B proposes using GKE enterprise formerly
+Anthos with config management. This is
+the correct answer. Unified management.
+GKE Enterprise is specifically designed
+for hybrid and multicloud environments.
+It allows you to register external
+clusters on prem to the Google cloud
+control plane. Policy enforcement
+githops config management allows you to
+define configurations and policies like
+OPA gatekeeper constraints in a central
+git repository. The config sync
+component then automatically
+synchronizes these policies to all
+registered clusters ensuring that
+security standards are identical
+everywhere. This provides the requested
+single pane of glass for configuration.
+Option C suggests using cloud deployment
+manager for cloud and onible for on
+premises. This is the definition of
+operational fragmentation. Using two
+different tools for the same task
+managing clusters violates the
+requirement for a consistent way to
+manage policies. It creates two panes of
+glass, doubling the operational overhead
+and increasing the risk of configuration
+drift between environments. Option D
+proposes creating a single large GKE
+cluster with nodes stretched over a VPN.
+This is a major architectural
+anti-attern known as a stretched
+cluster. Kubernetes control plane
+traffic specifically etc is extremely
+sensitive to latency. Running worker
+nodes over a VPN connection, which has
+variable latency and potential packet
+loss, will likely cause nodes to become
+unhealthy, leading to workload failures
+and instability. It is not a viable
+production strategy for reliable
+healthcare applications. Therefore, the
+best approach is B. Use GKE enterprise
+Anthos with config management to
+synchronize policies across all
+clusters. Question 325.
+Analysts at EHR healthcare want to run
+SQL queries on historical patient data
+to identify industry trends. This data
+contains personally identifiable
+information PII. You need to mask the
+PII before the data is accessible to
+analysts in BigQuery while minimizing
+operational overhead. What should you
+do? A. Use a data flow pipeline to
+encrypt the data before loading it into
+BigQuery. B. Use sensitive data
+protection, formerly cloud DLP, to
+inspect and deidentify the data as it is
+ingested into BigQuery. C. Grant the
+analysts the BigQuery data viewer role
+on the raw data set. D. Hash the PII
+columns using a custom Python script
+running on cloud functions. Okay, this
+question focuses on data governance, PII
+protection, and operational efficiency.
+The goal is to enable analytics,
+identify industry trends without
+exposing sensitive patient identities.
+The key constraint is minimizing
+operational overhead which steers us
+away from custom code and towards
+managed services. Let's evaluate the
+using a dataf flow pipeline to encrypt
+the data. While dataf flow is a powerful
+tool for ETL, building and maintaining a
+custom pipeline solely for encryption
+creates significant operational
+overhead. Writing Java/Python code,
+managing worker scalability.
+Furthermore, encryption usually renders
+data unreadable for trend analysis. Eg.
+You can't easily aggregate encrypted
+ages. You need deidentification like
+masking or bucketing, not just raw
+encryption. Option B proposes using
+sensitive data protection, formerly
+cloud DLP, to inspect and deidentify the
+data. This is the correct answer.
+Purpose-built sensitive data protection
+is a fully managed service designed
+specifically to discover, classify, and
+protect sensitive data. The
+identification it can transform PII like
+names or SSNs into a masked format eg
+asterisk asterisk-1234
+or generalized buckets eg age 30 to 40
+that is still useful for industry trends
+analysis but safe for analysts to view
+low overhead. It integrates natively
+with BigQuery and storage, allowing you
+to apply protection policies without
+writing and maintaining custom
+extraction scripts. Option C suggests
+granting the BigQuery data viewer role
+on the raw data set. This is a critical
+security failure. The data viewer role
+allows users to see the actual table
+data. Giving analysts access to the raw
+data set means they would see unmasked
+names, addresses, and medical IDs.
+Directly violating the requirement to
+mask the PII and compromising patient
+privacy. Option D suggests using a
+custom Python script on cloud functions
+to hash the columns. This violates the
+minimize operational overhead
+requirement. You would have to write the
+hashing logic, manage the functions
+execution environment, handle errors and
+ensure it scales to meet the volume of
+historical patient data. This is a build
+approach when a superior by managed
+service option exists in option B.
+sensitive data protection formerly cloud
+DLP to inspect and deidentify the data
+as it is ingested into BigQuery.
+Question 326.
+HR Healthcare wants to build a medical
+research assistant chatbot for internal
+staff. The bot needs to answer questions
+based on thousands of internal PDF
+technical manuals and compliance
+documents. Which approach aligns with
+the buy versus build principle to launch
+this quickly? A. Train a BERT model from
+scratch using the PDF documents. B. Use
+Vertex AI agent builder search and
+conversation to index the PDF documents
+and create a retrieval augmented
+generation RA application. C. Upload the
+PDFs to cloud storage and use a cloud
+function to GP the text for keywords. D.
+Use Dialogflow ES with hard-coded intent
+matching. Okay, this question focuses on
+generative AI solutions enterprise
+search and the buy versus build
+strategy. The core requirement is to
+create a chatbot that can answer
+questions based on a large corpus of
+thousands of internal PDF documents. The
+key constraint is to launch quickly by
+leveraging managed services by rather
+than building custom infrastructure
+build. Let's evaluate the options in
+order. Option A suggests training a BERT
+model from scratch. This is the extreme
+build approach. Training a language
+model from scratch requires massive
+computational resources, a huge data set
+much larger than just internal manuals,
+and a team of ML experts to tune
+hyperparameters. It would take months to
+get a viable model violating the launch
+quickly requirement. Furthermore, Bird
+is primarily an encoder model good for
+understanding, not a generative model
+good for answering questions in natural
+language. Option B proposes using Vertex
+AI agent builder search and
+conversation. This is the correct
+answer. Buy versus build. Vert.Ex AI
+agent builder formerly Gen App builder
+is a highle managed service. It
+abstracts away the complexity of vector
+embeddings, indexing, and LLM
+orchestration. RA capability. It
+natively implements the retrieval
+augmented generation RA pattern. You
+simply point it to your cloud storage
+bucket containing the PDFs. It indexes
+the documents, retrieves the relevant
+chunks when a user asks a question, and
+uses a powerful foundation model like
+Gemini to generate a natural language
+answer grounded in your specific data.
+Speed. You can prototype and launch a
+medical research assistant in hours or
+days, not months. Option C suggests
+using a cloud function to GP search text
+for keywords. This is a naive and
+fragile approach. Grep only finds exact
+string matches. It doesn't understand
+semantic meaning or context. If a user
+asks, "How do I handle a HIPPA
+violation?" GP might miss a document
+that uses the phrase privacy breach
+instead. It also cannot answer
+questions. It would just return raw text
+snippets or file paths, providing a poor
+user experience compared to a
+conversational AI. Option D suggests
+using Dialogflow ES with hard-coded
+intent matching. Dialogflow ES is
+designed for structured transactional
+flows, eg book a flight, check balance.
+It relies on you defining specific
+training phrases for every possible
+question. Scaling this to cover the
+content of thousands of PDF manuals is
+impossible. You would have to manually
+create thousands of intents and
+anticipate every way a user might phrase
+a question. It is not suitable for
+unstructured knowledge search.
+Therefore, the best approach is B use
+Vert.Ex AI agent builder search and
+generation RA application. Question 327.
+The on- premises legacy systems interact
+with insurance providers via file-based
+integrations. You need to ingest these
+files into Google Cloud for processing
+as soon as they are uploaded without
+modifying the legacy applications. What
+is the most scalable architecture?
+Run a cron job on a compute engine VM to
+check for new files every minute. B.
+Have the legacy system upload files to a
+cloud storage bucket which triggers a
+cloud function or sends a notification
+to pub/sub for processing. C. Use
+transfer appliance to move files to
+Google cloud once a week. D. Mount a
+file store instance on the on premises
+servers via VPN. Okay, this question
+focuses on eventdriven architecture,
+scalability, and hybrid integration. The
+core challenge is to ingest files as
+soon as they are uploaded. realtime
+processing from a legacy system without
+modifying the legacy code itself. The
+solution must be scalable, meaning it
+can handle spikes in file volume without
+manual intervention. Let's evaluate the
+running a cron job on a compute engine
+VM to pull for new files. This is an
+anti-attern known as polling.
+Scalability issue. A single VM has a
+limit on how many files it can process.
+If thousands of files arrive at once,
+the VM will be overwhelmed, creating a
+backlog. Unless you implement complex
+autoscaling logic, latency polling every
+minute introduces an artificial delay.
+It is not as soon as uploaded. Cost, you
+pay for the VM to run 24/7, even when no
+files are being uploaded, idle
+resources. Option B proposes having the
+legacy system upload files to a cloud
+storage bucket which triggers a cloud
+function or pub/sub notification. This
+is the correct answer. Event-driven
+cloud storage generates an event
+notification immediately upon file
+upload. Google.stobject.finalize.
+This event can automatically trigger a
+cloud function or push a message to
+pub/sub. Scalability.
+Cloud functions are serverless and scale
+automatically. If 1,00 files are
+uploaded simultaneously,
+Google Cloud spins up 1,00 function
+instances to process them in parallel.
+This perfectly meets the scalable
+architecture requirement. No legacy
+modification. Most legacy systems can
+already script file uploads, eg via sud
+or S3 compatible APIs without needing
+complex code changes. Option C suggests
+using transfer appliance. This is a
+physical hardware device shipped to your
+data center for bulk data migration
+pabytes of data. It is designed for
+one-time moves or periodic large
+transfers, not for continuous real-time
+ingestion of small transactional files.
+Once a week fails the requirement to
+process files as soon as they are
+uploaded. Option D suggests mounting a
+file store instance via VPN. While this
+provides a shared file system, it has
+significant drawbacks in a hybrid setup.
+Latency and reliability. Mounting an NFS
+share file store over a VPN one is
+notoriously unstable. Network blips can
+cause the mount to hang or file
+corruption. Not event driven. Just
+placing a file on a mounted drive
+doesn't automatically trigger
+processing. you would still need a
+mechanism like a notify or polling to
+detect the new file leading back to the
+scalability issues of option A.
+Therefore, the best approach is B. Have
+the legacy system upload files to a
+to pub/sub for processing. Question 328.
+To ensure business continuity, EHR
+healthcare needs a disaster recovery DR
+strategy for their cloud databases.
+Cloud SQL. The RTO recovery time
+objective must be under 30 minutes in
+case of a regional outage. Which
+configuration should you choose? A.
+Enable high availability HA within the
+primary region. B. Create a read replica
+in a different region and configure it
+for cross region replication. Promote it
+to primary in case of disaster. C.
+Take daily backups and store them in a
+multi-reional cloud storage bucket. D.
+Use cloud spanner instead of cloud SQL.
+Okay, this question focuses on disaster
+recovery DR database architecture and
+RTO recovery time objective. The
+critical scenario is a regional outage.
+The entire region eg central one is
+down. The constraint is an RTO of under
+30 minutes, meaning the database must be
+back online in a new region very
+quickly. Let's evaluate the options in
+order. Option A suggests enabling high
+availability HA within the primary
+region. This is a common confusion
+point. HA is designed for zonal
+failures. Eg zone A goes down failover
+to zone B within the same region. If the
+entire region fails, which is the
+scenario here, HA provides zero
+protection because both the primary and
+the standby instances are offline.
+Therefore, HA alone does not meet the
+requirement for regional disaster
+recovery. Option B proposes creating a
+read replica in a different region and
+configuring it for cross region
+replication. This is the correct answer.
+Regional survival. By placing a replica
+in a secondary region, eg US East one,
+you ensure the data survives even if the
+primary region us central one is
+destroyed. RTO less than 30 minutes.
+Promoting a cross region read replica to
+a standalone primary instance is a fast
+operation typically taking only a few
+minutes. This easily meets the under 30
+minutes RTO requirement. Minimal data
+loss. Replication is asynchronous but
+generally very fast keeping the recovery
+point objective RPO low as well. Option
+C suggests taking daily backups stored
+in a multi-reional cloud storage bucket
+while storing backups multi-reionally is
+good practice. The daily frequency is
+the problem. RPO issue. If you only
+backup daily, you could lose up to 24
+hours of data. RTO issue. Restoring a
+database from a backup file, especially
+a large healthcare database, is a slow
+process. It involves provisioning a new
+instance and importing data, which can
+take hours, violating the under 30
+minutes RTO target. Option D suggests
+using Cloud Spanner instead of Cloud
+SQL. While Cloud Spanner is a fantastic
+multi-reional database with 99.999%
+availability, migrating an existing
+application from a standard SQL database
+like MySQL/Postgrql
+to Spanner requires significant
+application rearchitecture, changing
+schema, query logic, etc. The prompt
+implies we need a DR strategy for the
+existing CloudSQL databases, not a
+complete database migration project.
+Therefore, while technically a robust
+solution, it is not the correct
+configuration choice for the specific
+scope of this question. Therefore, the
+best approach is B. Create a read
+replica in a different region and
+configure it for cross region
+replication. Promote it to primary in
+case of disaster.
+Question 329.
+You are designing the CI/CD pipeline for
+the containerized applications. You need
+to ensure that only images that have
+passed security scans and have been
+approved by the QA team are deployed to
+the production GKE cluster. Which Google
+Cloud service should you use to enforce
+this?
+Container registry. Binary
+authorization. C. Cloud build triggers.
+D. VPC service controls. Okay. This
+question focuses on software supply
+chain security and deployment policy
+enforcement. The core requirement is to
+act as a gatekeeper for the production
+environment, ensuring that no unverified
+or vulnerable code can slip through. We
+need a service that can verify specific
+criteria, security scans, QA approval
+before allowing a deployment to happen.
+Let's evaluate the options in order.
+Option A suggests using container
+registry. This is a storage service, a
+repository for your container images.
+While it serves as the central location
+for your artifacts and can even scan for
+vulnerabilities via container analysis,
+it does not have the power to enforce
+deployment rules on the GKE cluster. It
+cannot stop a developer from manually
+deploying a bad image that is stored in
+the registry. Option B proposes using
+binary authorization. This is the
+correct answer. The gatekeeper binary
+authorization is a deploy time security
+control that integrates directly with
+GKE. It acts as a policy enforcement
+engine. Attestations. It works by
+requiring attestations
+digital signatures on your container
+images. You can configure your CI/CD
+pipeline to sign an image only after it
+passes a vulnerability scan and only
+after a QA engineer approves it.
+Enforcement. When GKE tries to pull and
+deploy that image, binary authorization
+checks for these signatures. If the
+image lacks the QA approved or scan
+signature, the deployment is blocked
+immediately. This perfectly matches the
+requirement. Option C suggests using
+cloud build triggers. Cloud build is a
+continuous integration CI tool. Triggers
+are used to automatically start a build
+when code is pushed to a repository.
+While cloud build can run the security
+scans and tests, it cannot fundamentally
+prevent someone with cluster access from
+bypassing the pipeline and deploying an
+unapproved image directly, eg via
+kubercl apply. It is a process
+automation tool, not a security
+enforcement policy. Option D suggests
+using VPC service controls. This is a
+network security service designed to
+prevent data exfiltration, eg stopping
+someone from copying data from a private
+big query bucket to a public email. It
+defines security parameters around
+Google cloud resources but has no
+visibility into Kubernetes deployment
+manifests or container image contents.
+It is irrelevant to the problem of
+validating software quality or security
+approvals. Therefore, the best approach
+is B binary authorization. Question 330.
+HR healthcare wants to use generative AI
+to fine-tune a foundation model using
+their own private medical records to
+improve the accuracy of patient summary
+generation. They are strictly regulated
+and must ensure that their private data
+is not used to train the base model
+shared with other Google cloud
+customers. Which Vertex AI feature
+should they use?
+Autotrain a custom model on Compute
+Engine using PyTorch. B. Use Vert.ex X
+AI model garden to access a foundation
+model and perform adapter tuning
+supervised tuning in a secure pipeline.
+C. Submit the data to the public Gemini
+API. D. Use BigQuery ML to train a
+linear regression model. Okay, this
+customization, fine-tuning techniques,
+and data privacy. The core requirement
+is to fine-tune customize a model to
+understand specific medical records
+while strictly adhering to the
+regulatory constraint that private data
+must never leak into the shared base
+model. Let's evaluate the options in
+order. Option A suggests autotraining a
+custom model on compute engine using
+PyTorch. This is the build from scratch
+approach. While it offers total control,
+it is operationally inefficient. You
+would have to manage the infrastructure,
+VMs, GPUs, handle the distributed
+training code manually, and secure the
+storage yourself. It doesn't leverage
+Google's managed privacy features for
+Gen AI, increasing the risk of
+misconfiguration. Option B proposes
+using Vert.Ex AI model garden to access
+a foundation model and perform adapter
+tuning. This is the correct answer.
+Adapter tuning parameter efficient
+fine-tuning instead of retraining the
+entire massive model which is expensive
+and risky. Adapter tuning freezes the
+pre-trained model weights and only
+trains a small set of adapter layers
+using your private data. Data privacy.
+Google Cloud explicitly guarantees that
+when you tune a model on Vertex AI, your
+data and your adapter weights are kept
+within your project. They are never used
+to improve the shared foundation models
+available to other customers. This
+perfectly satisfies the strict
+regulatory requirement. Option C
+suggests submitting data to the public
+Gemini API. This implies using the
+standard inference API without a private
+tuning pipeline. No fine-tuning. The
+standard public API uses the generic
+model. It won't have the specific
+knowledge of EHR's internal medical
+records required to improve accuracy
+significantly. Privacy risk. While
+enterprise APIs are secure, using a
+public endpoint without a dedicated
+tuning pipeline doesn't provide the
+architectural isolation of model weights
+that option B does. Option D suggests
+using BigQuery ML to train a linear
+regression model. This is a fundamental
+misunderstanding of machine learning
+types. Linear regression is used for
+predicting numbers, eg what will the
+patients blood pressure be tomorrow? It
+cannot generate text or summaries. You
+need a large language model LLM for text
+generation not a regression algorithm.
+Vert.ex AI model garden to access a
+foundation model and perform adapter
+tuning supervised tuning in a secure
+pipeline. Question 331.
+To support the critical hybrid
+architecture, EHR Healthcare requires a
+network connection between their on-
+premises data center and Google Cloud
+that guarantees 99.99%
+availability. Which two actions must be
+part of your network design? Choose two.
+A configure two dedicated interconnect
+circuits in a single metropolitan area.
+B. Configure four dedicated interconnect
+circuits across two different
+metropolitan areas, two per metro. C.
+Enable global dynamic routing in the VPC
+network. D. Use CloudVPN as the primary
+connection and interconnect as backup.
+E. Pure the on- premises network
+directly with Google's edge pop. Okay,
+this question focuses on hybrid network
+architecture, service level agreements,
+SLAs's and high availability, HA. The
+non-negotiable requirement here is the
+99.99%
+availability guarantee. Google Cloud has
+very specific topology requirements to
+offer this level of SLA for dedicated
+interconnect. Let's evaluate the options
+in order. Option A suggests configuring
+two dedicated interconnect circuits in a
+single metropolitan area. This topology
+provides 99.9% availability, not 99.99%.
+While it protects against a single
+router or circuit failure, it represents
+a single point of failure at the
+location level. If that specific
+collocation facility or the entire metro
+area goes offline, eg due to a natural
+disaster, the connection is lost. Option
+B proposes configuring four dedicated
+interconnect circuits across two
+different metropolitan areas, two per
+metro. This is a correct answer. The
+99.99% topology. Google Cloud explicitly
+states that to achieve a 99.99%
+SLA, you must implement this specific
+design. You need two redundant
+connections in Metro A and two redundant
+connections in Metro B. Disaster
+recovery. This ensures that even if an
+entire metropolitan area fails, eg an
+earthquake in Tokyo, traffic can
+automatically fail over to the circuits
+in the second metro, eg Osaka,
+maintaining connectivity. Option C
+suggests enabling global dynamic routing
+in the VPC network. This is a correct
+answer. The glue for failover. When you
+have interconnects in different regions,
+which is required for the 99.99%
+topology, you need your VPC to
+dynamically learn and propagate routes
+across all regions. How it works? With
+regional routing, the interconnect in
+region A only advertises subnets in
+region A. If region A's connection
+fails, traffic cannot simply reroute
+through region B to reach region A's
+resources. Global dynamic routing allows
+the cloud routers in region B to
+advertise subnets from region A. This is
+essential for the multi-reion failover
+mechanism to actually work. Option D
+suggests using CloudVPN as primary and
+interconnect as backup. This is
+technically backward and doesn't meet
+the requirement. Interconnect is a
+premium product designed for high
+throughput and consistent latency. It
+should always be primary. Furthermore,
+mixing VPN and interconnect does not
+grant you the specific 99.99%
+SLA that the fourcircuit topology does.
+Option E suggests peering the on
+premises network directly. Direct
+peering as discussed in previous
+questions. Peering is for public traffic
+like accessing YouTube and has no SLA.
+It is completely unsuitable for a
+critical hybrid connection requiring
+guaranteed availability. Therefore, the
+best approaches are B and C. Configure
+four dedicated interconnect circuits
+across two different metropolitan areas
+and enable global dynamic routing.
+Question 332.
+The operations team needs to
+troubleshoot intermittent high latency
+in the new microservices architecture
+running on GKE. The latency occurs
+during calls between the billing service
+and the patient service. You need a tool
+to visualize the request flow and
+pinpoint the exact bottleneck. What
+should you use? A. Cloud monitoring
+dashboards. B cloud trace. C. Cloud
+profiler. D. VPC flow logs. Okay. This
+question focuses on microservices
+observability and distributed tracing.
+The key challenge here is
+troubleshooting intermittent latency
+across multiple services.
+billing-patient.
+In a microservices architecture, a
+single user request often hops through
+many different services. You need a tool
+that can visualize the request flow, see
+the path, and pinpoint the bottleneck,
+see which hop took the longest. Let's
+suggests using cloud monitoring
+dashboards. While cloud monitoring is
+essential for tracking highle metrics
+like CPU usage, memory or overall
+request counts RPS, it aggregates data.
+It can tell you that the billing service
+is slow on average, but it cannot show
+you the breakdown of a specific request
+as it travels to the patient service. It
+lacks the context of the request flow.
+Option B proposes using cloud trace.
+This is the correct answer. Distributed
+tracing. Cloud Trace is specifically
+designed for microservices. It captures
+timing data, spans as a request
+propagates across different
+microservices. Waterfall visualization.
+It generates waterfall charts that
+visually show exactly how much time was
+spent in the billing service, how long
+the network call took, and how long the
+patient service took to process the
+request. Bottleneck detection. By
+looking at the trace, you can instantly
+see if the delay is due to a slow
+database query in the patient service or
+network lag between the pods. Option C
+suggests using cloud profiler. This tool
+is for code level performance analysis.
+It helps you understand which functions
+or methods inside your code are
+consuming the most CPU or RAM. Eg. The
+calculate tax function is using 80% CPU.
+While useful for optimization, it does
+not visualize the network latency
+between services or the request flow
+topology. Option D suggests using VPC
+flow logs. This is a network level
+logging tool. It records metadata about
+IP traffic, source IP, destination IP,
+port, protocol. While it can show you if
+packets are flowing, it operates at
+layer 4 TCP/ UDP. It does not understand
+application level concepts like HTTP
+request, billing service or user ID. It
+cannot reconstruct the application
+request flow required to debug micros
+service latency effectively. Therefore,
+the best approach is B. Cloud trace.
+Question 333.
+HR healthcare stores millions of X-ray
+images in cloud storage. These images
+are accessed frequently during the first
+30 days for diagnosis, but are rarely
+accessed afterwards, only for compliance
+audits. You need to minimize storage
+costs automatically without managing
+separate buckets. What should you do?
+Use a cloud function to delete images
+after 30 days. B. Configure an object
+life cycle management rule to downgrade
+the storage class to cold line or
+archive after 30 days. C. Use transfer
+service to move data to on premises tape
+storage. D. Store all images in standard
+storage class to ensure immediate
+access. Okay, this question focuses on
+cloud storage cost optimization and data
+life cycle management. The key pattern
+here is hot then cold. Data is valuable
+and frequently used initially hot but
+becomes rarely accessed archival data
+over time cold. The goal is to save
+money, minimize storage costs without
+adding administrative burden
+automatically and without managing
+separate buckets. Let's evaluate the
+using a cloud function to delete images
+after 30 days. This is a critical error.
+The prompt states the images are needed
+for compliance audits. Deleting them
+would violate legal regulations and
+result in data loss. You need to retain
+the data just at a lower cost. Option B
+proposes configuring an object life
+cycle management rule. This is the
+correct answer. Automation life cycle
+management allows you to define rules,
+eg age greater than 30 days that
+automatically trigger an action. Cost
+optimization. The action can be to
+change the storage class from standard,
+expensive, high performance to cold line
+or archive. very cheap for rare access.
+Simplicity.
+This happens in place within the same
+bucket. You do not need to write
+scripts, move files to new buckets, or
+change your application logic. The
+object name and URL remain the same, but
+the billing rate drops significantly.
+Option C suggests using transfer service
+to move data to on premises tape
+storage. While tape is cheap, this
+introduces massive operational
+complexity and latency. You would have
+to manage the physical tape
+infrastructure, the transfer jobs, and
+the retrieval process. Retrieving an
+image for an audit could take days
+instead of milliseconds. This violates
+the cloudnative principle of minimizing
+operational overhead. Option D suggests
+storing all images in standard storage
+class. This is the do nothing approach
+and is financially wasteful. Standard
+storage is optimized for frequent access
+and costs significantly more per GB than
+archive storage. Keeping millions of old
+X-rays in standard storage when they are
+never viewed is literally throwing money
+away. Therefore, the best approach is B.
+Configure an object life cycle
+management rule to downgrade the storage
+class to cold line or archive after 30
+days. Question 334.
+You need to secure the BigQuery data
+warehouse containing sensitive patient
+information. Two specific requirements
+must be met. Prevent data from being
+copied, exfiltrated to unauthorized
+Google Cloud projects or external
+locations. Restrict access to the social
+security number column to only the HR
+team. Which two solutions should you
+implement? Choose to A. Configure VPC
+service controls VPCSC to define a
+service perimeter around BigQuery. B.
+Use BigQuery column level security with
+policy tags. Data catalog. C. Use cloud
+armor to block all traffic to BigQuery.
+D. Encrypt the data with a
+customer-managed encryption key. CMEK.
+E. Use identityaware proxy AP to control
+access. Okay. This question focuses on
+data security and fine-rained access
+control. We have two distinct problems
+to solve. Data Xfiltration, copying data
+out, and column level access, hiding
+specific fields. Let's evaluate the
+configuring VPC service controls. VPCSC.
+This is a correct answer. Problem
+solved. Data exfiltration. How it works?
+VPC service controls creates a security
+perimeter around Google Cloud resources
+like BigQuery and cloud storage. It
+explicitly blocks data transfer across
+this perimeter. For example, even if a
+user has permission to read a table,
+VPCSC prevents them from running a BQCP
+command to copy that table to a personal
+Gmail accounts project or downloading it
+to a machine outside the authorized
+network. It is the primary defense
+against data exfiltration. Option B
+proposes using BigQuery column level
+security with policy tags. This is a
+correct answer. Problem solved.
+Restricting access to specific columns.
+SSN. How it works? You create a taxonomy
+in data catalog now part of datlex and
+create policy tags, eg high sensitivity.
+You apply this tag to the social
+security number column in your big query
+schema. Then you use IM to grant the
+fine grained reader role for that
+specific tag only to the HR team. Anyone
+else querying the table will see null or
+get an access denied error if they try
+to select the SSN column while still
+being able to see the rest of the data.
+Option C suggests using Cloud Armor.
+Cloud Armor is a web application
+firewall, WAF and DDOS protection
+service. It protects HTTP
+S load balancers layer 7 from malicious
+web traffic. It does not sit in front of
+BigQuery and cannot control SQL queries
+or data export operations. Option D
+suggests encrypting data with CMEK
+customer managed encryption keys. While
+CMEK gives you control over the
+encryption keys, allowing you to revoke
+access to the data by destroying the
+key. It is an all or nothing control for
+the data set or table. It cannot hide a
+specific column like SSN while revealing
+others. It also doesn't inherently
+prevent an authorized user from copying
+the decrypted data to another location
+once they have access. Option E suggests
+using identityaware proxy AP. IP is used
+to control access to web applications,
+app engine, compute engine, Kubernetes
+based on identity and context. Zero
+trust. It does not control access to
+BigQuery data sets or columns. Access to
+BigQuery is managed via cloud IM.
+Therefore, the best approaches are A and
+B. Configure VPC service controls,
+VPCSC,
+and use BigQuery column level security
+with policy tags. Question 335.
+Doctors currently struggle to find
+specific information within thousands of
+unstructured PDF medical journals and
+compliance documents. You want to
+quickly build a search application that
+allows them to ask natural language
+questions and get citations from these
+documents. Which tool is best suited for
+this buy versus build requirement?
+Vertex AI search, formerly Gen App
+Builder for unstructured data? B.
+Dialogueflow CX with a web hook. C.
+Document AI to OCR the documents and
+store text in Cloud SQL. D. Elastic
+Search deployed on GKE. Okay, this
+question focuses on enterprise search
+generative AI and the buy versus build
+architectural principle. The goal is to
+ingest unstructured PDF documents and
+enable natural language questions,
+semantic search/Q and A as quickly as
+possible. Let's evaluate the options in
+order. Option A suggests using Vertex AI
+search formerly Gen App builder for
+unstructured data. This is the correct
+answer. By approach, this is a fully
+managed service that abstracts away the
+entire rag retrieval augmented
+generation pipeline. You don't need to
+manage servers, embeddings or vector
+databases, unstructured data. It
+natively supports ingesting PDF
+documents from cloud storage. It
+automatically parses, chunks, and
+indexes the content. Natural language
+Q&amp;A. It uses Google's foundation models,
+LLMs, to understand the user's question
+and generate an answer based only on the
+content of your PDFs. Grounding complete
+with citations. This perfectly matches
+the requirement to quickly build a
+solution. Option B proposes using
+Dialogflow CX with a web hook.
+Dialogueflow CX is excellent for complex
+multi-turn conversational flows like a
+call centerbot. However, it is not a
+search engine. To make it answer
+questions from PDFs, you would have to
+build a complex web hook that connects
+to an external search system. It doesn't
+inherently know how to read PDFs or
+perform semantic search on them without
+significant custom development. Option C
+suggests using document AI to OCR
+documents and store text in cloud SQL.
+This is a partial solution. The build
+approach limitation. Cloud SQL is a
+relational database. It is great for
+structured data, rows, and columns, but
+terrible for natural language search
+over massive amounts of unstructured
+text. You would be able to extract the
+text, but you wouldn't have the semantic
+search or questionans answering
+capabilities required to satisfy the
+user's request. Option D suggests
+deploying elastic search on GKE. This is
+the classic build approach. Operational
+overhead. You are responsible for
+deploying, scaling, and patching the
+elastic search cluster. Complexity.
+While elastic search is powerful,
+setting it up for semantic search
+vectors and connecting it to an LLM to
+generate natural language answers
+requires building a custom application
+layer. This takes significantly more
+time and effort than using a turnkey
+service like Vertex AI search.
+Therefore, the best approach is a Vertex
+AI search, formerly Gen App Builder, for
+unstructured data. Question 336.
+you are managing multiple Kubernetes
+clusters across the on- premises data
+center and Google Cloud GKE. You need to
+ensure that the same security policies
+and configurations are applied
+consistently to all clusters. If a
+configuration is changed manually, it
+should be automatically reverted to the
+state defined in your Git repository.
+Which two GKE Enterprise Anthos
+components should you use? Choose two. A
+config sync, B policy controller, C
+cloud run for Anthos, D binary
+authorization, E migrate for GKE. Okay,
+this question focuses on Kubernetes
+operations, GitOps and policy
+enforcement in a hybrid environment. The
+key requirements are consistency across
+multiple clusters, avoiding manual
+changes, configuration drift, and
+automatic reversion to the desired state
+stored in git. Let's evaluate the
+using config sync. This is a correct
+answer. GitOps engine. Config sync is
+the core component that connects your
+clusters to a git repository. Drift
+correction. It continuously watches your
+git repo for changes. If you update a
+YAML file in git, config sync applies it
+to all your clusters. Crucially, if
+someone manually changes a setting in
+the cluster, eg via kubercledit,
+config sync detects that this drifts
+from the git source of truth and
+immediately reverts the change back to
+what is defined in git. This satisfies
+the automatically reverted requirement.
+Option B proposes using policy
+controller. This is a correct answer.
+Guardrails policy controller based on
+open policy agent/gatekeeper
+allows you to define what is allowed in
+your clusters. Enforcement. It acts as
+an admission controller. You can write
+policies like all namespaces must have a
+label or no container can run as root.
+It enforces these rules across all
+clusters, ensuring the same security
+policies are applied consistently
+everywhere. It works handinhand with
+config sync to ensure the policies
+themselves are distributed to every
+cluster. Option C suggests using cloud
+run for Anthos. This is a developer
+focused platform for running serverless
+workloads native on top of Kubernetes.
+It is about how you run apps, not how
+you manage cluster configuration or
+security policies. Option D suggests
+using binary authorization. As discussed
+in a previous question, this is for
+ensuring only trusted container images
+are deployed. While it is a security
+control, it does not manage general
+cluster configurations like quotas, RBAC
+roles or network policies or handle the
+revert manual changes GitOps workflow.
+Option E suggests using migrate for GKE.
+This is a tool for lifting and shifting
+legacy VMs from VMware or Compute Engine
+into containers on GKE. It is a one-time
+migration utility, not a continuous
+management or policy enforcement tool.
+B config sync and policy controller.
+Question 337.
+EHR healthcare needs to migrate their
+legacy on premises Microsoft SQL Server
+database to Google Cloud to reduce
+administrative overhead, patching,
+backups. The application requires
+Windows authentication and full
+compatibility with the existing database
+schema. Which service should you choose?
+Cloud Spanner, B, BigQuery, C. Cloud SQL
+for SQL Server, D Fire Store in data
+store mode. Okay, this question focuses
+on database migration, managed services,
+pass and compatibility. The key
+constraints are reduce administrative
+overhead. Meaning we want a managed
+service, not a raw VM, Microsoft SQL
+Server, the engine, and critically
+compatibility. This screams for a lift
+and shift to a managed compatible
+platform. Let's evaluate the options in
+order. Option A suggests using Cloud
+Spanner. While Spanner is an incredible
+globally distributed relational
+database, it is not compatible with
+Microsoft SQL Server. It uses its own
+SQL dialect, Google SQL or PostgreSQL
+interface and has a completely different
+architecture. Migrating to Spanner would
+require a massive rewrite of the
+application code and schema violating
+the full compatibility requirement.
+Option B suggests using BigQuery.
+BigQuery is a serverless data warehouse
+designed for analytics OLAP, not for
+transactional applications, OLTP. It is
+not a replacement for a back-end SQL
+server database that powers an
+application. You cannot connect a
+standard .NET app to BigQuery expecting
+it to behave like SQL Server. Option C
+proposes using CloudSQL for SQL Server.
+This is the correct answer. Fully
+managed. Cloud SQL is a fully managed
+service pass. Google handles the
+patching, backups, and replication
+directly satisfying the goal to reduce
+administrative overhead. 100%
+compatibility. It runs the actual
+Microsoft SQL Server Engine. So your
+existing schema, stored procedures, and
+TSQL code work without modification.
+Windows authentication. Cloud SQL for
+SQL Server integrates with managed
+service for Microsoft Active Directory
+on Google Cloud, allowing you to
+continue using Windows authentication
+for your users and applications. Option
+D suggests using Fire Store in data
+store mode. This is a NoSQL document
+database. It is fundamentally
+incompatible with a relational SQL
+schema. Migrating from SQL Server to
+Fire Store would require a complete
+rearchitecture of the data model and
+application logic. Therefore, the best
+approach is C cloud SQL for SQL server.
+Question 338.
+To optimize cloud infrastructure costs,
+EHR healthcare wants to implement a
+strategy for their compute resources.
+They have a steadystate workload that
+runs 24/7 and a separate batch
+processing workload nightly analytics
+that can be interrupted. Which two
+pricing models should they combine?
+Choose two. A purchase committed use
+discounts CUDS for the steadystate
+workload. B use spot VMs or preemptable
+VMs for the batch processing workload. C
+use on demand VMs for the steadystate
+workload. D purchase sustained use
+discounts for the batch workload. E use
+soul tenant nodes for all workloads.
+Okay, this question focuses on cost
+optimization and compute engine pricing
+models. The key to solving this is
+matching the characteristics of the
+workload predictability and fault
+tolerance with the appropriate pricing
+option. We have two distinct profiles
+steady state 24/7 and interruptible
+batch. Let's evaluate the options in
+order. Option A suggests purchasing
+committed use discounts CUDS for the
+steadystate workload. This is a correct
+answer. The scenario, a steadystate
+workload that runs 24/7 is the textbook
+use case for CUDS. The benefit, by
+committing to pay for a certain amount
+of vCPU and RAM for a 1 year or
+three-year term, you receive a massive
+discount, typically 57% to 70% compared
+to ondemand pricing. Since you know you
+need these resources around the clock,
+there is no risk of waste, making this
+the most cost-effective choice for the
+base load. Option B proposes using spot
+VMs or preemptable VMs for the batch
+processing workload. This is a correct
+answer. The scenario, the batch
+processing workload is described as
+something that can be interrupted fault
+tolerant. The benefit spot VMs utilize
+Google's excess capacity and are offered
+at a steep discount 60 to 91% cheaper
+than on demand. The trade-off is that
+Google can reclaim preempt these VMs at
+any time with a 30-second warning.
+However, since the workload is
+interruptible, eg a batch job that can
+checkpoint and restart. This trade-off
+is perfectly acceptable in exchange for
+the lowest possible compute cost. Option
+C suggests using ondemand VMs for the
+steadystate workload. This is the
+default pricing model. While it offers
+maximum flexibility, pay by the second
+cancel anytime. It is the most expensive
+way to run a server. Using this for a
+known 24/7 workload is financially
+inefficient because you are paying a
+premium for flexibility you don't need.
+Option D suggests purchasing sustained
+use discounts SUDs for the batch
+workload. Correction. First, you
+typically don't purchase SUDs. They are
+applied automatically based on usage,
+though you do purchase CUDS. Efficiency.
+While SUDs provide a discount as you use
+a VM for more of the month, the discount
+is significantly lower than spot VMs.
+For a workload that can be interrupted,
+spot VMs offer much deeper savings than
+SUDs. Option E suggests using sole
+tenant nodes. This option is for
+physically isolating your workloads on a
+dedicated host server, usually for
+strict compliance, BYOL licensing or
+security requirements. It often comes
+with a price premium. You pay for the
+whole server even if you don't use all
+cores and is generally not a cost-saving
+strategy for standard workloads.
+B. purchase committed use discounts CUDS
+for the steadystate workload and use
+spot VMs for the batch processing
+workload. Question 339.
+The development team wants to accelerate
+the modernization of their legacy Java
+applications. They need an AI powered
+coding assistant integrated into their
+IDE VS code or Intelligj to help
+generate unit tests, explain complex
+legacy code and suggest code
+completions. What should they use? A.
+AutoML Tables. B. Gemini Code Assist,
+formerly Duet AI for developers. C.
+Vert.Ex AI Workbench. D. Cloudsource
+repositories. Okay, this question
+focuses on developer productivity,
+generative AI for code and application
+modernization. The key requirements here
+are specific to the inner loop of
+software development. working directly
+within an IDE, needing code generation,
+unit tests, and code explanation,
+understanding legacy Java. We are
+looking for an assistive tool, not a
+hosting or training platform. Let's
+suggests using AutoML tables. This is
+completely unrelated to software
+development. AutoML tables is a tool for
+training machine learning models on
+structured data, rows and columns to
+predict numbers or categories, eg
+predicting customer churn. It cannot
+read Java code, generate unit tests or
+integrate with an IDE. Option B proposes
+using Gemini code assist, formerly duet
+AI for developers. This is the correct
+answer. IDE integration. Gemini Code
+Assist provides plugins specifically for
+popular ideides like VS Code, IntelligJ
+Idea and Cloud Workstations. It lives
+right where the developers work. Code
+explanation. It uses large language
+models to analyze selected code snippets
+and explain what they do in natural
+language, which is perfect for
+understanding complex legacy code
+generation and completion. It can
+autocomplete code as you type and
+generate entire unit test files based on
+the source code directly accelerating
+the modernization process. Option C
+suggests using Vertex AI workbench. This
+is a development environment primarily
+for data scientists and ML engineers. It
+is a managed Jupyter notebook service
+used to build and train machine learning
+models. While you can write code in it,
+it is not a generalpurpose Java IDE
+plugin and is not designed to assist
+with general application development
+tasks like refactoring legacy Java apps.
+Option D suggests using clouds source
+repositories. This is simply a managed
+Git repository hosting service similar
+to GitHub or Bitbucket. While it stores
+your code, it is a passive storage
+system. It does not have AI capabilities
+to explain code, suggest completions or
+generate tests. Therefore, the best
+approach is B. Gemini code assist,
+formerly duet AI for developers. That
+covers all the questions for the EHR
+healthcare case study. Thanks for tuning
+in. If this content was useful to you,
+please share it with others who are also
+aiming for the Google Cloud Architect
+certification. Happy learning.

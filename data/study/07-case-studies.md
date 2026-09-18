@@ -1,17 +1,17 @@
 ---
 id: case-studies
-title: The Four Case Studies Decoded
+title: "All Eight Case Studies Decoded (Active 4 + Legacy 4)"
 domain: 0
 order: 8
-minutes: 30
-summary: Requirement-by-requirement service mapping, target architecture, rollout phasing, risks, and likely question themes for EHR Healthcare, Cymbal Retail, Altostrat Media, and KnightMotives Automotive.
+minutes: 45
+summary: "Complete requirement-by-requirement service mapping, target architecture, rollout phasing, risks, and exam traps for all 8 PCA case studies: EHR Healthcare, Cymbal Retail, Altostrat Media, KnightMotives Automotive, Mountkirk Games, Helicopter Racing League (HRL), TerramEarth, and JencoMart."
 ---
 
 ## How to use this module
 
-Roughly two of these four case studies will appear in your sitting, each with several questions. Every case-study question adds a new constraint on top of the published requirements, so the winning answer must fit **both**. For each case below you get: a summary, a requirement → service → rationale → exam-angle table, a target architecture in text, phasing, risks, and likely question themes with the expected answer direction.
+Roughly two of the four active case studies (**EHR Healthcare**, **Cymbal Retail**, **Altostrat Media**, **KnightMotives Automotive**) will appear as multi-tab exhibits in your exam sitting, each with several questions. In addition, the four legacy case studies (**Mountkirk Games**, **Helicopter Racing League**, **TerramEarth**, **JencoMart**) remain essential because Google frequently recycles their exact technical dilemmas as standalone scenario questions. Every case-study question adds a new constraint on top of the published requirements, so the winning answer must fit **both**. For each case below you get: a summary, a requirement → service → rationale → exam-angle table, a target architecture in text, phasing, risks, and likely question themes with the expected answer direction.
 
-> **Exam tip:** Read the *executive statement* of each case as the tie-breaker. EHR's is about outages from misconfiguration and inconsistent monitoring; Altostrat's says "reliability and cost management are our top priorities"; Cymbal's is about automation and revenue; KnightMotives' is about safety, data, and a consistent experience across models.
+> **Exam tip:** Read the *executive statement* of each case as the tie-breaker. EHR's is about outages from misconfiguration and inconsistent monitoring; Altostrat's says "reliability and cost management are our top priorities"; Cymbal's is about automation and revenue; KnightMotives' is about safety, data, and a consistent experience across models; TerramEarth's is about reducing 3–4 week vehicle downtime through incremental innovation; JencoMart's is about global expansion into Asia, outsourcing infrastructure, and cutting carbon emissions by 50%.
 
 ## EHR Healthcare
 
@@ -290,35 +290,106 @@ Manufacturer of autonomous BEV, hybrid, and ICE vehicles. BEVs have a modern in-
 11. **Dealers with no budget** → browser/mobile apps on Cloud Run/Firebase with offline sync.
 12. **Upskilling and business–tech alignment** → Cloud CoE, Skills Boost paths, Gemini Cloud Assist/Code Assist, platform team with golden paths.
 
-## Cross-case patterns worth memorizing
+## Mountkirk Games (Legacy Case Study — Videos 08 & 11)
 
-| Pattern | EHR | Cymbal | Altostrat | KnightMotives |
-|---|---|---|---|---|
-| Container platform | GKE + fleets | GKE/Cloud Run | GKE Enterprise fleet + Google Distributed Cloud | GKE/Cloud Run, GDC edge |
-| Hybrid connectivity | Dedicated Interconnect + HA VPN | VPN/Interconnect during migration | Dedicated Interconnect, Transfer Appliance | NCC + Interconnect + Cross-Cloud Interconnect |
-| Databases | Cloud SQL, Memorystore, MongoDB Atlas | Cloud SQL (via DMS), Memorystore, Atlas, maybe Spanner | Firestore/BigQuery | Spanner, Bigtable, BigQuery |
-| Identity | AD federation, Managed AD | Cloud Identity, IAP for HITL UI | Workforce Identity Federation | Zero trust, WIF |
-| Observability fix | Central Cloud Observability, SLO alerts | Consolidate Grafana/Nagios/Elastic | Managed Prometheus + SLO alerts | SLOs for ordering |
-| Gen AI | BigQuery ML/Vertex AI predictions | Gemini + Imagen + Vertex AI Search for commerce + Conversational Agents | Gemini summaries, prebuilt media APIs, grounded chatbot | Gemini assistant, AI Hypercomputer training |
-| AI safety/governance | PHI de-identification | Model Armor, HITL, PCI | Model Armor, Explainable AI, audit logs | Model Armor, EU residency |
-| Compliance | HIPAA BAA, GDPR | PCI DSS, privacy | Content safety, auditability | GDPR/EU sovereignty via Assured Workloads |
+### Summary
 
-> **Trap:** Do not import a solution from one case into another. Cymbal's "replace IVR" answer is Conversational Agents; EHR has no IVR. Altostrat's storage-cost answer is Autoclass; KnightMotives' cost story is data monetization and FinOps.
+Mobile multiplayer game studio launching a new session-based online game expected to draw millions of concurrent global players across North America, Europe, and Asia. Previous games ran in a colocation facility on Linux VMs, MySQL databases, and custom batch ETL scripts, suffering from 503 errors during traffic spikes and slow analytics. Development teams use Docker containers and require automated CI/CD pipelines with immutable deployment artifacts.
+
+### Requirement mapping
+
+| Requirement | Recommended service(s) | Rationale | Likely exam angle |
+|---|---|---|---|
+| **B:** Global low-latency game servers across North America, Europe, and Asia | Global External Application Load Balancer (anycast IP), multi-region GKE clusters (or Agones on GKE), Cloud CDN | Anycast IP routes mobile clients to the nearest healthy regional GKE cluster over Google's backbone | Trap: single-region Compute Engine VMs or regional load balancers with DNS round robin |
+| **B:** Scale compute and database capacity automatically for viral concurrency spikes | GKE HPA + Cluster Autoscaler / GKE Autopilot, Cloud Spanner (autoscaling), Cloud Bigtable (autoscaling) | Eliminates manual capacity planning that caused 503 errors in previous launches | "Unpredictable global launch traffic" → autoscaled multi-region GKE + Spanner/Bigtable |
+| **B/T:** Real-time analytics on player behavior and game economy; handle late-arriving mobile telemetry | Pub/Sub (global event ingestion) + Dataflow (streaming with event-time windowing, watermarks, allowed lateness) + BigQuery | Mobile devices frequently lose cellular signal in subways/tunnels; Dataflow watermarks and allowed lateness accurately attribute delayed events to event time | "Mobile telemetry arrives hours late" → Pub/Sub + Dataflow event-time windowing (never batch cron scripts) |
+| **T:** Store high-velocity time-series telemetry (millions of events/min) vs. transactional player state/leaderboards | Cloud Bigtable (time-series telemetry), Cloud Spanner (transactional player state & global leaderboards), Memorystore for Redis (sub-ms ephemeral leaderboards) | Separate high-write wide-column time-series (Bigtable) from strongly consistent relational state (Spanner) and in-memory caching (Redis) | Trap: storing high-velocity telemetry in Cloud SQL or using BigQuery for sub-second player profile lookups |
+| **T:** Isolate Dev, Staging, and Production environments; immutable CI/CD deployments | Separate GCP projects per environment (Dev, Staging, Prod) in folders, Cloud Build, Artifact Registry, Binary Authorization, Cloud Deploy | Project boundaries provide hard IAM, quota, and network isolation; immutable container digests promote across environments | "Isolate environments and prevent untested images in prod" → separate projects + Binary Authorization |
+
+### Target architecture & key takeaways
+
+- **Frontend & Compute:** Global External Application Load Balancer with Cloud Armor → multi-region GKE clusters running containerized game backends managed via Cloud Deploy progressive rollouts.
+- **Streaming Telemetry Pipeline:** Mobile clients → HTTPS REST / gRPC endpoint → **Pub/Sub** → **Dataflow Streaming** (event-time windows + watermarks) → **BigQuery** (historical SQL analytics) and **Cloud Bigtable** (real-time time-series state).
+- **Transactional State:** **Cloud Spanner** multi-region for globally consistent player inventory, purchases, and authoritative leaderboards; **Memorystore for Redis** for sub-millisecond active match state.
+
+---
+
+## Helicopter Racing League — HRL (Legacy Case Study — Video 10)
+
+### Summary
+
+Global sports league broadcasting live helicopter races to millions of viewers worldwide while selling subscriptions for live telemetry feeds, predictive race analytics, and merchandise. Currently runs video transcoding on Compute Engine VMs (suffering severe idle VM waste between races), stores telemetry across fragmented databases, and trains ML models offline without explainability. Expanding into new regions (e.g., Cape Town) via global CDN partners (Fastly) and requires a low-latency custom credit card tokenization vault with minimal PCI DSS compliance scope.
+
+### Requirement mapping
+
+| Requirement | Recommended service(s) | Rationale | Likely exam angle |
+|---|---|---|---|
+| **B/T:** Custom payment card tokenization vault with deterministic encryption, duplicate detection, low latency, and annual key rotation | Cloud Run microservice in isolated PCI project + Sensitive Data Protection (Cloud DLP) Format-Preserving Encryption (FPE) / Deterministic Encryption + Cloud KMS (365-day rotation schedule) + VPC Service Controls | Deterministic encryption / FPE preserves PAN format and enables duplicate detection without storing raw PANs in application databases, drastically shrinking PCI scope | "Tokenize credit cards with duplicate detection and annual key rotation" → DLP Deterministic/FPE + Cloud KMS 365-day rotation |
+| **T:** Restrict external HTTP(S) load balancer ingress to authorized CDN partner IPs (e.g., Fastly) | Cloud Armor security policy attached to Global External Application LB using preconfigured named IP lists (`origin.fastly`) | Enforces edge L7 origin allowlisting at Google Front Ends (GFEs) before traffic reaches backend services | Trap: VPC firewall rules alone do not block traffic at the GFE layer of a Global External ALB |
+| **B/T:** Real-time race telemetry ingestion & explainable AI predictions for commentators | Pub/Sub + Dataflow streaming + BigQuery (partitioned by season) + Vertex Explainable AI (feature attributions) | Vertex Explainable AI computes real-time feature attributions (Shapley values) so commentators can explain *why* a helicopter is predicted to win or require pit maintenance | "Commentators need to explain why the model predicted a winner" → Vertex Explainable AI |
+| **B:** Eliminate cloud infrastructure waste from idle video transcoding VMs | Transcoder API (or Live Stream API for live broadcast feeds) triggered via Eventarc on Cloud Storage upload; or Cloud Batch with Spot VMs | Pay-per-job managed transcoding scales to zero between races, eliminating 24/7 idle VM sprawl | "Eliminate idle transcoding VMs after race events" → Transcoder API / Live Stream API |
+| **T:** Automate weekly security scanning triggered by deployment events | Pub/Sub deployment notifications + Cloud Run functions / Cloud Build triggering Web Security Scanner / Security Command Center | Event-driven security verification on every release | Event-driven security automation via Pub/Sub |
+
+---
+
+## TerramEarth (Legacy Case Study — Video 09)
+
+### Summary
+
+Global manufacturer of heavy equipment for mining (80%) and agriculture (20%) with 500+ dealers across 100 countries and **20 million vehicles** collecting 120 sensor fields per second. Only ~200,000 vehicles have live cellular connectivity; the remaining ~19.8 million store logs locally and upload via maintenance ports during service visits. Existing U.S.-west Linux servers ingest gzipped CSV files over FTP into a single PostgreSQL data warehouse (64 CPUs, 4x 6TB HDDs in RAID 0), resulting in **3-week-old reports** and customers waiting **up to 4 weeks for replacement parts**. An off-the-shelf Windows Server 2008 R2 reporting app is licensed per physical CPU core and caps concurrency at 2 of 10 analysts.
+
+### Requirement mapping
+
+| Requirement | Recommended service(s) | Rationale | Likely exam angle |
+|---|---|---|---|
+| **B:** Decrease unplanned vehicle downtime from 3–4 weeks to <1 week via predictive maintenance | Dual ingestion: **Pub/Sub** (for 200K cellular vehicles) + **Cloud Storage signed URLs** (for 20M service-bay batch uploads) → **Dataflow** → **BigQuery** (partitioned by timestamp, clustered by vehicle ID) + **Vertex AI / BigQuery ML** | Replaces fragile FTP + single-server Python scripts with serverless streaming + batch pipelines feeding real-time failure-prediction models | "Ingest both live cellular streams and nightly maintenance bay batch uploads" → Pub/Sub + Cloud Storage unified by Dataflow into BigQuery |
+| **B:** Support 500+ dealers and partner with agricultural seed/fertilizer suppliers via APIs | Apigee API Management (developer portal, OAuth 2.0, rate limiting, quotas, API monetization) + Analytics Hub | Exposes governed equipment usage and predictive parts ordering APIs to dealers and external partners without granting direct database access | "Allow dealers and agricultural partners secure, monetized access to equipment insights" → Apigee |
+| **T:** Migrate off-the-shelf Windows Server 2008 R2 reporting app licensed per physical CPU core | Compute Engine **Sole-Tenant Nodes** (short-term lift-and-shift for BYOL physical core licensing compliance) → modernize to **BigQuery + Looker** | Sole-Tenant Nodes satisfy physical CPU core licensing constraints immediately while removing the 2-analyst concurrency bottleneck via Looker | "Legacy Windows app licensed per physical CPU core" → Compute Engine Sole-Tenant Nodes |
+| **T:** Replace single PostgreSQL server on RAID 0 (zero fault tolerance) and expand beyond US-West | BigQuery (petabyte data warehouse with multi-region replication), Cloud Storage lifecycle management (Autoclass / Coldline / Archive) | Eliminates single-server RAID 0 outage risk and enables low-latency analytics for both West Coast and East Coast analyst teams | Partition BigQuery by date and cluster by vehicle/sensor ID to optimize scan costs |
+
+---
+
+## JencoMart (Legacy Case Study — Video 09)
+
+### Summary
+
+Global retailer operating 10,000+ stores across 16 countries with an executive mandate to **expand e-commerce into Asia**, outsource end-of-life data center infrastructure, and **reduce carbon emissions by 50% over 5 years**. Operates 4 data centers (3 North America, 1 Europe). Its customer loyalty portal is a LAMP stack backed by a **20 TB Oracle user profile database** and a **single-homed PostgreSQL credential database in US West with zero redundancy, 12-hour backups, and a 100% uptime SLA requirement**.
+
+### Requirement mapping
+
+| Requirement | Recommended service(s) | Rationale | Likely exam angle |
+|---|---|---|---|
+| **T:** Fix single-homed US-West PostgreSQL authentication database (no redundancy, 100% uptime SLA) | Cloud SQL for PostgreSQL Regional High Availability (HA) (or Cloud Spanner for global multi-region active-active auth) migrated via Database Migration Service (DMS) | Regional Cloud SQL HA provides synchronous primary/standby replication across zones with automatic failover; DMS enables continuous near-zero-downtime cutover | "Single-homed PostgreSQL credential database with 100% uptime requirement" → Cloud SQL HA via DMS continuous migration (or Spanner) |
+| **B/T:** Migrate 20 TB Oracle user profile database and support global expansion into Asia | Cloud Spanner (for global multi-region strong consistency across US, Europe, and Asia) or Bare Metal Solution for Oracle / AlloyDB + DMS | Spanner eliminates cross-region replication lag for global user profiles and loyalty transactions across North America, Europe, and Asia | "20 TB relational user profile DB expanding globally into Asia with strong consistency" → Cloud Spanner |
+| **B:** Low-latency web storefront and static asset delivery across Asia | Global External Application Load Balancer + Cloud CDN + Cloud Storage + stateless microservices on GKE / Cloud Run | Terminates user connections at the nearest Google edge PoP in Asia and caches static product imagery at the edge | "Reduce latency for new users in Asia" → Global External ALB + Cloud CDN |
+| **B:** Reduce corporate carbon output by 50% over 5 years ("greener computing policies") | Select Google Cloud regions with highest **Carbon-Free Energy (CFE%)** rating + **Google Cloud Carbon Footprint** reporting + autoscaling / serverless scale-to-zero | Directly addresses the CEO's environmental policy mandate using Google Cloud's carbon-intelligent region selection and reporting tools | "Meet executive environmental policy to cut carbon output by 50%" → choose high-CFE% GCP regions + Carbon Footprint tool |
+
+---
+
+## Cross-case patterns worth memorizing (All 8 Case Studies)
+
+| Pattern | Active 4 (EHR, Cymbal, Altostrat, KnightMotives) | Legacy 4 (Mountkirk, HRL, TerramEarth, JencoMart) |
+|---|---|---|
+| **Container & compute platform** | Regional GKE + GKE Enterprise Fleets (EHR, Altostrat), Cloud Run (Cymbal, KnightMotives) | Multi-region GKE / Agones (Mountkirk), Cloud Run + Transcoder API (HRL), Sole-Tenant Nodes (TerramEarth), GKE/Cloud Run (JencoMart) |
+| **Hybrid & edge connectivity** | Dedicated Interconnect + HA VPN (EHR, Altostrat), NCC + Cross-Cloud Interconnect + GDC Edge (KnightMotives) | Pub/Sub cellular + GCS maintenance bay batch (TerramEarth), Global External ALB + Cloud CDN (Mountkirk, HRL, JencoMart) |
+| **Transactional & NoSQL databases** | Cloud SQL HA + Memorystore + MongoDB Atlas (EHR, Cymbal), Cloud Spanner + Bigtable (KnightMotives) | Cloud Bigtable + Cloud Spanner + Redis (Mountkirk), Cloud Spanner + Cloud SQL HA (JencoMart) |
+| **Analytics & data monetization** | BigQuery + Dataplex + Analytics Hub (KnightMotives), BigQuery + Looker (EHR, Cymbal, Altostrat) | Pub/Sub + Dataflow (watermarks) + BigQuery (Mountkirk, HRL, TerramEarth), Apigee dealer APIs (TerramEarth) |
+| **AI, GenAI & explainability** | Gemini multimodal + Imagen + Search for Commerce + Conversational Agents + Model Armor (Cymbal, Altostrat, KnightMotives) | Vertex Explainable AI feature attributions (HRL, Altostrat), Predictive maintenance ML (TerramEarth) |
+| **Security & compliance anchors** | HIPAA BAA (EHR), PCI DSS + HITL IAP UI (Cymbal), Workforce Identity Federation (Altostrat), Assured Workloads EU + EKM (KnightMotives) | PCI DSS DLP Deterministic/FPE Tokenization Vault + Cloud Armor CDN IP locks (HRL), Carbon-Free Energy regions (JencoMart) |
+
+> **Trap:** Do not import a solution from one case into another. Cymbal's "replace IVR" answer is Conversational Agents; EHR has no IVR. Altostrat's storage-cost answer is Autoclass; KnightMotives' cost story is data monetization and FinOps; TerramEarth's CPU-licensed Windows app answer is Sole-Tenant Nodes; JencoMart's sustainability answer is Carbon-Free Energy (CFE%) region selection.
 
 ## Key takeaways
 
 - Every case-study answer must satisfy the published requirements plus the question's new constraint; the executive statement is the tie-breaker.
-- EHR: regional GKE + Cloud SQL HA for 99.9%, Dedicated/Partner Interconnect + HA VPN for long-lived legacy integrations, AD federation, central Cloud Observability with SLO-routed alerts, BigQuery + Vertex AI for trends, Apigee for provider onboarding, HIPAA BAA and audit logs.
-- Cymbal: Gemini (multimodal) for attributes/descriptions, Imagen for image variants, Vertex AI Search for commerce + Conversational Agents for discovery and IVR replacement, mandatory human-in-the-loop UI, DMS and Storage Transfer Service for modernization, Sensitive Data Protection + Model Armor + PCI scoping.
-- Altostrat: GKE Enterprise fleets with Config Sync across cloud and on-prem, Cloud Build/Artifact Registry/Cloud Deploy, Cloud Storage Autoclass/lifecycle for cost, prebuilt media APIs plus Gemini for summaries, safety filters + Model Armor, Explainable AI + audit logs, Managed Service for Prometheus, Workforce Identity Federation.
-- KnightMotives: Spanner-backed build-to-order on Cloud Run/GKE behind Apigee, NCC + Cross-Cloud Interconnect for hybrid/multicloud, BigQuery + Dataplex + Analytics Hub for data monetization, Vertex AI + AI Hypercomputer for AV training, Security Command Center Enterprise + zero trust, Assured Workloads for EU, mainframe strangler pattern, CoE and upskilling.
-- "Alerts ignored by email" appears in three cases; the answer is always SLO/burn-rate alerting routed to an on-call channel, not more email.
-- Same database mix (MySQL, SQL Server, Redis, MongoDB) appears in EHR and Cymbal: Cloud SQL via DMS, Memorystore, MongoDB Atlas via Marketplace.
-- Gen-AI questions favor grounding/RAG over fine-tuning, prebuilt APIs over custom models for standard tasks, and always include human review, safety filters, and explainability where the case asks for accuracy or auditability.
-- Hybrid connectivity SLA numbers (99.9% with 2 attachments, 99.99% with 4 across 2 metros; HA VPN 99.99%) are testable in EHR, Altostrat, and KnightMotives contexts.
-- Compliance anchors: EHR → HIPAA BAA; Cymbal → PCI DSS and PII; Altostrat → content safety and auditability; KnightMotives → GDPR/EU sovereignty via Assured Workloads.
-- Cost levers by case: EHR admin cost (managed services), Altostrat storage classes/Autoclass, Cymbal call-center automation, KnightMotives data monetization and accelerator scheduling.
-- Section 4 "soft" topics show up through KnightMotives (upskilling, CoE, build-vs-buy CRM) and EHR (change from colos, reducing outages from misconfiguration through IaC).
+- **EHR Healthcare:** Regional GKE + Cloud SQL HA for 99.9%, Dedicated/Partner Interconnect + HA VPN for long-lived legacy integrations, AD federation (GCDS + SAML + Managed AD), central Cloud Observability with SLO burn-rate alerts, BigQuery + Vertex AI for trends, Apigee for provider onboarding, HIPAA BAA and audit logs.
+- **Cymbal Retail:** Gemini (multimodal) for attributes/descriptions, Imagen for image variants, Vertex AI Search for commerce + Conversational Agents for discovery and IVR replacement, mandatory IAP-protected Cloud Run human-in-the-loop UI, DMS and Storage Transfer Service for modernization, Sensitive Data Protection + Model Armor + PCI scoping.
+- **Altostrat Media:** GKE Enterprise fleets with Config Sync across cloud and on-prem, Cloud Build/Artifact Registry/Cloud Deploy, Cloud Storage Autoclass/lifecycle for cost, prebuilt media APIs plus Gemini for summaries, safety filters + Model Armor, Explainable AI + audit logs, Managed Service for Prometheus, Workforce Identity Federation.
+- **KnightMotives Automotive:** Spanner-backed build-to-order on Cloud Run/GKE behind Apigee, NCC + Cross-Cloud Interconnect for hybrid/multicloud, BigQuery + Dataplex + Analytics Hub for data monetization, Vertex AI + AI Hypercomputer for AV training, LiteRT on-vehicle edge AI, Security Command Center Enterprise + zero trust, Assured Workloads for EU, mainframe strangler pattern, CoE and upskilling.
+- **Mountkirk Games:** Global External ALB + multi-region GKE, Pub/Sub + Dataflow with event-time windowing and watermarks for late mobile telemetry, Bigtable for high-write time-series telemetry, Spanner for global leaderboards/inventory, separate GCP projects per environment.
+- **Helicopter Racing League (HRL):** Cloud Run PCI tokenization vault with Sensitive Data Protection (Deterministic Encryption / FPE) + Cloud KMS annual rotation, Cloud Armor preconfigured named IP lists for Fastly/CDN origin locks, Vertex Explainable AI for live race predictions, Transcoder API to eliminate idle VMs.
+- **TerramEarth:** Dual ingestion (Pub/Sub for 200K cellular vehicles + Cloud Storage signed URLs for 20M service-bay uploads) unified via Dataflow into partitioned/clustered BigQuery, Compute Engine Sole-Tenant Nodes for physical-core-licensed Windows reporting app, Apigee for 500+ dealers and agricultural partners.
+- **JencoMart:** Migrate single-homed US-West PostgreSQL auth DB to Cloud SQL Regional HA via DMS, migrate 20 TB Oracle profile DB to Cloud Spanner for Asia expansion, Global External ALB + Cloud CDN for low latency in Asia, select high Carbon-Free Energy (CFE%) regions to hit the 50% carbon reduction mandate.
 
 ## Quick self-check
 
@@ -326,7 +397,7 @@ Manufacturer of autonomous BEV, hybrid, and ICE vehicles. BEVs have a modern in-
 - Q: Cymbal wants to create color variants of a product image and swap the background. Which service? — **A:** Imagen on Vertex AI (image editing/generation), not the Vision API.
 - Q: Altostrat's media access patterns are unknown and they want the lowest storage cost without early-deletion fees. What do you enable? — **A:** Cloud Storage Autoclass on the bucket.
 - Q: KnightMotives wants to sell de-identified driving data to partners without copying it. Which services? — **A:** BigQuery datasets de-identified with Sensitive Data Protection, governed in Dataplex Universal Catalog, shared via Analytics Hub listings.
-- Q: Contractors at Altostrat authenticate with a third-party IdP and need Google Cloud console access without new accounts. Which feature? — **A:** Workforce Identity Federation.
-- Q: EHR wants users to sign in to Google Cloud with their Active Directory credentials. What do you set up? — **A:** Google Cloud Directory Sync to provision users/groups into Cloud Identity and SAML single sign-on against AD FS (or Entra ID); grant IAM to groups.
-- Q: Cymbal's generated descriptions must never reach the live catalog without associate approval. What is the architectural control? — **A:** Write gen-AI output to a staging store, expose an approval UI (Cloud Run behind IAP), and only an approval event triggers the write to the catalog and search re-index.
-- Q: KnightMotives needs vehicle data for EU customers to stay in the EU with controlled Google support access. What do you use? — **A:** An Assured Workloads folder with EU data residency/sovereignty controls, resource-location org policies, CMEK (optionally Cloud EKM), and Access Approval.
+- Q: TerramEarth needs to host an off-the-shelf Windows Server 2008 R2 reporting app whose license is strictly bound to physical CPU cores. Where do you run it on GCP? — **A:** Compute Engine Sole-Tenant Nodes (BYOL physical core affinity), while replatforming analytics to BigQuery + Looker.
+- Q: JencoMart's single-homed PostgreSQL credential database in US West has zero redundancy and a 100% uptime SLA requirement. How do you migrate and protect it? — **A:** Use Database Migration Service (DMS) continuous replication to migrate to Cloud SQL for PostgreSQL with Regional High Availability (HA) across multiple zones.
+- Q: Helicopter Racing League wants to ensure viewers cannot bypass their Fastly CDN to hit their Global External Application Load Balancer directly. What do you configure? — **A:** Attach a Cloud Armor security policy to the load balancer backend service using preconfigured expressions for Fastly's named IP lists.
+- Q: Mountkirk Games receives mobile game telemetry hours after events occur due to players losing cellular signal in subways. How should Dataflow process these events? — **A:** Use event-time windowing with watermarks and allowed lateness triggers so late-arriving events update the correct historical windows.

@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 QDIR = os.path.join(ROOT, "data", "questions")
 OUT = os.path.join(ROOT, "site", "data", "questions.json")
 
-ALLOWED_CS = {None, "ehr", "cymbal", "altostrat", "knightmotives", "mountkirk", "hrl"}
+ALLOWED_CS = {None, "ehr", "cymbal", "altostrat", "knightmotives", "mountkirk", "hrl", "terramearth", "jencomart"}
 ALLOWED_DIFF = {"easy", "medium", "hard"}
 
 

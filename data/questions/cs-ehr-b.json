@@ -13,12 +13,20 @@
       "Provision Memorystore for Redis in Standard Tier with replicas across zones (or Memorystore for Redis Cluster), which provides automatic failover and a 99.9% SLA.",
       "Replace Redis with tables in Cloud SQL so that sessions benefit from database high availability."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Memorystore Standard Tier (and Memorystore for Redis Cluster) replicates data to another zone, fails over automatically, and carries a 99.9% availability SLA, and Google handles patching, so it satisfies both the availability and reduced-administration goals. Option A has no replica and no SLA; a Basic Tier maintenance event or zone failure would drop sessions. Option B is a single point of failure that the team must operate. Option D changes application code and adds latency, and a relational database is the wrong tool for high-throughput session caching.",
     "refs": [
       "https://cloud.google.com/memorystore/docs/redis/high-availability",
       "https://cloud.google.com/memorystore/docs/cluster/memorystore-for-redis-cluster-overview"
-    ]
+    ],
+    "hint": "Core Rule: Memorystore Standard Tier (and Memorystore for Redis Cluster) replicates data to another zone, fails over automatically, and carries a 99.9% availability SLA, and Google handles patching, so it satisfies both the availability and reduced-administration goals.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Provision Memorystore for Redis in Basic Tier because caches do not ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run Redis on a single Compute Engine VM and schedule persistent disk s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Replace Redis with tables in Cloud SQL so that sessions benefit from d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-022",
@@ -34,12 +42,20 @@
       "Run the Cloud SQL Auth Proxy on a Compute Engine VM and expose it through an external passthrough Network Load Balancer for the on-premises systems.",
       "Enable Private Google Access on the VPC subnets so that on-premises systems can reach Cloud SQL through Google's private API endpoints."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Cloud SQL private IP lives in a producer network reached through private services access peering; peered ranges are not advertised to on-premises by default, so you must add the allocated range as a custom route advertisement on the Cloud Router (and export custom routes on the peering) for the on-premises systems to reach the databases privately over Interconnect. Option B sends PHI over the public internet, which the security team forbids. Option C also exposes an internet-facing endpoint and adds a VM the team must run. Option D misunderstands Private Google Access, which covers Google APIs, not private services access peering ranges used by Cloud SQL.",
     "refs": [
       "https://cloud.google.com/sql/docs/mysql/configure-private-services-access",
       "https://cloud.google.com/network-connectivity/docs/router/how-to/advertising-overview"
-    ]
+    ],
+    "hint": "Core Rule (Private services access routing over Interconnect): Cloud SQL private IP lives in a producer network reached through private services access peering; peered ranges are not advertised to on-premises by default, so you must add the allocated range as a custom route advertisement on the Cloud Router (and export custom routes on the peering) for the on-premises systems to reach the databases privately over Interconnect.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Assign a public IP address to each Cloud SQL instance and add the on-p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run the Cloud SQL Auth Proxy on a Compute Engine VM and expose it thro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable Private Google Access on the VPC subnets so that on-premises sy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-023",
@@ -55,13 +71,21 @@
       "Disable application logging for all services that process patient data until the code is fixed.",
       "Prioritize removing PHI from log statements in the applications, and in the interim route those logs through a Pub/Sub sink to a Dataflow pipeline that uses Sensitive Data Protection to de-identify PHI before writing to the central log bucket, restricting the raw data with log views and exclusion filters."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The correct approach fixes the root cause (do not log PHI) while applying a compensating control now: a log sink to Pub/Sub and a Dataflow pipeline with Sensitive Data Protection de-identification templates can mask or tokenize identifiers before storage, and log views plus exclusion filters limit who can see any raw data. Option A weakens troubleshooting and audit evidence without stopping PHI from being written. Option B removes engineers' ability to troubleshoot and does not remove PHI from the log store. Option C blinds operations, undermining the requirement for centralized visibility and the 99.9% availability target.",
     "refs": [
       "https://cloud.google.com/sensitive-data-protection/docs/deidentify-sensitive-data",
       "https://cloud.google.com/logging/docs/routing/overview",
       "https://cloud.google.com/logging/docs/logs-views"
-    ]
+    ],
+    "hint": "Core Rule (Sensitive Data Protection for logs): The correct approach fixes the root cause (do not log PHI) while applying a compensating control now: a log sink to Pub/Sub and a Dataflow pipeline with Sensitive Data Protection de-identification templates can mask or tokenize identifiers before storage, and log views plus exclusion filters limit who can see any raw data.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Reduce log retention to one day for all applications so that exposure …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Grant the Logs Viewer role only to the compliance team so engineers ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Disable application logging for all services that process patient data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-024",
@@ -77,13 +101,21 @@
       "Deploy SQL Server on Compute Engine sole-tenant nodes and bring both the Windows Server and SQL Server licenses, because bring-your-own-license is never permitted on shared hardware.",
       "Migrate the databases to AlloyDB for PostgreSQL with Database Migration Service to eliminate Microsoft licensing entirely."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "When required features are unavailable in Cloud SQL, SQL Server on Compute Engine with an Always On availability group across zones provides automatic in-region failover. SQL Server is eligible for License Mobility through Software Assurance, so existing licenses can be used on regular (shared-tenancy) VMs, while Windows Server (not eligible for License Mobility) is simply consumed pay-as-you-go from Google images; this is the lowest-cost compliant option. Option A requires rewriting application code, which the scenario rules out. Option C is unnecessarily expensive because sole-tenant nodes are only required to BYOL Windows Server (or other licenses without mobility), not SQL Server. Option D is a heterogeneous migration that would break the CLR-dependent code and does not meet the timeline.",
     "refs": [
       "https://cloud.google.com/compute/docs/instances/windows/ms-licensing",
       "https://cloud.google.com/compute/docs/instances/sql-server/configure-availability-groups",
       "https://cloud.google.com/sql/docs/sqlserver/features"
-    ]
+    ],
+    "hint": "Core Rule (SQL Server licensing on Compute Engine): When required features are unavailable in Cloud SQL, SQL Server on Compute Engine with an Always On availability group across zones provides automatic in-region failover.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate the databases to Cloud SQL for SQL Server Enterprise Plus edit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy SQL Server on Compute Engine sole-tenant nodes and bring both t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Migrate the databases to AlloyDB for PostgreSQL with Database Migratio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-025",
@@ -99,12 +131,20 @@
       "Write a script that exports cluster metrics to BigQuery every five minutes and build Looker Studio reports on top.",
       "Rely on Cloud Monitoring uptime checks against the public endpoints, because they measure what customers experience."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Managed Service for Prometheus is a Google-operated, globally scalable Prometheus backend that works on GKE and on fleet-registered on-premises clusters; it removes per-cluster Prometheus servers, keeps PromQL and existing Grafana dashboards working, and integrates natively with Cloud Monitoring alerting, giving the single, consistent view the case study requires. Option A remains self-managed, has a single point of failure, and needs constant capacity tuning. Option C loses real-time alerting and is not a monitoring system. Option D provides only black-box availability signals and no resource or application-level visibility.",
     "refs": [
       "https://cloud.google.com/stackdriver/docs/managed-prometheus",
       "https://cloud.google.com/stackdriver/docs/managed-prometheus/query"
-    ]
+    ],
+    "hint": "Core Rule: Managed Service for Prometheus is a Google-operated, globally scalable Prometheus backend that works on GKE and on fleet-registered on-premises clusters; it removes per-cluster Prometheus servers, keeps PromQL and existing Grafana dashboards working, and integrates natively with Cloud Monitoring alerting, giving the single, consistent view the case study requires.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep a Prometheus server in every cluster and federate them into one l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Write a script that exports cluster metrics to BigQuery every five min…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Rely on Cloud Monitoring uptime checks against the public endpoints, b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-026",
@@ -120,12 +160,20 @@
       "Define the environment as reusable Terraform modules (project, VPC, GKE, Cloud SQL) executed by a Cloud Build pipeline with remote state in Cloud Storage, and bootstrap the baseline workloads with Config Sync from a Git repository.",
       "Take disk snapshots of the production VMs and restore them into a new project for each request."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Infrastructure as code with Terraform modules makes environments repeatable and reviewable, Cloud Build provides an auditable, shared execution path with remote state in Cloud Storage, and Config Sync applies the baseline Kubernetes workloads automatically once the cluster is registered, turning weeks of manual work into a pipeline run. Option A and Option B are manual, unaudited, and tied to individuals, reproducing the misconfiguration risk the executive statement highlights. Option D copies VM disks, which does not create projects, networks, GKE clusters, or Cloud SQL instances and is not how container environments are reproduced.",
     "refs": [
       "https://cloud.google.com/docs/terraform/best-practices-for-terraform",
       "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Terraform environment provisioning): Infrastructure as code with Terraform modules makes environments repeatable and reviewable, Cloud Build provides an auditable, shared execution path with remote state in Cloud Storage, and Config Sync applies the baseline Kubernetes workloads automatically once the cluster is registered, turning weeks of manual work into a pipeline run.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Clone an existing production project manually in the console by follow…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Keep a set of gcloud scripts on the platform administrator's workstati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Take disk snapshots of the production VMs and restore them into a new …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-027",
@@ -141,13 +189,21 @@
       "Create one project per developer with the Owner role for agility and consolidate the resources into a production project later.",
       "Create separate Google Cloud organizations for development and production to guarantee complete isolation between them."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Google's enterprise foundations guidance recommends folders that mirror environments or business units so IAM and organization policies can be inherited, Shared VPC so a central network team manages connectivity and firewall rules while application teams own service projects, constraints such as resource locations and disabling service account key creation to enforce compliance everywhere, and a central logging project for aggregated sinks. Option B removes IAM and billing isolation and makes blast radius and quota management unmanageable. Option C creates uncontrolled sprawl with excessive privileges. Option D doubles administrative overhead and breaks centralized policy, logging, and billing without a compliance reason to do so.",
     "refs": [
       "https://cloud.google.com/architecture/landing-zones",
       "https://cloud.google.com/docs/enterprise/best-practices-for-enterprise-organizations",
       "https://cloud.google.com/vpc/docs/shared-vpc"
-    ]
+    ],
+    "hint": "Core Rule (Resource hierarchy design): Google's enterprise foundations guidance recommends folders that mirror environments or business units so IAM and organization policies can be inherited, Shared VPC so a central network team manages connectivity and firewall rules while application teams own service projects, constraints such as resource locations and disabling service account key creation to enforce compliance everywhere, and a central logging project for aggregated sinks.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use a single project for all environments, separate them with differen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create one project per developer with the Owner role for agility and c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create separate Google Cloud organizations for development and product…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-028",
@@ -163,13 +219,21 @@
       "Give analysts access to Cloud SQL read replicas with database views instead of BigQuery.",
       "Create de-identified datasets using the Cloud Healthcare API de-identification operation (or Sensitive Data Protection), and protect any remaining sensitive columns with policy tags for column-level security and row-level access policies in BigQuery, granting analysts access only to those datasets."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The minimum-necessary principle is best met by de-identifying data before analysts touch it; the Cloud Healthcare API de-identify operation and Sensitive Data Protection can redact, mask, or pseudonymize PHI at scale, while BigQuery policy tags (column-level security) and row-level security enforce fine-grained access to whatever sensitive fields remain. Option A exposes full PHI and relies on detection rather than prevention. Option B weakens controls on a copy of PHI, which is a compliance violation. Option C puts analytic load on operational replicas and does not scale to trend analysis across providers.",
     "refs": [
       "https://cloud.google.com/healthcare-api/docs/concepts/de-identification",
       "https://cloud.google.com/bigquery/docs/column-level-security-intro",
       "https://cloud.google.com/bigquery/docs/row-level-security-intro"
-    ]
+    ],
+    "hint": "Core Rule (De-identification and BigQuery access controls): The minimum-necessary principle is best met by de-identifying data before analysts touch it; the Cloud Healthcare API de-identify operation and Sensitive Data Protection can redact, mask, or pseudonymize PHI at scale, while BigQuery policy tags (column-level security) and row-level security enforce fine-grained access to whatever sensitive fields remain.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant the analysts the BigQuery Data Viewer role on the raw datasets a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Copy the raw data into a separate project with fewer controls so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Give analysts access to Cloud SQL read replicas with database views in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-029",
@@ -185,12 +249,20 @@
       "Deploy Cloud NAT in the colocation facility so the servers receive translated public addresses.",
       "Create VPC Network Peering between the on-premises network and the VPC network."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Private Google Access for on-premises hosts lets systems without internet access reach Google APIs over Interconnect or VPN by routing to the private.googleapis.com (199.36.153.8/30) or restricted.googleapis.com (199.36.153.4/30) ranges, which you advertise via Cloud Router custom advertisements and resolve through on-premises DNS. Option A violates the no-internet-egress policy. Option C is not possible; Cloud NAT is a Google Cloud service for VPC resources, not for on-premises networks. Option D is not possible either, because VPC Network Peering only connects VPC networks, not on-premises networks.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-google-access-hybrid",
       "https://cloud.google.com/vpc/docs/configure-private-google-access-hybrid"
-    ]
+    ],
+    "hint": "Core Rule: Private Google Access for on-premises hosts lets systems without internet access reach Google APIs over Interconnect or VPN by routing to the private.googleapis.com (199.36.153.8/30) or restricted.googleapis.com (199.36.153.4/30) ranges, which you advertise via Cloud Router custom advertisements and resolve through on-premises DNS.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Provide the servers with internet access through an outbound proxy so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy Cloud NAT in the colocation facility so the servers receive tra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create VPC Network Peering between the on-premises network and the VPC…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-030",
@@ -207,12 +279,21 @@
       "Use Cloud Deploy canary rollouts with automated verification and rollback so that a faulty release reaches only a small slice of traffic.",
       "Disable the Horizontal Pod Autoscaler during releases to keep the number of pods stable."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Frequent releases are safe when the platform tolerates pod churn and when releases are progressive: probes keep unready pods out of rotation, multiple zone-spread replicas with PodDisruptionBudgets protect capacity during node upgrades and rollouts, and Cloud Deploy canary strategies with verification and automatic rollback limit the blast radius of a bad build. Option A creates an outage on every deployment and every node upgrade. Option C maximizes blast radius and kubectl replace can briefly delete resources. Option E removes the elasticity needed during a release-triggered spike and offers no reliability benefit.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/best-practices-running-apps",
       "https://cloud.google.com/deploy/docs/deployment-strategies/canary"
-    ]
+    ],
+    "hint": "Core Rule (Release reliability on GKE): Frequent releases are safe when the platform tolerates pod churn and when releases are progressive: probes keep unready pods out of rotation, multiple zone-spread replicas with PodDisruptionBudgets protect capacity during node upgrades and rollouts, and Cloud Deploy canary strategies with verification and automatic rollback limit the blast radius of a bad build.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run a single replica of each service to minimize the cost of frequent …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy each release to all clusters simultaneously with kubectl replac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Disable the Horizontal Pod Autoscaler during releases to keep the numb…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-031",
@@ -228,11 +309,19 @@
       "Enable Backup for GKE, create backup plans that cover the relevant namespaces and persistent volumes on a schedule, and restore them into the secondary-region cluster during DR tests and events.",
       "Move the application state to local SSDs for performance and export it to Cloud Storage nightly."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Backup for GKE is the managed service that captures both Kubernetes resources and persistent volume data in one backup plan, supports scheduled and application-consistent (hook-based) backups, and can restore to a different cluster or region, exactly what a DR plan for stateful GKE workloads needs. Option A protects only disks, not the deployments, services, secrets, and config maps needed to run the application, and relies on manual reconstruction. Option B works but is self-managed software the team must upgrade and secure, contradicting the goal of lower administration cost. Option D is unsafe because local SSD data is lost when a node is stopped or fails.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/add-on/backup-for-gke/concepts/backup-for-gke"
-    ]
+    ],
+    "hint": "Core Rule: Backup for GKE is the managed service that captures both Kubernetes resources and persistent volume data in one backup plan, supports scheduled and application-consistent (hook-based) backups, and can restore to a different cluster or region, exactly what a DR plan for stateful GKE workloads needs.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Schedule Persistent Disk snapshots with a cron job and document how to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Install and operate Velero on every cluster and store its backups in C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move the application state to local SSDs for performance and export it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-032",
@@ -248,13 +337,21 @@
       "Have on-call engineers use SSH to reach the GKE nodes and inspect container logs directly during incidents.",
       "Wait for customer support tickets to identify affected features, then reproduce the problem in the development environment."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Distributed tracing shows exactly which service and call in a request path is slow or failing, log-trace correlation lets engineers jump from a trace span to the relevant log lines, Error Reporting groups new exceptions automatically, and Gemini Cloud Assist can correlate signals to propose likely root causes, which together shorten mean time to resolution. Option B floods the logging pipeline with cost and noise and still does not connect events across services. Option C is slow, insecure, and impossible on Autopilot nodes. Option D is reactive and makes customers the monitoring system.",
     "refs": [
       "https://cloud.google.com/trace/docs/overview",
       "https://cloud.google.com/error-reporting/docs",
       "https://cloud.google.com/gemini/docs/cloud-assist/overview"
-    ]
+    ],
+    "hint": "Core Rule (Root cause analysis and observability): Distributed tracing shows exactly which service and call in a request path is slow or failing, log-trace correlation lets engineers jump from a trace span to the relevant log lines, Error Reporting groups new exceptions automatically, and Gemini Cloud Assist can correlate signals to propose likely root causes, which together shorten mean time to resolution.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Set the log level of all production services to DEBUG permanently so t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Have on-call engineers use SSH to reach the GKE nodes and inspect cont…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Wait for customer support tickets to identify affected features, then …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-033",
@@ -270,12 +367,20 @@
       "Remove the keys and instead grant the node pool's default Compute Engine service account the Editor role.",
       "Enable Workload Identity Federation for GKE so Kubernetes service accounts obtain short-lived credentials for IAM service accounts without keys, and move any remaining third-party secrets to Secret Manager."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Workload Identity Federation for GKE is the recommended way for pods to call Google APIs: each Kubernetes service account is mapped to an IAM identity and receives short-lived tokens, eliminating long-lived exportable keys and enabling per-workload least privilege. Secret Manager handles credentials for non-Google systems with versioning and audit logging. Option A and Option B still leave exfiltratable long-lived keys in the cluster; encryption and rotation reduce but do not remove the risk. Option C replaces one anti-pattern with another by granting a broad basic role to every pod on the node.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity",
       "https://cloud.google.com/secret-manager/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: Workload Identity Federation for GKE is the recommended way for pods to call Google APIs: each Kubernetes service account is mapped to an IAM identity and receives short-lived tokens, eliminating long-lived exportable keys and enabling per-workload least privilege.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rotate the JSON keys every 90 days with an automated script and keep m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Keep the JSON keys but store them in Kubernetes Secrets encrypted with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Remove the keys and instead grant the node pool's default Compute Engi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-034",
@@ -291,12 +396,20 @@
       "Order Partner Interconnect through a supported service provider with two VLAN attachments in different edge availability domains, sized at 2 Gbps each, to obtain a 99.9% SLA.",
       "Set up Direct Peering with Google at the nearest exchange point to carry the traffic."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Partner Interconnect is designed for sites that cannot reach a Google colocation facility or that need less than 10 Gbps; attachments are available in 50 Mbps to 50 Gbps increments and two attachments in separate edge availability domains provide the 99.9% SLA topology, which matches both the bandwidth and the short remaining lifetime of the site. Option A is over-provisioned and requires expensive last-mile fiber for a site that closes in two years. Option B uses a single tunnel, so it has no SLA, and VPN over the internet cannot guarantee consistent latency. Option D is wrong because Direct Peering provides access to Google public services only and is not a way to reach a VPC network.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/partner-overview",
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/choosing-type"
-    ]
+    ],
+    "hint": "Core Rule: Partner Interconnect is designed for sites that cannot reach a Google colocation facility or that need less than 10 Gbps; attachments are available in 50 Mbps to 50 Gbps increments and two attachments in separate edge availability domains provide the 99.9% SLA topology, which matches both the bandwidth and the short remaining lifetime of the site.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Order a 10 Gbps Dedicated Interconnect circuit and extend it to the fa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure a single HA VPN gateway with one tunnel to keep the design s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Set up Direct Peering with Google at the nearest exchange point to car…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-035",
@@ -312,12 +425,20 @@
       "Store all customer data in a dual-region Cloud Storage bucket spanning the US and the EU so that both customer groups are served.",
       "Migrate all databases to a Spanner multi-region configuration that includes both American and European regions."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Data residency is enforced by where resources are created: a dedicated folder for EU tenants with the constraints/gcp.resourceLocations organization policy prevents anyone from creating resources outside EU regions, and Assured Workloads adds guardrails such as data location and personnel access controls. Option A leaves the data physically in the US; key location does not satisfy residency. Option C and Option D deliberately replicate data to the US, which is exactly what the EU customers prohibit.",
     "refs": [
       "https://cloud.google.com/resource-manager/docs/organization-policy/defining-locations",
       "https://cloud.google.com/assured-workloads/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: Data residency is enforced by where resources are created: a dedicated folder for EU tenants with the constraints/gcp.resourceLocations organization policy prevents anyone from creating resources outside EU regions, and Assured Workloads adds guardrails such as data location and personnel access controls.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy everything in a single US region and encrypt the EU customers' …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Store all customer data in a dual-region Cloud Storage bucket spanning…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Migrate all databases to a Spanner multi-region configuration that inc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-036",
@@ -333,12 +454,20 @@
       "Rewrite the applications as Cloud Run services before the lease expires.",
       "Move the VMs to Google Cloud VMware Engine and keep them there permanently regardless of cost."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Migrate to Virtual Machines performs agentless, continuous replication from VMware, KVM-based, AWS, or Azure sources to Compute Engine, lets you test clones before cutover, and requires only a short final sync, which minimizes both downtime and manual effort; Migrate to Containers can later modernize eligible VMs into containers for the GKE platform. Option B is slow, error-prone, and manual for forty VMs. Option C is unrealistic before the deadline and contradicts the stated constraint. Option D targets vSphere estates, which these KVM hosts are not, and 'regardless of cost' conflicts with the goal of reducing infrastructure costs.",
     "refs": [
       "https://cloud.google.com/migrate/virtual-machines/docs",
       "https://cloud.google.com/migrate/containers/docs"
-    ]
+    ],
+    "hint": "Core Rule: Migrate to Virtual Machines performs agentless, continuous replication from VMware, KVM-based, AWS, or Azure sources to Compute Engine, lets you test clones before cutover, and requires only a short final sync, which minimizes both downtime and manual effort; Migrate to Containers can later modernize eligible VMs into containers for the GKE platform.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Export each VM as a disk image, upload it to Cloud Storage, create cus…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Rewrite the applications as Cloud Run services before the lease expire…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move the VMs to Google Cloud VMware Engine and keep them there permane…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-037",
@@ -354,12 +483,20 @@
       "Migrate first to meet the lease deadline and schedule training for the team after the cutover.",
       "Perform a skills assessment, deliver targeted role-based training on GKE and Cloud Observability, establish a cloud center of excellence with Google or partner support, and pilot a low-risk containerized application to build hands-on experience before the main migration waves."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Successful change management assesses readiness, closes specific skill gaps, gives the team a safe early win, and creates a center of excellence that captures standards and reusable patterns; this keeps the timeline while reducing the risk of misconfiguration by an untrained team. Option A discards institutional knowledge and does not address the goal of a consistent, self-managed platform. Option B delays the project unnecessarily and is not a targeted approach. Option C is how outages happen: the team would be operating unfamiliar production systems with no preparation.",
     "refs": [
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started",
       "https://cloud.google.com/architecture/framework/operational-excellence"
-    ]
+    ],
+    "hint": "Core Rule (Team readiness and change management): Successful change management assesses readiness, closes specific skill gaps, gives the team a safe early win, and creates a center of excellence that captures standards and reusable patterns; this keeps the timeline while reducing the risk of misconfiguration by an untrained team.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Outsource all cloud operations to a managed service provider and reass…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Require every engineer to earn all Google Cloud professional certifica…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Migrate first to meet the lease deadline and schedule training for the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-038",
@@ -377,12 +514,22 @@
       "Elapsed time to on-board a new insurance provider, from contract to first production data exchange.",
       "Number of lines of infrastructure code committed each sprint."
     ],
-    "answer": [1, 2, 4],
+    "answer": [
+      1,
+      2,
+      4
+    ],
     "explanation": "KPIs should trace directly to business requirements: 99.9% availability, reduced latency for all customers, and faster on-boarding of insurance providers are three explicit goals, so availability against the SLO, regional p95 latency, and provider on-boarding lead time are meaningful outcome measures. Option A and Option F are activity metrics that say nothing about business value. Option D is a size metric; more clusters is not better and may even indicate the inconsistent sprawl the company is trying to eliminate.",
     "refs": [
       "https://cloud.google.com/architecture/framework",
       "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
-    ]
+    ],
+    "hint": "Core Rule (Success metrics and KPIs): KPIs should trace directly to business requirements: 99.9% availability, reduced latency for all customers, and faster on-boarding of insurance providers are three explicit goals, so availability against the SLO, regional p95 latency, and provider on-boarding lead time are meaningful outcome measures.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Number of virtual machines migrated per week.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Total number of Kubernetes clusters in the fleet.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (Number of lines of infrastructure code committed each sprint.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-039",
@@ -400,13 +547,23 @@
       "Consolidate all workloads into one very large zonal GKE cluster with bigger machine types.",
       "Route all customer traffic through the colocation facility over the Interconnect before it reaches Google Cloud."
     ],
-    "answer": [0, 1, 3],
+    "answer": [
+      0,
+      1,
+      3
+    ],
     "explanation": "Cross-continent round trips dominate perceived latency, so the fixes are to terminate connections at the nearest Google edge (global external Application Load Balancer, Premium Tier), cache what can be cached at the edge (Cloud CDN), and place compute and read-heavy data close to users (regional backends with read replicas or caches). Option C makes things worse because Standard Tier hands traffic to the public internet near the region rather than carrying it on Google's backbone, and it does not support global load balancing. Option E increases distance for most users and introduces a single-zone failure point. Option F adds a hairpin through the data center and extra hops.",
     "refs": [
       "https://cloud.google.com/load-balancing/docs/https",
       "https://cloud.google.com/cdn/docs/overview",
       "https://cloud.google.com/network-tiers/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Latency reduction): Cross-continent round trips dominate perceived latency, so the fixes are to terminate connections at the nearest Google edge (global external Application Load Balancer, Premium Tier), cache what can be cached at the edge (Cloud CDN), and place compute and read-heavy data close to users (regional backends with read replicas or caches).",
+    "whyWrong": {
+      "2": "Incorrect distractor (Switch the load balancer to Standard Tier networking to reduce cost pe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Consolidate all workloads into one very large zonal GKE cluster with b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (Route all customer traffic through the colocation facility over the In…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "cs-ehr-040",
@@ -422,12 +579,20 @@
       "Export the audit logs to a BigQuery dataset with no table expiration and give the compliance team the BigQuery Data Editor role.",
       "Copy the audit logs nightly to a Filestore share mounted on a Compute Engine VM in a locked-down project."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Storage with a locked bucket retention policy (Bucket Lock) prevents deletion or modification until the retention period ends, satisfying tamper-evidence, and the Archive class is the cheapest option for data that is rarely read; a Cloud Logging bucket with one-year retention keeps recent logs searchable in Logs Explorer for engineers. Option A violates the six-year requirement and Google does not provide customer-accessible backups of expired logs. Option C is more expensive for cold data and Data Editor permissions would let people alter or delete audit evidence. Option D is costly, not tamper-evident, and depends on a VM and manual copying.",
     "refs": [
       "https://cloud.google.com/storage/docs/bucket-lock",
       "https://cloud.google.com/logging/docs/export/configure_export_v2",
       "https://cloud.google.com/storage/docs/storage-classes"
-    ]
+    ],
+    "hint": "Core Rule (Log retention for compliance): Cloud Storage with a locked bucket retention policy (Bucket Lock) prevents deletion or modification until the retention period ends, satisfying tamper-evidence, and the Archive class is the cheapest option for data that is rarely read; a Cloud Logging bucket with one-year retention keeps recent logs searchable in Logs Explorer for engineers.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep all audit logs in the _Default log bucket with its 30-day retenti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Export the audit logs to a BigQuery dataset with no table expiration a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Copy the audit logs nightly to a Filestore share mounted on a Compute …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

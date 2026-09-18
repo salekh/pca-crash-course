@@ -1,0 +1,1703 @@
+TITLE: Real GCP Cloud Architect Exam Questions | Case Study Deep Dive (HRL, EHR) | Part 10
+URL: https://www.youtube.com/watch?v=E4G5CNf4ecE
+DESCRIPTION:
+Ready to master the most challenging part of the Google Cloud Professional Architect exam? This video is a dedicated deep dive into two official case studies: **Helicopter Racing League (HRL)** and **EHR Healthcare**, covering real exam questions **188-210**.
+
+Passing the exam in 2025 requires a deep understanding of how to apply GCP services to complex business problems. This session is designed to give you that exact skill.
+
+In this deep dive, you will master how to architect solutions for:
+✅ **Helicopter Racing League (HRL) (Media/Gaming):** Designing secure payment systems, building real-time analytics for massive datasets, and optimizing global content delivery with partners like Fastly.
+✅ **EHR Healthcare (Healthcare/Compliance):** Ensuring HIPAA compliance with a Business Associate Agreement (BAA), designing secure GKE networking to reduce attack surfaces, and selecting the right storage solutions for a variety of critical healthcare workloads.
+
+We don't just give you the answers—we teach you the architectural mindset needed to solve any case study scenario thrown at you.
+
+▶️ **WATCH THE FULL 250+ QUESTION PLAYLIST HERE:**
+[[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm](https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm)]
+--
+**RESOURCES & SUPPORT**
+🤝 If you find this multi-case study breakdown valuable, please like, share, and subscribe! It tells us to make more content like this.
+
+Which case study is the hardest for you? Let us know in the comments!
+
+#gcp #googlecloud #cloudarchitect #gcpexamquestions #casestudy #helicopterracingleague #ehrhealthcare #hipaa #gaming #security
+
+CHAPTERS:
+
+TRANSCRIPT:
+Nice to see you again. In today's video,
+I'll be covering some questions related
+to case study 5, helicopter racing
+league and case study 6, ehr healthcare.
+I'll also be covering some questions
+related to the Mount Kirk Games case
+study. Without further ado, let's get
+started. Company overview. Helicopter
+Racing League, HRL, is a global sports
+league for competitive helicopter
+racing. Each year, HRL holds the World
+Championship and several regional league
+competitions where teams compete to earn
+a spot in the world championship. HRL
+offers a paid service to stream the
+races all over the world with live
+telemetry and predictions throughout
+each race. Solution concept. HRL wants
+to migrate their existing service to a
+new platform to expand their use of
+managed L and ML services to facilitate
+race predictions. Additionally, as new
+fans engage with the sport, particularly
+in emerging regions, they want to move
+the serving of their content, both real
+time and recorded, closer to their users
+existing technical environment. HRL is a
+public cloud first company. The core of
+their mission critical applications runs
+on their current public cloud provider.
+Video recording and editing is performed
+at the racetracks and the content is
+encoded and transcoded where needed in
+the cloud. Enterprisegrade connectivity
+and local compute is provided by
+truckmounted mobile data centers. Their
+race prediction services are hosted
+exclusively on their existing public
+cloud provider. Their existing technical
+environment is as follows. Existing
+content is stored in an object storage
+service on their existing public cloud
+provider. Video encoding and transcoding
+is performed on VMs created for each
+job. Race predictions are performed
+using TensorFlow running on VMs in the
+current public cloud provider. Business
+requirements. HRL's owners want to
+expand their predictive capabilities and
+reduce latency for their viewers in
+emerging markets. Their requirements are
+support ability to expose the predictive
+models to partners, increase predictive
+capabilities during and before races,
+race results, mechanical failures, crowd
+sentiment, increase telemetry and create
+additional insights. Measure fan
+engagement with new predictions. Enhance
+global availability and quality of the
+broadcast. Increase the number of
+concurrent viewers. Minimize operational
+complexity. Ensure compliance with
+regulations. Create a merchandising
+revenue stream. Technical requirements.
+Maintain or increase prediction
+throughput and accuracy. Reduce viewer
+latency. Increase transcoding
+performance. Create realtime analytics
+of viewer consumption patterns and
+engagement. Create a data mart to enable
+processing of large volumes of race
+data. Executive statement. Our CEO, S
+Hawk, wants to bring high adrenaline
+racing to fans all around the world. We
+listen to our fans and they want
+enhanced video streams that include
+predictions of events within the race,
+eg overtaking. Our current platform
+allows us to predict race outcomes, but
+lacks the facility to support real-time
+predictions during races and the
+capacity to process seasonlong results.
+Okay, this is all the background
+information related to case study 5,
+helicopter racing league. Let's start
+with the related questions of this case
+study. Question 188. For this question,
+refer to the helicopter racing league
+HRL case study. Your team is in charge
+of creating a payment card data vault
+for card numbers used to build tens of
+thousands of viewers, merchandise
+consumers, and seasoned ticket holders.
+You need to implement a custom card
+tokenization service that meets the
+following requirements. Asteriskit must
+provide low latency at minimal cost.
+Asteriskit must be able to identify
+duplicate credit cards and must not
+store plain text card numbers. Asterisk
+it should support annual key rotation.
+Which storage approach should you adopt
+for your tokenization service?
+Store the card data in secret manager
+after running a query to identify
+duplicates. B. Encrypt the card data
+with a deterministic algorithm and store
+it in fire store using data store mode.
+C. Encrypt the card data with a
+deterministic algorithm and shard it
+across multiple memory store instances.
+D. Use column level encryption to store
+the data in cloud SQL. Okay, this
+question from the helicopter racing
+league case study is about designing a
+secure and efficient storage system for
+a credit card tokenization service. We
+need a solution that is fast, cheap, can
+find duplicate card numbers without
+storing the actual numbers and supports
+key rotation. The most important
+technical requirement here is the need
+to identify duplicate credit cards
+without storing them in plain text. This
+means we need to use a special kind of
+encryption called deterministic
+encryption where the same input always
+produces the same encrypted output. This
+allows us to check for duplicates by
+comparing the encrypted values. With
+that in mind, let's look at our options.
+Let's start with option A, using Secret
+Manager. This is incorrect. Secret
+manager is for storing a small number of
+high-v value secrets like a single API
+key. It's not a database designed to
+handle and query tens of thousands of
+customer records. Next, option C
+suggests using memory store. While
+memory store is very fast, it's an
+in-memory cache and is generally a more
+expensive option for persistent storage
+compared to other databases which
+conflicts with the minimal cost
+requirement. Option D suggests using
+column level encryption in cloud SQL.
+While possible, standard database
+encryption is usually not deterministic
+for security. Also, a relational
+database like cloud SQL can be less
+scalable and more costly for this type
+of simple key value workload than a
+NoSQL alternative. This brings us to
+option B, which is the correct answer.
+This solution uses fire store in data
+store mode, which is a scalable, low
+latency, and cost-effective NoSQL
+database. Crucially, it specifies using
+a deterministic encryption algorithm.
+This allows the service to check for
+duplicate cards by comparing the
+encrypted data which satisfies the key
+requirement. This combination provides a
+secure, scalable and cost-effective
+solution. Therefore, the storage
+approach you should adopt is B. Encrypt
+the card data with a deterministic
+algorithm and store it in fire store
+using data store mode. Question 189. For
+this question, refer to the helicopter
+racing league HRL case study. Recently,
+HRL started a new regional racing league
+in Cape Town, South Africa. In an effort
+to give customers in Cape Town a better
+user experience, HRL has partnered with
+the content delivery network provider,
+Fastley. HRL needs to allow traffic
+coming from all of the Fastly IP address
+ranges into their virtual private cloud
+network, VPC network. You are a member
+of the HRL security team and you need to
+configure the update that will allow
+only the Fastly IP address ranges
+through the external HTTP
+S load balancer. Which command should
+you use? A, B, C, and D are shown in the
+provided image. Okay, this question from
+the helicopter racing league case study
+is about network security. The goal is
+to allow traffic from a specific
+partner, the CDN provider Fastly, to
+reach our application through a Google
+Cloud external HTTP
+S load balancer while blocking other
+traffic. The key to this question is
+knowing the correct security service to
+use with an external load balancer. For
+this, you need to use Cloud Armor, which
+allows you to create security policies.
+VPC firewall rules on the other hand
+apply to virtual machines within your
+network, not the load balancer itself.
+With that in mind, let's evaluate our
+options. Let's look at options B and C.
+Both of these are incorrect because they
+use the cloud compute firewall rules
+command. As we just discussed, VPC
+firewall rules are the wrong tool for
+protecting an external HTTPS load
+balancer. Now, let's look at option A.
+It correctly uses the cloud compute
+security policies command for cloud
+armor, but its source is src IP ranges
+asterisk. This would allow traffic from
+any IP address on the internet, which is
+not what we want. We only want to allow
+traffic from Fastly. This brings us to
+option D, which is the correct solution.
+It uses the correct cloud compute
+security policies command. Most
+importantly, it uses a special
+expression that calls a preconfigured
+function. Evaluate preconfigured expert
+sourcup list fastly. This is a built-in
+cloud armor feature that automatically
+uses Google's managed list of all of
+Fastly's IP addresses. The command then
+sets the action to allow. This is the
+most efficient and secure way to
+whitelist traffic from a known CDN
+provider like Fastly. Therefore, the
+correct command you should use is D.
+Question 190. For this question, refer
+to the helicopter racing league HRL case
+study. The HRL development team releases
+a new version of their predictive
+capability application every Tuesday
+evening at 3:00 a.m. universal time
+coordinated to a repository. The
+security team at HRL has developed an
+in-house penetration test cloud function
+called Airwolf. The security team wants
+to run Airwolf against the predictive
+capability application as soon as it is
+released every Tuesday. You need to set
+up Airwolf to run at the recurring
+weekly cadence. What should you do? A.
+Set up cloud tasks and a cloud storage
+bucket that triggers a cloud function.
+B. Set up a cloud logging sync and a
+cloud storage bucket that triggers a
+cloud function. C. Configure the
+deployment job to notify a pub/sub that
+triggers a cloud function. D. Set up
+identity and access management IM and
+confidential computing to trigger a
+cloud function. Okay, this question from
+is about setting up an automated
+security test. The key requirement is
+that the security test which is a cloud
+function needs to run as soon as the
+main application is released every
+Tuesday. This points to an eventdriven
+architecture. Instead of running the
+test at a fixed time, we want the
+release event itself to trigger our
+security test function. This ensures the
+test always runs immediately after the
+new code is deployed. With that in mind,
+let's look at our options. Let's start
+with option A. Using cloud tasks and a
+cloud storage trigger. This is not the
+best fit. While a file being uploaded to
+cloud storage can be an event, it's not
+the most direct way to signal that a new
+application version has been deployed.
+Option B, using a cloud logging sync is
+also incorrect. A logging sync is for
+routing log entries, not for signaling
+the completion of a deployment pipeline.
+Option D is incorrect as well. IM and
+confidential computing are security
+services and are not used for triggering
+functions based on events. This brings
+us to option C, which describes the
+correct event-driven and loosely coupled
+architecture. The deployment job after
+it successfully releases the new version
+of the application would publish a
+simple message to a cloudpub/sub.
+The airwolf cloud function would be
+configured to listen to this specific
+que. As soon as the message arrives, the
+function is triggered instantly and the
+penetration test begins. This is a
+reliable and highly scalable way to
+chain automated processes together.
+Therefore, the best way to set this up
+is C. Configure the deployment job to
+notify a pub/subq that triggers a cloud
+function. Question 191. For this
+question, refer to the helicopter racing
+league HRL case study. HRL wants better
+prediction accuracy from their ML
+prediction models. They want you to use
+Google's AI platform so HRL can
+understand and interpret the
+predictions. What should you do? A. Use
+explainable AI. B. Use Vision AI. C. Use
+Google Cloud's operations suite. D. Use
+Jupiter notebooks. Okay, this question
+from the helicopter racing league case
+study is about a key area of machine
+learning called interpretability or
+explanability. The goal is not just to
+get a prediction from a model, but to
+understand why the model made that
+specific prediction. With that in mind,
+with option B, vision AI. This is a
+powerful service for image analysis, but
+it's a pre-built tool. It's not the
+feature you would use to understand and
+interpret your own customuilt models.
+Next, option C is Google Cloud's
+operations suite. This is incorrect
+because the suite of tools, which
+includes monitoring and logging, is for
+observing the operational health of your
+application, like its CPU usage or error
+rates. it doesn't provide insights into
+the model's decision-making process.
+Option D suggests using Jupyter
+notebooks. While notebooks are the
+primary environment for developing and
+training models, they are not the
+specific feature of the AI platform that
+provides explanations for predictions
+from a deployed model. That is a
+distinct managed feature. This brings us
+to option A, which is the correct
+answer. Explainable AI is the specific
+feature set within Google's AI platform
+designed to provide interpretability for
+your models. When you request a
+prediction from a model with explainable
+AI enabled, it can also give you feature
+attributions which tell you how much
+each piece of input data contributed to
+the final result. This directly helps
+you to understand and interpret the
+model's predictions. Therefore, the
+correct thing to do is a use explainable
+AI. Question 192. For this question,
+HRL case study. HRL is looking for a
+cost-effective approach for storing
+their race data such as telemetry. They
+want to keep all historical records,
+train models using only the previous
+season's data, and plan for data growth
+in terms of volume and information
+collected. You need to propose a data
+solution considering HRL business
+requirements and the goals expressed by
+COS.
+Hawk, what should you do?
+Use Fire Store for its scalable and
+flexible document-based database. Use
+collections to aggregate race data by
+season and event. B. Use Cloud Spanner
+for its scalability and ability to
+version schemas with zero downtime.
+Split race data using season as a
+primary key. C. Use BigQuery for its
+scalability and ability to add columns
+to a schema. Partition race data based
+on season. D. Use cloud SQL for its
+ability to automatically manage storage
+increases and compatibility with MySQL.
+Use separate database instances for each
+season. Okay, this question from the
+helicopter racing league case study is
+about choosing the right long-term
+storage solution for a large and growing
+data set. The key requirements are that
+it needs to be cost-effective, handle
+massive scale, and most importantly
+allow for efficiently training machine
+learning models on just the data from
+the previous season. With that in mind,
+with the options that suggest
+transactional databases, which are A, B,
+and D. Fire store, cloud spanner, and
+cloud SQL are all powerful databases,
+but they are designed for live
+application workloads, not for storing
+and analyzing huge historical data sets
+for machine learning. For this kind of
+large-scale analytics, you need a data
+warehouse. This brings us to option C,
+which is the correct answer. This
+solution uses BigQuery, which is
+Google's serverless data warehouse built
+for cost-effective storage and fast
+analysis of massive data sets. It
+addresses all the requirements
+perfectly. Its ability to easily add new
+columns handles the future growth in
+information collected. Most importantly,
+the strategy to partition race data
+based on season is the key to both
+performance and cost effectiveness. When
+the data science team needs to train a
+model on the previous season's data,
+they can write a query that only scans
+that specific season's partition. This
+is incredibly fast and cheap because
+BigQuery doesn't have to look at all the
+other years of historical data.
+Therefore, the best data solution is C.
+Use BigQuery for its scalability and
+ability to add columns to a schema and
+partition race data based on season.
+Question 193. For this question, refer
+study. A recent finance audit of cloud
+infrastructure noted an exceptionally
+high number of compute engine instances
+are allocated to do video encoding and
+transcoding. You suspect that these
+virtual machines are zombie machines
+that were not deleted after their
+workloads completed. You need to quickly
+get a list of which VM instances are
+idle. What should you do? A log into
+each compute engine instance and collect
+disk, CPU, memory, and network usage
+statistics for analysis. B. Use the
+cloud compute instances list to list the
+virtual machine instances that have the
+idle true label set. C. Use the cloud
+recommener command to list the idle
+virtual machine instances. D. from the
+Google console. Identify which compute
+engine instances in the managed instance
+groups are no longer responding to
+health check probes. Okay, this question
+study is about a common cost
+optimization task finding and dealing
+with idle or zombie virtual machines.
+The key requirement is to find a quick
+way to get a list of these idle
+instances. With that in mind, let's look
+at our options. Let's start with option
+A, which suggests logging into each
+machine manually to collect statistics.
+This is incorrect because it's the exact
+opposite of a quick solution. This would
+be an incredibly slow and manual
+process. Next, option B suggests listing
+VMs that have an idle true label. This
+is also incorrect because Google Cloud
+does not automatically apply such a
+label. You would first need another tool
+to identify the idle VMs before you
+could even apply this label. So, it
+doesn't solve the problem. Option D
+suggests looking for instances that are
+failing health checks. This is incorrect
+because a VM can be idle, meaning it has
+very low CPU usage while still being
+perfectly healthy and responding to
+health checks. This method would find
+broken VMs, not idle ones. This brings
+us to option C, which is the correct and
+Google recommended solution. Google
+Cloud has a built-in service called
+recommener, which includes an idle VM
+recommener. This tool automatically
+analyzes the CPU and network usage of
+your instances and uses machine learning
+to identify which ones have been idle.
+You can then quickly get this list of
+recommended instances to delete or shut
+down by using the cloud recommener
+command or by looking in the GCP
+console. This is the fastest and most
+automated way to solve the problem.
+Therefore, the best thing to do is see
+use the cloud recommener command to list
+the idle virtual machine instances.
+Let's go to case study 6. Ehr healthcare
+content company overview. HR healthcare
+is a leading provider of electronic
+health record software to the medical
+industry. EHR healthcare provides their
+software as a service to multinational
+medical offices, hospitals, and
+insurance providers. Solution concept.
+Due to rapid changes in the health care
+and insurance industry, EHR healthc
+care's business has been growing
+exponentially yearover-year. They need
+to be able to scale their environment,
+adapt their disaster recovery plan, and
+roll out new continuous deployment
+capabilities to update their software at
+a fast pace. Google Cloud has been
+chosen to replace their current
+colloccation facilities. Existing
+technical environment HR software is
+currently hosted in multiple collocation
+facilities. The lease on one of the data
+centers is about to expire. Customer-f
+facing applications are web- based and
+many have recently been containerized to
+run on a group of Kubernetes clusters.
+Data is stored in a mixture of
+relational and NoSQL databases. MySQL,
+MSSQL server, Reddus and MongoDB. HR is
+hosting several legacy file and API
+based integrations with insurance
+providers on premises. These systems are
+scheduled to be replaced over the next
+several years. There is no plan to
+upgrade or move these systems at the
+current time. Users are managed via
+Microsoft Active Directory. Monitoring
+is currently being done via various
+open-source tools. Alerts are sent via
+email and are often ignored. Business
+requirements. Onboard new insurance
+providers as quickly as possible.
+Provide a minimum 99.9%
+availability for all customerf facing
+systems. Provide centralized visibility
+and proactive action on system
+performance and usage. Increase ability
+to provide insights into healthcare
+trends. Reduce latency to all customers.
+Maintain regulatory compliance. Decrease
+infrastructure administration costs.
+Make predictions and generate reports on
+industry trends based on provider data.
+Technical requirements. Maintain legacy
+interfaces to insurance providers with
+connectivity to both on- premises
+systems and cloud providers. Provide a
+consistent way to manage customerf
+facing applications that are
+containerbased. Provide a secure and
+high performance connection between on
+premises systems and Google cloud.
+Provide consistent logging, log
+retention, monitoring, and alerting
+capabilities. Maintain and manage
+multiple containerbased environments.
+Dynamically scale and provision new
+environments. Create interfaces to
+ingest and process data from new
+providers. Executive statement. Our on
+premises strategy has worked for years
+but has required a major investment of
+time and money in training our team on
+distinctly different systems, managing
+similar but separate environments and
+responding to outages. Many of these
+outages have been a result of
+misconfigured systems. inadequate
+capacity to manage spikes in traffic and
+inconsistent monitoring practices. We
+want to use Google Cloud to leverage a
+scalable, resilient platform that can
+span multiple environments seamlessly
+and provide a consistent and stable user
+experience that positions us for future
+growth. That's all the background
+information of case study 6, EHR
+healthcare. Now, let's move on to the
+questions related to this case study.
+Question 194. For this question, refer
+to the EHR healthcare case study. You
+are responsible for ensuring that EHR's
+use of Google Cloud will pass an
+upcoming privacy compliance audit. What
+should you do? Choose to
+verify EHR's product usage against the
+list of compliant products on the Google
+Cloud compliance page. B. Advise EHR to
+execute a business associate agreement
+BAA with Google Cloud. C. Use Firebase
+authentication for EHR's userfacing
+applications. D. Implement Prometheus to
+detect and prevent security breaches on
+EHR's web-based applications. E. Use GKE
+private clusters for all Kubernetes
+workloads. Okay, this question from the
+EHR healthcare case study is about
+ensuring privacy compliance which in the
+context of healthcare almost always
+refers to HIPPA. There are two
+foundational non-negotiable steps that
+any healthcare organization must take
+before they can be considered compliant
+on Google Cloud. With that in mind,
+let's evaluate the options. First, let's
+look at the incorrect options. C, D, and
+E all suggest specific technical
+implementations like using Firebase
+authentication, Prometheus, or GKE
+private clusters. While these can be
+good security practices, they are not
+the fundamental mandatory requirements
+for passing a privacy audit. They are
+implementation choices, not foundational
+compliance steps. This brings us to the
+two correct answers. Let's look at
+option B. To be compliant with HIPPA, a
+healthcare organization must execute a
+business associate agreement or BAA with
+Google Cloud. This is a legal contract
+that outlines the responsibilities of
+both parties regarding the protection of
+health information. Without this
+agreement in place, you are not
+compliant. The other correct answer is
+option A. The BAA does not cover every
+single service that Google Cloud offers.
+Google maintains a specific list of
+services that are covered under its
+HIPPA BAA. Therefore, a critical step in
+any audit is to verify that your
+application is only using products from
+this officially compliant list to handle
+any sensitive patient data. Therefore,
+the two things you must do are A and B.
+Question 195. For this question, refer
+need to define the technical
+architecture for securely deploying
+workloads to Google Cloud. You also need
+to ensure that only verified containers
+are deployed using Google Cloud
+services. What should you do? Choose to
+A. Enable binary authorization on GKE
+and sign containers as part of a CI/CD
+pipeline. B configure Jenkins to utilize
+Credies to cryptographically sign a
+container as part of a CI/CD pipeline.
+C. Configure container registry to only
+allow trusted service accounts to create
+and deploy containers from the registry.
+D. Configure container registry to use
+vulnerability scanning to confirm that
+there are no vulnerabilities before
+deploying the workload. Okay, this
+question from the EHR healthcare case
+study is about securing the software
+supply chain for your containers. The
+goal is to create a system that
+guarantees that only trusted verified
+container images are allowed to run in
+your Google Kubernetes Engine
+environment. This requires both a way to
+verify the images and a way to enforce
+the policy that only verified images can
+be deployed. With that in mind, let's
+look at our options. Let's look at
+option C. This is about controlling
+which service accounts can push images
+to your registry. While this is an
+important part of security, it doesn't
+verify the actual content of the image.
+So, it's not a complete solution. A
+trusted service account could still
+accidentally push a vulnerable image.
+Option B describes a very specific
+implementation of the signing process
+using Jenkins and Credies. While this is
+a valid way to sign an image, let's
+first consider the more fundamental
+components of the solution. Now, let's
+look at option D. This suggests using
+vulnerability scanning in container
+registry to confirm there are no
+vulnerabilities. This is a critical
+verification step. Before you can say an
+image is verified, you must scan it for
+known security issues. So this is a key
+part of the solution. Option A describes
+the complete enforcement framework. It
+talks about enabling binary
+authorization on GKE which is the
+gatekeeper that blocks unverified
+deployments. It also mentions the need
+to sign containers as part of a CI/CD
+pipeline. This signature is the proof
+that an image has passed all the
+required checks such as the
+vulnerability scan mentioned in option
+D. The combination of performing a
+vulnerability scan and then having a
+system like binary authorization enforce
+that only scanned and signed images can
+be deployed creates a complete and
+secure process. Therefore, the two
+actions that together create the
+required secure architecture are A and
+D. Question 196. You need to upgrade the
+EHR connection to comply with their
+requirements. The new connection design
+must support business critical needs and
+meet the same network and security
+policy requirements. What should you do?
+Add a new dedicated interconnect
+connection. B. Upgrade the bandwidth on
+the dedicated interconnect connection to
+100G. C. Add three new CloudVPN
+connections. D. add a new carrier
+peering connection. Okay, this question
+is about upgrading a network connection
+for a business critical healthcare
+application. The key phrase here is
+business critical which in the cloud
+world is a strong signal that you need a
+highly available and redundant solution.
+For a network connection to be highly
+available, you need at least two
+separate paths. If one path fails,
+traffic can automatically switch to the
+other, ensuring your application stays
+online. Simply making a single
+connection faster doesn't make it more
+reliable. With that in mind, let's look
+at our options. Let's look at option B,
+which suggests upgrading the bandwidth
+of the existing connection. This is
+incorrect because it only makes the
+single connection faster. It doesn't add
+any redundancy. If that one link goes
+down, you still have an outage. Next,
+option C suggests adding CloudVPN
+connections. While VPNs can be part of a
+high availability strategy, usually as a
+backup to a primary connection,
+dedicated interconnect is a much higher
+performance and more reliable solution
+suitable for a business critical primary
+link. Option D, adding a carrier peering
+connection is a type of interconnect.
+But the core requirement for high
+availability is having a second
+redundant path which is more clearly
+stated in option A. This brings us to
+option A which is the correct and Google
+recommended solution. To create a highly
+available business critical connection,
+you add a second new dedicated
+interconnect connection. By having two
+independent physical connections, you
+create a redundant setup. If one of the
+interconnects fails, traffic can be
+routed through the other, ensuring that
+your application remains connected and
+available. Therefore, the correct thing
+to do is a add a new dedicated
+interconnect connection. Question 197.
+For this question, refer to the EHR
+healthcare case study. You need to
+define the technical architecture for
+hybrid connectivity between EHR's on
+premises systems and Google Cloud. You
+want to follow Google's recommended
+practices for production level
+applications. Considering the EHR
+healthcare business and technical
+requirements, what should you do?
+Configure two partner interconnect
+connections in one metro city and make
+sure the interconnect connections are
+placed in different metro zones. B.
+Configure two VPN connections from on
+premises to Google Cloud and make sure
+the VPN devices on premises are in
+separate racks. C. Configure direct
+peering between EHR healthcare and
+Google Cloud and make sure you are
+peering at least two Google locations.
+D. Configure two dedicated interconnect
+connections in one metro city and two
+connections in another metro and make
+placed in different metro zones. Okay,
+this question from the EHR healthcare
+case study is about designing a highly
+available and productionready network
+connection between an on-remise data
+center and Google cloud. The key is to
+follow Google's recommended best
+practices for business critical
+applications. For a truly
+production-grade business critical
+connection, Google recommends a topology
+that can survive not just the failure of
+a single network link, but the failure
+of an entire physical location or
+metropolitan area. This is the 99.99%
+availability design. With that in mind,
+with option B, which suggests using
+CloudVPN. This is not the best choice
+for a primary production level
+connection because VPN runs over the
+public internet and doesn't offer the
+guaranteed performance and reliability
+of a dedicated link. Next, option C
+suggests direct peering. This is
+incorrect because direct peering is for
+connecting to Google's public services,
+not for creating a private connection to
+your VPC for your applications. Option A
+is a good start, but it's not the
+complete recommended solution for the
+highest availability. Having two
+connections in one city protects you if
+one of those connections fails, but it
+doesn't help you if there's a major
+problem like a natural disaster that
+affects the entire city. This brings us
+to option D, which is the correct answer
+and describes Google's recommended
+topology for 99.99%
+availability. This architecture provides
+the maximum level of redundancy. You set
+up two connections in one metropolitan
+area and then you set up another two
+connections in a second geographically
+separate metropolitan area. This
+protects you from a single link failure,
+a single location failure, and even the
+failure of an entire city, ensuring your
+critical application remains connected.
+Therefore, the best practice you should
+follow is D. Configure two dedicated
+interconnect connections in one metro
+city and two connections in another
+metro and make sure the interconnect
+connections are placed in different
+metro zones. Question 198. For this
+question, refer to the EHR healthcare
+case study. You are a developer on the
+EHR customer portal team. Your team
+recently migrated the customer portal
+application to Google Cloud. The load
+has increased on the application servers
+and now the application is logging many
+timeout errors. You recently
+incorporated pub/sub into the
+application architecture and the
+application is not logging any pub/sub
+publishing errors. You want to improve
+publishing latency. What should you do?
+Increase the pub/sub total timeout retry
+value. B. Move from a pub/subscriber
+pull model to a push model. C. Turn off
+pub/subssage
+batching. D. Create a backup
+pub/subssage.
+Okay, this question from the ehr
+healthcare case study is about
+optimizing the performance of cloud
+pub/sub. The specific goal is to improve
+or reduce the publishing latency which
+is the time it takes for a single
+message to be sent from the application
+to the pub/subs service. With that in
+mind, let's look at our options. Let's
+start with option A which suggests
+increasing the retry timeout. This is
+incorrect. A retry timeout is for
+handling errors but the question states
+that the application is not logging any
+publishing errors. So this is not the
+root cause of the latency. Next option B
+suggests changing the subscriber model
+from pull to push. This is also
+incorrect because it relates to how
+messages are received from pub/sub. Our
+problem is on the other side about how
+messages are sent to pub/sub. Option D.
+Creating a backup Q is a pattern used
+for reliability and handling failed
+messages. It has no effect on the
+latency of the initial message
+publishing. This brings us to option C,
+which is the correct answer. By default,
+the pub/subclient libraries use a
+feature called message batching to
+improve overall efficiency. This means
+the library will collect several
+messages together for a very short
+period and send them all in one API
+call. While this is great for
+throughput, it adds a small intentional
+delay to each individual message while
+it waits for the batch to fill. If your
+top priority is to reduce the latency of
+every single message, you can turn off
+batching. This forces the library to
+send each message immediately, which
+will improve the publishing latency.
+Therefore, the correct thing to do to
+improve publishing latency is C. Turn
+off pub/subssage batching. Question 199.
+healthcare case study. In the past,
+configuration errors put public IP
+addresses on back-end servers that
+should not have been accessible from the
+internet. You need to ensure that no one
+can put external IP addresses on
+back-end compute engine instances and
+that external IP addresses can only be
+configured on front-end compute engine
+instances. What should you do?
+Create an organizational policy with a
+constraint to allow external IP
+addresses only on the front-end compute
+engine instances. B. Revoke the
+compute.net network admin role from all
+users in the project with front-end
+instances. C. Create an identity and
+access management IM policy that maps
+the IT staff to the compute.net network
+admin role for the organization. D.
+Create a custom identity and access
+management IM role named GCE_frontend
+with the compute.resses.create
+permission. Okay. This question from the
+creating a strong security guardrail.
+The goal is to enforce a rule that says
+back-end servers can never have public
+IP addresses while still allowing
+front-end servers to have them. This
+requires a tool that controls what can
+be configured, not just who can
+configure it. With that in mind, let's
+look at our options. Let's start by
+looking at the options that focus on IM,
+which are B, C, and D. These are all
+incorrect because IM is the wrong tool
+for this specific problem. IM is about
+granting permissions to users. It
+controls who can perform an action. It
+cannot be used to enforce a rule like
+this specific type of VM is not allowed
+to have an external IP. That is a policy
+constraint, not a permission. Option C
+would actually make the problem worse by
+granting a powerful role. Option B is
+too broad and might remove permissions
+that people need. and option D creating
+a custom IM role can't solve this
+because you can't create an IM
+permission that is conditional on a
+resources configuration in this way.
+This brings us to option A which is the
+correct solution. The Google cloud
+service designed for this is the
+organization policy service. It allows
+you to set specific constraints on your
+resources. There is a constraint called
+compute.vm external IP access that does
+exactly what's needed. You can create a
+policy to deny external IPs for all VMs
+in a project and then create a more
+specific policy that allows it only for
+your designated front-end instances.
+This enforces the rule at the platform
+level regardless of who is trying to
+create the VM. Therefore, the correct
+thing to do is a create an
+organizational policy with a constraint
+to allow external IP addresses only on
+the front-end compute engine instances.
+Question 200. For this question, refer
+are responsible for designing the Google
+Cloud network architecture for Google
+Kubernetes Engine. You want to follow
+Google best practices. Considering the
+EHR healthcare business and technical
+requirements, what should you do to
+reduce the attack surface?
+Use a private cluster with a private
+endpoint with master authorized networks
+configured. B. Use a public cluster with
+firewall rules and virtual private cloud
+VPC routes. C. Use a private cluster
+with a public endpoint with master
+authorized networks configured. D. Use a
+public cluster with master authorized
+networks enabled and firewall rules.
+Okay, this question from the EHR
+healthcare case study is about designing
+the most secure network architecture for
+a Google Kubernetes Engine or GKE
+cluster. The main goal is to reduce the
+attack surface, which means minimizing
+how many components of our cluster are
+exposed to the public internet. With
+Let's start by looking at the options
+that suggest using a public cluster,
+which are B and D. A public cluster by
+definition means your worker nodes can
+have public IP addresses. This
+immediately creates a larger attack
+surface than a private cluster where
+nodes only have internal IPs. So for the
+highest level of security, we can rule
+these options out. Now let's compare the
+two private cluster options A and C.
+Option C suggests using a private
+cluster but with a public endpoint for
+the control plane. While this is better
+than a fully public cluster, it still
+exposes your cluster's API server to the
+public internet, which is a significant
+security risk that we want to avoid.
+This brings us to option A, which is the
+correct and most secure configuration.
+This architecture uses multiple layers
+of security. First, a private cluster
+ensures the worker nodes do not have
+public IPs. Second, a private endpoint
+ensures the cluster's control plane or
+API server also does not have a public
+IP, making it completely inaccessible
+from the internet. Finally, master
+authorized networks acts as an
+additional firewall, allowing you to
+specify exactly which internal IP ranges
+are allowed to talk to the control
+plane. This is the most secure design
+and does the most to reduce the attack
+surface. Therefore, the best thing to do
+is a use a private cluster with a
+private endpoint with master authorized
+networks configured. Question 201. You
+have been engaged by your client to lead
+the migration of their application
+infrastructure to GCP. One of their
+current problems is that the on-
+premises high performance SAN is
+requiring frequent and expensive
+upgrades to keep up with the variety of
+workloads that are identified as
+follows. 20 terabytes of log archives
+retained for legal reasons. 500 GB of VM
+boot/data volumes and templates. 500 GB
+of image thumbnails. 200 GB of customer
+session state data that allows customers
+to restart sessions even if offline for
+several days. Which of the following
+best reflects your recommendations for a
+cost-effective storage allocation? A.
+Local SSD for customer session state
+data. Life cycle managed cloud storage
+for log archives, thumbnails, and VM
+boot/data volumes. B. Memake backed by
+cloud data store for the customer
+session state data life cycle managed
+cloud storage for log archives
+thumbnails and VM boot/data volumes C
+meake backed by cloud SQL for customer
+session state data assorted local
+SSDbacked instances for VM boot/data
+volumes cloud storage for log archives
+and thumbnails D meake backed by
+persistent disk SSD storage for customer
+sessions state data assorted local
+and thumbnails okay this is a storage
+architecture question we have four
+different types of data and we need to
+choose the most cost-effective Google
+cloud storage solution for each one
+let's analyze the workloads first we
+have log archives VM data image
+thumbnails and customer session state
+for the first three logs VM M templates
+and thumbnails. These are all
+essentially files that can be stored as
+objects. The most cost-effective and
+scalable place for this is Google Cloud
+Storage, ideally with a life cycle
+policy to move the log archives to a
+cheaper storage class over time. The
+most complex requirement is the customer
+session state. It needs to be fast but
+also persistent for several days. Option
+A suggests using local SSD which is
+incorrect because local SSD is ephemeral
+and the data would be lost if the VM
+restarts. Option C and D also have
+flaws. Either using ephemeral storage
+for VM boot volumes or suggesting a
+complex setup of backing a cache with a
+raw disk. This brings us to option B
+which provides the best solution for all
+workloads. For the session state, it
+recommends a standard high performance
+pattern using a fast in-memory cache
+like Memake for quick access backed by a
+durable and persistent database like
+cloud data store. This ensures both
+speed and that the data is not lost. For
+all the other data types, the log
+archives, the image thumbnails, and the
+VM templates and inactive volumes, it
+correctly recommends using life cycle
+managed cloud storage which is the most
+cost effective and scalable solution.
+Therefore, the recommendation that best
+reflects a cost-effective storage
+allocation is B. Memake backed by cloud
+data store for the customer session
+state data life cycle managed cloud
+storage for log archives, thumbnails,
+and VM boot/data volumes. Question 202.
+Your big query project has several
+users. For audit purposes, you need to
+see how many queries each user ran in
+the last month. What should you do? A.
+Connect Google Data Studio to BigQuery.
+Create a dimension for the users and a
+metric for the amount of queries per
+user. B. In the BigQuery interface,
+execute a query on the jobs table to get
+the required information. C. Use BQ show
+to list all jobs per job. Use BQLs to
+list job information and get the
+required information. D. Use cloud audit
+logging to view cloud audit logs and
+create a filter on the query operation
+to get the required information. Okay,
+this is an auditing question. The goal
+is to get a reliable and accurate count
+of how many queries each user in a big
+query project has run over the past
+month. We need to find the authoritative
+source for this kind of activity
+information in Google Cloud. With that
+in mind, let's look at our options.
+Let's start with option A using Data
+Studio. This is incorrect because data
+studio is a tool for visualizing data,
+not for generating it. You would need to
+get the audit data from another source
+first before you could create a
+dashboard in data studio. Next, option B
+suggests querying the jobs table in
+BigQuery. While the information schema
+contains information about recent jobs,
+it's not designed to be a complete
+long-term audit log for all users. The
+official and most complete source of
+audit information is elsewhere. Option
+C, using the BQ command line tool to
+list all jobs is also incorrect. This
+would be a very slow, manual, and
+inefficient way to try and count
+thousands or millions of queries. It's
+not a scalable or practical approach for
+auditing. This brings us to option D,
+which is the correct and Google
+recommended solution. The definitive
+place to find this information is in
+cloud audit logs. This service
+automatically records detailed
+information about activities across your
+entire Google Cloud project, including
+every BigQuery query that is executed.
+The logs include the user who initiated
+the job, the timestamp, and the query
+details. You can easily go into the logs
+explorer, create a filter to show only
+the BigQuery query operations for the
+last month, and then easily analyze that
+data to get the counts for each user.
+This is the most reliable and direct way
+to get the information needed for an
+audit. Therefore, the correct thing to
+do is D. Use cloud audit logging to view
+cloud audit logs and create a filter on
+the query operation to get the required
+information. Question 203. For this
+question, refer to the Mount Kirk Games
+case study. Mount Kirk Games wants to
+migrate from their current analytics and
+statistics reporting model to one that
+meets their technical requirements on
+Google Cloud Platform. Which two steps
+should be part of their migration plan?
+Choose two.
+Evaluate the impact of migrating their
+current batch ETL code to cloud dataf
+flow. B. Write a schema migration plan
+to denormalize data for better
+performance in BigQuery. C. Draw an
+architecture diagram that shows how to
+move from a single MySQL database to a
+MySQL cluster. D. Load 10 terabytes of
+analytics data from a previous game into
+a Cloud SQL instance and run test
+queries against the full data set to
+confirm that they complete successfully.
+E. Integrate Cloud Armor to defend
+against possible SQL injection attacks
+in analytics files uploaded to cloud
+storage. Okay, this question from the
+Mount Kirk Games case study is about
+planning the migration of their entire
+analytic system to Google Cloud. We need
+to identify two key planning steps that
+align with Google's best practices for
+building a modern data platform. With
+First, let's look at the incorrect
+options. Option C is about moving to a
+MySQL cluster which is only a minor
+improvement and not the modern scalable
+analytics solution that the case study
+implies they need. Option D is incorrect
+because Cloud SQL is not the right tool
+for a 10 TBTE analytics workload.
+BigQuery is and option E is incorrect
+because Cloud Armor is a web security
+tool and is not relevant to a data
+analytics pipeline. This brings us to
+the two correct answers. Let's look at
+option A. This is a crucial step. They
+have existing batch ETL code. Part of
+any successful migration is to evaluate
+the impact of moving that code to a new
+platform like cloud dataf flow. This
+helps them understand the effort and
+changes required. Option B is the other
+correct and critical planning step.
+Their old system likely uses a
+normalized relational database schema.
+BigQuery, the recommended data
+warehouse, performs best with a
+denormalized schema. Therefore, a key
+part of the migration plan must be to
+write a schema migration plan to
+denormalize the data. This ensures the
+data is structured optimally for
+performance and cost in the new
+environment. Therefore, the two steps
+that should be part of their migration
+plan are A and B. Question 204. For this
+case study. You need to analyze and
+the compute workloads for your company,
+Mount Kirk Games. Considering the Mount
+Kirk games business and technical
+Create network load balancers. Use
+preemptable compute engine instances. B.
+non-premptable compute engine instances.
+C. Create a global load balancer with
+managed instance groups and autoscaling
+policies. Use preemptable compute engine
+instances. D. Create a global load
+balancer with managed instance groups
+and autoscaling policies. Use
+Okay, this question from the Mount Kirk
+games case study asks us to design the
+main compute architecture for their new
+global game. The key requirements from
+the case study are that the solution
+must be able to scale to handle
+unpredictable traffic spikes and provide
+a good low latency experience for users
+around the world. With that in mind,
+let's evaluate our options. Let's first
+look at options A and B, which both
+suggest using a network load balancer.
+This is incorrect because a network load
+balancer is a regional service. For a
+global game with users in different
+continents, you need a global load
+balancer that can intelligently route
+players to the servers closest to them.
+Next, let's look at option C. This
+option correctly identifies the need for
+a global load balancer and autoscaled
+managed instance groups. However, it
+suggests using preemptable VMs. This is
+a bad choice for a live interactive
+game. Preemptable VMs can be shut down
+by Google at any time which would
+disconnect players and create a very
+poor user experience. This brings us to
+option D which is the correct answer.
+This describes the standard best
+practice architecture for a scalable
+global application. You use a global
+load balancer to provide a single entry
+point and route traffic to the nearest
+region. You use managed instance groups
+with autoscaling policies to
+automatically handle spikes in player
+traffic. And you use standard
+non-premptable instances to ensure the
+game servers are reliable and don't get
+shut down unexpectedly. Therefore, the
+correct architecture you should design
+is D. Create a global load balancer with
+policies. Use non-premptable compute
+engine instances. Question 205. For this
+design their solution for the future in
+order to take advantage of cloud and
+technology improvements as they become
+available. Which two steps should they
+take? Choose to.
+Store as much analytics and game
+activity data as financially feasible
+today so it can be used to train machine
+learning models to predict user behavior
+in the future. B. Begin packaging their
+game backend artifacts in container
+images and running them on Google
+Kubernetes engine to improve the ability
+to scale up or down based on game
+activity. C. Set up a CI/CD pipeline
+using Jenkins and Spre to automate
+Canary deployments and improve
+development velocity. D. Adopt a schema
+versioning tool to reduce downtime when
+adding new game features that require
+storing additional player data in the
+database. E. Implement a weekly rolling
+maintenance process for the Linux
+virtual machines so they can apply
+critical kernel patches and package
+updates and reduce the risk of zeroday
+vulnerabilities. Okay, this question
+from the Mount Kirk Games case study is
+about making strategic forward-looking
+decisions. The goal is to choose two
+actions that will best prepare the
+company to take advantage of future
+improvements in cloud technology. With
+that in mind, let's evaluate our
+options. First, let's look at the
+options that are good current practices,
+but less about future proofing. Options
+C, D, and E. Setting up a CI/CD
+pipeline, using a schema versioning
+tool, and implementing a patching
+process are all excellent things to do
+for operational stability right now.
+However, they are more about improving
+today's processes than making a
+fundamental architectural shift to
+prepare for the future. This brings us
+to the correct answers, which are more
+strategic. Let's look at option A. This
+suggests storing as much game activity
+data as possible now so it can be used
+to train future machine learning models.
+This is a key strategic decision.
+Without a large historical data set, you
+cannot take advantage of future
+advancements in AI and machine learning
+to do things like predict user behavior.
+Collecting the data is the first and
+most important step. The other correct
+answer is option B. This suggests
+packaging the application in container
+Kubernetes Engine. This is another
+fundamental architectural shift that
+futureproofs the application. It makes
+the application portable, highly
+scalable, and less dependent on the
+underlying virtual machines. This
+positions the company perfectly to adopt
+new cloudnative technologies and
+deployment patterns as they emerge.
+Therefore, the two best steps to prepare
+for the future are A and B. Question
+206. For this question, refer to the
+Mount Kirk Games case study. Mount Kirk
+Games wants you to design a way to test
+the analytics platform's resilience to
+changes in mobile network latency. What
+should you do?
+Deploy failure injection software to the
+game analytics platform that can inject
+additional latency to mobile client
+analytics traffic. B. Build a test
+client that can be run from a mobile
+phone emulator on a comput engine
+virtual machine and run multiple copies
+in Google Cloud Platform regions all
+over the world to generate realistic
+traffic. C. Add the ability to introduce
+a random amount of delay before
+beginning to process analytics files
+uploaded from mobile devices. D. Create
+an opt-in beta of the game that runs on
+players mobile devices and collects
+response times from analytics endpoints
+running in Google Cloud Platform regions
+all over the world. Okay, this question
+about a specific type of testing called
+resiliency testing, which is often part
+of a chaos engineering practice. The
+goal is to actively test how your system
+behaves under bad conditions,
+specifically when there are delays in
+the mobile network. With that in mind,
+by looking at option B, which suggests
+building a test client to generate
+realistic traffic. This is a form of
+load testing, which is important, but it
+doesn't specifically test how your
+system handles network latency. It just
+sends normal traffic. Next option C
+suggests adding a delay after the data
+has already arrived before processing.
+This is incorrect because it injects the
+delay at the wrong point in the process.
+It doesn't test how the data ingestion
+part of your platform or the mobile
+client itself handles a slow network
+connection during the upload. Option D
+proposes creating a beta to measure real
+world response times. This is a good way
+to gather data about your user
+experience, but it's a passive
+measurement. It's not an active control
+test to see how your system breaks and
+recovers from specific failure
+conditions. This brings us to option A,
+describes a classic chaos engineering
+experiment. You would deploy failure
+injection software to your analytics
+platform. This software is designed to
+intentionally and controllably inject
+additional latency into the incoming
+traffic from mobile clients. This allows
+you to safely simulate bad network
+conditions and observe how your entire
+system from the client to the back end
+behaves, which is the definition of
+testing for resilience. Therefore, the
+best way to test for resilience to
+network latency is a deploy failure
+injection software to the game analytics
+platform that can inject additional
+latency to mobile client analytics
+traffic. Question 207. For this
+the database workloads for your company
+Mirkerk Games. Considering the business
+and technical requirements, what should
+you do? A. Use Cloud SQL for time series
+data and use Cloud Bigtable for
+historical data queries. B. Use Cloud
+SQL to replace MySQL and use Cloud
+Spanner for historical data queries. C.
+Use cloud bigtable to replace MySQL and
+use BigQuery for historical data
+queries. D. Use cloud bigtable for time
+series data. Use cloud spanner for
+transactional data. And use BigQuery for
+historical data queries. Okay, this
+question from the Mount Kirk games case
+study is about designing a complete
+database architecture. A modern
+large-scale application like this has
+several different types of data
+workloads and the best practice is to
+choose the right purpose-built database
+for each one rather than trying to use a
+single database for everything. Based on
+the case study, we can identify three
+main types of data. Realtime time series
+data from the game itself, transactional
+data for things like user accounts and
+leaderboards, and historical data for
+analytics. With that in mind, let's look
+at our options. Options A and B are
+incorrect because they suggest using
+Cloud SQL for either time series or
+historical queries. Cloud SQL is a great
+transactional database, but it's not
+designed for the massive scale of time
+series ingestion or historical analytics
+that this game requires. Option C is
+also incorrect. While it correctly
+identifies BigQuery for historical
+queries, it suggests using cloud
+bigtable to replace all of MySQL.
+Bigtable is a NoSQL database and cannot
+handle the strongly consistent
+relational transactions needed for
+things like user accounts and
+leaderboards. This brings us to option D
+which is the correct and recommended
+architecture. It perfectly maps each
+workload to the best tool for the job.
+You use cloud bigtable for its strength
+in handling high volume low latency time
+series data. You use cloud spanner for
+its unique ability to provide globally
+scalable strongly consistent
+transactions for the user accounts and
+leaderboards and you use BigQuery as the
+data warehouse for running large-scale
+analytical queries on all the historical
+data. Therefore, the correct
+architecture is D. Use cloud bigtable
+for time series data. Use cloud spanner
+for transactional data and use BigQuery
+for historical data queries. Question
+208. For this question, refer to the
+Mount Kirk games case study. Which
+managed storage option meets Mount
+Kirk's technical requirement for storing
+game activity in a time series database
+service? A cloud big table, B. Cloud
+Spanner, C. Big Query, D. Cloud Data
+Store. Okay, this question from the
+Mount Kirk Games case study is asking us
+to choose the best database specifically
+for storing time series data from game
+activity. This type of data typically
+has a very high volume of writes and
+requires fast low latency access. With
+Let's start with the options that are
+not designed for this type of workload.
+Option C, BigQuery is an analytical data
+warehouse, not a real-time database for
+serving an application. Option D, cloud
+data store is a document database best
+suited for application data like user
+profiles, not for the massive write
+throughput of a time series workload.
+Next, let's look at option B, cloud
+spanner. While Spanner is a very
+powerful database, it's a relational
+database designed for transactional
+workloads that need strong global
+consistency. It is not the specialized
+tool for handling time series data. This
+brings us to option A, which is the
+correct answer. Cloud Bigtable is
+Google's fully managed widec column
+NoSQL database. It is specifically
+designed and optimized for large-scale
+high throughput low latency workloads
+with time series data being one of its
+primary use cases. It's the perfect
+choice for capturing and serving a
+massive stream of game activity data.
+Therefore, the manage storage option
+that meets the requirement is a cloud
+big table. Question 209. For this
+question, refer to the Mount Kirk games
+case study. You are in charge of the new
+game backend platform architecture. The
+game communicates with the backend over
+a REST API. You want to follow Google
+recommended practices. How should you
+design the backend?
+Create an instance template for the
+backend for every region. Deploy it on a
+multiszone managed instance group. Use
+an L4 load balancer. B. Create an
+instance template for the back end for
+every region. Deploy it on a single zone
+managed instance group. Use an L4 load
+balancer. C. Create an instance template
+for the backend. For every region,
+deploy it on a multiszone managed
+instance group. Use an L7 load balancer.
+D. Create an instance template for the
+backend. For every region, deploy it on
+a single zone managed instance group.
+use an L7 load balancer. Okay, this
+question from the Mount Kirk Games case
+study asks us to design a resilient and
+scalable back-end architecture. We need
+to choose the right kind of instance
+group for high availability and the
+right kind of load balancer for the
+applications traffic. With that in mind,
+let's look at our options. Let's first
+look at the options that suggest using a
+single zone managed instance group,
+which are B and D. These are incorrect
+because deploying your application to a
+single zone is not a highly available
+design. If that one zone were to have an
+outage, your entire application would go
+down. The best practice is to spread
+your instances across multiple zones
+within a region. Now, let's compare the
+remaining options A and C. Both
+correctly use a multiszone managed
+instance group for high availability.
+The only difference is the type of load
+balancer layer 4 versus layer 7. Option
+A suggests a layer 4 or network load
+balancer. This is not the best choice
+because the application uses a REST API
+which is based on HTTP. This brings us
+to option C which is the correct and
+recommended architecture. It uses a
+multiszone managed instance group to
+ensure the application is resilient to a
+single zone failure. And critically, it
+uses a layer 7 or HTTPS
+load balancer. This type of load
+balancer is designed specifically for
+web traffic like a REST API. It
+understands HTTP requests and can
+provide more advanced routing features
+than a layer 4 load balancer. Therefore,
+the best way to design the backend is C.
+backend for every region. deploy it on a
+multiszone managed instance group and
+use an L7 load balancer. Question 210.
+You need to optimize batch file
+transfers into cloud storage for Mount
+Kirk Games new Google Cloud solution.
+The batch files contain game statistics
+that need to be staged in cloud storage
+and be processed by an extract transform
+load ETL tool. What should you do? Use
+sud to batch move files in sequence. B.
+Use sud to batchcopy the files in
+parallel. C. Use sud to extract the
+files as the first part of ETL. D. Use
+sud to load the files as the last part
+of ETL. Okay, this question is about
+getting the best performance when
+uploading a large number of files to
+Google Cloud Storage. The key word here
+is optimize, which means we want to make
+the transfer as fast as possible. With
+options. Let's first look at the options
+that misunderstand the role of pseudo
+which are C and D. The pseudo tool is
+for copying files to and from cloud
+storage. It's not an ETL tool itself for
+extracting or loading data in that
+context. Next, let's look at option A.
+It suggests moving the files in
+sequence. This is incorrect for two
+reasons. First, a move isn't what's
+needed for staging the data. More
+importantly, performing the transfers
+one at a time or in sequence is the
+slowest possible way to upload many
+files. This brings us to option B, which
+is the correct and recommended practice.
+The pseudo tool has a powerful feature
+that allows it to perform operations in
+parallel, meaning it can upload many
+files at the same time using multiple
+threads. To get the maximum speed and
+optimize your transfer, you should
+perform a batch copy of all the files
+and ensure you are doing it in parallel.
+This will saturate your network
+connection and get the files uploaded
+much faster than a sequential copy.
+Therefore, the best thing to do is be
+use sud to batchcopy the files in
+parallel. Thanks for watching. If you
+found this video interesting and
+helpful, please like, share and
+subscribe to our channel. See you in the
+next video. Happy learning.

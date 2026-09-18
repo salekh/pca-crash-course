@@ -13,12 +13,20 @@
       "Deploy the container as a Cloud Run service with request-based autoscaling and the default minimum of zero instances.",
       "Deploy the container to a GKE Autopilot cluster and configure the Horizontal Pod Autoscaler."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The deciding factors are a stateless container, no Kubernetes skills, bursty traffic, and pay-per-use. Cloud Run is a fully managed serverless container platform that scales from zero to thousands of instances per request load and bills only while instances are handling requests, which is the cost-optimization and operational-excellence sweet spot here. Option A requires the team to operate Kubernetes and pay for nodes even when idle. Option B keeps VMs running (no scale to zero) and adds OS patching and image management. Option D removes node management but still requires Kubernetes knowledge (Deployments, HPA, Services) and Autopilot does not scale a Deployment to zero pods on its own.",
     "refs": [
       "https://cloud.google.com/run/docs/overview/what-is-cloud-run",
       "https://cloud.google.com/run/docs/about-instance-autoscaling"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run): The deciding factors are a stateless container, no Kubernetes skills, bursty traffic, and pay-per-use.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the container to a GKE Standard cluster with the Horizontal Pod…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy the container on a Compute Engine managed instance group with a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the container to a GKE Autopilot cluster and configure the Hori…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-002",
@@ -34,12 +42,20 @@
       "Run the tasks on a Compute Engine managed instance group of standard VMs that is scaled up by a Cloud Scheduler trigger each night.",
       "Implement each task as a Cloud Run function invoked by Pub/Sub messages published by Cloud Scheduler."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Batch is Google's fully managed service for scheduling, queuing, and executing batch jobs on Compute Engine; it provisions the VMs, runs container tasks in parallel, supports Spot VMs, and retries failed or preempted tasks, so no cluster or custom scheduler is needed. Because the tasks are idempotent and there is an 8-hour window, Spot pricing (60-91% discount) is appropriate and preemptions are absorbed by retries. Option B works technically but requires operating a GKE cluster, which violates the no-cluster requirement. Option C uses full-price VMs and requires custom task-distribution logic. Option D fails because event-driven Cloud Run functions have a maximum execution time of 9 minutes (HTTP functions up to 60 minutes) and tasks run 10-20 minutes; it is also more expensive per vCPU-hour than Spot VMs.",
     "refs": [
       "https://cloud.google.com/batch/docs/get-started",
       "https://cloud.google.com/compute/docs/instances/spot"
-    ]
+    ],
+    "hint": "Core Rule: Batch is Google's fully managed service for scheduling, queuing, and executing batch jobs on Compute Engine; it provisions the VMs, runs container tasks in parallel, supports Spot VMs, and retries failed or preempted tasks, so no cluster or custom scheduler is needed.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a GKE Standard cluster with a Spot node pool and run the tasks …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run the tasks on a Compute Engine managed instance group of standard V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Implement each task as a Cloud Run function invoked by Pub/Sub message…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-003",
@@ -55,12 +71,20 @@
       "Replace the VMs with equivalent managed services such as Cloud SQL and Cloud Run over the six-month period.",
       "Deploy a Google Cloud VMware Engine private cloud and migrate the VMs with VMware HCX, keeping vCenter and NSX as the management plane."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The constraints are a hard deadline, dependence on vSphere/NSX features, and an operations team skilled in vCenter. Google Cloud VMware Engine provides a fully managed VMware SDDC (vSphere, vSAN, NSX-T, HCX) running on dedicated Google hardware, so workloads move with HCX live or bulk migration and existing runbooks and tooling remain valid; this is the lowest-risk path to meet the deadline. Option A is a valid lift-and-shift path but forces re-implementation of NSX microsegmentation and retraining of the team on Compute Engine, which is risky in six months for 400 VMs. Option B requires containerization suitability assessment and re-platforming of every application. Option C is a full modernization that cannot realistically be completed for 400 VMs in six months and contradicts the no-refactoring requirement.",
     "refs": [
       "https://cloud.google.com/vmware-engine/docs/overview",
       "https://cloud.google.com/architecture/migration-to-gcp-getting-started"
-    ]
+    ],
+    "hint": "Core Rule (VMware Engine): The constraints are a hard deadline, dependence on vSphere/NSX features, and an operations team skilled in vCenter.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use Migrate to Virtual Machines to convert every VM to a Compute Engin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Containerize the applications with Migrate to Containers and deploy th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Replace the VMs with equivalent managed services such as Cloud SQL and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-004",
@@ -76,12 +100,20 @@
       "Migrate the database to Cloud SQL for PostgreSQL using Database Migration Service with the Oracle-to-PostgreSQL conversion workspace.",
       "Run Oracle RAC on sole-tenant nodes in Compute Engine so that the physical host is dedicated to the company."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Bare Metal Solution exists precisely for specialized workloads such as Oracle RAC that need certified, non-virtualized hardware and core-based licensing; the servers sit in a regional extension with low-latency (sub-millisecond) connectivity to the VPC in the same region via a Partner Interconnect that Google manages. Option A places RAC on a virtualized instance, which the vendor does not certify, and Compute Engine does not support the shared-storage clustering RAC expects. Option C is a database re-platforming project that changes the engine, which is not what was asked and carries high risk for a mission-critical system. Option D dedicates the host but is still a virtualized environment, so it does not satisfy the certification constraint.",
     "refs": [
       "https://cloud.google.com/bare-metal/docs/bms-planning",
       "https://cloud.google.com/bare-metal/docs/bms-overview"
-    ]
+    ],
+    "hint": "Core Rule: Bare Metal Solution exists precisely for specialized workloads such as Oracle RAC that need certified, non-virtualized hardware and core-based licensing; the servers sit in a regional extension with low-latency (sub-millisecond) connectivity to the VPC in the same region via a Partner Interconnect that Google manages.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate the database to a memory-optimized M3 Compute Engine instance …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Migrate the database to Cloud SQL for PostgreSQL using Database Migrat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run Oracle RAC on sole-tenant nodes in Compute Engine so that the phys…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-005",
@@ -97,12 +129,20 @@
       "Deploy the containers as Cloud Run services and convert the Helm charts to Cloud Run service YAML.",
       "Create a GKE Standard cluster with a single large node pool and use Vertical Pod Autoscaler to tune requests."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "GKE Autopilot is the Google-recommended mode when you want the Kubernetes API without managing nodes: Google provisions, scales, patches and secures the nodes, and you are billed per pod resource request rather than per node, so there is no idle-node cost. Because the workloads need no privileged access or custom node settings, Autopilot's restrictions are not a blocker. Option A reduces but does not remove node management (you still choose machine families, manage OS images, and pay for unused node capacity). Option C abandons the Kubernetes API and Helm ecosystem the team wants to keep. Option D pays for a large, mostly idle node pool and still requires node maintenance.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview",
       "https://cloud.google.com/kubernetes-engine/docs/resources/autopilot-standard-feature-comparison"
-    ]
+    ],
+    "hint": "Core Rule: GKE Autopilot is the Google-recommended mode when you want the Kubernetes API without managing nodes: Google provisions, scales, patches and secures the nodes, and you are billed per pod resource request rather than per node, so there is no idle-node cost.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a GKE Standard cluster with node auto-provisioning and enable a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy the containers as Cloud Run services and convert the Helm chart…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a GKE Standard cluster with a single large node pool and use Ve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-006",
@@ -118,12 +158,20 @@
       "GKE Autopilot with the Performance compute class, because it grants pods exclusive access to the whole node.",
       "GKE Autopilot with a custom ComputeClass that specifies the node system configuration."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Autopilot deliberately restricts host-level access: arbitrary privileged containers, host networking, kernel module loading, and low-level node customization are blocked so that Google can guarantee the node security posture. GKE Standard gives you full control of node pools, node images (for example Ubuntu for out-of-tree kernel modules), node system configuration, and local SSD node pools, which is what a network-inspection agent needs. Option B is wrong because the partner allowlist covers only specific approved third-party agents, not a customer's own privileged product. Option C's Performance compute class gives dedicated node capacity but still enforces Autopilot's security restrictions. Option D is wrong because custom ComputeClasses control node attributes such as machine family and Spot priority, not kernel modules or host networking.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-security",
       "https://cloud.google.com/kubernetes-engine/docs/resources/autopilot-standard-feature-comparison"
-    ]
+    ],
+    "hint": "Core Rule (GKE Standard): Autopilot deliberately restricts host-level access: arbitrary privileged containers, host networking, kernel module loading, and low-level node customization are blocked so that Google can guarantee the node security posture.",
+    "whyWrong": {
+      "1": "Incorrect distractor (GKE Autopilot, because it supports privileged workloads through the al…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (GKE Autopilot with the Performance compute class, because it grants po…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (GKE Autopilot with a custom ComputeClass that specifies the node syste…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-007",
@@ -139,12 +187,20 @@
       "M3 memory-optimized, because it provides multi-terabyte, SAP-certified shapes for in-memory databases.",
       "A3 accelerator-optimized, because HANA benefits from GPU acceleration for analytics."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The memory-optimized family (M1/M2/M3) is designed for large in-memory databases such as SAP HANA; M3 shapes go up to about 4 TB (M2 up to 12 TB) and are SAP-certified, which is the hard requirement here. Option A fails because N2 custom machine types cap out well below 6 TB (N2 maximum is 864 GB) and are not certified for scale-up HANA at this size. Option B is a general-purpose high-performance family whose largest shapes still do not reach 6 TB and are not on SAP's certified list for HANA of this size. Option D is for GPU workloads; HANA does not use GPUs and A3 memory sizes are tied to GPU count, making it both unsuitable and far more expensive.",
     "refs": [
       "https://cloud.google.com/compute/docs/memory-optimized-machines",
       "https://cloud.google.com/solutions/sap/docs/certifications-sap-hana"
-    ]
+    ],
+    "hint": "Core Rule (Machine families): The memory-optimized family (M1/M2/M3) is designed for large in-memory databases such as SAP HANA; M3 shapes go up to about 4 TB (M2 up to 12 TB) and are SAP-certified, which is the hard requirement here.",
+    "whyWrong": {
+      "0": "Incorrect distractor (N2 with extended memory, because custom extended memory can reach the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (C3 high-memory, because it offers the newest Intel processors and the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A3 accelerator-optimized, because HANA benefits from GPU acceleration …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-008",
@@ -160,12 +216,20 @@
       "Run SQL Server on Cloud SQL for SQL Server and bring your own licenses.",
       "Run the VMs on sole-tenant nodes with a node affinity policy, bring the existing licenses, and use CPU overcommit or in-place restart settings to limit physical core consumption."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Sole-tenant nodes give you physical servers dedicated to your project, which is what per-core, bring-your-own-license (BYOL) Windows and SQL Server scenarios without License Mobility require; node affinity labels pin the VMs to those hosts, and features such as CPU overcommit and restart-in-place maintenance let you pack VMs and keep them on the same licensed cores. Option A discards the existing licenses and pays again for license-included images on shared hosts, which violates the licensing rule. Option B addresses memory confidentiality, not physical isolation for licensing. Option C is wrong because Cloud SQL for SQL Server is license-included only and does not support BYOL.",
     "refs": [
       "https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes",
       "https://cloud.google.com/compute/docs/nodes/bringing-your-own-licenses"
-    ]
+    ],
+    "hint": "Core Rule: Sole-tenant nodes give you physical servers dedicated to your project, which is what per-core, bring-your-own-license (BYOL) Windows and SQL Server scenarios without License Mobility require; node affinity labels pin the VMs to those hosts, and features such as CPU overcommit and restart-in-place maintenance let you pack VMs and keep them on the same licensed cores.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run the VMs on standard N2 instances with pay-as-you-go SQL Server ima…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run the VMs on Confidential VMs so that the hypervisor cannot access t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run SQL Server on Cloud SQL for SQL Server and bring your own licenses…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-009",
@@ -181,12 +245,20 @@
       "N2D, because AMD-based instances are always cheaper than Intel-based instances.",
       "M3, because development environments benefit from large amounts of memory."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "E2 is the cost-optimized general-purpose family: Google places E2 VMs dynamically across CPU platforms and can use shared-core shapes (e2-micro, e2-small, e2-medium) for tiny workloads, giving the lowest on-demand price for workloads that tolerate variable performance, which matches dev/test. Option A is wrong because C3 is a premium, performance-oriented family and costs more per vCPU. Option C is wrong because N2D is cheaper than N2 but still more expensive than E2, and the word 'always' is inaccurate. Option D is a memory-optimized family intended for large in-memory databases and is far more expensive than needed.",
     "refs": [
       "https://cloud.google.com/compute/docs/general-purpose-machines",
       "https://cloud.google.com/compute/docs/machine-resource"
-    ]
+    ],
+    "hint": "Core Rule (Machine families): E2 is the cost-optimized general-purpose family: Google places E2 VMs dynamically across CPU platforms and can use shared-core shapes (e2-micro, e2-small, e2-medium) for tiny workloads, giving the lowest on-demand price for workloads that tolerate variable performance, which matches dev/test.",
+    "whyWrong": {
+      "0": "Incorrect distractor (C3, because it provides the best price-performance for all workloads.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (N2D, because AMD-based instances are always cheaper than Intel-based i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (M3, because development environments benefit from large amounts of mem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-010",
@@ -202,12 +274,20 @@
       "Use N2 instances with a spread placement policy to avoid resource contention between nodes.",
       "Use A3 instances so that simulation traffic can use the GPU-to-GPU interconnect."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Tightly coupled MPI workloads need two things: high per-core, consistent performance (compute-optimized C3/H3 with no CPU sharing) and minimal network latency between nodes, which a compact placement policy delivers by placing VMs on physically close hosts in the same zone; gVNIC and Tier_1 networking further reduce latency and increase bandwidth. Option B is the opposite design: E2 has variable performance and spreading across zones adds inter-zone latency that dominates MPI runtimes. Option C uses a spread policy, which intentionally separates VMs onto different hosts and increases latency. Option D is wrong because a CFD solver running on CPUs does not use the GPU fabric; A3 is expensive and inappropriate unless the code is GPU-accelerated.",
     "refs": [
       "https://cloud.google.com/compute/docs/instances/placement-policies-overview",
       "https://cloud.google.com/compute/docs/compute-optimized-machines"
-    ]
+    ],
+    "hint": "Core Rule (HPC compute): Tightly coupled MPI workloads need two things: high per-core, consistent performance (compute-optimized C3/H3 with no CPU sharing) and minimal network latency between nodes, which a compact placement policy delivers by placing VMs on physically close hosts in the same zone; gVNIC and Tier_1 networking further reduce latency and increase bandwidth.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use E2 instances spread across three zones with a regional managed ins…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use N2 instances with a spread placement policy to avoid resource cont…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use A3 instances so that simulation traffic can use the GPU-to-GPU int…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-011",
@@ -223,12 +303,20 @@
       "A3 accelerator-optimized instances with eight NVIDIA H100 GPUs, provisioned through a reservation or Dynamic Workload Scheduler to guarantee capacity for the run.",
       "Cloud TPU v5p slices, because TPUs are the only option for training models of this size."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "A3 machine types are Google's H100-based accelerator-optimized family, delivering eight H100 GPUs per VM with NVLink/NVSwitch and very high inter-node bandwidth for NCCL all-reduce, which is exactly what multi-week LLM pre-training needs; because H100 capacity is scarce, reservations or Dynamic Workload Scheduler (calendar mode) are the recommended way to guarantee capacity for a long run. Option A's T4 GPUs are inference-class accelerators with 16 GB memory and no high-speed interconnect, so training a model of this size would be impractical. Option B's L4 GPUs are optimized for inference and small fine-tuning, not large-scale distributed pre-training. Option D is wrong because TPUs would require porting away from the CUDA/NCCL stack the framework depends on, and the claim that TPUs are the 'only' option is false.",
     "refs": [
       "https://cloud.google.com/compute/docs/accelerator-optimized-machines",
       "https://cloud.google.com/compute/docs/instances/reservations-overview"
-    ]
+    ],
+    "hint": "Core Rule (Accelerator-optimized machines): A3 machine types are Google's H100-based accelerator-optimized family, delivering eight H100 GPUs per VM with NVLink/NVSwitch and very high inter-node bandwidth for NCCL all-reduce, which is exactly what multi-week LLM pre-training needs; because H100 capacity is scarce, reservations or Dynamic Workload Scheduler (calendar mode) are the recommended way to guarantee capacity for a long run.",
+    "whyWrong": {
+      "0": "Incorrect distractor (N1 instances with attached NVIDIA T4 GPUs, because T4 offers the lowes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (G2 instances with NVIDIA L4 GPUs, which are optimized for generative A…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cloud TPU v5p slices, because TPUs are the only option for training mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-012",
@@ -244,12 +332,20 @@
       "Use e2-standard-8 instances, because E2 is cheaper than N2 for the same shape.",
       "Create an N2 custom machine type with 6 vCPUs and 44 GB of memory and purchase a committed use discount for the fleet."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Custom machine types let you pay only for the vCPUs and memory you actually need when no predefined shape fits, and a steady 24x7 fleet is the textbook case for a resource-based committed use discount (up to 57% for 3 years), which is applied on top of the right-sized shape. Option A over-provisions both vCPUs and memory and sustained use discounts do not compensate for paying for unused capacity. Option B under-provisions memory; swapping to Persistent Disk would severely degrade an analytics workload. Option C changes the family but still over-provisions vCPUs and gives only 32 GB, which does not meet the 44 GB requirement.",
     "refs": [
       "https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type",
       "https://cloud.google.com/docs/cuds"
-    ]
+    ],
+    "hint": "Core Rule: Custom machine types let you pay only for the vCPUs and memory you actually need when no predefined shape fits, and a steady 24x7 fleet is the textbook case for a resource-based committed use discount (up to 57% for 3 years), which is applied on top of the right-sized shape.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Use n2-highmem-8 instances and rely on sustained use discounts to offs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use n2-standard-8 instances and add swap space on Persistent Disk to c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use e2-standard-8 instances, because E2 is cheaper than N2 for the sam…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-013",
@@ -265,12 +361,20 @@
       "No commitment; rely on sustained use discounts because they automatically apply to all machine families.",
       "A one-year resource-based committed use discount per machine family in each project, renewed each year."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Flexible (spend-based) committed use discounts commit to an hourly spend amount rather than a specific machine family, region, or project; they apply across eligible Compute Engine families and also cover Cloud Run and GKE Autopilot usage, so workloads can be modernized without stranding the commitment. Option A locks the commitment to N2 in one project and one region, so moving to C3 or Cloud Run would leave the commitment unused while still being billed. Option C is wrong because sustained use discounts are smaller than CUDs and do not apply to E2, and in any case they do not meet the finance goal of maximizing savings. Option D creates administrative overhead and yields smaller discounts than a three-year term while still being family-specific.",
     "refs": [
       "https://cloud.google.com/docs/cuds",
       "https://cloud.google.com/docs/cuds-spend-based"
-    ]
+    ],
+    "hint": "Core Rule: Flexible (spend-based) committed use discounts commit to an hourly spend amount rather than a specific machine family, region, or project; they apply across eligible Compute Engine families and also cover Cloud Run and GKE Autopilot usage, so workloads can be modernized without stranding the commitment.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A three-year resource-based committed use discount for 300 N2 vCPUs in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (No commitment; rely on sustained use discounts because they automatica…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A one-year resource-based committed use discount per machine family in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-014",
@@ -287,12 +391,21 @@
       "Design workers to pull frames from a queue and write completed frames to Cloud Storage so that a preempted worker only loses its in-progress frame.",
       "Use a single very large M3 instance so that all frames render on one machine."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Rendering is the canonical Spot VM workload: frames are short, independent, and restartable, so the 60-91% Spot discount can be captured and a MIG will automatically recreate preempted instances. That only works safely if the application is preemption-tolerant, which is why workers should claim frames from a queue (for example Pub/Sub or Cloud Tasks) and persist outputs immediately, limiting the blast radius of a preemption to one frame. Option B is the most expensive option and unnecessary because rendering does not require dedicated hardware. Option C commits to peak, not baseline, so most of the commitment would be wasted between projects. Option E creates a single point of failure, cannot scale out for deadlines, and memory-optimized instances are not cost-efficient for CPU-bound rendering.",
     "refs": [
       "https://cloud.google.com/compute/docs/instances/spot",
       "https://cloud.google.com/compute/docs/instances/create-use-spot"
-    ]
+    ],
+    "hint": "Core Rule (Spot VMs): Rendering is the canonical Spot VM workload: frames are short, independent, and restartable, so the 60-91% Spot discount can be captured and a MIG will automatically recreate preempted instances.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Run the render workers on sole-tenant nodes to guarantee capacity.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Purchase a three-year committed use discount sized for peak rendering …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Use a single very large M3 instance so that all frames render on one m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-015",
@@ -308,12 +421,20 @@
       "Deploy a Cloud Run function triggered by an Eventarc Cloud Storage object-finalized event that resizes the image and writes the thumbnails.",
       "Create a Dataflow streaming pipeline that reads Cloud Storage notifications from Pub/Sub and resizes images."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud Run functions are the natural fit for small, event-driven pieces of code: an Eventarc trigger on the google.cloud.storage.object.v1.finalized event invokes the function with the object metadata, the function resizes and writes thumbnails, and it scales to zero when idle. Only the resizing code is written; there is no infrastructure to manage. Option A requires a VM, patching, polling logic, and pays 24x7. Option B forces the team to build a container and manage Kubernetes objects for a trivial task. Option D is a heavyweight streaming pipeline with always-on workers; Dataflow is designed for large-scale data transformation, not per-object image handling.",
     "refs": [
       "https://cloud.google.com/run/docs/triggering/trigger-with-events",
       "https://cloud.google.com/functions/docs/calling/storage"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Run functions are the natural fit for small, event-driven pieces of code: an Eventarc trigger on the google.cloud.storage.object.v1.finalized event invokes the function with the object metadata, the function resizes and writes thumbnails, and it scales to zero when idle.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a Compute Engine VM that polls the bucket every minute and resi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy a GKE Autopilot cluster with a Deployment that subscribes to bu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Dataflow streaming pipeline that reads Cloud Storage notifica…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-016",
@@ -329,12 +450,20 @@
       "Rewrite the new service in Python so that it runs in the App Engine standard environment.",
       "Create a separate App Engine application in a new project for the Rust service."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A single App Engine application can contain services in both the standard and flexible environments, and the flexible environment supports custom runtimes built from any Dockerfile, so a Rust service with native dependencies can live alongside the existing standard services and be addressed by dispatch.yaml and the usual service URLs. Option B does not work because dispatch.yaml can route only to App Engine services, not to Cloud Run. Option C forces an unnecessary rewrite and may still hit the sandbox restriction on native libraries. Option D breaks the requirement to stay in the same application (each project has exactly one App Engine app), so routing and internal calls would have to change.",
     "refs": [
       "https://cloud.google.com/appengine/docs/flexible/custom-runtimes",
       "https://cloud.google.com/appengine/docs/the-appengine-environments"
-    ]
+    ],
+    "hint": "Core Rule: A single App Engine application can contain services in both the standard and flexible environments, and the flexible environment supports custom runtimes built from any Dockerfile, so a Rust service with native dependencies can live alongside the existing standard services and be addressed by dispatch.yaml and the usual service URLs.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Deploy the new service to Cloud Run and register it as an App Engine s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Rewrite the new service in Python so that it runs in the App Engine st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a separate App Engine application in a new project for the Rust…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-017",
@@ -350,12 +479,20 @@
       "Use VPC Service Controls and organization policy constraints to enforce cluster configuration.",
       "Register all clusters to a GKE Enterprise fleet and use Config Sync, Policy Controller, Binary Authorization, and Cloud Service Mesh managed from the fleet."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "GKE Enterprise is Google's multi-cluster, hybrid platform: fleets group clusters (in Google Cloud, on-premises, or other clouds) so that Config Sync applies a single Git source of truth with drift remediation, Policy Controller enforces guardrails, Binary Authorization enforces signed images, and Cloud Service Mesh provides mutual TLS transparently through sidecars or ambient mode. Option A is technically possible but leaves the bank to operate and upgrade 40 independent Istio and OPA installations, which is high operational overhead and error-prone. Option B is not feasible for on-premises workloads, ignores regional resilience, and creates a single blast radius. Option C addresses API-level data exfiltration and resource settings but cannot enforce in-cluster Kubernetes policies or provide mTLS.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/enterprise/docs/concepts/overview",
       "https://cloud.google.com/kubernetes-engine/fleet-management/docs"
-    ]
+    ],
+    "hint": "Core Rule: GKE Enterprise is Google's multi-cluster, hybrid platform: fleets group clusters (in Google Cloud, on-premises, or other clouds) so that Config Sync applies a single Git source of truth with drift remediation, Policy Controller enforces guardrails, Binary Authorization enforces signed images, and Cloud Service Mesh provides mutual TLS transparently through sidecars or ambient mode.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Install open-source Istio and Open Policy Agent separately on each clu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Consolidate all workloads into a single large regional GKE Autopilot c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use VPC Service Controls and organization policy constraints to enforc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-018",
@@ -371,12 +508,20 @@
       "Deploy the program as a Cloud Run function with a Pub/Sub trigger published by Cloud Scheduler.",
       "Create a Compute Engine VM with a cron entry that runs the container monthly."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Run jobs are designed for run-to-completion containers that do not serve requests: a job can run for up to 24 hours per task, needs no HTTP listener, and can be executed on a schedule by Cloud Scheduler with a single trigger. Option A would require adding an HTTP server to the code and keeping the request open for 45 minutes, which is fragile and mis-uses the request/response model. Option C fails because event-driven Cloud Run functions are limited to 9 minutes of execution. Option D works but is not serverless and leaves a VM to patch and pay for all month for a 45-minute task.",
     "refs": [
       "https://cloud.google.com/run/docs/create-jobs",
       "https://cloud.google.com/run/docs/execute/jobs-on-schedule"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Run jobs are designed for run-to-completion containers that do not serve requests: a job can run for up to 24 hours per task, needs no HTTP listener, and can be executed on a schedule by Cloud Scheduler with a single trigger.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the container as a Cloud Run service and have Cloud Scheduler s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy the program as a Cloud Run function with a Pub/Sub trigger publ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Compute Engine VM with a cron entry that runs the container m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-019",
@@ -392,12 +537,20 @@
       "Deploy the application on a Compute Engine Windows Server VM with a reserved internal IP address and a Persistent Disk or Hyperdisk data volume, using scheduled snapshots for backup.",
       "Deploy the application to the App Engine flexible environment with a custom Windows runtime."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "When a vendor supports only a VM-based Windows installation with a stable identity and local block storage, Compute Engine is the correct mapping: a reserved internal IP and fixed hostname satisfy the vendor, a Persistent Disk or Hyperdisk volume provides NTFS block storage, and snapshot schedules give simple backups; this is the lowest-risk, vendor-supported choice. Option A changes the deployment model to containers, which the vendor does not support and which offers no benefit for a non-scalable app. Option B is impossible because Cloud Run runs only Linux containers. Option D is impossible because App Engine flexible custom runtimes are Linux-based Docker images.",
     "refs": [
       "https://cloud.google.com/compute/docs/instances/windows",
       "https://cloud.google.com/compute/docs/disks/scheduled-snapshots"
-    ]
+    ],
+    "hint": "Core Rule: When a vendor supports only a VM-based Windows installation with a stable identity and local block storage, Compute Engine is the correct mapping: a reserved internal IP and fixed hostname satisfy the vendor, a Persistent Disk or Hyperdisk volume provides NTFS block storage, and snapshot schedules give simple backups; this is the lowest-risk, vendor-supported choice.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Containerize the application with Migrate to Containers and run it on …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy the application to Cloud Run using a Windows container image.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the application to the App Engine flexible environment with a c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-020",
@@ -414,12 +567,21 @@
       "Move all VMs to sole-tenant nodes to consolidate workloads on fewer hosts.",
       "Manually enable sustained use discounts on each VM."
     ],
-    "answer": [1, 2],
+    "answer": [
+      1,
+      2
+    ],
     "explanation": "The Well-Architected cost-optimization pillar recommends first eliminating waste and then committing to what remains: Active Assist's machine type recommender identifies VMs that can be downsized based on observed utilization (12% average indicates heavy over-provisioning), and after rightsizing, committed use discounts of up to 57% (3-year) can be applied to the predictable 24x7 baseline. Committing before rightsizing would lock in over-provisioned spend. Option A is wrong because Spot VMs can be preempted at any time and are unsuitable for the general fleet where availability must be preserved. Option D increases cost; sole-tenant nodes carry a premium and are for licensing or isolation needs. Option E is invalid because sustained use discounts are applied automatically and cannot be manually enabled.",
     "refs": [
       "https://cloud.google.com/compute/docs/instances/apply-machine-type-recommendations-for-instances",
       "https://cloud.google.com/docs/cuds"
-    ]
+    ],
+    "hint": "Core Rule (Compute cost optimization): The Well-Architected cost-optimization pillar recommends first eliminating waste and then committing to what remains: Active Assist's machine type recommender identifies VMs that can be downsized based on observed utilization (12% average indicates heavy over-provisioning), and after rightsizing, committed use discounts of up to 57% (3-year) can be applied to the predictable 24x7 baseline.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate all 800 VMs to Spot VMs to obtain the maximum discount.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move all VMs to sole-tenant nodes to consolidate workloads on fewer ho…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Manually enable sustained use discounts on each VM.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-021",
@@ -435,12 +597,20 @@
       "Standard VMs with customer-managed encryption keys (CMEK) applied to the boot and data disks.",
       "Sole-tenant nodes so that no other customer shares the physical host."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Encryption in use is provided by Confidential Computing: Confidential VMs use hardware-based memory encryption (AMD SEV/SEV-SNP on N2D/C2D/C3D, Intel TDX on C3) with keys that are generated and held by the CPU, so memory content is opaque to the hypervisor and to Google operators; Confidential GKE Nodes extend the same protection to containers. Option B protects boot integrity against rootkits and firmware tampering but does not encrypt memory. Option C protects data at rest only; memory is still in clear text to the host. Option D provides physical host isolation from other tenants but the hypervisor still has full access to guest memory, so it does not satisfy the in-use encryption requirement.",
     "refs": [
       "https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview",
       "https://cloud.google.com/compute/docs/machine-resource"
-    ]
+    ],
+    "hint": "Core Rule: Encryption in use is provided by Confidential Computing: Confidential VMs use hardware-based memory encryption (AMD SEV/SEV-SNP on N2D/C2D/C3D, Intel TDX on C3) with keys that are generated and held by the CPU, so memory content is opaque to the hypervisor and to Google operators; Confidential GKE Nodes extend the same protection to containers.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Shielded VMs with Secure Boot, vTPM, and integrity monitoring enabled …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Standard VMs with customer-managed encryption keys (CMEK) applied to t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Sole-tenant nodes so that no other customer shares the physical host.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-022",
@@ -456,12 +626,20 @@
       "Deploy the model to a Vertex AI endpoint with dedicated GPU resources and a minimum of one replica.",
       "Deploy the container as a Cloud Run service with an NVIDIA L4 GPU attached and allow it to scale to zero."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Cloud Run supports attaching NVIDIA L4 GPUs to service instances and, unlike the other options, scales to zero when there is no traffic, so no GPU is billed during the idle hours; fast GPU instance start-up handles the bursts, and the team keeps its existing container deployment workflow. Option A bills a GPU 24x7 regardless of traffic. Option B keeps two GPU nodes permanently allocated and adds Kubernetes operations. Option C is a good serving platform, but Vertex AI online prediction endpoints with dedicated resources require at least one replica to stay running, so idle GPU cost remains.",
     "refs": [
       "https://cloud.google.com/run/docs/configuring/services/gpu",
       "https://cloud.google.com/run/docs/about-instance-autoscaling"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run GPUs): Cloud Run supports attaching NVIDIA L4 GPUs to service instances and, unlike the other options, scales to zero when there is no traffic, so no GPU is billed during the idle hours; fast GPU instance start-up handles the bursts, and the team keeps its existing container deployment workflow.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the model on a Compute Engine G2 instance that runs continuousl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy the model on a GKE Standard cluster with a G2 node pool fixed a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy the model to a Vertex AI endpoint with dedicated GPU resources …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-023",
@@ -477,12 +655,20 @@
       "Deploy a regional managed instance group across three zones with 90 vCPUs total so that any two zones can carry the peak load, and create zonal reservations so the capacity is guaranteed.",
       "Deploy two zonal managed instance groups of 60 vCPUs each in two different regions behind a global load balancer."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The reliability pillar recommends over-provisioning for N+1 zone failure (with three zones, each zone holds one third, so 1.5x peak capacity lets any two zones serve 100% of load) and, critically, using reservations to guarantee that the required VMs can actually be created or are already running in the surviving zones, addressing the capacity-shortage risk the company identified. Option A has no zone redundancy at all. Option B is correct in shape but relies on autoscaling into zones that may be capacity-constrained during a mass failover, exactly the scenario the company wants to avoid. Option D doubles cost across regions, adds cross-region latency for a synchronous payments path, and still does not reserve capacity.",
     "refs": [
       "https://cloud.google.com/compute/docs/instance-groups/distributing-instances-with-regional-instance-groups",
       "https://cloud.google.com/compute/docs/instances/reservations-overview"
-    ]
+    ],
+    "hint": "Core Rule (Regional MIG capacity): The reliability pillar recommends over-provisioning for N+1 zone failure (with three zones, each zone holds one third, so 1.5x peak capacity lets any two zones serve 100% of load) and, critically, using reservations to guarantee that the required VMs can actually be created or are already running in the surviving zones, addressing the capacity-shortage risk the company identified.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy a zonal managed instance group with 60 vCPUs and enable autohea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy a regional managed instance group across three zones with 60 vC…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy two zonal managed instance groups of 60 vCPUs each in two diffe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-024",
@@ -498,12 +684,20 @@
       "Deploy the script to a GKE Autopilot cluster as a Kubernetes CronJob.",
       "Create a Cloud Composer environment with a DAG scheduled hourly."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A short, periodic piece of code with no infrastructure requirements maps directly to Cloud Run functions triggered by Cloud Scheduler: the function bills only for the 90 seconds it runs each hour and there is nothing to patch or scale. Option B leaves a VM running and needing maintenance 24x7 for 24 minutes of work per day. Option C introduces Kubernetes concepts and a cluster fee that is disproportionate to the task. Option D is the most expensive choice; Cloud Composer runs a managed Airflow environment with always-on components and is meant for complex multi-step data pipelines, not a single hourly script.",
     "refs": [
       "https://cloud.google.com/scheduler/docs/overview",
       "https://cloud.google.com/run/docs/triggering/using-scheduler"
-    ]
+    ],
+    "hint": "Core Rule (Serverless scheduling): A short, periodic piece of code with no infrastructure requirements maps directly to Cloud Run functions triggered by Cloud Scheduler: the function bills only for the 90 seconds it runs each hour and there is nothing to patch or scale.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Run the script on an e2-micro Compute Engine instance using cron.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy the script to a GKE Autopilot cluster as a Kubernetes CronJob.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Cloud Composer environment with a DAG scheduled hourly.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-025",
@@ -520,11 +714,20 @@
       "Enable cluster autoscaling with a maximum of one node so the cluster never over-provisions.",
       "Move both workloads to a single node pool of the largest available M3 machines."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "The recommended GKE cost pattern is to segregate workloads by tolerance for disruption: fault-tolerant transcoding goes on a tainted Spot node pool (60-91% cheaper) that only pods with the matching toleration and affinity land on, while the latency-sensitive API stays on on-demand nodes whose predictable baseline is covered by a committed use discount. Option B is dangerous: Spot nodes are preempted regardless of PodDisruptionBudgets, so the API would be evicted. Option D would starve both workloads and break the API under load. Option E puts the API and transcoding on the same expensive memory-optimized nodes, removing isolation and increasing cost.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms",
       "https://cloud.google.com/architecture/best-practices-for-running-cost-effective-kubernetes-applications-on-gke"
-    ]
+    ],
+    "hint": "Core Rule (GKE cost optimization): The recommended GKE cost pattern is to segregate workloads by tolerance for disruption: fault-tolerant transcoding goes on a tainted Spot node pool (60-91% cheaper) that only pods with the matching toleration and affinity land on, while the latency-sensitive API stays on on-demand nodes whose predictable baseline is covered by a committed use discount.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Run the video API on the Spot node pool with a PodDisruptionBudget of …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable cluster autoscaling with a maximum of one node so the cluster n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Move both workloads to a single node pool of the largest available M3 …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

@@ -101,6 +101,34 @@ export const CASES = {
       { req: 'Secure viewer payment card tokenization with minimal PCI scope', services: ['Sensitive Data Protection (Deterministic Encryption)', 'Cloud KMS (Annual Rotation)', 'Cloud Run'], rationale: 'Tokenize PANs using deterministic encryption or Format-Preserving Encryption (FPE) in Sensitive Data Protection backed by Cloud KMS with 365-day rotation.', trap: 'Storing raw credit card numbers in standard relational databases expands PCI DSS audit scope across the entire environment.' },
       { req: 'Restrict origin load balancer ingress to authorized CDN partners', services: ['Cloud Armor Security Policies', 'Global External Application LB'], rationale: 'Attach a Cloud Armor security policy using preconfigured/named IP lists (e.g., Fastly CDN edge IPs) to block direct origin access.', trap: 'Using VPC firewall rules alone does not filter traffic at the Google Frontend (GFE) edge before reaching the External Application Load Balancer.' }
     ]
+  },
+  terramearth: {
+    name: 'TerramEarth (Legacy)',
+    file: 'case_study_terramearth.txt',
+    industry: 'Heavy Equipment Manufacturing & IoT',
+    driver: '20M vehicle fleet telemetry, predictive maintenance & dealer APIs',
+    sla: 'Offline cellular buffering · Sub-second predictive alerts',
+    legacy: true,
+    blurb: 'Global manufacturer of 20 million mining and agricultural vehicles streaming 500+ sensor parameters for predictive maintenance and dealer parts optimization.',
+    arch: [
+      { req: 'High-throughput streaming telemetry (200K connected vehicles) & nightly batch uploads (20M vehicles)', services: ['Pub/Sub', 'Dataflow', 'Cloud Storage', 'BigQuery'], rationale: 'Pub/Sub ingests streaming MQTT/HTTP telemetry; Cloud Storage receives compressed nightly maintenance bay uploads; Dataflow unifies both into BigQuery.', trap: 'Streaming 20M vehicles directly into Cloud SQL or relational databases causes severe write bottlenecks.' },
+      { req: 'Predictive maintenance ML models & automated parts ordering APIs for dealers', services: ['Vertex AI', 'BigQuery ML', 'Apigee API Management'], rationale: 'Train failure-prediction models on historical sensor time-series in BigQuery/Vertex AI and expose rate-limited REST APIs with OAuth/API keys to dealers via Apigee.', trap: 'Giving external dealerships direct IAM access to internal BigQuery tables violates least privilege.' },
+      { req: 'Cost-optimized multi-petabyte sensor data lifecycle & analytics partitioning', services: ['BigQuery Partitioning & Clustering', 'Cloud Storage Lifecycle / Autoclass'], rationale: 'Partition BigQuery tables by ingestion/event timestamp and cluster by vehicle ID/model; transition raw archives in Cloud Storage to Coldline/Archive.', trap: 'Running unpartitioned SELECT * queries across petabytes of multi-year telemetry causes massive BigQuery scan costs.' }
+    ]
+  },
+  jencomart: {
+    name: 'JencoMart (Legacy)',
+    file: 'case_study_jencomart.txt',
+    industry: 'Global E-Commerce & Retail',
+    driver: 'Global e-commerce migration, multi-region database & Asia latency',
+    sla: '99.99% availability · Global strong consistency',
+    legacy: true,
+    blurb: 'Global retail conglomerate migrating e-commerce traffic from overloaded on-prem data centers to multi-region Google Cloud with low-latency edge delivery across Asia and Europe.',
+    arch: [
+      { req: 'Global low-latency web storefront & static media delivery for Asia/Europe expansion', services: ['Global External Application LB', 'Cloud CDN', 'Cloud Storage'], rationale: 'Terminate user traffic at the nearest Google PoP with Anycast IP and cache product images/assets at the edge via Cloud CDN.', trap: 'Serving static product images directly from a single-region US origin adds hundreds of milliseconds of RTT for Asian users.' },
+      { req: 'Globally consistent transactional order database & high-scale user profile store', services: ['Cloud Spanner', 'Cloud Firestore / Bigtable', 'Memorystore for Redis'], rationale: 'Use Cloud Spanner for globally consistent financial/inventory transactions and Firestore or Bigtable for high-throughput session and user activity state.', trap: 'Relying on cross-region asynchronous read replicas for order inventory risks overselling during flash sales.' },
+      { req: 'Zero-downtime database migration & automated CI/CD container deployments', services: ['Database Migration Service (DMS)', 'GKE / Cloud Run', 'Cloud Build & Cloud Deploy'], rationale: 'Use continuous DMS replication for minimal cutover downtime while deploying stateless microservices to GKE/Cloud Run via automated canary pipelines.', trap: 'Performing a weekend maintenance window dump-and-restore causes hours of global revenue loss.' }
+    ]
   }
 };
 

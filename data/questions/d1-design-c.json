@@ -13,12 +13,20 @@
       "Cloud Run functions triggered by each Pub/Sub message that increment counters in Memorystore.",
       "BigQuery scheduled queries that aggregate the events table every 30 seconds."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Dataflow is Google's fully managed, serverless runner for Apache Beam and is the recommended choice for stream processing that needs event-time semantics: windows, watermarks, allowed lateness for late data, and exactly-once processing are native Beam concepts, and Dataflow autoscales workers without any cluster to manage. Option B can express similar logic but requires operating a Dataproc cluster and provides weaker late-data and exactly-once guarantees out of the box. Option C is at-least-once per message and cannot implement windowing or late-data correction without significant custom state management. Option D is batch-oriented; scheduled queries cannot run every 30 seconds and would count late events in the wrong window.",
     "refs": [
       "https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines",
       "https://cloud.google.com/dataflow/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule: Dataflow is Google's fully managed, serverless runner for Apache Beam and is the recommended choice for stream processing that needs event-time semantics: windows, watermarks, allowed lateness for late data, and exactly-once processing are native Beam concepts, and Dataflow autoscales workers without any cluster to manage.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Dataproc running Spark Structured Streaming on a long-lived cluster wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Cloud Run functions triggered by each Pub/Sub message that increment c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (BigQuery scheduled queries that aggregate the events table every 30 se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-052",
@@ -34,12 +42,20 @@
       "Migrate the data to Cloud Storage and run the existing Spark and Hive jobs on Dataproc using ephemeral, per-job clusters.",
       "Rebuild the transformations visually in Cloud Data Fusion."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Dataproc is the managed Hadoop/Spark service, so existing Spark and Hive code runs with little or no change and the team's skills transfer directly; storing data in Cloud Storage via the Cloud Storage connector and using ephemeral job-scoped clusters (or Serverless for Apache Spark) follows Google's recommended cost and operations pattern. Option A requires rewriting 300 jobs in a new programming model, which is infeasible in three months with the stated skills. Option B is a full rewrite into SQL and not every Spark job can be expressed in SQL. Option D also means rebuilding every pipeline in a different tool.",
     "refs": [
       "https://cloud.google.com/dataproc/docs/concepts/overview",
       "https://cloud.google.com/architecture/hadoop/hadoop-gcp-migration-overview"
-    ]
+    ],
+    "hint": "Core Rule: Dataproc is the managed Hadoop/Spark service, so existing Spark and Hive code runs with little or no change and the team's skills transfer directly; storing data in Cloud Storage via the Cloud Storage connector and using ephemeral job-scoped clusters (or Serverless for Apache Spark) follows Google's recommended cost and operations pattern.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rewrite the jobs as Apache Beam pipelines and run them on Dataflow.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rewrite the jobs as BigQuery SQL and schedule them with scheduled quer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Rebuild the transformations visually in Cloud Data Fusion.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-053",
@@ -55,12 +71,20 @@
       "Build a Dataflow batch pipeline that reads from BigQuery, transforms, and writes back to BigQuery.",
       "Create a Cloud Composer environment with a DAG that runs Python transformations."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "When data is already in BigQuery and the logic is SQL-expressible, the Google-recommended pattern is ELT inside BigQuery: scheduled queries or Dataform run the SQL on a schedule, use BigQuery's serverless compute, and require no additional services or code, matching the team's SQL skill set. Option A moves data out and back and adds a cluster for no benefit. Option C introduces a programming framework the analysts do not know and adds Dataflow cost for logic BigQuery handles natively. Option D adds an always-on Airflow environment that is unnecessary for a simple nightly SQL chain.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/scheduling-queries",
       "https://cloud.google.com/dataform/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery ELT): When data is already in BigQuery and the logic is SQL-expressible, the Google-recommended pattern is ELT inside BigQuery: scheduled queries or Dataform run the SQL on a schedule, use BigQuery's serverless compute, and require no additional services or code, matching the team's SQL skill set.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Export the raw tables to Cloud Storage and process them with a Datapro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Build a Dataflow batch pipeline that reads from BigQuery, transforms, …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Cloud Composer environment with a DAG that runs Python transf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-054",
@@ -76,12 +100,20 @@
       "Custom Python connectors deployed on Cloud Run and scheduled with Cloud Scheduler.",
       "Cloud Data Fusion, using its prebuilt connectors and visual pipeline designer."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Cloud Data Fusion is the fully managed, code-free data integration service built on CDAP: it ships with more than 150 prebuilt connectors (Salesforce, SAP, Oracle, SFTP, and more), a visual pipeline designer for non-programmers, and integrated metadata and lineage tracking, which meets the analyst skill set and the audit requirement. Option A requires Beam programming for anything beyond the limited template set and has no visual designer. Option B is code-centric and adds two services to operate. Option C is entirely custom development and provides no lineage without additional work.",
     "refs": [
       "https://cloud.google.com/data-fusion/docs/concepts/overview",
       "https://cloud.google.com/data-fusion/plugins"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Data Fusion is the fully managed, code-free data integration service built on CDAP: it ships with more than 150 prebuilt connectors (Salesforce, SAP, Oracle, SFTP, and more), a visual pipeline designer for non-programmers, and integrated metadata and lineage tracking, which meets the analyst skill set and the audit requirement.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Dataflow with the Google-provided Flex Templates for each source.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Dataproc with Sqoop jobs orchestrated by Cloud Composer.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Custom Python connectors deployed on Cloud Run and scheduled with Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-055",
@@ -97,12 +129,20 @@
       "Eventarc triggers chained from one service's completion event to the next.",
       "A single Dataflow pipeline that calls each downstream service in sequence."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Composer (managed Apache Airflow) is designed for complex, multi-system workflows with explicit dependencies, sensors that wait for files, retries, SLAs, alerting, and a rich library of Google Cloud and generic operators, all authored in Python, which the team already knows. Option A relies on timing rather than true dependencies, so a slow step causes downstream failures and there is no retry or dependency graph. Option C works for simple event chains but becomes unmanageable for 40 steps with branching and retries and offers no central view of the workflow. Option D misuses a data-processing engine as an orchestrator; Dataflow is for transforming data, not coordinating heterogeneous services.",
     "refs": [
       "https://cloud.google.com/composer/docs/concepts/overview",
       "https://cloud.google.com/composer/docs/composer-3/composer-overview"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Composer (managed Apache Airflow) is designed for complex, multi-system workflows with explicit dependencies, sensors that wait for files, retries, SLAs, alerting, and a rich library of Google Cloud and generic operators, all authored in Python, which the team already knows.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cloud Scheduler with one cron job per step, staggered by expected dura…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Eventarc triggers chained from one service's completion event to the n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A single Dataflow pipeline that calls each downstream service in seque…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-056",
@@ -118,12 +158,20 @@
       "Publish events to a Pub/Sub topic with one subscription per consumer, enable message retention on the topic, and use seek to replay when needed.",
       "Use Eventarc to route a Cloud Audit Log entry for each order to the four services."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Pub/Sub is the managed, globally available publish-subscribe service for exactly this fan-out pattern: one topic, independent subscriptions per consumer (so adding a consumer never touches the producer), at-least-once delivery with acknowledgements, and topic message retention (up to 31 days) combined with seek to replay past events. Option A tightly couples the producer to every consumer and fails or slows the checkout when any downstream system is down. Option B turns a database into a queue, which scales poorly and requires custom cursor management. Option D misuses Eventarc: business events are not audit log entries, and Eventarc is a routing layer built on Pub/Sub rather than the right primitive for custom application events with replay.",
     "refs": [
       "https://cloud.google.com/pubsub/docs/overview",
       "https://cloud.google.com/pubsub/docs/replay-overview"
-    ]
+    ],
+    "hint": "Core Rule: Pub/Sub is the managed, globally available publish-subscribe service for exactly this fan-out pattern: one topic, independent subscriptions per consumer (so adding a consumer never touches the producer), at-least-once delivery with acknowledgements, and topic message retention (up to 31 days) combined with seek to replay past events.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Have the checkout service call each downstream service's REST API sync…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Write events to a Cloud SQL table that each consumer polls with a time…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Eventarc to route a Cloud Audit Log entry for each order to the fo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-057",
@@ -139,12 +187,20 @@
       "Export Cloud Audit Logs to BigQuery and run a scheduled query that calls the service through a remote function.",
       "Create a Dataflow streaming pipeline that reads the Cloud Logging export and calls the service."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Eventarc delivers events from Google Cloud services, including Cloud Audit Log entries such as BigQuery dataset creation, to Cloud Run, Cloud Run functions, GKE, and Workflows destinations using CloudEvents format; it is the managed, no-code way to react to platform events. Option B is polling, adds latency, and consumes API quota. Option C introduces log sinks, scheduled queries, and remote functions, which is a heavyweight and delayed way to react to an event. Option D builds and runs a streaming pipeline for a task Eventarc handles natively.",
     "refs": [
       "https://cloud.google.com/eventarc/docs/overview",
       "https://cloud.google.com/eventarc/docs/reference/supported-events"
-    ]
+    ],
+    "hint": "Core Rule: Eventarc delivers events from Google Cloud services, including Cloud Audit Log entries such as BigQuery dataset creation, to Cloud Run, Cloud Run functions, GKE, and Workflows destinations using CloudEvents format; it is the managed, no-code way to react to platform events.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a Cloud Scheduler job that lists datasets every minute and invo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Export Cloud Audit Logs to BigQuery and run a scheduled query that cal…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Dataflow streaming pipeline that reads the Cloud Logging expo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-058",
@@ -160,12 +216,20 @@
       "Use BigQuery Data Transfer Service to pull from the Oracle database on a five-minute schedule.",
       "Use Datastream to capture changes from the Oracle redo logs and stream them into BigQuery with the built-in BigQuery destination."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Datastream is Google's serverless change data capture (CDC) service: it reads the Oracle redo/archive logs (log-based CDC), which places negligible load on the source compared with query-based extraction, and streams inserts, updates, and deletes directly into BigQuery with minute-level latency and no pipeline code. Option A is query-based polling that repeatedly hits production tables and requires change-tracking columns. Option B performs full extracts hourly, which is both high-load and too slow. Option C is wrong because BigQuery Data Transfer Service does not have an Oracle connector for CDC, and its schedules are for bulk loads from supported SaaS and storage sources.",
     "refs": [
       "https://cloud.google.com/datastream/docs/overview",
       "https://cloud.google.com/datastream/docs/sources-oracle"
-    ]
+    ],
+    "hint": "Core Rule: Datastream is Google's serverless change data capture (CDC) service: it reads the Oracle redo/archive logs (log-based CDC), which places negligible load on the source compared with query-based extraction, and streams inserts, updates, and deletes directly into BigQuery with minute-level latency and no pipeline code.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Schedule a Dataproc Sqoop job every five minutes that runs SELECT quer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Install a Cloud Data Fusion batch pipeline that performs full table ex…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use BigQuery Data Transfer Service to pull from the Oracle database on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-059",
@@ -181,12 +245,20 @@
       "Run a Dataproc cluster that converts the files to Parquet and inserts them with Spark.",
       "Insert the rows with the BigQuery Storage Write API from a Cloud Run service."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "BigQuery load jobs from Cloud Storage are free (they use a shared pool of slots and do not count against query pricing), support CSV natively, and the Cloud Storage transfer in BigQuery Data Transfer Service can schedule and track them automatically; when no transformation is needed this is the simplest and cheapest path. Option A adds Dataflow worker cost and streaming insert charges for data that could be batch loaded. Option C adds a cluster and conversion work with no requirement for it. Option D uses a streaming write path that is billed per GB and requires custom code, which is unnecessary for daily batch files.",
     "refs": [
       "https://cloud.google.com/bigquery/docs/batch-loading-data",
       "https://cloud.google.com/bigquery/docs/cloud-storage-transfer-overview"
-    ]
+    ],
+    "hint": "Core Rule (BigQuery loading): BigQuery load jobs from Cloud Storage are free (they use a shared pool of slots and do not count against query pricing), support CSV natively, and the Cloud Storage transfer in BigQuery Data Transfer Service can schedule and track them automatically; when no transformation is needed this is the simplest and cheapest path.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a Dataflow batch job that reads the CSV files and writes rows t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Run a Dataproc cluster that converts the files to Parquet and inserts …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Insert the rows with the BigQuery Storage Write API from a Cloud Run s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-060",
@@ -204,12 +276,22 @@
       "BigQuery as the analytical store for raw and aggregated telemetry.",
       "Filestore as the landing zone for telemetry files."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "The reference streaming analytics architecture on Google Cloud is Pub/Sub for durable, globally available ingestion that absorbs bursts, Dataflow for autoscaling stream processing with exactly-once semantics and event-time windows, and BigQuery as the serverless analytical warehouse that dashboards (for example Looker Studio) query with SQL; all three are fully managed. Option B cannot absorb a million messages per second and is not a message broker. Option D is self-managed Kafka on a cluster you must operate and size, contradicting the managed-only requirement. Option F is a file share, which is unsuitable as a high-throughput streaming landing zone.",
     "refs": [
       "https://cloud.google.com/architecture/streaming-analytics",
       "https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines"
-    ]
+    ],
+    "hint": "Core Rule (Streaming architecture): The reference streaming analytics architecture on Google Cloud is Pub/Sub for durable, globally available ingestion that absorbs bursts, Dataflow for autoscaling stream processing with exactly-once semantics and event-time windows, and BigQuery as the serverless analytical warehouse that dashboards (for example Looker Studio) query with SQL; all three are fully managed.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Cloud SQL for PostgreSQL as the ingestion buffer with a table per mach…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (A long-running Dataproc cluster running a custom Kafka broker on Persi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (Filestore as the landing zone for telemetry files.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-061",
@@ -225,12 +307,20 @@
       "Write a Cloud Run service that pulls messages and inserts them with the legacy streaming API.",
       "Export messages to Cloud Storage with a Cloud Storage subscription and load them into BigQuery hourly."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A Pub/Sub BigQuery subscription writes messages straight into a BigQuery table through the Storage Write API with no intermediate compute, so there is no pipeline to run or scale and no Dataflow worker cost; Google recommends it whenever no transformation is needed between Pub/Sub and BigQuery. Option B works and is the right choice when transformation, deduplication, or error handling is required, but it adds always-on Dataflow workers and cost for a pass-through use case. Option C is custom code that must be operated and uses the more expensive legacy streaming API. Option D adds an hour of latency, which violates the seconds requirement.",
     "refs": [
       "https://cloud.google.com/pubsub/docs/bigquery",
       "https://cloud.google.com/pubsub/docs/create-bigquery-subscription"
-    ]
+    ],
+    "hint": "Core Rule: A Pub/Sub BigQuery subscription writes messages straight into a BigQuery table through the Storage Write API with no intermediate compute, so there is no pipeline to run or scale and no Dataflow worker cost; Google recommends it whenever no transformation is needed between Pub/Sub and BigQuery.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Deploy the Google-provided Pub/Sub-to-BigQuery Dataflow template as a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Write a Cloud Run service that pulls messages and inserts them with th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Export messages to Cloud Storage with a Cloud Storage subscription and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-062",
@@ -247,12 +337,21 @@
       "Add Spot VMs as secondary workers for the fault-tolerant processing stages.",
       "Enable HDFS erasure coding to reduce Persistent Disk usage."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "The Google-recommended Dataproc cost pattern is to separate storage from compute: keep data in Cloud Storage (via the Cloud Storage connector, which Spark reads natively) so clusters become ephemeral and are billed only for the six hours they run, or use Serverless for Apache Spark and eliminate cluster management entirely. Within a cluster, Spot secondary workers cut compute cost by 60-91% for the stages that tolerate preemption because they do not store HDFS data. Option A requires a rewrite from Spark to Beam. Option C increases cost; idle clusters still bill. Option E slightly reduces disk cost but keeps the fundamental problem of a persistent cluster storing data it must keep running to serve.",
     "refs": [
       "https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/secondary-vms",
       "https://cloud.google.com/architecture/hadoop/hadoop-gcp-migration-jobs"
-    ]
+    ],
+    "hint": "Core Rule (Dataproc cost optimization): The Google-recommended Dataproc cost pattern is to separate storage from compute: keep data in Cloud Storage (via the Cloud Storage connector, which Spark reads natively) so clusters become ephemeral and are billed only for the six hours they run, or use Serverless for Apache Spark and eliminate cluster management entirely.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate the Spark jobs to Dataflow to benefit from per-second billing.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Double the number of workers so the jobs finish faster and the cluster…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Enable HDFS erasure coding to reduce Persistent Disk usage.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-063",
@@ -268,12 +367,20 @@
       "Rewriting the jobs as BigQuery SQL stored procedures.",
       "Google Cloud Serverless for Apache Spark (Dataproc Serverless) batch workloads, submitted when files arrive."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Serverless for Apache Spark runs PySpark, Spark SQL, Scala, and R batches without any cluster: Google provisions and autoscales the executors per workload and bills only for the duration of the batch, so the jobs stay unchanged and there is no cluster to size or leave idle. Option A still bills for the minimum workers and master nodes while idle and requires cluster configuration. Option B replaces Dataproc operations with Kubernetes operations and the Spark operator, which the team must maintain. Option C is a rewrite that abandons PySpark, violating the stated constraint.",
     "refs": [
       "https://cloud.google.com/dataproc-serverless/docs/overview",
       "https://cloud.google.com/dataproc-serverless/docs/quickstarts/spark-batch"
-    ]
+    ],
+    "hint": "Core Rule: Serverless for Apache Spark runs PySpark, Spark SQL, Scala, and R batches without any cluster: Google provisions and autoscales the executors per workload and bills only for the duration of the batch, so the jobs stay unchanged and there is no cluster to size or leave idle.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A Dataproc cluster with autoscaling and a minimum of two workers.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (A GKE Autopilot cluster running the Spark operator.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Rewriting the jobs as BigQuery SQL stored procedures.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-064",
@@ -289,12 +396,20 @@
       "Workflows, defining the steps, conditions, and retry policies in YAML and invoking the HTTP endpoints directly.",
       "Cloud Scheduler jobs that call each service at fixed intervals."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Workflows is the serverless orchestrator for service-to-service and API call sequences: it supports conditional logic, error handling, retries, and parallel steps, scales to zero, and bills per step executed, which suits a lightweight, high-frequency business process without requiring Airflow skills. Option A is the right tool for heavyweight data pipelines but it runs an always-on environment with a significant monthly cost and requires Airflow knowledge. Option B misuses a data-processing engine for control flow. Option D has no notion of dependencies, branching, or retries between calls.",
     "refs": [
       "https://cloud.google.com/workflows/docs/overview",
       "https://cloud.google.com/workflows/docs/choose-orchestration"
-    ]
+    ],
+    "hint": "Core Rule: Workflows is the serverless orchestrator for service-to-service and API call sequences: it supports conditional logic, error handling, retries, and parallel steps, scales to zero, and bills per step executed, which suits a lightweight, high-frequency business process without requiring Airflow skills.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Cloud Composer with a DAG that uses HTTP operators for each call.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (A Dataflow streaming pipeline that invokes each service in a ParDo.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Cloud Scheduler jobs that call each service at fixed intervals.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-065",
@@ -310,12 +425,20 @@
       "Create one VPC per region and connect them with VPC Network Peering.",
       "Create a single subnet that spans both regions so all instances share one IP range."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Google Cloud VPC networks are global resources while subnets are regional, so a single VPC can contain subnets in any number of regions and instances in different regions communicate privately over Google's backbone with no additional configuration; this is the simplest and Google-recommended starting design. Options B and C add unnecessary inter-VPC connectivity, cost, and administrative complexity. Option D is invalid because a subnet belongs to exactly one region.",
     "refs": [
       "https://cloud.google.com/vpc/docs/overview",
       "https://cloud.google.com/architecture/best-practices-vpc-design"
-    ]
+    ],
+    "hint": "Core Rule (VPC design): Google Cloud VPC networks are global resources while subnets are regional, so a single VPC can contain subnets in any number of regions and instances in different regions communicate privately over Google's backbone with no additional configuration; this is the simplest and Google-recommended starting design.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create one VPC per region and connect them with HA VPN tunnels.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create one VPC per region and connect them with VPC Network Peering.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a single subnet that spans both regions so all instances share …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-066",
@@ -331,12 +454,20 @@
       "Put all application resources in a single project with one VPC and separate teams by labels.",
       "Create a separate VPC per team and connect them with HA VPN tunnels managed by the network team."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Shared VPC is designed for exactly this separation of duties: the host project owns the VPC, subnets, firewall rules, routes, and Interconnect/VPN, while service projects consume subnets and keep their own IAM, quotas, and billing; all workloads share one network so they communicate privately without peering. Option A creates a 30-way non-transitive peering mesh with quota limits and duplicated firewall administration. Option C removes project-level isolation, IAM boundaries, and quota separation that the teams require. Option D adds encryption overhead, bandwidth limits, and 30 sets of tunnels for traffic that would otherwise stay on the VPC fabric.",
     "refs": [
       "https://cloud.google.com/vpc/docs/shared-vpc",
       "https://cloud.google.com/architecture/best-practices-vpc-design"
-    ]
+    ],
+    "hint": "Core Rule: Shared VPC is designed for exactly this separation of duties: the host project owns the VPC, subnets, firewall rules, routes, and Interconnect/VPN, while service projects consume subnets and keep their own IAM, quotas, and billing; all workloads share one network so they communicate privately without peering.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Give each application team its own VPC and connect all 30 VPCs with VP…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Put all application resources in a single project with one VPC and sep…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a separate VPC per team and connect them with HA VPN tunnels ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-067",
@@ -352,12 +483,20 @@
       "Expose every startup service through external load balancers with Cloud Armor allowlists.",
       "Establish VPC Network Peering between the two VPC networks across the organizations."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "VPC Network Peering connects two VPC networks, even across different projects and organizations, so that resources communicate over internal IPs on Google's backbone with no bandwidth bottleneck, no gateway, and each side retaining full administrative control of its own network; it requires non-overlapping ranges, which is satisfied. Option A is a major organizational change that neither party wants. Option B works but caps throughput per tunnel, adds latency from encryption, and introduces gateways to manage where peering is not needed. Option C exposes internal traffic to the public internet path and requires per-service load balancers.",
     "refs": [
       "https://cloud.google.com/vpc/docs/vpc-peering",
       "https://cloud.google.com/vpc/docs/using-vpc-peering"
-    ]
+    ],
+    "hint": "Core Rule: VPC Network Peering connects two VPC networks, even across different projects and organizations, so that resources communicate over internal IPs on Google's backbone with no bandwidth bottleneck, no gateway, and each side retaining full administrative control of its own network; it requires non-overlapping ranges, which is satisfied.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate the startup's projects into the parent organization and attach…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Connect the two VPCs with an HA VPN pair of tunnels.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Expose every startup service through external load balancers with Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-068",
@@ -374,12 +513,21 @@
       "Create a VPC Network Peering connection to Google's API network.",
       "Deploy an external passthrough Network Load Balancer in front of the VMs to proxy their outbound traffic."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Two separate needs require two features: Private Google Access lets VMs with only internal IPs reach Google APIs and services (Cloud Storage, BigQuery) through Google's network, and Cloud NAT provides outbound-only, source-NAT internet access for third-party repositories while accepting no unsolicited inbound connections; together they satisfy the policy. Option B violates the policy and is operationally error-prone. Option D is not a real capability; Google APIs are not reached through VPC peering (that is private services access, for managed services). Option E is wrong because a load balancer distributes inbound traffic and does not provide outbound NAT.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-google-access",
       "https://cloud.google.com/nat/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Private Google Access and Cloud NAT): Two separate needs require two features: Private Google Access lets VMs with only internal IPs reach Google APIs and services (Cloud Storage, BigQuery) through Google's network, and Cloud NAT provides outbound-only, source-NAT internet access for third-party repositories while accepting no unsolicited inbound connections; together they satisfy the policy.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Attach an external IP address only during package updates and remove i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a VPC Network Peering connection to Google's API network.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Deploy an external passthrough Network Load Balancer in front of the V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-069",
@@ -395,12 +543,20 @@
       "Create a Network Connectivity Center hub, attach each VPC as a VPC spoke, and attach the Interconnect VLAN attachments as hybrid spokes.",
       "Consolidate all 35 networks into a single Shared VPC host project."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Network Connectivity Center (NCC) provides a managed hub with VPC spokes that delivers transitive, any-to-any connectivity between spoke VPCs and, through hybrid spokes (Interconnect VLAN attachments, HA VPN, Router appliances), to on-premises networks, with routes exchanged automatically and centralized visibility, avoiding peering-group limits. Option A requires hundreds of peerings (n*(n-1)/2), exceeds quotas, and remains non-transitive to on-premises. Option B introduces appliances to size, patch, and make highly available, adding cost and a throughput bottleneck. Option D is a massive migration of existing resources and removes the autonomy the business units currently have.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview",
       "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/vpc-spokes-overview"
-    ]
+    ],
+    "hint": "Core Rule: Network Connectivity Center (NCC) provides a managed hub with VPC spokes that delivers transitive, any-to-any connectivity between spoke VPCs and, through hybrid spokes (Interconnect VLAN attachments, HA VPN, Router appliances), to on-premises networks, with routes exchanged automatically and centralized visibility, avoiding peering-group limits.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add direct peering connections between every pair of spoke VPCs to cre…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy network virtual appliances in the hub and route all spoke traff…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Consolidate all 35 networks into a single Shared VPC host project.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-070",
@@ -416,12 +572,20 @@
       "Deploy an HA VPN gateway per customer and exchange routes with Cloud Router.",
       "Expose the API on a global external Application Load Balancer restricted by Cloud Armor IP allowlists."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Private Service Connect is built for producer-consumer service publishing at scale: the producer creates one service attachment in front of its internal load balancer, consumers create endpoints with IPs from their own VPC, traffic is NATed so overlapping address space is irrelevant, no routes are exchanged, and the producer's topology stays hidden; onboarding is just accepting a consumer project on the attachment. Option A fails on overlapping ranges, exposes full network reachability, and hits peering quotas at hundreds of customers. Option C requires per-customer gateways, route exchange, and address coordination. Option D routes traffic over public IPs, which is not the private connectivity that was required.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-service-connect",
       "https://cloud.google.com/vpc/docs/about-vpc-hosted-services"
-    ]
+    ],
+    "hint": "Core Rule: Private Service Connect is built for producer-consumer service publishing at scale: the producer creates one service attachment in front of its internal load balancer, consumers create endpoints with IPs from their own VPC, traffic is NATed so overlapping address space is irrelevant, no routes are exchanged, and the producer's topology stays hidden; onboarding is just accepting a consumer project on the attachment.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Establish VPC Network Peering with each customer VPC and require them …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy an HA VPN gateway per customer and exchange routes with Cloud R…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Expose the API on a global external Application Load Balancer restrict…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-071",
@@ -437,12 +601,20 @@
       "Create a VPC-native cluster and reuse the same /20 for nodes, pods, and services to conserve addresses.",
       "Create one GKE Autopilot cluster per 100 nodes so that each cluster fits in a small subnet."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "VPC-native (alias IP) clusters are the Google-recommended and default mode: pod and service ranges are secondary ranges on the node subnet, natively routable over Interconnect, and sized independently; reducing the maximum pods per node (for example /26 instead of /24 per node) shrinks the pod range dramatically, and GKE supports non-RFC 1918 and privately used public IP ranges for pods when routable RFC 1918 space is scarce. Option B uses legacy routes-based networking, which is deprecated for new clusters, still consumes a pod range, and pods are not directly reachable from on-premises. Option C is invalid because pod and service ranges must be secondary ranges distinct from the primary. Option D fragments the platform and raises operational overhead without solving the address planning problem.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/alias-ips",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr"
-    ]
+    ],
+    "hint": "Core Rule (GKE networking): VPC-native (alias IP) clusters are the Google-recommended and default mode: pod and service ranges are secondary ranges on the node subnet, natively routable over Interconnect, and sized independently; reducing the maximum pods per node (for example /26 instead of /24 per node) shrinks the pod range dramatically, and GKE supports non-RFC 1918 and privately used public IP ranges for pods when routable RFC 1918 space is scarce.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a routes-based cluster so that pod IPs are not allocated from t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a VPC-native cluster and reuse the same /20 for nodes, pods, an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create one GKE Autopilot cluster per 100 nodes so that each cluster fi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-072",
@@ -458,12 +630,20 @@
       "Ask each project owner to remove the default-allow-ssh and default-allow-rdp rules and enforce it through periodic audits.",
       "Create a hierarchical firewall policy at the organization node with a high-priority rule allowing 35.235.240.0/20 on ports 22 and 3389 and a rule denying those ports from all other sources, and associate it with the organization."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Hierarchical firewall policies are evaluated before VPC firewall rules and are inherited by every folder and project under the node where they are attached, so an organization-level policy that allows the IAP range and denies all other sources for ports 22 and 3389 is enforced everywhere and cannot be overridden by project-level rules; it is managed centrally. Option A is a per-project control that owners can edit between redeployments and is operationally heavy. Option B is wrong because no organization policy constraint validates firewall rule contents in that way; it is the wrong control type. Option C relies on manual compliance and does not prevent new permissive rules from being created.",
     "refs": [
       "https://cloud.google.com/firewall/docs/firewall-policies",
       "https://cloud.google.com/iap/docs/using-tcp-forwarding"
-    ]
+    ],
+    "hint": "Core Rule: Hierarchical firewall policies are evaluated before VPC firewall rules and are inherited by every folder and project under the node where they are attached, so an organization-level policy that allows the IAP range and denies all other sources for ports 22 and 3389 is enforced everywhere and cannot be overridden by project-level rules; it is managed centrally.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create VPC firewall rules in every project that deny 0.0.0.0/0 on port…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Use an organization policy constraint to block all firewall rules that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Ask each project owner to remove the default-allow-ssh and default-all…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-073",
@@ -480,12 +660,21 @@
       "An inbound server policy on the VPC so on-premises resolvers can forward gcp.example.com queries to Cloud DNS entry points reachable over the Interconnect.",
       "A Cloud NAT gateway so that on-premises servers can reach the Cloud DNS public resolver."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Hybrid DNS in Google Cloud uses two complementary features: a private forwarding zone sends queries for the on-premises domain from the VPC to the on-premises name servers over the Interconnect (outbound forwarding), and an inbound server policy exposes Cloud DNS forwarder entry points inside the VPC so on-premises resolvers can conditionally forward the cloud domain to them. Option A publishes internal names on the internet and requires manual synchronization. Option C is impossible; DNS peering works only between VPC networks, not from on-premises. Option E is unrelated: Cloud NAT provides VM egress and has nothing to do with inbound DNS resolution from on-premises.",
     "refs": [
       "https://cloud.google.com/dns/docs/best-practices",
       "https://cloud.google.com/dns/docs/zones/zones-overview"
-    ]
+    ],
+    "hint": "Core Rule (Cloud DNS hybrid): Hybrid DNS in Google Cloud uses two complementary features: a private forwarding zone sends queries for the on-premises domain from the VPC to the on-premises name servers over the Interconnect (outbound forwarding), and an inbound server policy exposes Cloud DNS forwarder entry points inside the VPC so on-premises resolvers can conditionally forward the cloud domain to them.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A public DNS zone for corp.example.com in Cloud DNS that mirrors the o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A DNS peering zone from the on-premises network to the VPC.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (A Cloud NAT gateway so that on-premises servers can reach the Cloud DN…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-074",
@@ -501,12 +690,20 @@
       "Deploy the appliances in a managed instance group behind an internal passthrough Network Load Balancer and create a custom static route for 0.0.0.0/0 whose next hop is the internal load balancer's forwarding rule.",
       "Assign the appliance a static external IP address and configure each VM's operating system default gateway to point to the appliance."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Google's recommended pattern for highly available network virtual appliances is a custom static route whose next hop is an internal passthrough Network Load Balancer: the load balancer health-checks the appliance MIG, distributes flows across healthy instances, and removes failed appliances automatically, so egress survives an appliance failure without route changes. Option A relies on route priorities with instance next hops; Google Cloud does not health-check instance next hops, so traffic continues to be sent to a failed primary. Option B is wrong because Cloud NAT is a distributed NAT for VM egress and cannot be chained through an appliance. Option D is invalid because Compute Engine VMs must use the subnet gateway; guest-OS gateway changes do not alter VPC routing.",
     "refs": [
       "https://cloud.google.com/load-balancing/docs/internal/ilb-next-hop-overview",
       "https://cloud.google.com/vpc/docs/routes"
-    ]
+    ],
+    "hint": "Core Rule (Routing and network appliances): Google's recommended pattern for highly available network virtual appliances is a custom static route whose next hop is an internal passthrough Network Load Balancer: the load balancer health-checks the appliance MIG, distributes flows across healthy instances, and removes failed appliances automatically, so egress survives an appliance failure without route changes.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a custom static route for 0.0.0.0/0 with the next hop set to th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure Cloud NAT to send all traffic to the appliance's internal IP…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Assign the appliance a static external IP address and configure each V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d1-des-075",
@@ -522,11 +719,19 @@
       "Deploy a Cloud NAT gateway with a static IP and allowlist that IP in the VPC Service Controls perimeter.",
       "Create a VPC Network Peering connection to the BigQuery service producer network."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A Private Service Connect endpoint for Google APIs gives you a single internal IP in your VPC for Google APIs; the vpc-sc (restricted) bundle exposes only VPC Service Controls-supported APIs, so unsupported APIs are blocked at the network level. Because the endpoint IP lives in the VPC, it can be advertised to on-premises through Cloud Router over Interconnect, and private DNS zones map the API hostnames to it, satisfying both the on-premises requirement and the allowlisting requirement. Option B works for restricted.googleapis.com but uses Google-owned shared IP ranges (199.36.153.4/30), not a customer-controlled IP, and Private Google Access itself does not apply to on-premises hosts. Option C sends API traffic over the internet path and NAT IPs are not a perimeter mechanism for API access. Option D is not how Google APIs are accessed; peering is for private services access to managed instances.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-service-connect#benefits-apis",
       "https://cloud.google.com/vpc/docs/configure-private-service-connect-apis"
-    ]
+    ],
+    "hint": "Core Rule (Private Service Connect for Google APIs): A Private Service Connect endpoint for Google APIs gives you a single internal IP in your VPC for Google APIs; the vpc-sc (restricted) bundle exposes only VPC Service Controls-supported APIs, so unsupported APIs are blocked at the network level.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Enable Private Google Access on the subnet and allow on-premises hosts…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy a Cloud NAT gateway with a static IP and allowlist that IP in t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a VPC Network Peering connection to the BigQuery service produc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

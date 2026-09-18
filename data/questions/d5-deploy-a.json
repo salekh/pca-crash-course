@@ -13,12 +13,20 @@
       "Deploy the new image as a new revision with --no-traffic, then use gcloud run services update-traffic to route 5% to the new revision and shift or revert the split as needed.",
       "Deploy the new image with a Cloud Run tag, publish the tagged URL to 5% of users through a feature flag in the mobile app, and remove the tag to roll back."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud Run natively supports revision-based traffic splitting. Deploying with --no-traffic creates the revision without serving users, and gcloud run services update-traffic --to-revisions lets you send exactly 5% to it and instantly revert to 100% on the previous revision — no extra infrastructure or code. Option A works but adds a second service and a load balancer to manage, which is unnecessary operational overhead. Option B exposes all users to the change and makes rollback a full redeploy rather than an instant traffic shift. Option D relies on client-side feature flags and a tag URL; it does not give a controlled percentage split of production traffic and requires app changes. This reflects the operational excellence pillar: use platform-native progressive rollout mechanisms.",
     "refs": [
       "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration",
       "https://cloud.google.com/run/docs/deploying#revision"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run traffic splitting): Cloud Run natively supports revision-based traffic splitting.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the new image to a second Cloud Run service and use a global ex…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Deploy the new image with gcloud run deploy so it immediately serves 1…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy the new image with a Cloud Run tag, publish the tagged URL to 5…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-002",
@@ -34,12 +42,20 @@
       "Deploy the brokers as a DaemonSet so exactly one broker runs on every node and uses that node's local SSD for storage.",
       "Deploy each broker as a separate bare Pod with a hostPath volume and a dedicated ClusterIP Service per broker."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "StatefulSets are the Kubernetes controller designed for stateful, clustered applications: they provide stable, ordinal pod names (kafka-0, kafka-1), stable DNS via a headless Service, per-pod PersistentVolumeClaims created from volumeClaimTemplates, and ordered, graceful deployment and scaling. Option B is wrong because Deployments provide no stable identity, and Kafka brokers must not share one log directory. Option C ties broker count to node count and loses data when a node is replaced, since local SSD is ephemeral. Option D is unmanaged — bare pods are not rescheduled if a node fails, and hostPath pins data to a node. Reliability is the deciding pillar here.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/statefulset",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/stateful-apps"
-    ]
+    ],
+    "hint": "Core Rule (GKE workload types): StatefulSets are the Kubernetes controller designed for stateful, clustered applications: they provide stable, ordinal pod names (kafka-0, kafka-1), stable DNS via a headless Service, per-pod PersistentVolumeClaims created from volumeClaimTemplates, and ordered, graceful deployment and scaling.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Deploy the brokers as a Deployment with three replicas that share a si…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy the brokers as a DaemonSet so exactly one broker runs on every …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy each broker as a separate bare Pod with a hostPath volume and a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-003",
@@ -55,12 +71,20 @@
       "Install the agent in a custom node image and create a new node pool that uses that image.",
       "Create a DaemonSet with hostNetwork enabled and appropriate tolerations so a pod is scheduled automatically on every current and future node."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A DaemonSet guarantees exactly one copy of a pod on each node that matches its node selector and tolerations, and the controller automatically schedules pods onto new nodes added by the autoscaler — this is the canonical pattern for node agents such as log collectors and security sensors. Option A breaks as soon as the node count changes and does not guarantee one-per-node placement. Option B places the agent in every application pod rather than once per node, wasting resources and missing system pods. Option C is not possible on GKE, which only supports Google-provided node images (Container-Optimized OS, Ubuntu); node customization is done through DaemonSets.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/daemonset",
       "https://cloud.google.com/kubernetes-engine/docs/how-to/node-system-config"
-    ]
+    ],
+    "hint": "Core Rule (GKE DaemonSet): A DaemonSet guarantees exactly one copy of a pod on each node that matches its node selector and tolerations, and the controller automatically schedules pods onto new nodes added by the autoscaler — this is the canonical pattern for node agents such as log collectors and security sensors.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a Deployment with the number of replicas equal to the current n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add the agent container as a sidecar to every application Pod spec usi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Install the agent in a custom node image and create a new node pool th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-004",
@@ -76,12 +100,20 @@
       "Set the new template with set-instance-template and set the update type to OPPORTUNISTIC so instances are recreated gradually as the autoscaler replaces them.",
       "Use gcloud compute instance-groups managed recreate-instances on 4 instances after changing the instance template, then recreate the rest the next day."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "MIG rolling updates support a canary configuration: --version keeps the current template and --canary-version with a target-size (fixed number or percentage) rolls the new template to a subset. The MIG keeps both versions running until you start another update that moves the canary to 100%, and the rolling policy (max surge / max unavailable, health checks) preserves availability. Option A works but duplicates load balancer and autoscaler configuration, adding overhead compared to the native canary. Option C provides no control over the 10% target and depends on unrelated autoscaler churn; OPPORTUNISTIC updates may never happen. Option D is a manual recreate with no health-check gating and no MIG tracking of the two versions.",
     "refs": [
       "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups",
       "https://cloud.google.com/compute/docs/instance-groups/updating-migs"
-    ]
+    ],
+    "hint": "Core Rule: MIG rolling updates support a canary configuration: --version keeps the current template and --canary-version with a target-size (fixed number or percentage) rolls the new template to a subset.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a second MIG with the new template and 4 instances, add it as a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Set the new template with set-instance-template and set the update typ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use gcloud compute instance-groups managed recreate-instances on 4 ins…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-005",
@@ -97,12 +129,20 @@
       "Run gcloud app deploy --no-promote, test the version at its versioned URL, then use gcloud app services set-traffic --splits=v1=0.9,v2=0.1 --split-by=cookie and increase the share over time.",
       "Run gcloud app deploy --no-promote, then run gcloud app versions start v2 and stop v1 once smoke tests pass."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Deploying with --no-promote creates a version that receives no traffic but is reachable at its version-specific URL for smoke testing. gcloud app services set-traffic with --split-by=cookie routes each user consistently to the same version (via the GOOGAPPUID cookie), which satisfies the sticky requirement, and the splits can be adjusted incrementally. Option A promotes immediately (all users see it) and random splitting is not sticky per user. Option B's versions migrate moves 100% of traffic at once. Option D starts/stops versions but never splits traffic; stopping v1 would cut over all users abruptly.",
     "refs": [
       "https://cloud.google.com/appengine/docs/standard/splitting-traffic",
       "https://cloud.google.com/sdk/gcloud/reference/app/services/set-traffic"
-    ]
+    ],
+    "hint": "Core Rule (App Engine versions): Deploying with --no-promote creates a version that receives no traffic but is reachable at its version-specific URL for smoke testing.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run gcloud app deploy --promote, then use gcloud app services set-traf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run gcloud app deploy --version=v2, then immediately use gcloud app ve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run gcloud app deploy --no-promote, then run gcloud app versions start…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-006",
@@ -118,13 +158,21 @@
       "Use Config Sync to sync the same manifests repository to all three clusters, and use a branch per environment with a pull-request approval on the prod branch.",
       "Use Cloud Deploy with a single prod target and a standard strategy, and rely on Binary Authorization attestations to guarantee the image came from staging."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Cloud Deploy is the managed continuous-delivery service built for exactly this: a release captures rendered manifests and immutable image digests once, then promotes the same artifact through a sequence of targets; requireApproval enforces a human gate before production; the canary strategy (with Gateway API or service-based traffic splitting on GKE) automates phased traffic; and every release, rollout, and approval is recorded in Cloud Audit Logs. Option B rebuilds the image per environment, so the prod digest may differ from what passed staging, and it is custom scripting. Option C is a GitOps config approach, but branch-per-environment does not guarantee digest promotion or give phased canaries and rollout approvals. Option D omits the dev/staging promotion chain and the phased rollout; Binary Authorization verifies provenance but does not implement progression.",
     "refs": [
       "https://cloud.google.com/deploy/docs/overview",
       "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
       "https://cloud.google.com/deploy/docs/promote-release"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Deploy is the managed continuous-delivery service built for exactly this: a release captures rendered manifests and immutable image digests once, then promotes the same artifact through a sequence of targets; requireApproval enforces a human gate before production; the canary strategy (with Gateway API or service-based traffic splitting on GKE) automates phased traffic; and every release, rollout, and approval is recorded in Cloud Audit Logs.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create three Cloud Build triggers, one per environment, that each rebu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Config Sync to sync the same manifests repository to all three clu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Cloud Deploy with a single prod target and a standard strategy, an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-007",
@@ -141,12 +189,21 @@
       "Grant the Cloud Run service's dedicated runtime service account the roles/secretmanager.secretAccessor role on that secret only.",
       "Store the password in a ConfigMap-style JSON file in a public Cloud Storage bucket and fetch it at startup over HTTPS."
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Cloud Run integrates natively with Secret Manager: --set-secrets (or the console equivalent) injects a secret version as an environment variable or file without the secret appearing in the deployment configuration, and mounting a volume lets you pick up new versions on rotation without a rebuild. The service must run as a dedicated, least-privilege service account that has secretAccessor on just the secrets it needs. Option A bakes the secret into an immutable artifact — rotation requires a rebuild and anyone with image access sees it. Option C introduces a downloadable JSON key, an anti-pattern that Google explicitly discourages; the attached runtime service account already provides credentials. Option E stores a credential in a public bucket, which is a data exposure risk.",
     "refs": [
       "https://cloud.google.com/run/docs/configuring/services/secrets",
       "https://cloud.google.com/secret-manager/docs/best-practices"
-    ]
+    ],
+    "hint": "Core Rule (Secret Manager integration): Cloud Run integrates natively with Secret Manager: --set-secrets (or the console equivalent) injects a secret version as an environment variable or file without the secret appearing in the deployment configuration, and mounting a volume lets you pick up new versions on rotation without a rebuild.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Copy the password into the container image at build time and restrict …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Encrypt the password with Cloud KMS, store the ciphertext in the envir…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Store the password in a ConfigMap-style JSON file in a public Cloud St…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-008",
@@ -162,12 +219,20 @@
       "Write a Python script that reads a per-environment JSON file and generates the manifests before running kubectl apply.",
       "Create a Kustomize base with the shared manifests and one overlay per environment that patches replicas, resources, and the image tag; apply with kubectl apply -k."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Kustomize is template-free: the base holds plain, valid Kubernetes YAML and overlays apply strategic-merge or JSON patches for the environment-specific fields, which matches the requirement of avoiding a templating language while keeping manifests kubectl-validatable. It is built into kubectl (-k) and supported natively by Cloud Deploy and Config Sync. Option A duplicates configuration and causes drift. Option B (Helm) is a valid packaging tool but introduces Go templating, which the team explicitly wants to avoid, and is better suited to distributing third-party software. Option C is bespoke tooling that must be maintained and adds operational burden.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/tutorials/kustomize",
       "https://cloud.google.com/deploy/docs/using-skaffold/managing-manifests"
-    ]
+    ],
+    "hint": "Core Rule: Kustomize is template-free: the base holds plain, valid Kubernetes YAML and overlays apply strategic-merge or JSON patches for the environment-specific fields, which matches the requirement of avoiding a templating language while keeping manifests kubectl-validatable.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Maintain three complete copies of the manifests in separate directorie…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Package the manifests as a Helm chart and put the differing values int…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Write a Python script that reads a per-environment JSON file and gener…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-009",
@@ -183,12 +248,20 @@
       "Convert the chart into a Kustomize base and overlays so the team no longer depends on Helm.",
       "Install the chart manually with helm install from an engineer's laptop and export the release with helm get manifest for audit."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Artifact Registry supports Helm charts as OCI artifacts, so mirroring the pinned versions removes the dependency on the vendor repository while keeping the chart intact for upgrades. Per-cluster values files in source control plus helm upgrade --install --version in Cloud Build give a repeatable, reviewable pipeline without any long-lived credentials. Option A discards the chart's upgrade path and makes 30 overrides per cluster a manual editing exercise. Option C is a large rewrite that must be repeated on every vendor release. Option D is a manual, non-repeatable process with no CI and depends on an individual's workstation.",
     "refs": [
       "https://cloud.google.com/artifact-registry/docs/helm",
       "https://cloud.google.com/build/docs/deploying-builds/deploy-gke"
-    ]
+    ],
+    "hint": "Core Rule: Artifact Registry supports Helm charts as OCI artifacts, so mirroring the pinned versions removes the dependency on the vendor repository while keeping the chart intact for upgrades.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Render the chart once with helm template, commit the resulting YAML to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Convert the chart into a Kustomize base and overlays so the team no lo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Install the chart manually with helm install from an engineer's laptop…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-010",
@@ -204,12 +277,20 @@
       "Use Infrastructure Manager to create deployments from the Terraform configuration in their Git repository, letting it run Terraform, store state, and record each deployment revision.",
       "Install a self-hosted Terraform runner on a Compute Engine VM and trigger applies with Cloud Scheduler."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Infrastructure Manager is Google's managed service for deploying Terraform: it takes a configuration from Git or Cloud Storage, executes it with a chosen service account, manages the state, keeps revisions of each deployment, and writes to Cloud Audit Logs — all without operating runners. Option A fixes state locking (GCS backends lock via object metadata) but leaves execution unaudited and dependent on laptop credentials. Option B requires a rewrite and a GKE cluster to operate, contradicting the requirement to reuse existing Terraform. Option D is self-managed infrastructure that the team explicitly wants to avoid. This aligns with the operational excellence pillar: prefer managed services for repeatable operations.",
     "refs": [
       "https://cloud.google.com/infrastructure-manager/docs/overview",
       "https://cloud.google.com/infrastructure-manager/docs/deploy-infrastructure"
-    ]
+    ],
+    "hint": "Core Rule: Infrastructure Manager is Google's managed service for deploying Terraform: it takes a configuration from Git or Cloud Storage, executes it with a chosen service account, manages the state, keeps revisions of each deployment, and writes to Cloud Audit Logs — all without operating runners.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Migrate the state to a Cloud Storage bucket and continue applying from…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rewrite the configuration as Config Connector resources and let a GKE …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Install a self-hosted Terraform runner on a Compute Engine VM and trig…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-011",
@@ -225,13 +306,21 @@
       "Build a single image that downloads a config.json from a Cloud Storage bucket at startup using a service account key stored in a Kubernetes Secret.",
       "Build a single image and pass all settings, including tokens, as container args in the Deployment manifest stored in Git."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Twelve-factor practice separates configuration from the artifact: the same immutable image is promoted, ConfigMaps inject environment-specific non-sensitive values, and sensitive values come from Secret Manager mounted through the GKE Secret Manager add-on, with the pod's Kubernetes service account mapped through Workload Identity Federation for GKE — no keys, no secrets in Git or image layers. Option A keeps the slow per-environment build and only detects leaks after the fact. Option C introduces a downloadable service account key, an anti-pattern, and custom bootstrap code. Option D commits tokens to Git in plain text, which is a security and audit failure.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/how-to/use-secret-manager-add-on",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/configmap",
       "https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity"
-    ]
+    ],
+    "hint": "Core Rule (Application configuration): Twelve-factor practice separates configuration from the artifact: the same immutable image is promoted, ConfigMaps inject environment-specific non-sensitive values, and sensitive values come from Secret Manager mounted through the GKE Secret Manager add-on, with the pod's Kubernetes service account mapped through Workload Identity Federation for GKE — no keys, no secrets in Git or image layers.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep one image per environment but scan images with Artifact Analysis …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Build a single image that downloads a config.json from a Cloud Storage…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Build a single image and pass all settings, including tokens, as conta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-012",
@@ -247,12 +336,20 @@
       "Two cloudbuild.yaml files run by a Jenkins server on Compute Engine, with a webhook from GitHub for tags.",
       "Two Cloud Build triggers connected to the repository: a pull-request trigger that runs build and test steps, and a tag trigger with regex ^v\\d+\\.\\d+\\.\\d+$ that additionally pushes the image and runs gcloud run deploy using a dedicated build service account."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Cloud Build triggers can be scoped by event type — pull request, branch, or tag with a regular expression — so the release path is enforced by the trigger configuration rather than by conditional shell logic. Each trigger can use its own user-specified, least-privilege service account, so no keys are needed. Option A runs release steps on every push and depends on fragile branch checks in scripts; it also does not implement tag-based releases. Option B introduces a service account JSON key in a third-party system when Cloud Build (or Workload Identity Federation) can avoid it. Option C adds a self-managed Jenkins server, which increases operational overhead compared to the managed service.",
     "refs": [
       "https://cloud.google.com/build/docs/automating-builds/create-manage-triggers",
       "https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts"
-    ]
+    ],
+    "hint": "Core Rule: Cloud Build triggers can be scoped by event type — pull request, branch, or tag with a regular expression — so the release path is enforced by the trigger configuration rather than by conditional shell logic.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A single Cloud Build trigger on every push that runs build, test, push…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (A Cloud Build trigger on pull requests that runs all steps, plus a Git…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Two cloudbuild.yaml files run by a Jenkins server on Compute Engine, w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-013",
@@ -269,12 +366,21 @@
       "Provision production with Terraform but let developers create dev and test resources manually in the console to move faster.",
       "Give all developers the Editor role in the production project so they can reproduce incidents quickly."
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "Google's enterprise foundations guidance recommends project-per-environment under environment folders: projects are the boundary for IAM, networking, VPC Service Controls, quotas, and billing exports, which directly satisfies isolation and cost visibility. Reusing the same versioned Terraform modules with different variables guarantees environments are provisioned identically and lets changes be promoted through dev and test before prod. Option B keeps everything in one trust and billing boundary; namespaces are not a security boundary between prod and non-prod data. Option D makes dev and test drift from prod, undermining test validity. Option E violates least privilege and separation of duties.",
     "refs": [
       "https://cloud.google.com/architecture/landing-zones/decide-resource-hierarchy",
       "https://cloud.google.com/docs/terraform/best-practices/general-style-structure"
-    ]
+    ],
+    "hint": "Core Rule (Environment strategy): Google's enterprise foundations guidance recommends project-per-environment under environment folders: projects are the boundary for IAM, networking, VPC Service Controls, quotas, and billing exports, which directly satisfies isolation and cost visibility.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use a single project with environment-specific labels on every resourc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Provision production with Terraform but let developers create dev and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Give all developers the Editor role in the production project so they …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-014",
@@ -290,12 +396,20 @@
       "SpikeArrest policy that limits the request rate (for example 500ps) to protect the backend from sudden traffic spikes.",
       "ConcurrentRateLimit policy set to allow unlimited connections during sale windows."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "SpikeArrest is designed to protect backends from sudden surges: it smooths traffic to a configured rate per second or minute regardless of the caller's business-level allowance. The Quota policy (option A) enforces a business allowance over a longer window (per day/month) and will not stop a burst that stays below the daily total — the scenario explicitly says quotas are not exhausted. Option B caching a seat-availability response is dangerous for fast-changing inventory and would not control the rate to the backend for cache misses. Option D (an older, deprecated policy) configured to allow unlimited connections does nothing to protect the backend.",
     "refs": [
       "https://cloud.google.com/apigee/docs/api-platform/reference/policies/spike-arrest-policy",
       "https://cloud.google.com/apigee/docs/api-platform/develop/comparing-quota-spike-arrest-and-concurrent-rate-limit-policies"
-    ]
+    ],
+    "hint": "Core Rule (Apigee traffic management): SpikeArrest is designed to protect backends from sudden surges: it smooths traffic to a configured rate per second or minute regardless of the caller's business-level allowance.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Quota policy with a per-day limit for each developer app.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (ResponseCache policy to serve cached availability responses for 10 min…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (ConcurrentRateLimit policy set to allow unlimited connections during s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-015",
@@ -311,12 +425,20 @@
       "Implement rate limiting in the backend service by looking up each partner's tier in a Cloud SQL table on every request.",
       "Use Cloud Armor rate-based rules in front of Apigee with a separate rule per partner IP address range."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "In Apigee the API product is the unit of packaging and entitlement: it bundles proxies/operations with quota parameters, and developer apps are approved for products, which yields an API key or OAuth credential. A Quota policy that reads the product's quota variables (verifyapikey.*.apiproduct.developer.quota.limit etc.) enforces tier limits, and changing a product's quota takes effect without redeploying the proxy. Option A multiplies proxies to maintain and still requires redeploying to change limits. Option C pushes API-management concerns into the backend and adds a database lookup to every request. Option D operates on IP ranges, which do not map to partner identity or business tiers, and is meant for network-layer protection rather than business quotas.",
     "refs": [
       "https://cloud.google.com/apigee/docs/api-platform/publish/what-api-product",
       "https://cloud.google.com/apigee/docs/api-platform/reference/policies/quota-policy"
-    ]
+    ],
+    "hint": "Core Rule (Apigee API products): In Apigee the API product is the unit of packaging and entitlement: it bundles proxies/operations with quota parameters, and developer apps are approved for products, which yields an API key or OAuth credential.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy three copies of the API proxy with different hard-coded limits …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Implement rate limiting in the backend service by looking up each part…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Cloud Armor rate-based rules in front of Apigee with a separate ru…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-016",
@@ -332,12 +454,20 @@
       "Cloud Endpoints with an ESPv2 container running on a Compute Engine VM in front of the functions.",
       "API Gateway with the OpenAPI spec defining routes to each function backend and security definitions for API keys."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "API Gateway is the fully managed, pay-per-call gateway designed for serverless backends (Cloud Run, Cloud Run functions, App Engine). You upload an OpenAPI 2.0 spec that maps paths to backends and declares API-key security, and Google manages the ESPv2-based infrastructure; usage is visible per key in the Endpoints/Service Usage metrics. Option A is far more capable but its cost and complexity do not fit a tiny startup with basic needs. Option B provides routing but Cloud Armor cannot validate API keys or emit per-key usage metrics. Option C is functionally similar but you would have to run and patch your own ESPv2 VM, adding cost and operational overhead.",
     "refs": [
       "https://cloud.google.com/api-gateway/docs/about-api-gateway",
       "https://cloud.google.com/api-gateway/docs/get-started-cloud-run"
-    ]
+    ],
+    "hint": "Core Rule: API Gateway is the fully managed, pay-per-call gateway designed for serverless backends (Cloud Run, Cloud Run functions, App Engine).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Apigee X with a paid subscription, using the developer portal for API …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (A global external Application Load Balancer with a serverless NEG per …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Cloud Endpoints with an ESPv2 container running on a Compute Engine VM…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-017",
@@ -353,13 +483,21 @@
       "Expose the API through Cloud Endpoints and create API keys manually for each developer who emails the support team; track usage in BigQuery.",
       "Expose the API through a global external Application Load Balancer with Identity-Aware Proxy and export load balancer logs to BigQuery to compute invoices."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "This is the canonical Apigee X full-lifecycle use case. The integrated developer portal provides self-service sign-up, interactive documentation, and app/credential management; Apigee monetization lets you define rate plans (free tier, per-unit pricing) and generates billing documents without custom code; and Apigee Analytics reports adoption, latency and error metrics per developer and app. Option B assembles the same capabilities from scratch — custom portal and custom billing logic — which is explicitly what the company wants to avoid. Option C fails the self-service requirement. Option D uses IAP, which is for internal users with Google identities, not external developers, and offers no monetization or portal.",
     "refs": [
       "https://cloud.google.com/apigee/docs/api-platform/monetization/overview",
       "https://cloud.google.com/apigee/docs/api-platform/publish/portal/build-integrated-portal",
       "https://cloud.google.com/apigee/docs/api-platform/analytics/analytics-services-overview"
-    ]
+    ],
+    "hint": "Core Rule (Apigee developer portal and monetization): This is the canonical Apigee X full-lifecycle use case.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Expose the API through API Gateway, build a custom React portal on Clo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Expose the API through Cloud Endpoints and create API keys manually fo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Expose the API through a global external Application Load Balancer wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-018",
@@ -375,12 +513,20 @@
       "A VerifyJWT policy configured with the identity provider's JWKS URI so Apigee fetches public keys, validates signature, issuer, audience and expiry, and populates jwt.* flow variables.",
       "An OAuthV2 policy with the GenerateAccessToken operation so Apigee issues its own tokens instead of accepting the app's tokens."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "VerifyJWT validates externally issued JWTs: pointing it at the issuer's JWKS endpoint lets Apigee retrieve and cache the public keys, so no secret is stored, and it verifies signature, expiry, issuer, and audience claims while exposing claims such as sub in jwt.{policy}.claim.* variables for later policies. Option A misuses API-key verification, which checks a static key against developer apps and cannot validate signatures or expiry. Option B is for base64 username:password, not JWTs. Option D would make Apigee an authorization server and force an additional token exchange flow — unnecessary because the app already has valid tokens from Identity Platform.",
     "refs": [
       "https://cloud.google.com/apigee/docs/api-platform/reference/policies/verify-jwt-policy",
       "https://cloud.google.com/apigee/docs/api-platform/security/oauth/using-jwt-policies"
-    ]
+    ],
+    "hint": "Core Rule (Apigee security policies): VerifyJWT validates externally issued JWTs: pointing it at the issuer's JWKS endpoint lets Apigee retrieve and cache the public keys, so no secret is stored, and it verifies signature, expiry, issuer, and audience claims while exposing claims such as sub in jwt.{policy}.claim.* variables for later policies.",
+    "whyWrong": {
+      "0": "Incorrect distractor (A VerifyAPIKey policy that treats the JWT as the API key and checks it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (A BasicAuthentication policy that decodes the token and forwards the u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (An OAuthV2 policy with the GenerateAccessToken operation so Apigee iss…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-019",
@@ -396,12 +542,20 @@
       "Apigee X deployed in a Google Cloud region within the country with Assured Workloads enforcing data residency.",
       "API Gateway with backends reachable through Cloud VPN to the data center."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Apigee hybrid splits the platform: Google hosts the management plane (API design, deployment orchestration, analytics aggregation, portal) while the runtime plane — the message processors that actually handle API traffic and payloads — runs in a customer-managed Kubernetes cluster, on-premises or in another cloud. That keeps request/response data in the customer's data center as the regulation requires. Options A and C still process payloads in Google-managed runtime infrastructure; PSC only privatizes the connection and Assured Workloads controls the Google Cloud region, neither of which satisfies an on-premises processing requirement. Option D is a Google-hosted serverless gateway with no on-premises runtime option.",
     "refs": [
       "https://cloud.google.com/apigee/docs/hybrid/latest/what-is-hybrid",
       "https://cloud.google.com/apigee/docs/api-platform/get-started/compare-apigee-products"
-    ]
+    ],
+    "hint": "Core Rule: Apigee hybrid splits the platform: Google hosts the management plane (API design, deployment orchestration, analytics aggregation, portal) while the runtime plane — the message processors that actually handle API traffic and payloads — runs in a customer-managed Kubernetes cluster, on-premises or in another cloud.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Apigee X with a Private Service Connect endpoint in the on-premises ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Apigee X deployed in a Google Cloud region within the country with Ass…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (API Gateway with backends reachable through Cloud VPN to the data cent…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-020",
@@ -417,12 +571,20 @@
       "Keep the existing proxy unchanged and make the new behavior available only when partners regenerate their API keys.",
       "Publish the change as a new major version under a new base path (for example /orders/v2), keep /orders/v1 running with a documented deprecation timeline, and add both to appropriate API products so partners migrate at their own pace."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Google API design guidance and Apigee best practice is to expose breaking changes as a new major version in the URI base path, run old and new versions side by side, publish a deprecation and sunset schedule, and use API products so consumers can be entitled to either version. Option A breaks every partner integration simultaneously. Option B hides a breaking change behind a header, making behavior non-discoverable and complicating documentation, caching and analytics. Option C couples an unrelated credential lifecycle to API behavior and offers no clear migration path.",
     "refs": [
       "https://cloud.google.com/apis/design/versioning",
       "https://cloud.google.com/apigee/docs/api-platform/fundamentals/best-practices-api-proxy-design-and-development"
-    ]
+    ],
+    "hint": "Core Rule (API versioning): Google API design guidance and Apigee best practice is to expose breaking changes as a new major version in the URI base path, run old and new versions side by side, publish a deprecation and sunset schedule, and use API products so consumers can be entitled to either version.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Deploy the changed proxy to the same base path and notify partners by …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Add a custom header X-Api-Behavior=new that partners can send to opt i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Keep the existing proxy unchanged and make the new behavior available …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-021",
@@ -438,12 +600,20 @@
       "Use gRPC everywhere, including the browser, by requiring the front-end team to adopt a WebSocket bridge they maintain themselves.",
       "Use Pub/Sub topics between all microservices and have the browser subscribe to Pub/Sub directly with a service account key."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "gRPC is the recommended choice for internal, latency-sensitive, strongly typed service communication: binary Protocol Buffers, HTTP/2 multiplexing, and native bidirectional streaming. Because browsers cannot speak native gRPC, the standard pattern is to generate a REST/JSON mapping from the same proto (google.api.http annotations) and use a transcoding proxy such as ESPv2 or Envoy — one source of truth, two protocols. Option B sacrifices the performance and streaming benefits for the 40 internal services. Option C forces a browser-incompatible protocol on the front end and adds a custom bridge to maintain. Option D turns request/response calls into asynchronous messaging and exposes a service account key to a browser, which is a serious security anti-pattern.",
     "refs": [
       "https://cloud.google.com/endpoints/docs/grpc/transcoding",
       "https://cloud.google.com/endpoints/docs/grpc/about-grpc"
-    ]
+    ],
+    "hint": "Core Rule (gRPC vs REST): gRPC is the recommended choice for internal, latency-sensitive, strongly typed service communication: binary Protocol Buffers, HTTP/2 multiplexing, and native bidirectional streaming.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Use REST with JSON for all communication so that a single API style is…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use gRPC everywhere, including the browser, by requiring the front-end…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Pub/Sub topics between all microservices and have the browser subs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-022",
@@ -461,13 +631,23 @@
       "Set each Cloud Run service's ingress setting to internal-and-cloud-load-balancing so the default URL no longer accepts public traffic.",
       "Enable Cloud CDN on the backend service to absorb floods by caching all API responses for one hour."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "The recommended edge for public serverless APIs is a global external Application Load Balancer with serverless NEGs (giving a single anycast IP, multi-region routing, and TLS termination), Cloud Armor attached to the backend service for geo-blocking, rate limiting, and L7 DDoS protection, and the Cloud Run ingress setting restricted to internal-and-cloud-load-balancing so the run.app URL cannot bypass the edge controls. Option B misunderstands Cloud NAT, which handles outbound traffic only. Option D fails because VPC firewall rules do not apply to Cloud Run ingress and cannot express country-based rules. Option F would cache dynamic betting responses, which is incorrect for the workload and is not a security control.",
     "refs": [
       "https://cloud.google.com/load-balancing/docs/https/setup-global-ext-https-serverless",
       "https://cloud.google.com/armor/docs/security-policy-overview",
       "https://cloud.google.com/run/docs/securing/ingress"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Load Balancing and Cloud Armor for APIs): The recommended edge for public serverless APIs is a global external Application Load Balancer with serverless NEGs (giving a single anycast IP, multi-region routing, and TLS termination), Cloud Armor attached to the backend service for geo-blocking, rate limiting, and L7 DDoS protection, and the Cloud Run ingress setting restricted to internal-and-cloud-load-balancing so the run.app URL cannot bypass the edge controls.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Configure Cloud NAT on the Cloud Run services' VPC egress so that inbo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create VPC firewall rules that deny ingress to the Cloud Run services …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "5": "Incorrect distractor (Enable Cloud CDN on the backend service to absorb floods by caching al…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-023",
@@ -483,12 +663,20 @@
       "Put an internal passthrough Network Load Balancer in front of the pods and validate API keys inside the service code using the Service Control API.",
       "Use Apigee hybrid on the GKE cluster and write JavaScript policies to convert JSON into protobuf binary payloads."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Endpoints for gRPC is built for this: the Extensible Service Proxy V2 runs as a sidecar (or separate deployment) on GKE, transcodes HTTP/JSON to gRPC using the proto's HTTP annotations, validates API keys against the Service Control API, enforces per-consumer quotas, and emits latency, traffic and error metrics plus logs to Cloud Observability — all without modifying the service. Option A violates the constraint that the service stay on GKE and requires a rewrite. Option C adds custom code and a load balancer that does not perform L7 API management. Option D is heavyweight, and Apigee does not natively transcode JSON to gRPC payloads via JavaScript policies; it would be a fragile custom implementation.",
     "refs": [
       "https://cloud.google.com/endpoints/docs/grpc/get-started-kubernetes-engine",
       "https://cloud.google.com/endpoints/docs/grpc/restricting-api-access-with-api-keys"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Endpoints ESPv2): Cloud Endpoints for gRPC is built for this: the Extensible Service Proxy V2 runs as a sidecar (or separate deployment) on GKE, transcodes HTTP/JSON to gRPC using the proto's HTTP annotations, validates API keys against the Service Control API, enforces per-consumer quotas, and emits latency, traffic and error metrics plus logs to Cloud Observability — all without modifying the service.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rewrite the service as a REST API in Cloud Run and use API Gateway to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Put an internal passthrough Network Load Balancer in front of the pods…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Apigee hybrid on the GKE cluster and write JavaScript policies to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-024",
@@ -504,12 +692,20 @@
       "Type PROACTIVE with maxSurge=30 and maxUnavailable=0 so all new instances are created in parallel and old ones removed at once.",
       "Type PROACTIVE with maxSurge=3, maxUnavailable=0, minimal action REPLACE, a MIG health check with autohealing configured, and an initial delay that covers boot time plus the 90-second drain."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A PROACTIVE rolling update actively replaces instances until complete; maxUnavailable=0 guarantees capacity never drops, maxSurge=3 caps temporary over-provisioning at 3 VMs, and the MIG waits for new instances to pass the configured health check (with the initial delay respecting boot and drain time) before deleting old ones. This is the Google-documented pattern for zero-downtime updates with cost caps. Option A is OPPORTUNISTIC, which only updates when the MIG resizes for other reasons and may never finish. Option B reduces capacity by 3 during the update, violating the never-below-capacity requirement. Option C surges to 60 VMs, blowing through the 3-VM cost limit.",
     "refs": [
       "https://cloud.google.com/compute/docs/instance-groups/rolling-out-updates-to-managed-instance-groups#max_surge",
       "https://cloud.google.com/compute/docs/instance-groups/autohealing-instances-in-migs"
-    ]
+    ],
+    "hint": "Core Rule (MIG update policy): A PROACTIVE rolling update actively replaces instances until complete; maxUnavailable=0 guarantees capacity never drops, maxSurge=3 caps temporary over-provisioning at 3 VMs, and the MIG waits for new instances to pass the configured health check (with the initial delay respecting boot and drain time) before deleting old ones.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Type OPPORTUNISTIC with maxSurge=3 and maxUnavailable=0 so that the au…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Type PROACTIVE with maxSurge=0 and maxUnavailable=3 and minimal action…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Type PROACTIVE with maxSurge=30 and maxUnavailable=0 so all new instan…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d5-dep-025",
@@ -525,11 +721,19 @@
       "Delete the Cloud Run service and recreate it from the previous image stored in Artifact Registry.",
       "Set the new revision's maximum instances to 0 so Cloud Run stops routing requests to it."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Cloud Run keeps previous revisions, so rolling back is a traffic operation, not a build: update-traffic to the previous revision at 100% takes effect in seconds and preserves the faulty revision for investigation. Option B requires a full rebuild and redeploy — minutes to tens of minutes — and risks producing a slightly different artifact. Option C deletes the service, causing an outage and losing its URL/IAM configuration until recreated. Option D is not a supported rollback mechanism; max instances applies to the service configuration and setting it to 0 would fail or remove capacity rather than reroute traffic.",
     "refs": [
       "https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration#rollback",
       "https://cloud.google.com/sdk/gcloud/reference/run/services/update-traffic"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Run rollback): Cloud Run keeps previous revisions, so rolling back is a traffic operation, not a build: update-traffic to the previous revision at 100% takes effect in seconds and preserves the faulty revision for investigation.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Check out the previous git commit, rebuild the container image, and ru…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Delete the Cloud Run service and recreate it from the previous image s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Set the new revision's maximum instances to 0 so Cloud Run stops routi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

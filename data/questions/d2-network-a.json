@@ -13,12 +13,20 @@
       "Order four Dedicated Interconnect connections across two metros, with two connections in different edge availability domains per metro, attach them to Cloud Routers in both us-east4 and us-central1, and enable global dynamic routing on the VPC.",
       "Order two Dedicated Interconnect connections in different edge availability domains of the same metro, attach them to one Cloud Router in us-central1, and enable regional dynamic routing."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The 99.99% Dedicated Interconnect SLA requires at least four connections across two metros, with each metro pair placed in different edge availability domains, terminating on at least two Cloud Routers in two different regions, with the VPC in global dynamic routing mode. Option C is the only topology that satisfies every requirement. Option A places both connections in the same edge availability domain and one region, which does not even qualify for the 99.9% SLA. Option B adds HA VPN for encryption, not for the Interconnect SLA, and a single connection has no SLA. Option D describes the 99.9% topology (two connections, one metro, one region). This is a reliability-pillar decision: follow the published redundancy prerequisites so Google covers the connection under SLA.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/dedicated-creating-9999-availability",
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Interconnect): The 99.99% Dedicated Interconnect SLA requires at least four connections across two metros, with each metro pair placed in different edge availability domains, terminating on at least two Cloud Routers in two different regions, with the VPC in global dynamic routing mode.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Order two Dedicated Interconnect connections in the same edge availabi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Order one Dedicated Interconnect connection with two VLAN attachments …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Order two Dedicated Interconnect connections in different edge availab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-002",
@@ -34,12 +42,20 @@
       "Use Cross-Cloud Interconnect to connect the hospital's data center directly to Google Cloud.",
       "Use Direct Peering to exchange traffic with Google at the nearest peering point."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Partner Interconnect is designed exactly for organizations whose facilities cannot physically reach a Google colocation facility or that need less than 10 Gbps; capacity is available from 50 Mbps to 50 Gbps per attachment and the service provider handles the last mile. Option B works technically but requires a 10 Gbps or 100 Gbps circuit plus carrier extension, which is far more expensive than needed for 2 Gbps. Option C is wrong because Cross-Cloud Interconnect connects Google Cloud to another cloud provider's facility, not to a customer data center. Option D, Direct Peering, provides access to Google public services, not private RFC 1918 connectivity to VPC networks, and is not a supported way to reach VPC resources. This is a cost-optimization decision that still meets the privacy requirement.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/partner-overview",
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/choosing-type"
-    ]
+    ],
+    "hint": "Core Rule: Partner Interconnect is designed exactly for organizations whose facilities cannot physically reach a Google colocation facility or that need less than 10 Gbps; capacity is available from 50 Mbps to 50 Gbps per attachment and the service provider handles the last mile.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Provision a Dedicated Interconnect connection and extend the circuit f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Use Cross-Cloud Interconnect to connect the hospital's data center dir…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Direct Peering to exchange traffic with Google at the nearest peer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-003",
@@ -55,12 +71,20 @@
       "Create one HA VPN gateway with a single tunnel from interface 0 and rely on Cloud Router BGP to detect failures and reroute traffic.",
       "Create one HA VPN gateway and configure one tunnel from interface 0 to the first on-premises device and one tunnel from interface 1 to the second on-premises device, each with a BGP session on the same Cloud Router."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "The HA VPN 99.99% SLA requires that both interfaces of the HA VPN gateway are used, with at least one tunnel per interface, dynamic routing with Cloud Router, and peer devices that provide redundancy (two devices or a device with two interfaces). Option D uses both interfaces, connects to both peer devices, and uses BGP, which is the documented 99.99% topology. Option A leaves interface 1 unused, so the gateway does not qualify for the SLA even though there are two tunnels. Option B uses Classic VPN, which offers only a 99.9% SLA and is being deprecated for many configurations. Option C has a single tunnel and no redundancy; BGP cannot reroute traffic if there is no second path.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/vpn/concepts/topologies",
       "https://cloud.google.com/network-connectivity/docs/vpn/concepts/overview"
-    ]
+    ],
+    "hint": "Core Rule: The HA VPN 99.99% SLA requires that both interfaces of the HA VPN gateway are used, with at least one tunnel per interface, dynamic routing with Cloud Router, and peer devices that provide redundancy (two devices or a device with two interfaces).",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create one HA VPN gateway, configure one tunnel from interface 0 to th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Create two Classic VPN gateways in different regions and connect each …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create one HA VPN gateway with a single tunnel from interface 0 and re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-004",
@@ -76,12 +100,20 @@
       "Provision Dedicated Interconnect in a colocation facility and deploy customer-owned routers there to cross-connect to AWS Direct Connect.",
       "Deploy a third-party SD-WAN appliance on Compute Engine and on EC2 and build an encrypted overlay over the public internet."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cross-Cloud Interconnect provides dedicated 10 Gbps or 100 Gbps physical connections between Google Cloud and another cloud provider (AWS, Azure, OCI, Alibaba Cloud), with Google provisioning and supporting the Google Cloud side of the connection, so no customer-owned routers in a colocation facility are required. Redundant connections plus VLAN attachments to Cloud Routers give it an SLA. Option A can scale HA VPN with ECMP, but the traffic still traverses the public internet with variable latency and encryption overhead, and it does not meet the requirement for a dedicated link. Option C achieves private connectivity but forces the company to operate hardware in a colocation facility, which the constraint rules out. Option D is an internet overlay with the same latency problem plus additional appliances to manage. This is a performance-optimization and operational-excellence trade-off.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview",
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-aws-overview"
-    ]
+    ],
+    "hint": "Core Rule: Cross-Cloud Interconnect provides dedicated 10 Gbps or 100 Gbps physical connections between Google Cloud and another cloud provider (AWS, Azure, OCI, Alibaba Cloud), with Google provisioning and supporting the Google Cloud side of the connection, so no customer-owned routers in a colocation facility are required.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Add more HA VPN tunnels using ECMP to aggregate bandwidth across the t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Provision Dedicated Interconnect in a colocation facility and deploy c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy a third-party SD-WAN appliance on Compute Engine and on EC2 and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-005",
@@ -97,12 +129,20 @@
       "Add a custom advertised IP range of 199.36.153.4/30 on the Cloud Router (or BGP session), configure on-premises DNS to resolve *.googleapis.com to restricted.googleapis.com addresses, and ensure a route for that range exists in the VPC.",
       "Create a Private Service Connect endpoint for the all-apis bundle in the VPC and advertise the endpoint's subnet by default through the Cloud Router."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "On-premises hosts reach Google APIs privately by sending traffic to the restricted.googleapis.com VIP (199.36.153.4/30) over the Interconnect. Because Cloud Router only advertises VPC subnet ranges by default, you must add the VIP as a custom advertised route, and on-premises DNS must map googleapis.com names to that VIP. The restricted VIP supports only APIs compatible with VPC Service Controls, satisfying the security requirement. Option A is wrong because Private Google Access applies to VM instances in the subnet, not to on-premises hosts. Option B would still be routed through the internet from Google's edge and would not restrict to VPC-SC-compatible services. Option D is a valid pattern, but a PSC endpoint address is not advertised by default; you would still need a custom route advertisement, and the all-apis bundle does not enforce the VPC-SC-only restriction that the vpc-sc bundle or restricted VIP provides.",
     "refs": [
       "https://cloud.google.com/vpc/docs/configure-private-google-access-hybrid",
       "https://cloud.google.com/network-connectivity/docs/router/how-to/advertising-custom-ip"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Router): On-premises hosts reach Google APIs privately by sending traffic to the restricted.googleapis.com VIP (199.36.153.4/30) over the Interconnect.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable Private Google Access on all subnets in the VPC so that on-prem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure the on-premises DNS to resolve *.googleapis.com to the publi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Private Service Connect endpoint for the all-apis bundle in t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-006",
@@ -118,12 +158,20 @@
       "Create HA VPN tunnels from europe-west3 and asia-southeast1 back to on-premises to supplement the Interconnect.",
       "Add static routes in the VPC for the on-premises prefixes with the VLAN attachment as the next hop in each region."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "By default a VPC uses regional dynamic routing, in which a Cloud Router advertises only the subnets in its own region and installs learned routes only in that region. Switching to global dynamic routing makes the Cloud Router advertise all VPC subnets and programs the learned on-premises routes in every region, which immediately solves the problem at no extra cost. Option B works but adds substantial recurring cost and provisioning time when the existing link has spare capacity. Option C adds operational complexity and internet-dependent tunnels for a problem that is purely a routing-mode setting. Option D is invalid: you cannot create static routes with a VLAN attachment as the next hop; hybrid routes are learned dynamically via Cloud Router. This is a cost-optimization decision with a one-line configuration change.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/router/concepts/overview",
       "https://cloud.google.com/vpc/docs/routes#dynamic-routing-mode"
-    ]
+    ],
+    "hint": "Core Rule: By default a VPC uses regional dynamic routing, in which a Cloud Router advertises only the subnets in its own region and installs learned routes only in that region.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Provision additional Dedicated Interconnect connections in europe-west…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create HA VPN tunnels from europe-west3 and asia-southeast1 back to on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Add static routes in the VPC for the on-premises prefixes with the VLA…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-007",
@@ -139,12 +187,20 @@
       "Order a Partner Interconnect attachment for each store and rely on BGP between the VLAN attachments to forward site-to-site traffic.",
       "Deploy the SD-WAN vendor's virtual appliances on Compute Engine in a few regions, register them as Router appliance spokes on a Network Connectivity Center hub with site-to-site data transfer enabled, and peer them with Cloud Router."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Network Connectivity Center (NCC) with Router appliance spokes is the Google-recommended pattern for using the Google backbone as a WAN between external sites while keeping a third-party SD-WAN vendor: the vendor's virtual appliances run on Compute Engine, exchange routes with Cloud Router via BGP, and NCC's site-to-site data transfer forwards traffic between spokes across regions. Option A does not allow site-to-site transit by default and would require 300 tunnels into one region with VPN bandwidth limits. Option B misuses VPC peering, which is non-transitive and is meant for VPC-to-VPC traffic, not store branches. Option C is prohibitively expensive at 300 sites, and VLAN attachments alone do not provide site-to-site transit without NCC. This addresses operational excellence and performance by centralizing WAN connectivity on the backbone.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview",
       "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/ra-overview"
-    ]
+    ],
+    "hint": "Core Rule: Network Connectivity Center (NCC) with Router appliance spokes is the Google-recommended pattern for using the Google backbone as a WAN between external sites while keeping a third-party SD-WAN vendor: the vendor's virtual appliances run on Compute Engine, exchange routes with Cloud Router via BGP, and NCC's site-to-site data transfer forwards traffic between spokes across regions.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Terminate an HA VPN tunnel from every store into a single VPC and use …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Peer each store's VPC with a hub VPC using VPC Network Peering and ena…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Order a Partner Interconnect attachment for each store and rely on BGP…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-008",
@@ -160,12 +216,20 @@
       "Deploy a NAT VM in shared-services and add static routes in payments and analytics that forward traffic through it.",
       "Add a Cloud Router in shared-services and advertise the payments subnets to analytics using custom route advertisements."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "VPC Network Peering is not transitive: analytics cannot reach payments through shared-services, and exporting custom routes (Option A) only exchanges static and dynamic routes, never subnet routes learned from a third VPC. Network Connectivity Center VPC spokes provide full-mesh reachability between all attached VPCs through the hub, and adding a new VPC is a single spoke attachment rather than N new peering connections, meeting the requirement for the fewest ongoing changes. Option C works but introduces a single point of failure, a throughput bottleneck, and manual route management. Option D is wrong because Cloud Router advertises routes over BGP to hybrid peers, not across VPC peering connections. This is an operational-excellence and reliability improvement over a growing peering mesh.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/vpc-spokes-overview",
       "https://cloud.google.com/vpc/docs/vpc-peering#restrictions"
-    ]
+    ],
+    "hint": "Core Rule: VPC Network Peering is not transitive: analytics cannot reach payments through shared-services, and exporting custom routes (Option A) only exchanges static and dynamic routes, never subnet routes learned from a third VPC.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable export and import of custom routes on both existing peering con…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy a NAT VM in shared-services and add static routes in payments a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Add a Cloud Router in shared-services and advertise the payments subne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-009",
@@ -181,12 +245,20 @@
       "Grant the mobile-app team the Compute Network User role on the mobile-prod-subnet resource only, using subnet-level IAM in the host project.",
       "Create a separate VPC in the service project and connect it to the host project with VPC Network Peering."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Shared VPC supports subnet-level IAM: granting roles/compute.networkUser on an individual subnet lets service project principals create resources only in that subnet, which is precisely least-privilege. Option A gives the team the ability to modify network configuration across the entire host project, far exceeding what is needed. Option B grants access to every subnet in the host project; a firewall rule controls traffic, not which subnet a team may deploy into. Option D abandons the Shared VPC model, duplicates network administration, and does not restrict subnet choice inside the peered network. Applying least privilege at the finest supported granularity is a core security-pillar recommendation.",
     "refs": [
       "https://cloud.google.com/vpc/docs/shared-vpc#svc_proj_admins",
       "https://cloud.google.com/vpc/docs/provisioning-shared-vpc#networkuseratsubnet"
-    ]
+    ],
+    "hint": "Core Rule: Shared VPC supports subnet-level IAM: granting roles/compute.networkUser on an individual subnet lets service project principals create resources only in that subnet, which is precisely least-privilege.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant the mobile-app team the Compute Network Admin role on the host p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Grant the mobile-app team the Compute Network User role on the host pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a separate VPC in the service project and connect it to the hos…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-010",
@@ -202,12 +274,20 @@
       "Deploy Cloud NAT for the subnet so the VMs can reach the public API endpoints.",
       "Create a VPC Network Peering connection to Google's services producer network."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Private Google Access is a per-subnet setting that allows VMs with only internal IP addresses to reach Google APIs and services such as Cloud Storage and BigQuery through Google's network, with no external IP required. It is a single flag and has no cost. Option B violates the stated policy that VMs have no external IPs. Option C would also work because Cloud NAT provides outbound access, but it is more than needed: Cloud NAT is intended for general internet egress, incurs charges, and Google recommends Private Google Access for Google API traffic even when Cloud NAT is present. Option D describes Private Service Access, which is for managed services like Cloud SQL with private IPs, not for public Google APIs. This is an easy security and cost win.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-google-access",
       "https://cloud.google.com/vpc/docs/configure-private-google-access"
-    ]
+    ],
+    "hint": "Core Rule: Private Google Access is a per-subnet setting that allows VMs with only internal IP addresses to reach Google APIs and services such as Cloud Storage and BigQuery through Google's network, with no external IP required.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Assign ephemeral external IP addresses to the VMs and restrict them wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy Cloud NAT for the subnet so the VMs can reach the public API en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a VPC Network Peering connection to Google's services producer …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-011",
@@ -223,12 +303,20 @@
       "Create a VPC Network Peering connection directly to the Cloud SQL project owned by Google.",
       "Allocate an internal IP range in the VPC and create a private services access connection to servicenetworking.googleapis.com using that range."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Cloud SQL private IP relies on private services access: you allocate a reserved internal range in your VPC (for example, a /20 or larger), then create a private connection to the Service Networking API, which establishes a VPC peering to Google's service producer network on your behalf. Only after that can an instance be created with a private IP in that VPC. Option A describes Cloud SQL's alternative Private Service Connect model, which requires the instance to be created with PSC enabled and does not use the classic private IP configuration described in the question. Option B allows VMs to reach public Google APIs, not a database's private address. Option C is not possible; you cannot manually peer with Google's producer project—Service Networking creates and manages that peering.",
     "refs": [
       "https://cloud.google.com/sql/docs/postgres/configure-private-services-access",
       "https://cloud.google.com/vpc/docs/private-services-access"
-    ]
+    ],
+    "hint": "Core Rule (Private Service Access): Cloud SQL private IP relies on private services access: you allocate a reserved internal range in your VPC (for example, a /20 or larger), then create a private connection to the Service Networking API, which establishes a VPC peering to Google's service producer network on your behalf.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Create a Private Service Connect endpoint targeting the Cloud SQL serv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Enable Private Google Access on the subnet where the application VMs r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a VPC Network Peering connection directly to the Cloud SQL proj…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-012",
@@ -244,12 +332,20 @@
       "Expose the API through a global external Application Load Balancer protected by Cloud Armor and require merchants to allowlist their egress IP addresses.",
       "Attach every merchant VPC and the processor VPC as spokes on a shared Network Connectivity Center hub."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Private Service Connect for published services is designed for one-to-many producer/consumer relationships across organizations: the producer exposes a service attachment fronting an internal load balancer, traffic is source-NATed into a producer-owned PSC NAT subnet so overlapping consumer IP ranges are irrelevant, the producer never sees or routes to consumer networks, and traffic stays on Google's network. Option A fails because VPC peering requires non-overlapping ranges and creates full bidirectional routing between networks, which violates the isolation requirement. Option C sends traffic over the public internet edge, contradicting the merchant requirement. Option D would make all merchants' VPCs mutually routable through the hub, which is unacceptable for unrelated companies and still requires non-overlapping ranges. This is the security-pillar recommended pattern for exposing services to third parties.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-service-connect#published-services",
       "https://cloud.google.com/vpc/docs/about-vpc-hosted-services"
-    ]
+    ],
+    "hint": "Core Rule: Private Service Connect for published services is designed for one-to-many producer/consumer relationships across organizations: the producer exposes a service attachment fronting an internal load balancer, traffic is source-NATed into a producer-owned PSC NAT subnet so overlapping consumer IP ranges are irrelevant, the producer never sees or routes to consumer networks, and traffic stays on Google's network.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Offer VPC Network Peering to each merchant VPC and ask merchants to re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Expose the API through a global external Application Load Balancer pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Attach every merchant VPC and the processor VPC as spokes on a shared …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-013",
@@ -265,12 +361,20 @@
       "Create a Cloud DNS private zone for googleapis.com with a CNAME from *.googleapis.com to restricted.googleapis.com and an A record for 199.36.153.4/30, add a route to that range via the default internet gateway, and deny other egress.",
       "Create a Cloud DNS private zone for googleapis.com with a CNAME from *.googleapis.com to private.googleapis.com and an A record for 199.36.153.8/30, and allow egress to that range."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "The restricted.googleapis.com VIP (199.36.153.4/30) only serves APIs that support VPC Service Controls, so pointing all googleapis.com names at it, routing that range through the default internet gateway (which stays within Google's network), and denying other egress ensures a compromised VM cannot reach unsupported services. Option A allows egress to any destination on port 443, which is the opposite of the goal. Option B is wrong because Cloud NAT is not needed for Google API access and cannot enforce which APIs are reachable. Option D uses private.googleapis.com (199.36.153.8/30), which serves nearly all Google APIs regardless of VPC Service Controls support, so it fails the requirement. This applies the security pillar's defense-in-depth principle to data exfiltration risk.",
     "refs": [
       "https://cloud.google.com/vpc-service-controls/docs/set-up-private-connectivity",
       "https://cloud.google.com/vpc/docs/configure-private-google-access#config-domain"
-    ]
+    ],
+    "hint": "Core Rule (Private Google Access): The restricted.googleapis.com VIP (199.36.153.4/30) only serves APIs that support VPC Service Controls, so pointing all googleapis.com names at it, routing that range through the default internet gateway (which stays within Google's network), and denying other egress ensures a compromised VM cannot reach unsupported services.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable Private Google Access on the subnet and add an egress firewall …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Configure Cloud NAT for the subnet and restrict the NAT gateway to tra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a Cloud DNS private zone for googleapis.com with a CNAME from *…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-014",
@@ -287,12 +391,21 @@
       "At least one Cloud Router in the region, with a VLAN attachment on each connection and BGP sessions to on-premises routers.",
       "Global dynamic routing mode enabled with Cloud Routers in two different regions."
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "The 99.9% Dedicated Interconnect SLA requires two connections in the same metro in different edge availability domains (zones), each with a VLAN attachment terminating on a Cloud Router in the target region and BGP sessions to redundant on-premises routers. Option B and Option E describe the 99.99% topology (four connections, two metros, two regions, global routing), which costs roughly twice as much and exceeds the stated goal. Option C is unrelated: HA VPN over Interconnect adds encryption, not SLA coverage. Choosing the topology that matches the required SLA tier reflects the cost-optimization pillar.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/tutorials/dedicated-creating-999-availability",
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/dedicated-overview#redundancy"
-    ]
+    ],
+    "hint": "Core Rule (Cloud Interconnect): The 99.9% Dedicated Interconnect SLA requires two connections in the same metro in different edge availability domains (zones), each with a VLAN attachment terminating on a Cloud Router in the target region and BGP sessions to redundant on-premises routers.",
+    "whyWrong": {
+      "1": "Incorrect distractor (At least four Dedicated Interconnect connections spread across two dif…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (HA VPN tunnels configured over each VLAN attachment for redundancy.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Global dynamic routing mode enabled with Cloud Routers in two differen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-015",
@@ -308,12 +421,20 @@
       "Enable global dynamic routing so that Cloud Router automatically prefers the attachment with the lowest latency.",
       "Create a network firewall policy that denies traffic on the secondary attachment until the primary attachment fails."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud Router uses BGP MED to express path preference in both directions. For traffic from Google Cloud to on-premises, the on-premises routers advertise prefixes with a higher MED over the backup link so the primary route wins; for traffic from on-premises to Google Cloud, you set a higher advertised route priority on the secondary BGP session so on-premises prefers the primary. When the primary fails, BGP withdraws its routes and the secondary carries traffic automatically. Option A defeats the purpose of automatic failover and requires human intervention during an outage. Option C changes which regions learn routes, not path preference; ECMP still applies to equal-priority routes. Option D is wrong because firewall policies filter traffic but do not influence routing, and manually toggling firewall rules is not a failover mechanism. This is a reliability-pillar design using standard BGP attributes.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/router/concepts/overview#route-metrics",
       "https://cloud.google.com/network-connectivity/docs/interconnect/how-to/dedicated/modifying-vlan-attachments"
-    ]
+    ],
+    "hint": "Core Rule (BGP routing): Cloud Router uses BGP MED to express path preference in both directions.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Delete the BGP session on the secondary attachment and re-create it on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable global dynamic routing so that Cloud Router automatically prefe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create a network firewall policy that denies traffic on the secondary …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-016",
@@ -329,12 +450,20 @@
       "Attach both VPCs as spokes to a Network Connectivity Center hub in the bank's organization.",
       "Create HA VPN tunnels between the two VPCs and use Cloud Router to advertise only the core-ledger subnet."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Private Service Connect tolerates overlapping IP ranges because the consumer reaches the producer through an endpoint address in the consumer's own VPC, and the producer sees traffic from its PSC NAT subnet; neither network needs to learn the other's routes, so each organization retains full control. Option B and Option C both require non-overlapping subnets, and peering would be rejected outright with identical ranges. Option D would establish tunnels, but BGP-learned routes for 10.10.x.x would conflict with local subnet routes, which always take precedence over dynamic routes, so the traffic could never be delivered. PSC is the Google-recommended model for cross-organization service access and aligns with the security pillar's principle of least exposure.",
     "refs": [
       "https://cloud.google.com/vpc/docs/private-service-connect#benefits-services",
       "https://cloud.google.com/vpc/docs/vpc-peering#restrictions"
-    ]
+    ],
+    "hint": "Core Rule: Private Service Connect tolerates overlapping IP ranges because the consumer reaches the producer through an endpoint address in the consumer's own VPC, and the producer sees traffic from its PSC NAT subnet; neither network needs to learn the other's routes, so each organization retains full control.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a VPC Network Peering connection between the two VPCs and enabl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Attach both VPCs as spokes to a Network Connectivity Center hub in the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Create HA VPN tunnels between the two VPCs and use Cloud Router to adv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-017",
@@ -350,12 +479,20 @@
       "Replace the VPN with a Partner Interconnect attachment using static routing to avoid VPN deprecation entirely.",
       "Migrate to an HA VPN gateway with two tunnels, one per interface, and configure Cloud Router BGP sessions so that subnets are exchanged dynamically."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "HA VPN is the supported, SLA-backed successor to Classic VPN and requires dynamic routing with Cloud Router; BGP automatically advertises new subnets on both sides, eliminating manual route maintenance. Option A remains on Classic VPN, which is exactly what is being deprecated, and static routes still require manual updates. Option B is not possible because HA VPN supports only dynamic (BGP) routing; static routes are not an option. Option C is a much more expensive product change for a small district and Partner Interconnect also requires BGP via Cloud Router, so static routing is not an option there either. This is an operational-excellence decision that also improves reliability.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/vpn/concepts/classic-topologies",
       "https://cloud.google.com/network-connectivity/docs/vpn/how-to/moving-to-ha-vpn"
-    ]
+    ],
+    "hint": "Core Rule (Cloud VPN): HA VPN is the supported, SLA-backed successor to Classic VPN and requires dynamic routing with Cloud Router; BGP automatically advertises new subnets on both sides, eliminating manual route maintenance.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rebuild the Classic VPN gateway using route-based tunnels with static …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Migrate to HA VPN and configure static routes on the HA VPN tunnels to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Replace the VPN with a Partner Interconnect attachment using static ro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-018",
@@ -371,12 +508,20 @@
       "Order a Dedicated Interconnect connection and configure MACsec for encryption.",
       "Configure Direct Peering with the startup's ISP and route traffic to the VPC through the peering session."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "HA VPN can be provisioned in minutes, is billed hourly per tunnel with no term commitment, encrypts all traffic with IPsec, and comfortably supports sub-gigabit throughput, making it the right fit for a short-lived proof of concept. Option A involves provider lead times and monthly charges, and encryption would still require a VPN overlay. Option C has multi-week provisioning, requires colocation presence, and is priced for 10 Gbps or 100 Gbps circuits, which is grossly oversized. Option D, Direct Peering, connects to Google's public services and does not provide VPC access or encryption. This is a cost-optimization choice that still meets the security requirement.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/how-to/choose-product",
       "https://cloud.google.com/network-connectivity/docs/vpn/concepts/overview"
-    ]
+    ],
+    "hint": "Core Rule (Hybrid connectivity): HA VPN can be provisioned in minutes, is billed hourly per tunnel with no term commitment, encrypts all traffic with IPsec, and comfortably supports sub-gigabit throughput, making it the right fit for a short-lived proof of concept.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Order a Partner Interconnect attachment with a 1 Gbps capacity and ena…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Order a Dedicated Interconnect connection and configure MACsec for enc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Configure Direct Peering with the startup's ISP and route traffic to t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-019",
@@ -393,12 +538,21 @@
       "Private Service Connect endpoints pointing to Azure Private Link services.",
       "Shared VPC with the Azure subscription attached as a service project."
     ],
-    "answer": [1, 2],
+    "answer": [
+      1,
+      2
+    ],
     "explanation": "Google Cloud supports two native ways to connect to another cloud: Cross-Cloud Interconnect (dedicated 10 or 100 Gbps physical links to supported Azure ExpressRoute locations) and HA VPN (IPsec tunnels over the internet, encrypted, with BGP via Cloud Router, which Google documents for Azure specifically). Option A is wrong because VPC Network Peering works only between Google Cloud VPC networks. Option D is wrong because Private Service Connect connects to services inside Google Cloud, not to Azure Private Link. Option E is wrong because Shared VPC is an intra-organization Google Cloud construct and cannot include Azure subscriptions. Choosing between the two valid options is a bandwidth, latency, and cost trade-off.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-azure-overview",
       "https://cloud.google.com/network-connectivity/docs/vpn/tutorials/create-ha-vpn-connections-google-cloud-azure"
-    ]
+    ],
+    "hint": "Core Rule (Multicloud connectivity): Google Cloud supports two native ways to connect to another cloud: Cross-Cloud Interconnect (dedicated 10 or 100 Gbps physical links to supported Azure ExpressRoute locations) and HA VPN (IPsec tunnels over the internet, encrypted, with BGP via Cloud Router, which Google documents for Azure specifically).",
+    "whyWrong": {
+      "0": "Incorrect distractor (VPC Network Peering between the Google Cloud VPC and the Azure virtual…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Private Service Connect endpoints pointing to Azure Private Link servi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Shared VPC with the Azure subscription attached as a service project.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-020",
@@ -414,12 +568,20 @@
       "Create an internal passthrough Network Load Balancer with a serverless NEG backend pointing to the Google APIs and advertise its IP over BGP.",
       "Deploy a proxy VM with an internal IP that forwards API requests to googleapis.com, and advertise the VM's address over BGP."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Private Service Connect for Google APIs lets you create an endpoint with an internal IP address from your own VPC that fronts either the all-apis or vpc-sc bundle. Because the address is yours, it is stable and easy to allowlist; it is reachable from on-premises once advertised through Cloud Router custom route advertisement and paired with a DNS mapping for googleapis.com. Option B is wrong because Private Google Access applies to VMs in the subnet and does not give on-premises hosts an internal API address. Option C is not a valid configuration; serverless NEGs target Cloud Run, App Engine, or API Gateway, not Google APIs generally. Option D works but adds a managed VM, a throughput bottleneck, and a single point of failure that the managed PSC endpoint avoids.",
     "refs": [
       "https://cloud.google.com/vpc/docs/configure-private-service-connect-apis",
       "https://cloud.google.com/vpc/docs/private-service-connect#benefits-apis"
-    ]
+    ],
+    "hint": "Core Rule: Private Service Connect for Google APIs lets you create an endpoint with an internal IP address from your own VPC that fronts either the all-apis or vpc-sc bundle.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Enable Private Google Access on the subnets connected to the Interconn…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create an internal passthrough Network Load Balancer with a serverless…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Deploy a proxy VM with an internal IP that forwards API requests to go…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-021",
@@ -435,12 +597,20 @@
       "Grant the service project's GKE service account (service-PROJECT_NUMBER@container-engine-robot.iam.gserviceaccount.com) the Host Service Agent User role on the host project.",
       "Grant the platform engineer the Compute Security Admin role on the host project so firewall rules can be created."
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "When GKE runs in a Shared VPC service project, the GKE service agent of the service project must hold roles/container.hostServiceAgentUser on the host project so that it can create the firewall rules and routes clusters require in the host network. This is a documented prerequisite and grants only the narrow permissions GKE needs. Option A and Option D grant broad, human-level permissions on the host project to an engineer, violating least privilege and not addressing the fact that GKE's service agent, not the user, performs the operations. Option B targets the wrong service account and grants an overly broad role. This is a classic security-pillar question about service agents in Shared VPC.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-shared-vpc#grant_host_service_agent_role",
       "https://cloud.google.com/vpc/docs/shared-vpc#iam_in_shared_vpc"
-    ]
+    ],
+    "hint": "Core Rule: When GKE runs in a Shared VPC service project, the GKE service agent of the service project must hold roles/container.hostServiceAgentUser on the host project so that it can create the firewall rules and routes clusters require in the host network.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant the platform engineer the Compute Network Admin role on the host…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Grant the service project's Google APIs service account the Compute Ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Grant the platform engineer the Compute Security Admin role on the hos…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-022",
@@ -456,12 +626,20 @@
       "Enable TLS on every application and rely on application-layer encryption for compliance.",
       "Create new VLAN attachments with encryption set to IPsec, deploy HA VPN gateways over those attachments, and build IPsec tunnels through the Interconnect."
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "HA VPN over Cloud Interconnect is Google's supported way to add IPsec encryption to Interconnect traffic: you create encrypted VLAN attachments (encryption=IPSEC), attach HA VPN gateways to them, and build tunnels that traverse the Interconnect rather than the internet, preserving dedicated bandwidth and the Interconnect SLA. Option A is wrong because MACsec for Cloud Interconnect provides Layer 2 encryption, not IPsec, and the requirement explicitly names IPsec. Option B moves traffic to the internet, sacrificing the dedicated path and its SLA. Option C leaves non-TLS protocols unprotected and does not satisfy a mandate for network-layer encryption. This meets the security pillar's encryption-in-transit guidance without sacrificing performance.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/ha-vpn-interconnect",
       "https://cloud.google.com/network-connectivity/docs/interconnect/how-to/dedicated/creating-encrypted-vlan-attachments"
-    ]
+    ],
+    "hint": "Core Rule: HA VPN over Cloud Interconnect is Google's supported way to add IPsec encryption to Interconnect traffic: you create encrypted VLAN attachments (encryption=IPSEC), attach HA VPN gateways to them, and build tunnels that traverse the Interconnect rather than the internet, preserving dedicated bandwidth and the Interconnect SLA.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable MACsec on the existing VLAN attachments and Cloud Router BGP se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Route all sensitive traffic over a separate HA VPN gateway that uses t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable TLS on every application and rely on application-layer encrypti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-023",
@@ -477,12 +655,20 @@
       "Dedicated Interconnect with a 10 Gbps circuit, because it does not require a BGP session.",
       "Carrier Peering, because the carrier manages routing to Google."
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Partner Interconnect supports two models: with Layer 2 connectivity, the customer's on-premises router peers with the Cloud Router over BGP, whereas with Layer 3 connectivity, the service provider's routers establish the BGP session with the Cloud Router and the customer only needs a routed connection to the provider. Layer 3 therefore removes the BGP burden from the airline while still using a Cloud Router. Option B requires the airline to run BGP, which it lacks skills for. Option C is incorrect because Dedicated Interconnect always requires BGP between the customer router and Cloud Router. Option D, Carrier Peering, connects to Google public services and does not provide access to VPC resources. Matching the design to the team's skill set is part of the operational-excellence pillar.",
     "refs": [
       "https://cloud.google.com/network-connectivity/docs/interconnect/concepts/partner-overview#connectivity-type",
       "https://cloud.google.com/network-connectivity/docs/interconnect/how-to/partner/provisioning-overview"
-    ]
+    ],
+    "hint": "Core Rule: Partner Interconnect supports two models: with Layer 2 connectivity, the customer's on-premises router peers with the Cloud Router over BGP, whereas with Layer 3 connectivity, the service provider's routers establish the BGP session with the Cloud Router and the customer only needs a routed connection to the provider.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Layer 2 Partner Interconnect, in which the airline's on-premises route…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Dedicated Interconnect with a 10 Gbps circuit, because it does not req…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Carrier Peering, because the carrier manages routing to Google.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-024",
@@ -499,12 +685,21 @@
       "Grant application teams the Compute Network Admin role in the host project so they can adjust subnets as needed.",
       "Assign the Shared VPC Admin role at the folder or organization level to the networking team rather than to individual application owners."
     ],
-    "answer": [0, 2, 4],
+    "answer": [
+      0,
+      2,
+      4
+    ],
     "explanation": "Shared VPC is Google's recommended pattern for centralized network control with delegated project ownership. Separating production and non-production host projects limits blast radius and simplifies policy differences (Option A); placing Interconnect attachments and Cloud Routers in the host project lets every service project use hybrid connectivity without duplication (Option C); and granting Shared VPC Admin at the folder or organization level keeps host-project enablement in the networking team's hands (Option E). Option B creates a peering mesh with non-transitive routing and duplicates firewall and route administration across dozens of VPCs, which is the opposite of centralized ownership. Option D violates least privilege by letting application teams change network configuration owned by the central team. These decisions reflect the security and operational-excellence pillars.",
     "refs": [
       "https://cloud.google.com/architecture/best-practices-vpc-design",
       "https://cloud.google.com/vpc/docs/shared-vpc"
-    ]
+    ],
+    "hint": "Core Rule: Shared VPC is Google's recommended pattern for centralized network control with delegated project ownership.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Give every application team its own VPC network and connect all of the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Grant application teams the Compute Network Admin role in the host pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d2-net-025",
@@ -520,11 +715,19 @@
       "Create a Private Service Connect endpoint for the Cloud SQL instance and advertise the Interconnect VLAN attachment range from on-premises.",
       "Add a static route in the VPC for the on-premises prefixes with the Cloud SQL private IP as the next hop."
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Cloud SQL private IP lives in a Google-managed producer VPC connected via the private services access peering. Two things are needed for on-premises reachability: on-premises must learn the allocated range (Cloud Router advertises only local subnets by default, so the allocated range must be added as a custom advertised route), and the producer network must learn the on-premises return routes, which requires enabling export of custom routes on the servicenetworking peering so the dynamic routes learned from the Interconnect are propagated. Option A is wrong because Private Google Access is for VMs reaching Google APIs and the Cloud SQL IP is not in a customer subnet. Option C describes a different connectivity model that would require re-creating the instance with PSC. Option D is not valid; a Cloud SQL IP cannot be a route next hop, and the problem is missing routes toward Cloud SQL, not toward on-premises.",
     "refs": [
       "https://cloud.google.com/sql/docs/mysql/configure-private-ip#connect-from-on-prem",
       "https://cloud.google.com/vpc/docs/configure-private-services-access#on-premises-connections"
-    ]
+    ],
+    "hint": "Core Rule (Private Service Access): Cloud SQL private IP lives in a Google-managed producer VPC connected via the private services access peering.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Enable Private Google Access on the subnet that hosts the Cloud SQL pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Create a Private Service Connect endpoint for the Cloud SQL instance a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Add a static route in the VPC for the on-premises prefixes with the Cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

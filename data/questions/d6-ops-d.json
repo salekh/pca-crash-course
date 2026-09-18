@@ -13,12 +13,20 @@
       "Configure a Kubernetes admission webhook that checks image names for the string 'cloudbuild' before admitting pods",
       "Enable Artifact Analysis vulnerability scanning on Artifact Registry and send an email to the team whenever a critical vulnerability is found"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Binary Authorization is the deploy-time policy control for GKE and Cloud Run: it admits only images that carry the required cryptographically signed attestations, such as a Cloud Build provenance attestation and a vulnerability-scan attestation, and it supports dry-run for safe rollout and break-glass annotations that allow but log emergency exceptions. Manual verification by one person (option A) is a bottleneck and not a reliable control. Matching image name strings (option C) is trivially spoofed and proves nothing about provenance. Scanning with email notifications (option D) provides visibility but does not prevent a vulnerable or unscanned image from being deployed.",
     "refs": [
       "https://cloud.google.com/binary-authorization/docs/overview",
       "https://cloud.google.com/binary-authorization/docs/using-breakglass"
-    ]
+    ],
+    "hint": "Core Rule: Binary Authorization is the deploy-time policy control for GKE and Cloud Run: it admits only images that carry the required cryptographically signed attestations, such as a Cloud Build provenance attestation and a vulnerability-scan attestation, and it supports dry-run for safe rollout and break-glass annotations that allow but log emergency exceptions.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Restrict kubectl access to the production cluster to a single senior e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Configure a Kubernetes admission webhook that checks image names for t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable Artifact Analysis vulnerability scanning on Artifact Registry a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-085",
@@ -34,12 +42,20 @@
       "Move image builds to developer laptops where engineers can inspect scan results before pushing",
       "Schedule the weekly review to occur daily instead so that vulnerable images are found sooner"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A quality gate must be enforced in the pipeline: On-Demand Scanning lets a Cloud Build step scan the image before it is pushed, and failing the build on critical findings guarantees vulnerable images never enter the registry or any environment. Alerting on registry scan results (option B) is reactive and does not stop the image from being deployed. Moving builds to laptops (option C) removes reproducibility and auditability and does not create an enforced gate. A more frequent manual review (option D) is still after the fact and relies on people.",
     "refs": [
       "https://cloud.google.com/artifact-analysis/docs/ods-cloudbuild",
       "https://cloud.google.com/artifact-analysis/docs/os-overview"
-    ]
+    ],
+    "hint": "Core Rule (Security scanning gates in CI): A quality gate must be enforced in the pipeline: On-Demand Scanning lets a Cloud Build step scan the image before it is pushed, and failing the build on critical findings guarantees vulnerable images never enter the registry or any environment.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Create a log-based alert on Artifact Registry scan results and page th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Move image builds to developer laptops where engineers can inspect sca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Schedule the weekly review to occur daily instead so that vulnerable i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-086",
@@ -55,12 +71,20 @@
       "Protect the main branch so that changes arrive through pull requests that require at least one approving review and a passing Cloud Build presubmit run of the unit tests and linters before merge",
       "Disable automatic deployment and have the on-call engineer deploy manually at the end of each day"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Branch protection with mandatory peer review and an automated presubmit build is the lightweight, industry-standard quality gate: it catches mistakes before they merge, keeps continuous deployment intact, and scales with the team. A weekly CTO review (option A) delays every change by up to a week and creates a bottleneck. Manual testing in production (option B) exposes users to untested code and is not a repeatable control. Manual end-of-day deployment (option D) batches changes, which increases risk, and does not add any review or test.",
     "refs": [
       "https://cloud.google.com/build/docs/automating-builds/create-manage-triggers",
       "https://cloud.google.com/architecture/devops/devops-tech-continuous-integration"
-    ]
+    ],
+    "hint": "Core Rule (Code review and presubmit checks): Branch protection with mandatory peer review and an automated presubmit build is the lightweight, industry-standard quality gate: it catches mistakes before they merge, keeps continuous deployment intact, and scales with the team.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Introduce a weekly release meeting in which the CTO reviews every comm…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Require each developer to test changes manually in production behind a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Disable automatic deployment and have the on-call engineer deploy manu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-087",
@@ -77,12 +101,21 @@
       "Unit and integration test execution with a minimum code-coverage threshold that fails the build when coverage drops below the agreed level or when any test fails",
       "A step that automatically merges the pull request if the developer has more than two years of tenure"
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Automated static analysis and enforced test execution with coverage thresholds are objective, repeatable gates that catch a large class of defects and security issues early, which is the essence of shifting quality control left in the pipeline. A manual email sign-off (option B) is neither automated nor objective and adds latency. A build-duration limit (option C) is a productivity metric, not a quality gate, and could encourage skipping tests. Auto-merging based on tenure (option E) bypasses review entirely and is unrelated to code quality.",
     "refs": [
       "https://cloud.google.com/build/docs/overview",
       "https://cloud.google.com/architecture/devops/devops-tech-test-automation"
-    ]
+    ],
+    "hint": "Core Rule (CI quality gates): Automated static analysis and enforced test execution with coverage thresholds are objective, repeatable gates that catch a large class of defects and security issues early, which is the essence of shifting quality control left in the pipeline.",
+    "whyWrong": {
+      "1": "Incorrect distractor (A manual sign-off from the head of engineering recorded in an email th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (A requirement that the build finishes in under 60 seconds, to keep dev…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (A step that automatically merges the pull request if the developer has…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-088",
@@ -98,12 +131,20 @@
       "Require every Terraform plan to be reviewed by the security team in a weekly meeting before it can be applied",
       "Add a policy validation step to the Cloud Build pipeline that runs the Terraform plan through gcloud terraform vet against a policy library of constraints (for example, no public buckets and no external IPs), failing the pipeline before apply, and back the most critical rules with organization policy constraints as a second line of defense"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Terraform policy validation (gcloud terraform vet with the Policy Library) evaluates the planned changes against organization constraints before anything is created, so non-compliant infrastructure fails in the pipeline rather than being detected afterwards; enforcing the most important rules with organization policy constraints (such as restricting public access and external IPs) ensures they hold even if someone bypasses the pipeline. A Viewer-only service account (option A) would prevent all deployments, not just bad ones. More frequent detection (option B) is still detection after creation. Weekly manual review (option C) is slow, does not scale, and is prone to human error.",
     "refs": [
       "https://cloud.google.com/docs/terraform/policy-validation",
       "https://cloud.google.com/resource-manager/docs/organization-policy/overview"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure configuration validation): Terraform policy validation (gcloud terraform vet with the Policy Library) evaluates the planned changes against organization constraints before anything is created, so non-compliant infrastructure fails in the pipeline rather than being detected afterwards; enforcing the most important rules with organization policy constraints (such as restricting public access and external IPs) ensures they hold even if someone bypasses the pipeline.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Grant the Cloud Build service account only the Viewer role so that non…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Ask Security Command Center to scan more frequently so that violations…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Require every Terraform plan to be reviewed by the security team in a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-089",
@@ -119,12 +160,20 @@
       "Revoke kubectl access from all engineers and require every change, including emergencies, to go through a weekly change board",
       "Use Cloud Deploy to redeploy all manifests to every cluster every hour so that manual changes are overwritten"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Config Sync is GKE's GitOps controller: it continuously reconciles each cluster to the Git-declared state and automatically reverts drift caused by manual edits, and fleet-level management makes it uniform across all 25 clusters; Policy Controller adds admission-time enforcement of security and organizational constraints. A nightly diff email (option A) only reports drift, it does not correct or prevent it. Revoking all access with a weekly board (option C) makes emergency response impossible and does not address drift that already exists. Hourly redeploys with Cloud Deploy (option D) is a blunt, resource-intensive workaround that neither detects drift promptly nor enforces policy.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/enterprise/config-sync/docs/overview",
       "https://cloud.google.com/kubernetes-engine/enterprise/policy-controller/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Configuration drift on GKE): Config Sync is GKE's GitOps controller: it continuously reconciles each cluster to the Git-declared state and automatically reverts drift caused by manual edits, and fleet-level management makes it uniform across all 25 clusters; Policy Controller adds admission-time enforcement of security and organizational constraints.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Run a nightly job that executes kubectl diff against every cluster and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Revoke kubectl access from all engineers and require every change, inc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Use Cloud Deploy to redeploy all manifests to every cluster every hour…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-090",
@@ -140,12 +189,20 @@
       "Enable Data Access audit logs on all services and review them weekly for console modifications",
       "Store the Terraform state in a Cloud Storage bucket with object versioning so that previous states can be restored after drift is discovered"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Drift detection for Terraform-managed infrastructure is achieved by regularly executing a plan against live state and surfacing any difference; combining that with least-privilege IAM that removes out-of-band write access closes the gap that allowed the manual edit. Auto-applying hourly (option B) silently destroys potentially intentional emergency fixes and provides no visibility. Audit logs (option C) record who changed what, but weekly manual review is slow and does not compare against the desired state. State versioning (option D) protects the state file itself but does nothing to detect that reality has diverged from it.",
     "refs": [
       "https://cloud.google.com/docs/terraform/best-practices-for-terraform",
       "https://cloud.google.com/infrastructure-manager/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Infrastructure drift detection): Drift detection for Terraform-managed infrastructure is achieved by regularly executing a plan against live state and surfacing any difference; combining that with least-privilege IAM that removes out-of-band write access closes the gap that allowed the manual edit.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Run terraform apply automatically every hour so that any manual change…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable Data Access audit logs on all services and review them weekly f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Store the Terraform state in a Cloud Storage bucket with object versio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-091",
@@ -161,12 +218,20 @@
       "Use Cloud Billing cost anomaly detection to receive alerts when spend deviates from the forecast, and complement it with Cloud Billing budgets that send threshold notifications to email and Pub/Sub for automated responses",
       "Ask each researcher to check the Billing console once a day"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Cloud Billing anomaly detection automatically identifies unexpected spending patterns and alerts on them, and budgets with threshold notifications provide a complementary control that can trigger automation via Pub/Sub; together they give timely, low-effort visibility. Weekly manual review (option A) would have taken up to a week to notice. Worker quotas (option B) limit one specific failure mode but do not detect anomalies in other services. Daily manual console checks (option D) are unreliable and do not scale.",
     "refs": [
       "https://cloud.google.com/billing/docs/how-to/cost-anomalies",
       "https://cloud.google.com/billing/docs/how-to/budgets"
-    ]
+    ],
+    "hint": "Core Rule (Cost anomaly detection): Cloud Billing anomaly detection automatically identifies unexpected spending patterns and alerts on them, and budgets with threshold notifications provide a complementary control that can trigger automation via Pub/Sub; together they give timely, low-effort visibility.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Export billing data to BigQuery and manually review the totals every F…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Set a hard quota on the number of Dataflow workers in each project so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask each researcher to check the Billing console once a day): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-092",
@@ -182,12 +247,20 @@
       "Raise the SLO to 99.999% to give the team an ambitious target for next year",
       "Keep the SLO at 99.9% unless users actually need more reliability; instead, use the unspent error budget deliberately, for example to increase release velocity, run chaos experiments, or perform risky upgrades, and confirm that the SLI still reflects the user experience"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "An SLO should represent the reliability users need, not the maximum the system has happened to achieve; tightening it merely because performance exceeded it would raise costs and constrain future change without a user benefit, and it removes the room to spend budget on innovation and resilience testing that SRE recommends. Raising the SLO reflexively (options A and C) creates an ever-tightening trap and makes every future change riskier. Deleting the SLO (option B) removes the shared language between product and engineering and the alerting that protects users. Periodic SLO reviews should ask whether the SLI and target still match user happiness, which is what the correct option does.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability/set-realistic-targets",
       "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
-    ]
+    ],
+    "hint": "Core Rule (SLO reviews): An SLO should represent the reliability users need, not the maximum the system has happened to achieve; tightening it merely because performance exceeded it would raise costs and constrain future change without a user benefit, and it removes the room to spend budget on innovation and resilience testing that SRE recommends.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Raise the SLO to 99.99% immediately, because an SLO should always refl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Remove the SLO, since the service is clearly reliable enough and the o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Raise the SLO to 99.999% to give the team an ambitious target for next…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-093",
@@ -203,12 +276,20 @@
       "Keep the 90% target but configure the autoscaler's cool-down period to zero so that scaling reacts faster",
       "Replace the managed instance group with an unmanaged instance group so that instances can be added manually during an incident"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Surviving a zone failure without impact requires N+1 capacity to already be running: with three zones, each zone must be able to absorb one-third more load, which means steady-state utilization must stay at or below about two-thirds; the autoscaler cannot add instances fast enough during a sudden shift, so headroom must be pre-provisioned and its adequacy validated through failure testing. A single zone (option B) eliminates zonal resilience entirely. Zero cool-down (option C) does not solve instance boot time and can cause oscillation. Unmanaged groups (option D) lose autoscaling and autohealing and rely on humans during the worst moments.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability/build-highly-available-systems",
       "https://cloud.google.com/compute/docs/autoscaler"
-    ]
+    ],
+    "hint": "Core Rule (Capacity headroom for zonal failure): Surviving a zone failure without impact requires N+1 capacity to already be running: with three zones, each zone must be able to absorb one-third more load, which means steady-state utilization must stay at or below about two-thirds; the autoscaler cannot add instances fast enough during a sudden shift, so headroom must be pre-provisioned and its adequacy validated through failure testing.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Move the instance group to a single zone with larger machine types so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Keep the 90% target but configure the autoscaler's cool-down period to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Replace the managed instance group with an unmanaged instance group so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-094",
@@ -224,12 +305,20 @@
       "Start with a hypothesis (for example, 'losing zone B causes no SLO impact'), run the experiment first in a production-like staging environment, then in production during low traffic with a limited blast radius, defined abort criteria, stakeholder notification, and observability in place, and feed findings into a postmortem-style report",
       "Ask Google Cloud support to disable a zone for the company's project so that the test is performed by the provider"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Chaos engineering is disciplined experimentation: form a hypothesis about steady state, minimize blast radius, start in lower environments before production, define clear abort conditions and rollback, inform stakeholders, and measure with existing observability, then document learnings and action items. An unannounced peak-time outage (option A) is reckless and confuses a real incident with a test. Trusting documents alone (option B) is exactly the gap the team wants to close; the Well-Architected Framework reliability pillar explicitly recommends testing recovery from failures. Google does not disable zones on request (option D); customers simulate failures within their own resources.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
       "https://cloud.google.com/architecture/scalable-and-resilient-apps"
-    ]
+    ],
+    "hint": "Core Rule: Chaos engineering is disciplined experimentation: form a hypothesis about steady state, minimize blast radius, start in lower environments before production, define clear abort conditions and rollback, inform stakeholders, and measure with existing observability, then document learnings and action items.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Shut down a production zone's instances during the dinner peak without…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Rely on the architecture review documents, because deliberately inject…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Ask Google Cloud support to disable a zone for the company's project s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-095",
@@ -245,12 +334,20 @@
       "Penetration testing is prohibited on Google Cloud; the company must rely solely on Google's own compliance reports",
       "The test may proceed only if the company temporarily disables Cloud Armor and VPC Service Controls so that the testers can reach all endpoints"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Google Cloud does not require customers to notify or obtain permission before conducting penetration tests against their own resources, provided the activity complies with the Acceptable Use Policy and Terms of Service and is confined to the customer's own applications and projects; attacking Google's infrastructure or other tenants is prohibited. There is no 30-day approval process or restriction to Google IP ranges (option A). Testing is not prohibited (option C); it is a normal part of customer security programs and compliance. Disabling security controls (option D) is unnecessary and would make the test unrepresentative of the real defenses, and testers should be given scoped access instead.",
     "refs": [
       "https://cloud.google.com/security/overview/whitepaper",
       "https://cloud.google.com/terms/aup"
-    ]
+    ],
+    "hint": "Core Rule (Penetration testing on Google Cloud): Google Cloud does not require customers to notify or obtain permission before conducting penetration tests against their own resources, provided the activity complies with the Acceptable Use Policy and Terms of Service and is confined to the customer's own applications and projects; attacking Google's infrastructure or other tenants is prohibited.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Google must approve every penetration test in writing at least 30 days…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Penetration testing is prohibited on Google Cloud; the company must re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (The test may proceed only if the company temporarily disables Cloud Ar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-096",
@@ -266,12 +363,20 @@
       "Test only the front-end web tier at high load and mock all back-end calls, because the back end is shared and should not be disturbed",
       "Run a distributed load test (for example, Locust or a similar tool on GKE) from multiple regions against a production-like environment, reproducing the real spike shape and user journeys end to end at 1.5 to 2 times the expected peak, and verify SLIs, autoscaling behavior, quotas, and downstream capacity such as the database and payment provider"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A realistic pre-launch load test must reproduce the expected scale, ramp shape, and end-to-end user journeys, including all dependencies, with headroom above the forecast; a single laptop cannot generate 50,000 requests per second, and testing at 1% of expected load proves nothing about behavior at peak, autoscaler ramp rates, quota limits, or database saturation. Assuming serverless scaling suffices (option A) ignores cold starts, per-region limits, and non-elastic dependencies. Longer duration at trivial throughput (option B) misses the spike behavior entirely. Mocking the back end (option C) hides exactly the components most likely to fail under load.",
     "refs": [
       "https://cloud.google.com/architecture/distributed-load-testing-using-gke",
       "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
-    ]
+    ],
+    "hint": "Core Rule (Load testing before launch): A realistic pre-launch load test must reproduce the expected scale, ramp shape, and end-to-end user journeys, including all dependencies, with headroom above the forecast; a single laptop cannot generate 50,000 requests per second, and testing at 1% of expected load proves nothing about behavior at peak, autoscaler ramp rates, quota limits, or database saturation.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Approve the launch, because the platform is serverless and will scale …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Run the existing laptop test for a longer duration, since duration mat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Test only the front-end web tier at high load and mock all back-end ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-097",
@@ -287,12 +392,20 @@
       "Deploy a second copy of the recommendation service and retry the call against it whenever the first one fails",
       "Move the recommendation service to the same GKE cluster as the product page to eliminate network latency"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "A non-critical dependency should never take down a critical user journey; graceful degradation means bounding the wait with a short timeout and serving a reasonable fallback so the page still loads, which the Well-Architected Framework reliability pillar recommends explicitly. A longer timeout (option B) makes the page slower and still fails when the service is down. A second replica with retries (option C) adds cost and does not help if the failure is systemic, and retries lengthen the user's wait. Co-location (option D) reduces latency but does nothing about unavailability.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation",
       "https://cloud.google.com/architecture/scalable-and-resilient-apps"
-    ]
+    ],
+    "hint": "Core Rule: A non-critical dependency should never take down a critical user journey; graceful degradation means bounding the wait with a short timeout and serving a reasonable fallback so the page still loads, which the Well-Architected Framework reliability pillar recommends explicitly.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Increase the timeout for the recommendation call to 60 seconds so that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Deploy a second copy of the recommendation service and retry the call …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Move the recommendation service to the same GKE cluster as the product…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-098",
@@ -308,12 +421,20 @@
       "Implement retries with exponential backoff and jitter, cap the number of retries with a retry budget, set explicit per-call timeouts and deadlines, add a circuit breaker that stops calling the fare service when its failure rate is high, and make the fare calls idempotent so that retries are safe",
       "Queue every fare request in Pub/Sub and process them asynchronously so that the fare service is never called synchronously"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Retry storms are a classic cascading-failure pattern; the remedy is a combination of controlled retries (exponential backoff with jitter and a bounded retry budget), timeouts so callers do not pile up, a circuit breaker that sheds calls to an unhealthy dependency so it can recover, and idempotency so retries cannot cause duplicate side effects. Eliminating retries entirely (option A) sacrifices resilience to transient errors. Tripling capacity (option B) is expensive and only postpones the problem to the next amplification factor. Making fare calculation asynchronous (option D) changes the user experience of a latency-sensitive interactive flow and does not address the retry behavior itself.",
     "refs": [
       "https://cloud.google.com/architecture/scalable-and-resilient-apps",
       "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation"
-    ]
+    ],
+    "hint": "Core Rule (Retries, backoff, and circuit breakers): Retry storms are a classic cascading-failure pattern; the remedy is a combination of controlled retries (exponential backoff with jitter and a bounded retry budget), timeouts so callers do not pile up, a circuit breaker that sheds calls to an unhealthy dependency so it can recover, and idempotency so retries cannot cause duplicate side effects.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Remove all retries from the trip service so that a single failure is r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Increase the fare service's capacity by 300% so that it can absorb ret…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Queue every fare request in Pub/Sub and process them asynchronously so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-099",
@@ -330,12 +451,21 @@
       "Implement application-level load shedding that rejects low-priority or excess requests early with HTTP 429 or 503 (with Retry-After) when concurrency or queue depth passes a threshold, prioritizing authenticated mobile-app traffic",
       "Disable autoscaling during breaking-news events so that the number of pods is predictable"
     ],
-    "answer": [1, 3],
+    "answer": [
+      1,
+      3
+    ],
     "explanation": "Surviving overload requires shedding excess or low-value load before it saturates the system: Cloud Armor rate limiting removes abusive clients at the edge without consuming backend capacity, and application-level load shedding with prioritization ensures that when capacity is exceeded, the service fails fast for low-priority requests and keeps serving high-value users rather than collapsing for everyone. Faster health-check failure (option A) removes overloaded pods and pushes even more load onto the remaining ones, accelerating collapse. Larger memory limits (option C) just build longer queues and worse latency. Disabling autoscaling (option E) removes the ability to add capacity when it is most needed.",
     "refs": [
       "https://cloud.google.com/armor/docs/rate-limiting-overview",
       "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation"
-    ]
+    ],
+    "hint": "Core Rule: Surviving overload requires shedding excess or low-value load before it saturates the system: Cloud Armor rate limiting removes abusive clients at the edge without consuming backend capacity, and application-level load shedding with prioritization ensures that when capacity is exceeded, the service fails fast for low-priority requests and keeps serving high-value users rather than collapsing for everyone.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Configure the load balancer health check to mark backends unhealthy so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Increase the Kubernetes pod memory limits so that pods can queue more …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Disable autoscaling during breaking-news events so that the number of …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-100",
@@ -351,12 +481,20 @@
       "Replicate the Firestore document to a second global database in a different provider so that there is a fallback copy",
       "Reduce the number of regions to two so that a global change affects fewer stacks"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "The outage was caused by a global singleton that coupled all regions; true regional isolation requires that each region can operate on its own state and that configuration and code changes propagate progressively with verification, so a bad change is caught in the first region. Validation on the shared store (option A) reduces one class of bad values but leaves the global coupling and simultaneous propagation in place. A replicated copy (option C) reproduces the same malformed value everywhere. Fewer regions (option D) shrinks capacity and resilience without solving the coupling.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability/build-highly-available-systems",
       "https://cloud.google.com/architecture/disaster-recovery"
-    ]
+    ],
+    "hint": "Core Rule (Regional isolation and blast radius): The outage was caused by a global singleton that coupled all regions; true regional isolation requires that each region can operate on its own state and that configuration and code changes propagate progressively with verification, so a bad change is caught in the first region.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Keep the single global configuration store but add a schema validation…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Replicate the Firestore document to a second global database in a diff…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Reduce the number of regions to two so that a global change affects fe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-101",
@@ -372,12 +510,20 @@
       "Retry every failed payment call up to 50 times so that the order eventually succeeds when the provider comes back",
       "Decouple order acceptance from payment capture: accept the order, enqueue the payment request in Pub/Sub for asynchronous processing with retries, integrate a secondary payment provider as an automatic fallback, and inform the customer that confirmation will follow if the primary path is delayed"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "Planning for dependency failure means the critical business transaction must not be hard-coupled to a single external system: accepting the order and processing payment asynchronously through a durable queue allows the business to continue during an outage, and a secondary provider adds redundancy for the payment step itself. A ten-minute synchronous wait (option A) abandons customers and ties up resources. A site-wide maintenance page (option B) converts a partial dependency failure into a total outage. Fifty synchronous retries (option C) hammer the struggling provider and still block checkout.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation",
       "https://cloud.google.com/pubsub/docs/overview"
-    ]
+    ],
+    "hint": "Core Rule (Dependency failure planning): Planning for dependency failure means the critical business transaction must not be hard-coupled to a single external system: accepting the order and processing payment asynchronously through a durable queue allows the business to continue during an outage, and a secondary provider adds redundancy for the payment step itself.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the timeout of the payment call to 10 minutes so that custome…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Display a maintenance page for the whole site whenever the provider's …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Retry every failed payment call up to 50 times so that the order event…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-102",
@@ -393,12 +539,20 @@
       "Schedule a nightly reboot of the VM so that pending maintenance is applied at a predictable time",
       "Enable the automatic restart option so that the VM starts again immediately after the maintenance event"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "Compute Engine live migration keeps a VM running while the underlying host is serviced, and it is the default policy for most machine types; the VM was being stopped only because its policy was set to TERMINATE, so switching to MIGRATE removes the interruption with a one-line change. A MIG with autohealing (option B) still incurs an outage while the replacement boots, and the licensing server is stateful. Nightly reboots (option C) add planned downtime and do not prevent host maintenance. Automatic restart (option D) shortens but does not eliminate the outage.",
     "refs": [
       "https://cloud.google.com/compute/docs/instances/live-migration-process",
       "https://cloud.google.com/compute/docs/instances/host-maintenance-options"
-    ]
+    ],
+    "hint": "Core Rule (Zero-downtime host maintenance): Compute Engine live migration keeps a VM running while the underlying host is serviced, and it is the default policy for most machine types; the VM was being stopped only because its policy was set to TERMINATE, so switching to MIGRATE removes the interruption with a one-line change.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Move the VM into a managed instance group with autohealing so that a r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Schedule a nightly reboot of the VM so that pending maintenance is app…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Enable the automatic restart option so that the VM starts again immedi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-103",
@@ -414,12 +568,20 @@
       "Schedule regular DR exercises (for example, quarterly) that execute the failover and failback procedures end to end in a controlled way, measure the achieved RTO and RPO against the targets, and update the plan and automation based on what is learned",
       "Purchase a Premium Support plan so that Google can execute the recovery on the airline's behalf during a disaster"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "A DR plan that has never been tested is an assumption, not a capability; regular, rehearsed exercises reveal missing permissions, outdated runbooks, undocumented dependencies, and staff knowledge gaps, and they produce real measurements of RTO and RPO, which the Well-Architected Framework reliability pillar requires. More documentation (option A) does not prove the plan works. Assuming validity (option B) ignores eighteen months of application, configuration, and personnel changes. Google support (option D) assists with Google Cloud issues but does not operate the customer's failover.",
     "refs": [
       "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures",
       "https://cloud.google.com/architecture/disaster-recovery"
-    ]
+    ],
+    "hint": "Core Rule (Disaster recovery testing): A DR plan that has never been tested is an assumption, not a capability; regular, rehearsed exercises reveal missing permissions, outdated runbooks, undocumented dependencies, and staff knowledge gaps, and they produce real measurements of RTO and RPO, which the Well-Architected Framework reliability pillar requires.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rewrite the plan in more detail so that new engineers can follow it if…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Assume the plan is valid, because the underlying Google Cloud services…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Purchase a Premium Support plan so that Google can execute the recover…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-104",
@@ -435,12 +597,20 @@
       "Block the downstream service's IP address with a firewall rule during business hours and watch what happens to callers",
       "Run a CPU stress tool on the downstream service's nodes to make it slow, then observe the callers"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Service mesh fault injection lets you introduce artificial latency or error responses at the proxy layer for a chosen fraction of traffic without modifying or breaking the downstream service, which makes resilience tests repeatable, targeted, and safe, and the mesh's built-in telemetry shows exactly how callers respond. Requiring downstream teams to add failure switches (option A) spreads test code through production services and depends on manual coordination. A firewall block (option C) is a crude, all-or-nothing failure that also affects other callers. CPU stress on nodes (option D) affects unrelated workloads on those nodes and produces unpredictable behavior.",
     "refs": [
       "https://cloud.google.com/service-mesh/docs/overview",
       "https://cloud.google.com/architecture/framework/reliability/perform-testing-for-recovery-from-failures"
-    ]
+    ],
+    "hint": "Core Rule (Fault injection in a service mesh): Service mesh fault injection lets you introduce artificial latency or error responses at the proxy layer for a chosen fraction of traffic without modifying or breaking the downstream service, which makes resilience tests repeatable, targeted, and safe, and the mesh's built-in telemetry shows exactly how callers respond.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Ask each downstream team to add an environment variable that makes the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Block the downstream service's IP address with a firewall rule during …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run a CPU stress tool on the downstream service's nodes to make it slo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-105",
@@ -456,12 +626,20 @@
       "Move the inventory dependency check to a separate endpoint that pages the on-call engineer but keep it in the load balancer health check as well",
       "Make the load balancer health check shallow, verifying only that the instance's own process can serve requests, and expose dependency status through separate readiness signals and alerting, so that a slow shared dependency degrades only the endpoints that use it rather than removing all backends from rotation"
     ],
-    "answer": [3],
+    "answer": [
+      3
+    ],
     "explanation": "A load balancer health check should answer 'can this instance serve traffic', not 'are all dependencies healthy'; when a shared dependency is included, every instance fails together and a partial degradation becomes a total outage, which is a well-known cascading failure pattern. Shallow health checks keep instances in rotation, and per-request handling plus alerting on dependency status provide the needed visibility. Raising the unhealthy threshold (option A) only delays the same collapse. Removing the health check (option B) means truly dead instances keep receiving traffic. Keeping the dependency in the load balancer check (option C) preserves the failure mode.",
     "refs": [
       "https://cloud.google.com/load-balancing/docs/health-check-concepts",
       "https://cloud.google.com/architecture/framework/reliability/design-for-graceful-degradation"
-    ]
+    ],
+    "hint": "Core Rule (Health check design): A load balancer health check should answer 'can this instance serve traffic', not 'are all dependencies healthy'; when a shared dependency is included, every instance fails together and a partial degradation becomes a total outage, which is a well-known cascading failure pattern.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Increase the health check's unhealthy threshold to ten consecutive fai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Remove the health check entirely so that the load balancer always send…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Move the inventory dependency check to a separate endpoint that pages …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-106",
@@ -478,12 +656,21 @@
       "Lower the load test target to 60% so that the test passes",
       "Switch the Cloud Run service to Spot-style pricing to reduce cost during the launch"
     ],
-    "answer": [0, 2],
+    "answer": [
+      0,
+      2
+    ],
     "explanation": "The bottleneck is the database, not compute; caching repeated reads in Memorystore removes most of the load at the source, and read replicas or a larger tier increase remaining read capacity, after which the test must be repeated to prove the fix at target load plus headroom. Adding Cloud Run instances (option B) increases pressure on the already saturated database. Lowering the target (option D) hides the problem instead of fixing it. Cloud Run has no Spot pricing (option E), and cost was not the issue identified by the test.",
     "refs": [
       "https://cloud.google.com/memorystore/docs/redis/redis-overview",
       "https://cloud.google.com/sql/docs/postgres/replication"
-    ]
+    ],
+    "hint": "Core Rule (Acting on load test results): The bottleneck is the database, not compute; caching repeated reads in Memorystore removes most of the load at the source, and read replicas or a larger tier increase remaining read capacity, after which the test must be repeated to prove the fix at target load plus headroom.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Increase the Cloud Run maximum instance count so that more instances c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Lower the load test target to 60% so that the test passes): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Switch the Cloud Run service to Spot-style pricing to reduce cost duri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-107",
@@ -499,12 +686,20 @@
       "Enable automatic restart in the instance template so that the VM reboots when the process deadlocks",
       "Reduce the instance group size to one so that a deadlock is easier to notice and fix"
     ],
-    "answer": [0],
+    "answer": [
+      0
+    ],
     "explanation": "MIG autohealing uses an application-level health check to detect instances whose VM is running but whose application is unresponsive, and it recreates them automatically without human involvement, which directly removes this weekly toil. Paging an engineer (option B) keeps the manual step, and CPU utilization may look normal during a deadlock anyway. Automatic restart (option C) only reacts to a VM crash or host event, not an application hang. Shrinking to one instance (option D) reduces availability and does nothing to automate repair.",
     "refs": [
       "https://cloud.google.com/compute/docs/instance-groups/autohealing-instances-in-migs",
       "https://cloud.google.com/load-balancing/docs/health-check-concepts"
-    ]
+    ],
+    "hint": "Core Rule: MIG autohealing uses an application-level health check to detect instances whose VM is running but whose application is unresponsive, and it recreates them automatically without human involvement, which directly removes this weekly toil.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Set up an alerting policy on instance CPU utilization that pages an en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable automatic restart in the instance template so that the VM reboo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Reduce the instance group size to one so that a deadlock is easier to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-108",
@@ -520,12 +715,20 @@
       "Configure Security Command Center Web Security Scanner custom scans against the staging URLs with test credentials, schedule them to run regularly, and review findings before each release",
       "Run Artifact Analysis vulnerability scanning on the container images, which also detects application-level web vulnerabilities"
     ],
-    "answer": [2],
+    "answer": [
+      2
+    ],
     "explanation": "Web Security Scanner, part of Security Command Center, crawls and tests deployed App Engine, Compute Engine, and GKE/Cloud Run web applications for common vulnerabilities such as XSS, mixed content, and outdated libraries, and custom scans can be scheduled against non-production URLs with authentication, which fits a pre-release quality gate. Cloud Armor WAF rules (option A) mitigate some attacks at runtime but do not find vulnerabilities in the application or replace testing. Audit logs (option B) are reactive and do not detect vulnerabilities. Artifact Analysis (option D) scans OS and language packages in images for known CVEs, not runtime web application flaws like XSS.",
     "refs": [
       "https://cloud.google.com/security-command-center/docs/concepts-web-security-scanner-overview",
       "https://cloud.google.com/security-command-center/docs/how-to-use-web-security-scanner"
-    ]
+    ],
+    "hint": "Core Rule (Web application security scanning): Web Security Scanner, part of Security Command Center, crawls and tests deployed App Engine, Compute Engine, and GKE/Cloud Run web applications for common vulnerabilities such as XSS, mixed content, and outdated libraries, and custom scans can be scheduled against non-production URLs with authentication, which fits a pre-release quality gate.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Rely on Cloud Armor's preconfigured WAF rules in production, since the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "1": "Incorrect distractor (Enable Data Access audit logs on the portal and search for suspicious …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Run Artifact Analysis vulnerability scanning on the container images, …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-109",
@@ -541,12 +744,20 @@
       "Increase the acknowledgment deadline to the maximum value so that the service has more time to process each message",
       "Switch the subscription to ordered delivery so that the malformed message is processed in isolation"
     ],
-    "answer": [1],
+    "answer": [
+      1
+    ],
     "explanation": "Pub/Sub dead-letter topics are designed for poison messages: after the configured number of failed delivery attempts, the message is forwarded to the dead-letter topic and removed from the main subscription, so the pipeline keeps moving and the bad message is preserved for debugging; alerting on the dead-letter backlog provides visibility. Acknowledging before processing (option A) risks silently losing messages on any transient failure. A longer acknowledgment deadline (option C) does not help a message that fails deterministically. Ordered delivery (option D) makes head-of-line blocking worse, not better.",
     "refs": [
       "https://cloud.google.com/pubsub/docs/handling-failures",
       "https://cloud.google.com/pubsub/docs/dead-letter-topics"
-    ]
+    ],
+    "hint": "Core Rule (Poison messages and dead-letter topics): Pub/Sub dead-letter topics are designed for poison messages: after the configured number of failed delivery attempts, the message is forwarded to the dead-letter topic and removed from the main subscription, so the pipeline keeps moving and the bad message is preserved for debugging; alerting on the dead-letter backlog provides visibility.",
+    "whyWrong": {
+      "0": "Incorrect distractor (Configure the service to acknowledge every message immediately upon re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Increase the acknowledgment deadline to the maximum value so that the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "3": "Incorrect distractor (Switch the subscription to ordered delivery so that the malformed mess…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   },
   {
     "id": "d6-ops-110",
@@ -563,11 +774,20 @@
       "Move the PostgreSQL database to a Cloud SQL instance configured for high availability (regional), which fails over automatically to a standby in another zone",
       "Store the database files on a Cloud Storage bucket mounted with Cloud Storage FUSE so that they survive a zone failure"
     ],
-    "answer": [0, 3],
+    "answer": [
+      0,
+      3
+    ],
     "explanation": "Zone resilience needs both compute and data to be spread across zones: a regional cluster with multi-zone node pools and spread constraints keeps the control plane and application replicas available when a zone fails, and a regional (HA) Cloud SQL instance replaces the single-zone StatefulSet with a managed database that fails over automatically. More replicas in the same zone (option B) all disappear together. Node auto-upgrade (option C) is good hygiene but unrelated to zonal failure. Cloud Storage FUSE (option E) is object storage and is not suitable as a PostgreSQL data directory.",
     "refs": [
       "https://cloud.google.com/kubernetes-engine/docs/concepts/regional-clusters",
       "https://cloud.google.com/sql/docs/postgres/high-availability"
-    ]
+    ],
+    "hint": "Core Rule (Zone-resilient GKE design): Zone resilience needs both compute and data to be spread across zones: a regional cluster with multi-zone node pools and spread constraints keeps the control plane and application replicas available when a zone fails, and a regional (HA) Cloud SQL instance replaces the single-zone StatefulSet with a managed database that fails over automatically.",
+    "whyWrong": {
+      "1": "Incorrect distractor (Keep the zonal cluster but increase the Deployment to nine replicas so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "2": "Incorrect distractor (Enable GKE node auto-upgrade so that nodes are always on the latest ve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
+      "4": "Incorrect distractor (Store the database files on a Cloud Storage bucket mounted with Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+    }
   }
 ]

@@ -1,0 +1,1329 @@
+TITLE: Real GCP Cloud Architect Exam Questions | SRE, Security & Data Migration | Part 12 (Final!)
+URL: https://www.youtube.com/watch?v=f6sCO_QB2aI
+DESCRIPTION:
+This is it—the final video in our Google Cloud Professional Architect exam prep series! In Part 12, we're tackling the last set of real exam questions, **231-250**, focusing on the critical operational, security, and data challenges you'll face on the exam.
+
+Passing the exam in 2025 requires a deep understanding of how to apply GCP services to solve complex, real-world problems. This concluding session is designed to solidify those exact skills.
+
+In this final deep dive, you will master how to architect solutions for:
+✅ **SRE & Troubleshooting:** Mastering Site Reliability Engineering principles by diagnosing real-world problems like Bigtable hotspots, slow applications, and virtual machine reboot loops.
+✅ **Security, IAM & Governance:** Implementing robust security with Organization Policies to restrict domains, applying the principle of least privilege for audit teams, and integrating automated security scanning into your CI/CD pipeline.
+✅ **Data Migration & Management:** Choosing the right tools for complex data challenges, including cloud-to-cloud transfers with Storage Transfer Service, cost-effective log archival with GCS Lifecycle, and data cleaning with Cloud Dataprep.
+✅ **Hybrid Networking:** Solving complex hybrid cloud networking problems, such as connecting VPCs with overlapping IP address ranges using Cloud VPN.
+
+We don't just give you the answers—we teach you the architectural mindset needed to solve any scenario question thrown at you.
+
+▶️ **WATCH THE FULL 250+ QUESTION PLAYLIST HERE:**
+[https://www.youtube.com/playlist?list=PLB574eEmT4ofIr8LFjiKJfTjjg7StIAQm]
+
+--
+**RESOURCES & SUPPORT**
+🤝 Thank you for joining us on this 250+ question journey! If this series helped you, please like, share, and subscribe!
+
+Let us know in the comments which topic was the most valuable for your exam preparation!
+
+#gcp #googlecloud #cloudarchitect #gcpexamquestions #sre #security #iam #datamigration #networking #devops
+
+CHAPTERS:
+
+TRANSCRIPT:
+It's great to see you all again. In
+today's video, we'll continue with
+questions 231 to 250 in our Google Cloud
+Professional Cloud Architect exam
+series. This is also the final section
+of the series. All right, let's get
+started. Question 231.
+You are managing several internal
+applications that are deployed on
+Compute Engine. Business users inform
+you that an application has become very
+slow over the past few days. You want to
+find the underlying cause in order to
+solve the problem. What should you do
+first? A. Inspect the logs and metrics
+from the instances in cloud logging and
+cloud monitoring. B. Change the compute
+engine instances behind the application
+to a machine type with more CPU and
+memory. C. Restore a backup of the
+application database from a time before
+the application became slow. D. Deploy
+the applications on a managed instance
+group with autoscaling enabled. Add a
+load balancer in front of the managed
+instance group and have the users
+connect to the IP of the load balancer.
+Okay, this is a very important
+troubleshooting question. The
+application has become slow and the key
+is to determine the correct first step
+to take to find the cause of the
+problem. With that in mind, let's look
+at our options. Let's start with the
+options that involve making big changes
+without a diagnosis. Option B, changing
+to a larger machine type is a common
+reaction, but it's incorrect. You're
+just guessing that the problem is a lack
+of resources, which might be expensive
+and not solve the real issue. Option C,
+restoring a backup, is a very drastic
+step for a performance problem and could
+cause data loss. and option D
+rearchitecting the application to use a
+managed instance group is a major
+project not an initial troubleshooting
+step. The first rule of troubleshooting
+is always to gather data to understand
+the problem before you start making
+changes. This brings us to option A
+which is the correct answer. The first
+thing you should always do is go to
+cloud logging to look for any error
+messages or unusual activity in the
+application and system logs. At the same
+time, you should go to cloud monitoring
+to look at the performance metrics like
+CPU, memory, and dis IO to see if any of
+those resources are being exhausted.
+This data will help you diagnose the
+actual root cause of the slowness.
+Therefore, the first thing you should do
+is a inspect the logs and metrics from
+the instances in cloud logging and cloud
+monitoring. Question 232.
+Your company recently acquired a company
+that has infrastructure in Google Cloud.
+Each company has its own Google cloud
+organization. Each company is using a
+shared virtual private cloud VPC to
+provide network connectivity for its
+applications. Some of the subnets used
+by both companies overlap. In order for
+both businesses to integrate, the
+applications need to have private
+network connectivity. These applications
+are not on overlapping subnets. You want
+to provide connectivity with minimal
+re-engineering. What should you do?
+Set up VPC peering and peer each shared
+VPC together. B. Migrate the projects
+from the acquired company into your
+company's Google Cloud organization.
+Relaunch the instances in your company's
+shared VPC. C. Set up a cloudVPN gateway
+in each shared VPC and pure cloudVPNs.
+D. Configure SSH port forwarding on each
+application to provide connectivity
+between applications in the different
+shared VPCs. Okay, this is a complex
+hybrid networking question that often
+comes up during mergers and
+acquisitions. The core challenge is that
+you need to connect two networks that
+have overlapping IP address ranges and
+you need to do it with the least amount
+of disruption possible. With that in
+mind, let's look at our options. Let's
+start with option A which suggests using
+VPC pairing. This is incorrect because
+of a fundamental rule. VPC peering
+requires that the two networks have no
+overlapping IP ranges since the question
+states that some subnets overlap.
+Peering is not a viable option. Next
+option B suggests migrating all the
+projects and relaunching the instances.
+This is also incorrect because it
+represents a massive amount of work and
+goes directly against the requirement
+for minimal re-engineering. Option D,
+using SSH port forwarding is not a real
+solution for this problem. SSH
+forwarding is a temporary manual
+technique for a single connection, not a
+way to provide persistent private
+network connectivity between entire
+applications. This brings us to option
+C, which is the correct answer. Unlike
+VPC peering, a cloudVPN connection can
+be established between networks even if
+they have overlapping IP spaces. Since
+the specific applications that need to
+communicate are on non-over overlapping
+subnets, you can configure the routing
+over the VPN to only handle traffic
+between those specific subnets. This
+provides the required private
+connectivity without needing to readress
+or re-engineer the entire network.
+Therefore, the best solution with
+minimal re-engineering is C. Set up a
+cloudVPN gateway in each shared VPC and
+pure cloudVPNs. Question 233.
+You are managing several projects on
+Google Cloud and need to interact on a
+daily basis with BigQuery, Big Table,
+and Kubernetes Engine using the cloud
+CLI tool. You are traveling a lot and
+work on different workstations during
+the week. You want to avoid having to
+manage the cloud CLI manually. What
+should you do?
+Use Google Cloud Shell in the Google
+Cloud console to interact with Google
+Cloud. B. Create a Compute Engine
+instance and install Cloud on the
+instance. Connect to this instance via
+SSH to always use the same cloud
+installation when interacting with
+Google Cloud. C. Install Cloud on all of
+your workstations. Run the command cloud
+components auto update on each
+workstation. D. Use a package manager to
+install cloud on your workstations
+instead of installing it manually. Okay,
+this is a very practical question about
+how to work efficiently with Google
+Cloud when you move between different
+computers. The goal is to have a
+consistent command line environment
+without the hassle of installing and
+configuring tools on every new machine.
+With that in mind, let's look at our
+options. Let's start with option C and
+D, which both involve installing cloud
+on all of your workstations. This is
+incorrect because it's the exact problem
+the question is trying to avoid. This is
+a form of manual management that would
+be very tedious to maintain across
+multiple machines. Next, let's look at
+option B, which suggests creating a
+dedicated compute engine instance to use
+as a jump box. While this would give you
+a single consistent environment, it's
+not the best solution. you would have to
+pay for that virtual machine and you
+would be responsible for keeping the
+tools on it updated. There is a much
+simpler, free and fully managed
+solution. This brings us to option A,
+which is the correct and Google
+recommended solution. Google CloudShell
+is a browser-based command line
+environment that is accessible from
+anywhere. It comes with the cloud
+command line tool and many other
+utilities pre-installed and
+automatically kept up to date by Google.
+Your personal configuration and files
+are saved in a persistent home
+directory. So you get the exact same
+environment every time, no matter which
+computer you are using. It's the perfect
+solution for avoiding manual CLI
+management. Therefore, the best thing to
+do is a use Google Cloud Shell in the
+Google Cloud Console to interact with
+Google Cloud. Question 234.
+Your operations team currently stores 10
+terabytes of data in an object storage
+service from a thirdparty provider. They
+want to move this data to a cloud
+storage bucket as quickly as possible
+following Google recommended practices.
+They want to minimize the cost of this
+data migration. Which approach should
+they use? A. Use the sud MV command to
+move the data. B. Use the storage
+transfer service to move the data. C.
+Download the data to a transfer
+appliance and ship it to Google. D.
+Download the data to the on- premises
+data center and upload it to the cloud
+storage bucket. Okay, this is a data
+migration question. The key here is that
+we are moving a large amount of data
+from one cloud provider to another and
+we want to do it as quickly and cheaply
+as possible using Google's recommended
+tools. With that in mind, let's look at
+our options. Let's start with option D
+which suggests downloading the data to
+your on-remise data center first and
+then uploading it to Google Cloud. This
+is incorrect because it's a very slow
+and expensive process. You would have to
+pay to download the data from your
+current provider and then pay your
+internet provider to upload it again.
+Next option C suggests using a transfer
+appliance. This is also incorrect. A
+transfer appliance is a physical device
+used for offline data transfers.
+Typically, when moving data from your
+own data center, not from another cloud
+provider. Option A, using the pseudo
+command, is incorrect as well. The
+pseudo tool is designed to work with
+Google Cloud Storage. It can't connect
+directly to a third party provider's
+object storage to move data. This brings
+us to option B, which is the correct and
+Google recommended solution. The storage
+transfer service is a fully managed
+service designed specifically for
+large-scale data transfers into Google
+Cloud Storage from other sources
+including other major cloud providers.
+It's the fastest and most cost-effective
+way to perform a cloud-to-cloud
+migration because the data moves
+directly between the clouds over a
+high-speed backbone without you needing
+to manage any intermediate steps.
+Therefore, the approach they should use
+is B. Use the storage transfer service
+to move the data. Question 235.
+Your company has an application running
+on Google Cloud that is collecting data
+from thousands of physical devices that
+are globally distributed. Data is
+published to Pub/Sub and streamed in
+real time into an SSD cloud bigtable
+cluster via a dataf flow pipeline. The
+operations team informs you that your
+cloud bigtable cluster has a hot spot
+and queries are taking longer than
+expected. You need to resolve the
+problem and prevent it from happening in
+the future. What should you do? A.
+Advise your clients to use HBS APIs
+instead of Node.js APIs. B. Delete
+records older than 30 days. C. Review
+your roi strategy and ensure that keys
+are evenly spread across the alphabet.
+D. Double the number of nodes you
+currently have. Okay, this is a question
+about troubleshooting a performance
+issue in cloud bigtable. The key term
+here is hotspot. Understanding what
+causes a hot spot is essential to
+solving the problem. A hotspot in
+Bigtable happens when too many requests
+go to a single node in your cluster
+while the other nodes are sitting idle.
+Big table sorts and stores its data
+alphabetically based on a row key.
+Hotspots are almost always caused by a
+poor row key design where many keys that
+are close to each other alphabetically,
+like those starting with a time stamp,
+are all written at the same time. With
+that in mind, let's look at our options.
+Let's look at option D, which suggests
+doubling the number of nodes. This is
+incorrect. If your Roki design is
+causing all the traffic to go to one
+node, adding more nodes won't help. The
+new nodes will just sit there unused
+while the original one is still
+overloaded. Option A, changing the API
+you use is also incorrect. The choice of
+client library doesn't change how big
+table stores the data which is the root
+cause of the hotspot. Option B, deleting
+old records is a data retention
+strategy. It has no impact on how new
+data is written and will not fix a
+hotspotting issue. This brings us to
+option C, which is the correct and
+fundamental solution. To fix a hotspot,
+you must review your row key strategy.
+you need to redesign your keys so that
+rights are distributed evenly across the
+entire key space and therefore across
+all the nodes in your cluster. A common
+technique is to avoid using a simple
+timestamp at the beginning of the key
+and instead use something more random
+like a hash of a unique ID to ensure an
+even spread. Therefore, the correct
+thing to do is C. Review your row key
+strategy and ensure that keys are evenly
+spread across the alphabet. Question
+236.
+Your company has just recently activated
+cloud identity to manage users. The
+Google Cloud organization has been
+configured as well. The security team
+needs to secure projects that will be
+part of the organization. They want to
+prohibit IM users outside the domain
+from gaining permissions from now on.
+What should they do?
+Configure an organization policy to
+restrict identities by domain. B.
+block creation of service accounts. C.
+Configure clouduler to trigger a cloud
+function every hour that removes all
+users that don't belong to the cloud
+identity domain from all projects. D.
+Create a technical user eg
+crawler@youdmain.com
+and give it the project owner role at
+root organization level. Write a bash
+script that lists all the IM rules of
+all projects within the organization.
+deletes all users that do not belong to
+the company domain. Create a compute
+engine instance in a project within the
+organization and configure cloud to be
+executed with technical user
+credentials. Configure a cron job that
+executes the bash script every hour.
+Okay, this is a security and governance
+question. The goal is to enforce a
+strict rule across the entire
+organization. Only users from our
+company's domain should be allowed to be
+given IM permissions. We're looking for
+a proactive and preventative solution.
+options. Let's start with the reactive
+solutions, which are C and D. Both of
+these suggest writing a script that runs
+periodically to find and remove any
+unauthorized users. This is not the best
+practice because it's a reactive
+approach. It means that an unauthorized
+user could be granted access and would
+have that access until your script runs
+and cleans it up. The goal of good
+security is to prevent the bad thing
+from happening in the first place. Next,
+let's look at option B, which is to
+block the creation of service accounts.
+This is incorrect because it's a
+completely different security control
+and doesn't solve the problem of
+preventing external user accounts from
+being granted permissions. This brings
+us to option A, which is the correct and
+Google recommended solution. The
+organization policy service is designed
+for exactly this kind of enforcement.
+There is a specific constraint called
+domain restricted sharing which you can
+configure to allow only identities from
+your specific cloud identity domain. By
+setting this policy at the organization
+level, you create a powerful guardrail
+that makes it impossible for anyone to
+add a user from an outside domain like a
+personal Gmail account to any IM policy
+within your organization. This is a
+preventative measure which is much
+better than a reactive one. Therefore,
+the correct thing to do is a configure
+an organization policy to restrict
+identities by domain. Question 237.
+Your company has an application that is
+running on multiple instances of compute
+engine. It generates one terabyte per
+day of logs. For compliance reasons, the
+logs need to be kept for at least 2
+years. The logs need to be available for
+active query for 30 days. After that,
+they just need to be retained for audit
+purposes. You want to implement a
+storage solution that is compliant,
+minimizes costs, and follows Google
+recommended practices. What should you
+do? One, install a cloud logging agent
+on all instances. Two, create a sync to
+export logs into a regional cloud
+storage bucket. Three, create an object
+life cycle rule to move files into a
+coldline cloud storage bucket after 1
+month. Four, configure a retention
+policy at the bucket level using bucket
+lock. B1, write a daily cron job running
+on all instances that uploads logs into
+a cloud storage bucket. Two, create a
+sync to export logs into a regional
+cloud storage bucket. Three, create an
+object life cycle rule to move files
+into a coldline cloud storage bucket
+after 1 month. See one, install a cloud
+logging agent on all instances. Two,
+create a sync to export logs into a
+partition BigQuery table. Three, set a
+time underscore partitioning_exiration
+of 30 days. D1, create a daily cron job
+running on all instances that uploads
+logs into a partition BigQuery table.
+Two, set a time underscore
+partitioning_exiration
+of 30 days. Okay, this is a data life
+cycle management question. We need to
+design a solution that meets several
+different requirements. Logs need to be
+queriable for the first 30 days, then
+archived for at least 2 years for
+compliance, and the whole process should
+be cost effective. With that in mind,
+let's look at our options. Let's start
+by looking at the options that use
+BigQuery, which are C and D. Both of
+these are incorrect because they suggest
+setting a 30-day expiration on the data.
+This would permanently delete the logs
+after 30 days which violates the
+critical requirement to keep them for at
+least two years. Next, let's look at
+option B. It suggests using a cron job
+to upload the logs. This is not the
+recommended best practice. The standard
+and most reliable way to get logs from
+compute engine instances is to use the
+cloud logging agent. This brings us to
+option A which describes the correct
+multi-stage solution that meets all the
+requirements. First, you install the
+cloud logging agent on your instances to
+reliably collect the logs. Second, you
+create a log sync to automatically
+export these logs to a cloud storage
+bucket where they are available for
+active querying for the first 30 days.
+Third, you use an object life cycle rule
+to automatically move the logs to the
+much cheaper coldline storage class
+after a month, which optimizes the cost.
+Finally, to meet the compliance
+requirement, you configure a retention
+policy on the bucket using bucket lock.
+This ensures the files cannot be deleted
+for the required 2-year period.
+Therefore, the correct solution is a
+question 238.
+You are migrating your on- premises
+solution to Google Cloud in several
+phases. You will use CloudVPN to
+maintain a connection between your on-
+premises systems and Google Cloud until
+the migration is completed. You want to
+make sure all your on premises systems
+remain reachable during this period. How
+should you organize your networking in
+Google Cloud? A. Use the same IP range
+on Google Cloud as you use on premises.
+B. Use the same IP range on Google Cloud
+as you use on premises for your primary
+IP range and use a secondary range that
+does not overlap with the range you use
+on premises. C. Use an IP range on
+Google Cloud that does not overlap with
+the range you use on premises. D. Use an
+IP range on Google Cloud that does not
+overlap with the range you use on
+premises for your primary IP range and
+use a secondary range with the same IP
+range as you use on premises. Okay, this
+is a fundamental network planning
+question for any hybrid cloud migration.
+The key to this problem is understanding
+how network routing works when you
+connect two different networks like your
+on-remise data center and a Google cloud
+VPC using a VPN. The most important rule
+is that the IP address ranges on both
+sides of the connection must be unique.
+If both your on-remise network and your
+GCP network use the same IP range, the
+routers won't know where to send the
+traffic leading to routing conflicts
+that break the connection. With that
+rule in mind, let's look at options A,
+B, and D. All of these options suggest
+using an IP range on Google Cloud that
+is the same as or overlaps with the
+on-remise range in either the primary or
+secondary range. Any overlap will cause
+the routing conflicts we just described
+which violates the requirement to keep
+all systems reachable. Therefore, all of
+these options are incorrect. This brings
+us to option C which is the correct
+answer. This describes the standard best
+practice for hybrid networking. By
+choosing an IP range on Google Cloud
+that does not overlap with your
+on-remise range, you ensure that every
+address is unique across the entire
+connected network. This allows routers
+to correctly send traffic to the right
+destination, whether it's in the cloud
+or on premise, ensuring a stable and
+reliable connection for your migration.
+Therefore, the way you should organize
+your networking is C. Use an IP range on
+the range you use on premises. Question
+239.
+One of your primary business objectives
+is being able to trust the data stored
+in your application. You want to log all
+changes to the application data. How can
+you design your logging system to verify
+authenticity of your logs?
+Write the log concurrently in the cloud
+and on premises. B. Use a SQL database
+and limit who can modify the log table.
+C. Digitally sign each timestamp and log
+entry and store the signature. D. Create
+a JSON dump of each log entry and store
+it in Google Cloud Storage. Okay, this
+is a security question about logging.
+The key requirement is the need to
+verify the authenticity of the logs.
+This means we need a way to prove that
+the logs haven't been tampered with
+after they were written. With that in
+start with option A. Writing the logs to
+two places at once. This provides
+redundancy, but it doesn't provide a way
+to cryptographically prove that a
+specific log entry is authentic. Next,
+option B suggests using a SQL database
+and limiting access. This is a good
+security practice for preventing
+unauthorized changes, but it doesn't
+help you verify the authenticity. If
+someone with access or a compromised
+account were to change a log entry, this
+method wouldn't be able to detect it.
+Option D, storing a JSON dump in cloud
+storage is also incorrect. This just
+describes a file format and a location.
+It doesn't include any mechanism to
+ensure the integrity or authenticity of
+the logs. This brings us to option C
+which is the correct solution. This
+describes the process of creating a
+digital signature by digitally signing
+each log entry when it's created. You
+are creating a cryptographic seal on
+that entry. Later, anyone can use the
+public key to verify that signature. If
+the log entry was ever altered in any
+way, the signature verification would
+fail. This provides a strong verifiable
+guarantee of the logs authenticity and
+integrity. Therefore, the way you should
+design your logging system is C.
+Digitally sign each time stamp and log
+entry and store the signature. Question
+240. Your company just finished a rapid
+lift and shift to Google Compute Engine
+for your compute needs. You have another
+9 months to design and deploy a more
+cloudnative solution. Specifically, you
+want a system that is no ops and
+autoscaling. Which two compute products
+should you choose? Choose two. A compute
+engine with containers. B. Google
+Kubernetes engine with containers. C.
+Google app engine standard environment.
+D. Compute Engine with custom instance
+types. E. Compute engine with managed
+instance groups. Okay, this is an
+architectural question about moving from
+a basic lift and shift to a more modern
+cloudnative solution. The two key
+requirements are no ops, which means you
+want to minimize infrastructure
+management and autoscaling. With that in
+mind, let's evaluate our options. Let's
+first look at the options that are based
+on standard compute engine which are A,
+D, and E. While you can build scalable
+systems on compute engine using things
+like managed instance groups, it's still
+considered infrastructure as a service.
+This means you are responsible for
+managing the operating systems,
+patching, and a significant amount of
+configuration. This does not fit the
+noops requirement where the goal is to
+offload that management work to the
+cloud provider. This leaves us with the
+two correct answers. Let's look at
+option C, Google App Engine Standard
+Environment. This is a fully managed
+serverless platform or pass. You simply
+deploy your code and Google handles all
+of the scaling, patching, and
+infrastructure management for you. It's
+the definition of a noops and
+autoscaling service. The other correct
+answer is option B, Google Kubernetes
+Engine with containers. GKE is a managed
+container orchestration service. While
+it gives you more control than App
+Engine, Google still manages the
+underlying Kubernetes control plane for
+you. It provides powerful built-in
+autoscaling for both your applications
+and the cluster's nodes. This greatly
+reduces the operational burden compared
+to raw compute engine, and it is a
+standard choice for a modern cloudnative
+and autoscaling architecture. Therefore,
+the two compute products you should
+choose are B and C. Question 241.
+Your company places a high value on
+being responsive and meeting customer
+needs quickly. Their primary business
+objectives are release speed and
+agility. You want to reduce the chance
+of security errors being accidentally
+introduced. Which two actions can you
+take? Choose two. A ensure every code
+check-in is peer reviewed by a security.
+B use source code security analyzers as
+part of the CI/CD pipeline. C. Ensure
+you have stubs to unit test all
+interfaces between components. D. Enable
+code signing and a trusted binary
+repository integrated with your CI/CD
+pipeline. E. Run a vulnerability
+security scanner as part of your
+continuous integration/continuous
+delivery CI/CD pipeline. Okay, this is a
+question about dev sec ops. The
+challenge is to find ways to improve
+security without slowing down the
+development process since the company's
+main goals are release speed and
+agility. This means we should look for
+automated solutions that can be
+integrated into a CI/CD pipeline. With
+Let's start with option A, which
+suggests a manual security review for
+every single code check-in. This is
+incorrect because it would create a huge
+bottleneck. Having a security expert
+manually review every change would
+completely destroy the company's goal of
+speed and agility. Next, let's look at
+option C, which is about unit testing
+interfaces. While unit tests are very
+important for code quality, their
+primary purpose is to check for
+functional bugs, not security
+vulnerabilities. So, this isn't a direct
+security action. Option D is about code
+signing and trusted repositories. This
+is an important security control for
+protecting your built artifacts from
+tampering, but it doesn't help find
+security bugs that were written into the
+code by developers in the first place.
+This brings us to the two correct
+answers B and E, which are both about
+automated scanning. Option B suggests
+using source code security analyzers.
+These are tools that automatically scan
+your code for common security
+programming errors as part of the
+pipeline. Option E suggests running a
+vulnerability security scanner. This
+type of tool automatically checks your
+application and its dependencies for
+known vulnerabilities. Both of these are
+automated checks that can be run on
+every code change without slowing down
+the developers and they help catch
+security errors early. Therefore, the
+two actions you can take are B and E.
+Question 242.
+Your marketing department wants to send
+out a promotional email campaign. The
+development team wants to minimize
+direct operation management. They
+project a wide range of possible
+customer responses from 100 to 500,000
+click-throughs per day. The link leads
+to a simple website that explains the
+promotion and collects user information
+and preferences. Which infrastructure
+should you recommend? Choose two.
+Use Google App Engine to serve the
+website and Google Cloud data store to
+store user data. B. Use a Google
+container engine cluster to serve the
+website and store data to persistent
+disk. C. Use a managed instance group to
+serve the website and Google Cloud
+Bigtable to store user data. D. Use a
+single compute engine virtual machine VM
+to host a web server backend by Google
+Cloud SQL. Okay, this is an
+architectural question about choosing
+the right platform for a new promotional
+website. The key requirements are that
+the solution must handle a very wide and
+unpredictable range of traffic and
+require as little manual operations
+management as possible. With that in
+mind, let's evaluate our options. First,
+let's eliminate the options that don't
+scale. Option D suggests using a single
+compute engine VM. A single machine
+cannot automatically scale to handle a
+potential load of 500,000 users, so it's
+not a viable solution. Option B suggests
+using Google Kubernetes Engine but
+storing data on a persistent disk. This
+is not a scalable data storage strategy
+as a persistent disck cannot be written
+to by multiple application instances at
+once. This brings us to our two correct
+answers A and C which represent two
+different approaches to building a
+scalable solution. Option A is a fully
+serverless approach. It uses Google App
+Engine to serve the website which
+automatically handles all the scaling
+and infrastructure for you. It pairs
+this with Google Cloud Data Store, a
+scalable NoSQL database that is perfect
+for storing simple user data. This is a
+classic Noops solution that meets the
+requirements. Option C represents a more
+infrastructure focused but still managed
+and scalable approach. It uses a managed
+instance group which can also autoscale
+to handle the variable traffic. It
+suggests using cloud bigtable for the
+data. While bigtable is typically used
+for much larger workloads, it is a
+managed and highly scalable database
+that can easily handle the potential
+traffic. This option provides more
+control over the underlying virtual
+machines than App Engine while still
+offering the required automatic scaling.
+Therefore, the two infrastructures you
+could recommend are A and C. Question
+243.
+You want to enable your running Google
+Kubernetes Engine cluster to scale as
+demand for your application changes.
+What should you do? Add additional nodes
+to your Kubernetes Engine cluster using
+the following command. Cloud container
+clusters resize cluster_im
+size 10 B. Add a tag to the instances in
+the cluster with the following command.
+Cloud compute instances add tags
+instance. Tags enable autoscaling max
+nodes 10 C. Update the existing
+Kubernetes engine cluster with the
+following command. Cloud alpha container
+clusters update my cluster. Enable
+autoscaling. Min nodes equals 1. Max
+nodes equals 10. D. Create a new
+clusters create my cluster enable
+autoscaling min nodes equals 1 max nodes
+equals 10 and redeploy your application.
+Okay, this is a question about managing
+a Google Kubernetes engine or GKE
+cluster. The most important word in the
+question is running. We need to find the
+command that enables autoscaling on a
+cluster that is already up and running
+without having to recreate it. With that
+in mind, let's look at our options.
+Let's start with option A. The resize
+command is incorrect because it manually
+sets the cluster to a fixed size. It
+does not enable the automatic scaling
+feature that adjusts based on demand.
+Next, option B is incorrect. Adding a
+tag to a compute engine instance is a
+completely different operation and has
+nothing to do with configuring the GKE
+cluster autoscaler. Option D is also
+incorrect. The cloud container clusters
+create command is used to build a brand
+new cluster from scratch. The question
+asks how to enable this feature on an
+existing running cluster. Creating a new
+cluster and redeploying your application
+is a very disruptive and unnecessary
+step. This brings us to option C which
+is the correct answer. The cloud
+container clusters update command is the
+right tool for modifying a running
+cluster. The enable autoscaling flag
+along with the minimum and maximum node
+settings is the specific command used to
+turn on the cluster autoscaler feature
+for an existing GKE cluster. This will
+allow the cluster to automatically add
+or remove nodes based on your
+application's needs. Therefore, the
+correct thing to do is c update the
+existing Kubernetes engine cluster with
+the following command. Cloud alpha
+container clusters update my cluster
+enable autoscaling min nodes equals 1
+max nodes equals 10. Question 244.
+Your customer is moving their corporate
+applications to Google Cloud Platform.
+The security team wants detailed
+visibility of all projects in the
+organization. You provision the Google
+Cloud resource manager and set up
+yourself as the org admin. What Google
+Cloud Identity and Access Management
+Cloud IM roles should you give to the
+security team?
+Or viewer, project owner. B. Org viewer
+project viewer. C. Org admin project
+browser. D. Project owner network admin.
+Okay, this is a question about identity
+and access management that focuses on
+the principle of lease privilege. The
+goal is to give the security team the
+visibility they need to do their job
+without giving them unnecessary
+permissions to change or delete
+resources. With that in mind, let's look
+at our options. Let's look at options A,
+C, and D. All of these are incorrect
+because they include powerful
+administrative or owner roles. These
+roles grant permissions to modify,
+create or delete resources, which goes
+against the security principle of lease
+privilege for a team that only needs to
+view and audit the environment. This
+brings us to option B, which is the
+correct answer. This combination of
+roles provides comprehensive readonly
+access. The org viewer role allows the
+security team to see the hierarchy of
+all folders and projects within the
+organization. The project viewer role
+then allows them to look inside each of
+those projects and see the resources but
+it does not allow them to make any
+changes. This provides the full
+visibility they need for their audit
+tasks without creating a security risk.
+Therefore, the cloud IM roles you should
+give to the security team are B or
+viewer project viewer. Question 245.
+You are helping the QA team to roll out
+a new load testing tool to test the
+scalability of your primary cloud
+services that run on Google compute
+engine with cloud bigtable. Which three
+requirements should they include? Choose
+three.
+Ensure that the load tests validate the
+performance of cloud bigtable. B. Create
+a separate Google Cloud project to use
+for the load testing environment. C.
+Schedule the load testing tool to
+regularly run against the production
+environment. D. Ensure all third-party
+systems your services use are capable of
+handling high load. E. Instrument the
+production services to record every
+transaction for replay by the load
+testing tool. F. Instrument the load
+testing tool and the target services
+with detailed logging and metrics
+collection. Okay, this is a question
+about best practices for load testing a
+cloud application. We need to identify
+three key requirements for setting up a
+proper load testing process to test the
+scalability of an application that uses
+compute engine and cloud bigtable. With
+First, let's look at the incorrect
+options. Option C is a major one to
+avoid. Running a large load test
+directly against your live production
+environment is very risky and can cause
+an outage for your real users. Load
+tests should be performed in a separate
+dedicated environment. Option D, while
+important for overall system design, is
+not a direct requirement for your own
+testing process. And option E, recording
+all production traffic, can be complex
+and may not be the most effective way to
+generate a controlled load test. Now,
+let's look at the correct requirements.
+Option B is a critical best practice.
+Create a separate Google Cloud project
+for the load testing environment. This
+isolates the test from your production
+and development environments preventing
+any interference with resource quotas or
+billing. Option A is also a requirement
+since the application relies heavily on
+cloud bigtable. Any thorough load test
+must be designed to validate the
+performance of Bigtable under stress to
+ensure it's not a bottleneck. Finally,
+option F is essential. A load test
+without measurement is just generating
+traffic for no reason. You must
+instrument both the testing tool and the
+application itself to collect detailed
+logs and metrics. This data is what you
+will analyze to understand how your
+system behaves under load and to
+identify performance limits. Therefore,
+the three requirements you should
+include are A, B, and F. Question 246.
+Your company runs several databases on a
+single MySQL instance. They need to take
+backups of a specific database at
+regular intervals. The backup activity
+needs to complete as quickly as possible
+and cannot be allowed to impact disk
+performance. How should you configure
+the storage? A. Configure a cron job to
+use the cloud tool to take regular
+backups using persistent disk snapshots.
+B. Mount a local SSD volume as the
+backup location. After the backup is
+complete, use sud to move the backup to
+Google Cloud Storage. C. Usefuse to
+mount a Google Cloud Storage bucket as a
+volume directly on the instance and
+write backups to the mounted location
+using MSL dump. DMount additional
+persistent disk volumes onto each
+virtual machine VM instance in a RAID 10
+array and use LVM to create snapshots to
+send to cloud storage. Okay, this is a
+question about database backup strategy.
+The two most important requirements are
+that the backup process needs to be very
+fast and it cannot slow down the
+performance of the live database while
+it's running. With that in mind, let's
+look at our options. Let's start with
+option A, which suggests taking
+persistent disk snapshots. This is
+incorrect because creating a snapshot
+requires reading from the same disk that
+the live database is using. This IO
+activity will compete with the
+database's own operations and will
+definitely impact its performance. Next,
+let's look at option C, which suggests
+mounting a cloud storage bucket using.
+This is also incorrect. While is a
+useful tool, it is not designed for high
+performance write operations like a
+database backup. It would be much too
+slow to meet the as quickly as possible
+requirement. Option D, using a RAID
+array of persistent discs would
+certainly make your main database
+faster, but it doesn't solve the backup
+problem. Writing a backup file to that
+same fast array would still consume I/IO
+and impact the live database's
+performance. This brings us to option B,
+which is the correct and recommended
+solution. This approach uses a local
+SSD. Local SSDs are physically attached
+to the virtual machine and are extremely
+fast. You would mount this local SSD as
+a separate drive and tell your database
+to write its backup file there. Because
+the backup is being written to a
+completely different physical device, it
+does not interfere with the IO of the
+main persistent disc, meeting the no
+performance impact requirement. The
+backup operation itself will also be
+very fast. After the backup file is
+created, you can then copy it from the
+local SSD to cloud storage for long-term
+storage. Therefore, the best way to
+configure the storage is B. Mount a
+local SSD volume as the backup location
+and after the backup is complete, use
+sud to move the backup to Google Cloud
+Storage. Question 247.
+You want to make a copy of a production
+Linux virtual machine in the US central
+region. You want to manage and replace
+the copy easily if there are changes on
+the production virtual machine. You will
+deploy the copy as a new instance in a
+different project in the US East region.
+What steps must you take?
+Use the Linux DD and netcat commands to
+copy and stream the root disk contents
+to a new virtual machine instance in the
+US East region. B. Create a snapshot of
+the root disk and select the snapshot as
+the root disk when you create a new
+virtual machine instance in the US East
+region. C. Create an image file from the
+root disk with the Linux DD command.
+Create a new virtual machine instance in
+the US East region. D. Create a snapshot
+of the root disk. Create an image file
+in Google Cloud Storage from the
+snapshot and create a new virtual
+machine instance in the US East region
+using the image file as the root disk.
+Okay, this is a question about the
+proper way to copy a virtual machine in
+Google Cloud. Especially when you need a
+manageable and repeatable process for a
+different project. The key is to create
+a reusable template, not just a one-time
+clone. With that in mind, let's look at
+our options. Let's start with options A
+and C, which both suggest using the
+Linux DD command. These are incorrect.
+While DD is a powerful low-level tool,
+it's not a cloudnative or recommended
+way to copy a VM in Google Cloud. This
+would be a slow, manual, and errorprone
+process. Next, let's look at option B.
+This option is close, but it's missing a
+crucial step. You cannot directly use a
+snapshot from one project as the boot
+disk for a new VM in a different
+project. To share a boot disc across
+projects, you must first turn it into a
+reusable image. This brings us to option
+D, which describes the correct and
+Google recommended workflow. First, you
+create a snapshot of the root disk,
+which gives you a point in time copy.
+Second, you create a custom image from
+that snapshot. An image is a
+self-contained bootable artifact that
+can be shared across different projects.
+Finally, you use that shared custom
+image to create your new virtual machine
+instance in the other project. This
+process is manageable, repeatable, and
+follows Google's best practices.
+Therefore, the steps you must take are
+described in option D. Question 248.
+Google Cloud Platform resources are
+managed hierarchically using
+organization folders and projects. When
+cloud identity and access management IM
+policies exist at these different
+levels, what is the effective policy at
+a particular node of the hierarchy? A
+the effective policy is determined only
+by the policy set at the node. B the
+effective policy is the policy set at
+the node and restricted by the policies
+of its ancestors. C. The effective
+policy is the union of the policy set at
+the node and policies inherited from its
+ancestors. D. The effective policy is
+the intersection of the policy set at
+ancestors. Okay, this is a fundamental
+question about how IM or identity and
+access management works in Google cloud.
+The key is to understand how permissions
+are inherited down through the resource
+hierarchy of organizations, folders and
+projects. The core principle of IM in
+Google Cloud is that policies are
+hierarchical and additive. This means
+that if you grant a permission at a high
+level like the organization, that
+permission automatically flows down to
+all the folders and projects beneath it.
+You can't deny a permission at a lower
+level that was granted at a higher
+level. You can only add more
+permissions. With that in mind, let's
+look at our options. Let's look at
+option A. It says the policy is only
+determined by the node itself. This is
+incorrect because it completely ignores
+the concept of inheritance. Next, option
+B says the policy is restricted by its
+ancestors. This is also incorrect. There
+is no concept of deny or restrict in GCP
+IM policies. Permissions are only ever
+added, never taken away as you go down
+the hierarchy. Option D suggests the
+policy is the intersection. This is the
+opposite of how it works. An
+intersection would mean a user only has
+a permission if it was granted at the
+project, the folder and the organization
+level, which is not the case. This
+brings us to option C, which is the
+correct answer. The effective policy at
+any resource is the union of the policy
+set directly on that resource and all
+the policies it inherits from its
+ancestors. Union is the perfect word
+here as it means you combine everything
+together. If a user is granted the
+viewer role at the organization level
+and the editor role on a specific
+project, their effective permission on
+that project is the combination or union
+of both viewer and editor roles.
+Therefore, the correct statement is C.
+The effective policy is the union of the
+policy set at the node and policies
+inherited from its ancestors. Question
+249.
+Your company has multiple on premises
+systems that serve as sources for
+reporting. The data has not been
+maintained well and has become degraded
+over time. You want to use Google
+recommended practices to detect
+anomalies in your company data. What
+should you do? Upload your files into
+cloud storage. Use cloud data lab to
+explore and clean your data. B. Upload
+your files into cloud storage. Use cloud
+data prep to explore and clean your
+data. C. Connect cloud data lab to your
+on- premises systems. Use cloud data lab
+to explore and clean your data. D.
+Connect cloud data prep to your on
+premises systems. Use cloud data prep to
+explore and clean your data. Okay, this
+is a data processing question that
+focuses on the first crucial steps of
+any data analytics project. Getting your
+data into the cloud and then cleaning it
+up. The data here is described as
+degraded, which means we need a powerful
+tool specifically for data preparation.
+options. Let's first look at the options
+that suggest connecting directly to on-
+premises systems, which are C and D.
+These are not the recommended approach.
+The standard and most efficient practice
+is to first land or stage your data
+inside Google Cloud, typically in a
+service like cloud storage, before you
+begin to process it. Now let's compare
+options A and B. Both correctly suggest
+uploading the files to cloud storage
+first. The difference is the tool they
+recommend for cleaning the data. Option
+A suggests cloud data lab. While data
+lab now part of Vertex AI notebooks is a
+powerful environment for data scientists
+to write code and analyze data, it's not
+the specialized tool for visually
+cleaning and preparing data. This brings
+us to option B, which is the correct
+solution. It proposes the standard
+two-step workflow. First, you upload
+your files to cloud storage to get them
+into the GCP environment. Second, you
+use cloud data prep. Data prep is Google
+Cloud's managed service specifically
+designed for visual data exploration,
+cleaning, and preparation. Its
+intelligent user-friendly interface is
+perfect for finding and fixing anomalies
+in degraded data, which is exactly what
+the question asks for. Therefore, the
+Google recommended practice for this
+scenario is B. Upload your files into
+cloud storage and use cloud data prep to
+explore and clean your data. Question
+250. You have an outage in your compute
+engine managed instance group. All
+instances keep restarting after 5
+seconds. You have a health check
+configured, but autoscaling is disabled.
+Your colleague who is a Linux expert
+offered to look into the issue. You need
+to make sure that he can access the VMs.
+What should you do? A. Grant your
+colleague the IM role of project viewer.
+B. Perform a rolling restart on the
+instance group. C. Disable the health
+check for the instance group. Add his
+SSH key to the projectwide SSH keys. D.
+Disable autoscaling for the instance
+group. add his SSH key to the
+projectwide SSH keys. Okay, this is a
+troubleshooting question for a managed
+instance group. We have two problems to
+solve here. First, we need to stop the
+virtual machines from constantly
+restarting. And second, we need to give
+our colleague access so they can figure
+out what's wrong. The key symptom,
+instances restarting every few seconds,
+is a classic sign that they are failing
+their health checks. Even with
+autoscaling turned off, a managed
+instance group has a self-healing
+feature that will automatically recreate
+any instance it considers unhealthy.
+options. Let's start with option A,
+granting the project viewer role. This
+is incorrect because the viewer role is
+read only. It does not provide the
+permissions needed to SSH into a virtual
+machine. Next, option B suggests a
+rolling restart. This is also incorrect.
+The instances are already restarting
+themselves because of the underlying
+issue. Performing another restart won't
+fix the root cause of the problem. Let's
+look at option D. It correctly suggests
+adding the SSH key, but the first part
+disabling autoscaling is irrelevant. The
+question already tells us that
+autoscaling is disabled. The issue is
+the health check, not the autoscaler.
+This brings us to option C which is the
+correct solution. It addresses both
+problems perfectly. First, you disable
+the health check for the instance group.
+This is the critical step to stop the
+restart loop. It stabilizes the
+environment so the VM stay running long
+enough for someone to log in. Second,
+you add his SSH key to the projectwide
+SSH keys. This is the standard and
+correct way to grant a user SSH access
+to the instances so they can begin their
+investigation. Therefore, the correct
+course of action is C. Disable the
+health check for the instance group and
+add his SSH key to the projectwide SSH
+keys. Thanks for watching. If you found
+this video interesting and helpful,
+please like, share, and subscribe to our
+channel. See you in the next video.
+Happy learning.
