@@ -421,10 +421,9 @@
     ],
     "hint": "Replace congested public-internet VPN links with Google Cloud Dedicated Interconnect when database replication suffers from high latency and packet loss.",
     "whyWrong": {
-      "0": "Adding more public-internet VPN tunnels still traverses the same congested public internet ISP paths causing latency spikes and packet loss.",
-      "2": "Transfer Appliance is an offline physical shipping box for one-time bulk archival data migration, not live synchronous/asynchronous DR replication.",
-      "3": "Direct Peering only routes traffic to public Google Workspace/API IPs and does not provide private RFC 1918 VPC connectivity for database replication.",
-      "4": "Re-architecting synchronous/asynchronous relational database replication into custom Pub/Sub message publishing requires major application and database changes instead of fixing the underlying network link."
+      "0": "Option A is incorrect because database replication requires reliable, ordered delivery over TCP; switching database replication to UDP risks packet loss and silent data corruption.",
+      "2": "Option C is incorrect because daily batch restores into Cloud SQL introduce a 24-hour RPO lag and do not solve live cross-VPN replication throughput bottlenecks.",
+      "3": "Option D is incorrect because adding more IPsec VPN tunnels does not overcome a single-stream TCP window-size bottleneck when high-latency links have undersized OS socket buffers."
     }
   },
   {

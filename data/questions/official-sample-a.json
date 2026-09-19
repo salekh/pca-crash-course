@@ -815,10 +815,10 @@
     ],
     "hint": "Persistent Disks can be expanded online in Compute Engine with zero VM downtime, followed by running resize2fs (or xfs_growfs) inside Linux to extend the filesystem.",
     "whyWrong": {
-      "1": "Shutting down the production database VM, creating snapshots, and swapping disks incurs completely unnecessary downtime when Persistent Disks support live online expansion.",
-      "2": "Provisioning a second disk and rebuilding LVM volumes or copying data offline adds operational risk and downtime compared to online disk resizing.",
-      "3": "Backing up and restoring the database onto a brand-new VM instance takes hours of downtime for a problem solved in seconds online.",
-      "4": "Creating a snapshot, restoring to a new disk, unmounting, mounting, and restarting the database service incurs significant production database downtime when online resize + resize2fs requires zero downtime."
+      "0": "Option A is incorrect because gcloud compute disks resize only increases the block device size at the hypervisor level; you must still run resize2fs inside the Linux guest OS to expand the ext4 filesystem.",
+      "2": "Option C is incorrect because fdisk is used for inspecting or modifying MBR partition tables on partitioned disks and does not expand an existing ext4 filesystem online.",
+      "3": "Option D is incorrect because creating a second disk and copying data requires downtime and manual reconfiguration when Compute Engine supports zero-downtime online Persistent Disk resizing.",
+      "4": "Option E is incorrect because xfs_growfs only works on XFS filesystems, whereas the scenario explicitly specifies an ext4 formatted disk."
     }
   },
   {
@@ -847,10 +847,9 @@
     ],
     "hint": "Minimize PCI DSS compliance scope by isolating cardholder data in a dedicated tokenization service and storing only non-sensitive tokens in downstream analytics and application databases.",
     "whyWrong": {
-      "1": "Encrypting raw credit card numbers inside the main application database still keeps that database and all connected services inside PCI DSS audit scope.",
-      "2": "Storing full card numbers in BigQuery or Cloud Storage expands PCI DSS compliance scope across your entire analytics infrastructure.",
-      "3": "Relying solely on IAM permissions without tokenizing cardholder data leaves raw PANs in storage and keeps all data stores in PCI scope.",
-      "4": "Exporting audit logs to BigQuery helps with audit review but does not reduce the scope of systems storing raw cardholder data (PANs) the way tokenization does."
+      "1": "Option B is incorrect because isolating credit card workloads into separate GCP projects is a valid PCI DSS scope-reduction best practice, not the action that fails compliance.",
+      "2": "Option C is incorrect because segmenting cardholder data environments (CDE) into isolated VPC subnets with strict firewall rules directly reduces PCI DSS audit scope.",
+      "3": "Option D is incorrect because labeling and documenting CDE components streamlines PCI DSS assessor verification and is a recommended practice."
     }
   },
   {
