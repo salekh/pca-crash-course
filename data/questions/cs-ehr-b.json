@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Memorystore Standard Tier (and Memorystore for Redis Cluster) replicates data to another zone, fails over automatically, and carries a 99.9% availability SLA, and Google handles patching, so it satisfies both the availability and reduced-administration goals.",
     "whyWrong": {
-      "0": "Incorrect distractor (Provision Memorystore for Redis in Basic Tier because caches do not ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run Redis on a single Compute Engine VM and schedule persistent disk s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace Redis with tables in Cloud SQL so that sessions benefit from d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A has no replica and no SLA; a Basic Tier maintenance event or zone failure would drop sessions.",
+      "1": "Option B is a single point of failure that the team must operate.",
+      "3": "Option D changes application code and adds latency, and a relational database is the wrong tool for high-throughput session caching."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Private services access routing over Interconnect): Cloud SQL private IP lives in a producer network reached through private services access peering; peered ranges are not advertised to on-premises by default, so you must add the allocated range as a custom route advertisement on the Cloud Router (and export custom routes on the peering) for the on-premises systems to reach the databases privately over Interconnect.",
     "whyWrong": {
-      "1": "Incorrect distractor (Assign a public IP address to each Cloud SQL instance and add the on-p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run the Cloud SQL Auth Proxy on a Compute Engine VM and expose it thro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Private Google Access on the VPC subnets so that on-premises sy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B sends PHI over the public internet, which the security team forbids.",
+      "2": "Option C also exposes an internet-facing endpoint and adds a VM the team must run.",
+      "3": "Option D misunderstands Private Google Access, which covers Google APIs, not private services access peering ranges used by Cloud SQL."
     }
   },
   {
@@ -82,9 +82,9 @@
     ],
     "hint": "Core Rule (Sensitive Data Protection for logs): The correct approach fixes the root cause (do not log PHI) while applying a compensating control now: a log sink to Pub/Sub and a Dataflow pipeline with Sensitive Data Protection de-identification templates can mask or tokenize identifiers before storage, and log views plus exclusion filters limit who can see any raw data.",
     "whyWrong": {
-      "0": "Incorrect distractor (Reduce log retention to one day for all applications so that exposure …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant the Logs Viewer role only to the compliance team so engineers ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Disable application logging for all services that process patient data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A weakens troubleshooting and audit evidence without stopping PHI from being written.",
+      "1": "Option B removes engineers' ability to troubleshoot and does not remove PHI from the log store.",
+      "2": "Option C blinds operations, undermining the requirement for centralized visibility and the 99."
     }
   },
   {
@@ -112,9 +112,9 @@
     ],
     "hint": "Core Rule (SQL Server licensing on Compute Engine): When required features are unavailable in Cloud SQL, SQL Server on Compute Engine with an Always On availability group across zones provides automatic in-region failover.",
     "whyWrong": {
-      "0": "Incorrect distractor (Migrate the databases to Cloud SQL for SQL Server Enterprise Plus edit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy SQL Server on Compute Engine sole-tenant nodes and bring both t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Migrate the databases to AlloyDB for PostgreSQL with Database Migratio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires rewriting application code, which the scenario rules out.",
+      "2": "Option C is unnecessarily expensive because sole-tenant nodes are only required to BYOL Windows Server (or other licenses without mobility), not SQL Server.",
+      "3": "Option D is a heterogeneous migration that would break the CLR-dependent code and does not meet the timeline."
     }
   },
   {
@@ -141,9 +141,9 @@
     ],
     "hint": "Core Rule: Managed Service for Prometheus is a Google-operated, globally scalable Prometheus backend that works on GKE and on fleet-registered on-premises clusters; it removes per-cluster Prometheus servers, keeps PromQL and existing Grafana dashboards working, and integrates natively with Cloud Monitoring alerting, giving the single, consistent view the case study requires.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep a Prometheus server in every cluster and federate them into one l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write a script that exports cluster metrics to BigQuery every five min…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Rely on Cloud Monitoring uptime checks against the public endpoints, b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A remains self-managed, has a single point of failure, and needs constant capacity tuning.",
+      "2": "Option C loses real-time alerting and is not a monitoring system.",
+      "3": "Option D provides only black-box availability signals and no resource or application-level visibility."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule (Terraform environment provisioning): Infrastructure as code with Terraform modules makes environments repeatable and reviewable, Cloud Build provides an auditable, shared execution path with remote state in Cloud Storage, and Config Sync applies the baseline Kubernetes workloads automatically once the cluster is registered, turning weeks of manual work into a pipeline run.",
     "whyWrong": {
-      "0": "Incorrect distractor (Clone an existing production project manually in the console by follow…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Keep a set of gcloud scripts on the platform administrator's workstati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Take disk snapshots of the production VMs and restore them into a new …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option B are manual, unaudited, and tied to individuals, reproducing the misconfiguration risk the executive statement highlights.",
+      "1": "Option B are manual, unaudited, and tied to individuals, reproducing the misconfiguration risk the executive statement highlights.",
+      "3": "Option D copies VM disks, which does not create projects, networks, GKE clusters, or Cloud SQL instances and is not how container environments are reproduced."
     }
   },
   {
@@ -200,9 +200,9 @@
     ],
     "hint": "Core Rule (Resource hierarchy design): Google's enterprise foundations guidance recommends folders that mirror environments or business units so IAM and organization policies can be inherited, Shared VPC so a central network team manages connectivity and firewall rules while application teams own service projects, constraints such as resource locations and disabling service account key creation to enforce compliance everywhere, and a central logging project for aggregated sinks.",
     "whyWrong": {
-      "1": "Incorrect distractor (Use a single project for all environments, separate them with differen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create one project per developer with the Owner role for agility and c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create separate Google Cloud organizations for development and product…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B removes IAM and billing isolation and makes blast radius and quota management unmanageable.",
+      "2": "Option C creates uncontrolled sprawl with excessive privileges.",
+      "3": "Option D doubles administrative overhead and breaks centralized policy, logging, and billing without a compliance reason to do so."
     }
   },
   {
@@ -230,9 +230,9 @@
     ],
     "hint": "Core Rule (De-identification and BigQuery access controls): The minimum-necessary principle is best met by de-identifying data before analysts touch it; the Cloud Healthcare API de-identify operation and Sensitive Data Protection can redact, mask, or pseudonymize PHI at scale, while BigQuery policy tags (column-level security) and row-level security enforce fine-grained access to whatever sensitive fields remain.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant the analysts the BigQuery Data Viewer role on the raw datasets a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Copy the raw data into a separate project with fewer controls so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Give analysts access to Cloud SQL read replicas with database views in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A exposes full PHI and relies on detection rather than prevention.",
+      "1": "Option B weakens controls on a copy of PHI, which is a compliance violation.",
+      "2": "Option C puts analytic load on operational replicas and does not scale to trend analysis across providers."
     }
   },
   {
@@ -259,9 +259,9 @@
     ],
     "hint": "Core Rule: Private Google Access for on-premises hosts lets systems without internet access reach Google APIs over Interconnect or VPN by routing to the private.googleapis.com (199.36.153.8/30) or restricted.googleapis.com (199.36.153.4/30) ranges, which you advertise via Cloud Router custom advertisements and resolve through on-premises DNS.",
     "whyWrong": {
-      "0": "Incorrect distractor (Provide the servers with internet access through an outbound proxy so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy Cloud NAT in the colocation facility so the servers receive tra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create VPC Network Peering between the on-premises network and the VPC…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates the no-internet-egress policy.",
+      "2": "Option C is not possible; Cloud NAT is a Google Cloud service for VPC resources, not for on-premises networks.",
+      "3": "Option D is not possible either, because VPC Network Peering only connects VPC networks, not on-premises networks."
     }
   },
   {
@@ -290,9 +290,9 @@
     ],
     "hint": "Core Rule (Release reliability on GKE): Frequent releases are safe when the platform tolerates pod churn and when releases are progressive: probes keep unready pods out of rotation, multiple zone-spread replicas with PodDisruptionBudgets protect capacity during node upgrades and rollouts, and Cloud Deploy canary strategies with verification and automatic rollback limit the blast radius of a bad build.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run a single replica of each service to minimize the cost of frequent …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy each release to all clusters simultaneously with kubectl replac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable the Horizontal Pod Autoscaler during releases to keep the numb…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates an outage on every deployment and every node upgrade.",
+      "2": "Option C maximizes blast radius and kubectl replace can briefly delete resources.",
+      "4": "Option E removes the elasticity needed during a release-triggered spike and offers no reliability benefit."
     }
   },
   {
@@ -318,9 +318,9 @@
     ],
     "hint": "Core Rule: Backup for GKE is the managed service that captures both Kubernetes resources and persistent volume data in one backup plan, supports scheduled and application-consistent (hook-based) backups, and can restore to a different cluster or region, exactly what a DR plan for stateful GKE workloads needs.",
     "whyWrong": {
-      "0": "Incorrect distractor (Schedule Persistent Disk snapshots with a cron job and document how to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Install and operate Velero on every cluster and store its backups in C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the application state to local SSDs for performance and export it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A protects only disks, not the deployments, services, secrets, and config maps needed to run the application, and relies on manual reconstruction.",
+      "1": "Option B works but is self-managed software the team must upgrade and secure, contradicting the goal of lower administration cost.",
+      "3": "Option D is unsafe because local SSD data is lost when a node is stopped or fails."
     }
   },
   {
@@ -348,9 +348,9 @@
     ],
     "hint": "Core Rule (Root cause analysis and observability): Distributed tracing shows exactly which service and call in a request path is slow or failing, log-trace correlation lets engineers jump from a trace span to the relevant log lines, Error Reporting groups new exceptions automatically, and Gemini Cloud Assist can correlate signals to propose likely root causes, which together shorten mean time to resolution.",
     "whyWrong": {
-      "1": "Incorrect distractor (Set the log level of all production services to DEBUG permanently so t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Have on-call engineers use SSH to reach the GKE nodes and inspect cont…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Wait for customer support tickets to identify affected features, then …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B floods the logging pipeline with cost and noise and still does not connect events across services.",
+      "2": "Option C is slow, insecure, and impossible on Autopilot nodes.",
+      "3": "Option D is reactive and makes customers the monitoring system."
     }
   },
   {
@@ -377,9 +377,9 @@
     ],
     "hint": "Core Rule: Workload Identity Federation for GKE is the recommended way for pods to call Google APIs: each Kubernetes service account is mapped to an IAM identity and receives short-lived tokens, eliminating long-lived exportable keys and enabling per-workload least privilege.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rotate the JSON keys every 90 days with an automated script and keep m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Keep the JSON keys but store them in Kubernetes Secrets encrypted with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Remove the keys and instead grant the node pool's default Compute Engi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option B still leave exfiltratable long-lived keys in the cluster; encryption and rotation reduce but do not remove the risk.",
+      "1": "Option B still leave exfiltratable long-lived keys in the cluster; encryption and rotation reduce but do not remove the risk.",
+      "2": "Option C replaces one anti-pattern with another by granting a broad basic role to every pod on the node."
     }
   },
   {
@@ -406,9 +406,9 @@
     ],
     "hint": "Core Rule: Partner Interconnect is designed for sites that cannot reach a Google colocation facility or that need less than 10 Gbps; attachments are available in 50 Mbps to 50 Gbps increments and two attachments in separate edge availability domains provide the 99.9% SLA topology, which matches both the bandwidth and the short remaining lifetime of the site.",
     "whyWrong": {
-      "0": "Incorrect distractor (Order a 10 Gbps Dedicated Interconnect circuit and extend it to the fa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Configure a single HA VPN gateway with one tunnel to keep the design s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Set up Direct Peering with Google at the nearest exchange point to car…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is over-provisioned and requires expensive last-mile fiber for a site that closes in two years.",
+      "1": "Option B uses a single tunnel, so it has no SLA, and VPN over the internet cannot guarantee consistent latency.",
+      "3": "Option D is wrong because Direct Peering provides access to Google public services only and is not a way to reach a VPC network."
     }
   },
   {
@@ -435,9 +435,9 @@
     ],
     "hint": "Core Rule: Data residency is enforced by where resources are created: a dedicated folder for EU tenants with the constraints/gcp.resourceLocations organization policy prevents anyone from creating resources outside EU regions, and Assured Workloads adds guardrails such as data location and personnel access controls.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy everything in a single US region and encrypt the EU customers' …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store all customer data in a dual-region Cloud Storage bucket spanning…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Migrate all databases to a Spanner multi-region configuration that inc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A leaves the data physically in the US; key location does not satisfy residency.",
+      "2": "Option C and Option D deliberately replicate data to the US, which is exactly what the EU customers prohibit.",
+      "3": "Option D deliberately replicate data to the US, which is exactly what the EU customers prohibit."
     }
   },
   {
@@ -464,9 +464,9 @@
     ],
     "hint": "Core Rule: Migrate to Virtual Machines performs agentless, continuous replication from VMware, KVM-based, AWS, or Azure sources to Compute Engine, lets you test clones before cutover, and requires only a short final sync, which minimizes both downtime and manual effort; Migrate to Containers can later modernize eligible VMs into containers for the GKE platform.",
     "whyWrong": {
-      "1": "Incorrect distractor (Export each VM as a disk image, upload it to Cloud Storage, create cus…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rewrite the applications as Cloud Run services before the lease expire…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the VMs to Google Cloud VMware Engine and keep them there permane…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is slow, error-prone, and manual for forty VMs.",
+      "2": "Option C is unrealistic before the deadline and contradicts the stated constraint.",
+      "3": "Option D targets vSphere estates, which these KVM hosts are not, and 'regardless of cost' conflicts with the goal of reducing infrastructure costs."
     }
   },
   {
@@ -493,9 +493,9 @@
     ],
     "hint": "Core Rule (Team readiness and change management): Successful change management assesses readiness, closes specific skill gaps, gives the team a safe early win, and creates a center of excellence that captures standards and reusable patterns; this keeps the timeline while reducing the risk of misconfiguration by an untrained team.",
     "whyWrong": {
-      "0": "Incorrect distractor (Outsource all cloud operations to a managed service provider and reass…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Require every engineer to earn all Google Cloud professional certifica…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate first to meet the lease deadline and schedule training for the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A discards institutional knowledge and does not address the goal of a consistent, self-managed platform.",
+      "1": "Option B delays the project unnecessarily and is not a targeted approach.",
+      "2": "Option C is how outages happen: the team would be operating unfamiliar production systems with no preparation."
     }
   },
   {
@@ -526,9 +526,9 @@
     ],
     "hint": "Core Rule (Success metrics and KPIs): KPIs should trace directly to business requirements: 99.9% availability, reduced latency for all customers, and faster on-boarding of insurance providers are three explicit goals, so availability against the SLO, regional p95 latency, and provider on-boarding lead time are meaningful outcome measures.",
     "whyWrong": {
-      "0": "Incorrect distractor (Number of virtual machines migrated per week.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Total number of Kubernetes clusters in the fleet.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Number of lines of infrastructure code committed each sprint.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option F are activity metrics that say nothing about business value.",
+      "3": "Option D is a size metric; more clusters is not better and may even indicate the inconsistent sprawl the company is trying to eliminate.",
+      "5": "Option F are activity metrics that say nothing about business value."
     }
   },
   {
@@ -560,9 +560,9 @@
     ],
     "hint": "Core Rule (Latency reduction): Cross-continent round trips dominate perceived latency, so the fixes are to terminate connections at the nearest Google edge (global external Application Load Balancer, Premium Tier), cache what can be cached at the edge (Cloud CDN), and place compute and read-heavy data close to users (regional backends with read replicas or caches).",
     "whyWrong": {
-      "2": "Incorrect distractor (Switch the load balancer to Standard Tier networking to reduce cost pe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Consolidate all workloads into one very large zonal GKE cluster with b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Route all customer traffic through the colocation facility over the In…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "2": "Option C makes things worse because Standard Tier hands traffic to the public internet near the region rather than carrying it on Google's backbone, and it does not support global load balancing.",
+      "4": "Option E increases distance for most users and introduces a single-zone failure point.",
+      "5": "Option F adds a hairpin through the data center and extra hops."
     }
   },
   {
@@ -590,9 +590,9 @@
     ],
     "hint": "Core Rule (Log retention for compliance): Cloud Storage with a locked bucket retention policy (Bucket Lock) prevents deletion or modification until the retention period ends, satisfying tamper-evidence, and the Archive class is the cheapest option for data that is rarely read; a Cloud Logging bucket with one-year retention keeps recent logs searchable in Logs Explorer for engineers.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep all audit logs in the _Default log bucket with its 30-day retenti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export the audit logs to a BigQuery dataset with no table expiration a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Copy the audit logs nightly to a Filestore share mounted on a Compute …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates the six-year requirement and Google does not provide customer-accessible backups of expired logs.",
+      "2": "Option C is more expensive for cold data and Data Editor permissions would let people alter or delete audit evidence.",
+      "3": "Option D is costly, not tamper-evident, and depends on a VM and manual copying."
     }
   }
 ]

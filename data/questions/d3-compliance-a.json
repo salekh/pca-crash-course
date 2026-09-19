@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (HIPAA and BAA): Under HIPAA, Google acts as a business associate, and the BAA must be in place before PHI is processed; Google offers a standard BAA that an account administrator accepts directly in the Cloud Console, and it covers the whole account rather than individual projects.",
     "whyWrong": {
-      "0": "Incorrect distractor (Open a support case asking Google to certify the telemedicine applicat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Assured Workloads with the FedRAMP High control package, becaus…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Sign a separate BAA for each project by emailing the Google Cloud lega…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because Google does not certify customer applications; HIPAA has no certification body and compliance is a shared responsibility.",
+      "1": "Option B is wrong because FedRAMP is a US federal government framework, not a substitute for a BAA.",
+      "3": "Option D is wrong because Google uses its own standard BAA at the account level, not per-project custom agreements sent by email."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: Assured Workloads control packages such as the Healthcare and Life Sciences Controls automatically apply resource-location and restricted-service organization policies to a folder and continuously monitor for violations in the Assured Workloads dashboard, which meets the guardrail and monitoring requirements with minimal operational effort.",
     "whyWrong": {
-      "1": "Incorrect distractor (Write a Cloud Run function triggered by Cloud Asset Inventory feeds th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Apply a custom organization policy on the organization node that lists…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use VPC Service Controls to create a perimeter that only includes BAA-…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is a reactive, custom-built control that deletes resources after the fact and requires ongoing maintenance.",
+      "2": "Option C requires you to hand-maintain the allowed service list and lacks built-in violation monitoring.",
+      "3": "Option D is wrong because VPC Service Controls governs data exfiltration between perimeters and cannot restrict where resources are created or which APIs can be enabled."
     }
   },
   {
@@ -82,9 +82,9 @@
     ],
     "hint": "Core Rule (GDPR right to erasure): Crypto-shredding is the recognized pattern for reconciling immutable retention with erasure: personal fields are encrypted with a per-data-subject key (wrapped by Cloud KMS), and destroying that key renders the archived data permanently unreadable without modifying the locked objects.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask Google Cloud support to remove the retention lock on the affected …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Copy the archives into a new bucket without a retention policy, delete…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store the archives with a shorter retention period and rely on object …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because a locked retention policy cannot be removed by anyone, including Google, which is precisely what makes it defensible for legal hold.",
+      "1": "Option B defeats the purpose of the legal retention control and would breach the retention obligation.",
+      "2": "Option C ignores the seven-year legal retention requirement."
     }
   },
   {
@@ -111,9 +111,9 @@
     ],
     "hint": "Core Rule (Data residency): The resource locations organization policy is a preventive, inherited control: setting it with the in:eu-locations value group blocks creation of location-bound resources outside EU locations, and Google maintains the value group as new EU regions launch, so it requires no ongoing maintenance.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Cloud Monitoring alert on the location field of new resources…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure IAM Conditions on every project so that roles are granted on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Write a Terraform validation rule in the CI pipeline that fails the bu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is detective rather than preventive, so data could already have been written outside the EU.",
+      "2": "Option C controls where the requester is, not where the data lives, and would block legitimate global staff.",
+      "3": "Option D only covers resources created through that pipeline and misses console, gcloud and API changes."
     }
   },
   {
@@ -140,9 +140,9 @@
     ],
     "hint": "Core Rule (COPPA children's privacy): COPPA requires verifiable parental consent before collecting personal information from children under 13 and encourages data minimization; redacting PII in real time with Sensitive Data Protection before the message is persisted ensures the personal data is never retained, and collecting only necessary profile fields reduces regulatory scope.",
     "whyWrong": {
-      "0": "Incorrect distractor (Store all chat messages in a Cloud Storage bucket with a 24-hour lifec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Encrypt chat messages with a customer-managed key in Cloud KMS so that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Route the chat feature through Apigee and enable rate limiting so that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still stores the personal data, even if briefly, and does not address consent.",
+      "1": "Option B protects confidentiality but the personal data is still collected and retained, which is the compliance problem.",
+      "3": "Option D addresses volume, not the collection of personal information, and does not satisfy the consent requirement."
     }
   },
   {
@@ -169,9 +169,9 @@
     ],
     "hint": "Core Rule: Assured Workloads FedRAMP High applies the required organization policies for US data locations and in-scope services, ensures support is handled by US persons, and monitors the folder for configuration drift, which offloads the enforcement work to Google.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy the workload in any US region and attach the Google Cloud FedRA…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Security Command Center Premium and select the FedRAMP High com…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a VPC Service Controls perimeter around the project and restric…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is insufficient because Google's authorization covers the platform, but the customer must still configure the environment correctly under the shared responsibility model.",
+      "2": "Option C provides detective reporting of findings against a standard but does not enforce residency or personnel controls.",
+      "3": "Option D reduces data exfiltration risk but does not address location, service scope or support personnel requirements."
     }
   },
   {
@@ -198,9 +198,9 @@
     ],
     "hint": "Core Rule: The CJIS control package in Assured Workloads restricts data to US regions and routes support to CJIS-screened US personnel, which addresses the background-check requirement for provider staff, while Access Approval adds an explicit customer approval step before Google can access customer content.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy the workload in a US region, enable Cloud Audit Logs, and revie…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Google Distributed Cloud connected racks in the department's data …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable customer-supplied encryption keys for all persistent disks so t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is only detective: Access Transparency records access after it happens and does not constrain who performs it.",
+      "1": "Option B is a disproportionate architectural change and Google Distributed Cloud connected is still managed by Google, so it does not by itself satisfy personnel screening.",
+      "2": "Option C protects disks but does not cover other services, complicates operations, and still does not meet the personnel screening or advance-approval requirements."
     }
   },
   {
@@ -227,9 +227,9 @@
     ],
     "hint": "Core Rule: A resource locations policy controls where resources are created, but ITAR also requires controls over who can access the data, including support personnel, and over encryption key ownership; the ITAR control package in Assured Workloads adds US-persons support, restricts in-scope services, and works with US-located CMEK so that the company controls the keys.",
     "whyWrong": {
-      "0": "Incorrect distractor (Nothing further is needed, because the resource locations organization…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Storage Turbo replication to a second US region and confi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the repository to a Google Workspace shared drive with data regio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A misunderstands the scope of the resource locations constraint, which says nothing about personnel or support.",
+      "2": "Option C improves durability and visibility but does not restrict who accesses data.",
+      "3": "Option D moves the data to a collaboration tool that is not designed for the rendering pipeline and does not address ITAR support-personnel requirements."
     }
   },
   {
@@ -259,9 +259,9 @@
     ],
     "hint": "Core Rule (Digital sovereignty): The EU Regions and Support control package in Assured Workloads enforces EU data location and EU-based support personnel, and Cloud EKM with Key Access Justifications keeps the encryption keys outside Google and attaches a justification to every decryption request that the bank can automatically allow or deny, so Google cannot access plaintext without the bank's knowledge.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure Cloud Storage buckets in the EU multi-region and rely on def…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Access Transparency logs and export them to a BigQuery dataset …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Deploy the workload in a Google Distributed Cloud air-gapped environme…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A provides EU storage but Google still holds the keys and support personnel are not restricted.",
+      "2": "Option C is a useful detective control but does not prevent access or restrict personnel.",
+      "4": "Option E goes far beyond the requirement and would sacrifice most managed services; it is designed for disconnected, classified environments rather than a regulated bank that can use public cloud."
     }
   },
   {
@@ -288,9 +288,9 @@
     ],
     "hint": "Core Rule (Organization policy - resource locations): Organization policies are inherited down the resource hierarchy, so applying the resource locations constraint on the prod-canada folder restricts every current and future project in that folder while leaving other folders untouched; note that the constraint blocks new resource creation but does not move or delete the existing non-compliant instance, which must be migrated manually.",
     "whyWrong": {
-      "1": "Incorrect distractor (Set the constraints/gcp.resourceLocations organization policy on the o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Remove the roles/cloudsql.admin role from all engineers and require in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a Cloud Asset Inventory saved query that lists resources outsid…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B would break the global marketing workloads in other folders.",
+      "2": "Option C introduces heavy process overhead and does not technically prevent the misconfiguration.",
+      "3": "Option D is detective only and would not prevent recurrence."
     }
   },
   {
@@ -317,9 +317,9 @@
     ],
     "hint": "Core Rule (BigQuery data residency): A BigQuery dataset's location is immutable, so the data must be copied into a new dataset in the target region; the Data Transfer Service dataset copy feature handles cross-region copying of all tables in a dataset, including incremental re-runs, with no export or load pipeline to manage.",
     "whyWrong": {
-      "0": "Incorrect distractor (Change the location property of the existing dataset to europe-west2 u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Export each table to Cloud Storage in the US, transfer the files to a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a scheduled query in europe-west2 that selects from the US data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is impossible because the location cannot be changed after creation.",
+      "1": "Option B works but is a multi-step manual pipeline that is more error prone and slower for 40 TB.",
+      "2": "Option C fails because a query cannot read from one location and write to a different location in a single job."
     }
   },
   {
@@ -346,9 +346,9 @@
     ],
     "hint": "Core Rule (Cloud Storage data residency): A dual-region bucket across Montréal and Toronto keeps all data inside Canada while replicating across regions; turbo replication provides an RPO target of 15 minutes for newly written objects, which satisfies the continuity requirement.",
     "whyWrong": {
-      "0": "Incorrect distractor (A single-region bucket in northamerica-northeast1 with Object Versioni…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A multi-region bucket in the US location, because it offers the highes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A dual-region bucket spanning northamerica-northeast1 and us-east4 to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A uses a daily transfer job, so the RPO would be up to 24 hours.",
+      "2": "Option C is wrong because the US multi-region does not include Canadian regions and would violate residency.",
+      "3": "Option D places a copy of the data in the United States, which breaches the Canadian residency rule."
     }
   },
   {
@@ -375,9 +375,9 @@
     ],
     "hint": "Core Rule (Spanner data residency): Spanner multi-region configurations deliver the 99.999% SLA with synchronous cross-region replication, and eur6 (europe-west4 and europe-west3 plus a witness in an EU region) keeps every replica inside the European Union.",
     "whyWrong": {
-      "0": "Incorrect distractor (A regional configuration in europe-west3 with a second regional instan…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (The nam-eur-asia1 multi-region configuration, because it includes Euro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (The eur5 multi-region configuration, which spans London and Belgium.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a regional configuration, which offers 99.",
+      "1": "Option B is a three-continent configuration whose read-only and witness replicas are outside the EU.",
+      "3": "Option D is wrong because eur5 includes London, and the United Kingdom is no longer an EU member, which would violate the stated regulatory scope."
     }
   },
   {
@@ -408,9 +408,9 @@
     ],
     "hint": "Core Rule (HIPAA architecture): HIPAA readiness on Google Cloud starts with the BAA, continues with limiting the workload to BAA-covered services (and using de-identified data outside production to reduce scope), and requires auditability, which Data Access audit logs provide for the services handling PHI.",
     "whyWrong": {
-      "1": "Incorrect distractor (Ask Google Cloud support to issue a HIPAA compliance certificate for t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use only the Cloud Healthcare API, because it is the only Google Cloud…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Disable Cloud Audit Logs on production projects to avoid PHI accidenta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because there is no HIPAA certification; Google supports compliance but cannot certify a customer's application.",
+      "3": "Option D is wrong because dozens of services, including Compute Engine, BigQuery, Cloud Storage and GKE, are covered by the BAA.",
+      "5": "Option F is the opposite of best practice; audit logging is a HIPAA requirement, and PHI should be kept out of application log payloads by design rather than by disabling audit trails."
     }
   },
   {
@@ -437,9 +437,9 @@
     ],
     "hint": "Core Rule (Data sovereignty controls): Data sovereignty concerns who can access data and under what jurisdiction, not just where it is stored; Access Transparency provides near-real-time logs of actions Google staff take on customer content, and Access Approval lets the customer approve or deny such access in advance, which together give the required visibility and control.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Cloud Storage Object Versioning and a bucket retention policy t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable VPC Service Controls around all projects so that Google enginee…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move all data to customer-supplied encryption keys so that Google pers…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A proves integrity but says nothing about provider access.",
+      "2": "Option C is wrong because VPC Service Controls governs API calls from customer identities and networks, not Google's internal support access paths.",
+      "3": "Option D is impractical across managed services and disabling audit logging contradicts the sovereignty and accountability goal."
     }
   },
   {
@@ -466,9 +466,9 @@
     ],
     "hint": "Core Rule (GDPR processor obligations): The Cloud Data Processing Addendum is Google Cloud's standard GDPR-aligned processor agreement; it incorporates the EU Standard Contractual Clauses for international transfers and references the public subprocessor list, which is exactly what an Article 28 assessment needs.",
     "whyWrong": {
-      "0": "Incorrect distractor (The SOC 2 Type II report downloaded from Compliance Reports Manager, b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (A custom data processing agreement drafted by the vendor's counsel for…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The Google Cloud Business Associate Agreement, which covers all person…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is an independent audit report about controls, not a contractual document, and it does not enumerate subprocessors.",
+      "1": "Option B is not how Google contracts at scale; the CDPA is the standard mechanism and is already incorporated into the terms.",
+      "2": "Option C is a HIPAA-specific agreement for PHI in the US and is not a GDPR processor agreement."
     }
   },
   {
@@ -495,9 +495,9 @@
     ],
     "hint": "Core Rule (Healthcare de-identification): The Cloud Healthcare API includes a managed de-identification operation that handles both DICOM metadata tags and FHIR resource fields and can redact burned-in text in images, writing the results to a separate dataset so that the original PHI never leaves the hospital's control.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export the studies to Cloud Storage and run a Dataflow pipeline that u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant the research partner the roles/healthcare.datasetViewer role and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Sensitive Data Protection to inspect the DICOM files as binary obj…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires building and maintaining a custom OCR and redaction pipeline, which contradicts the least-code requirement.",
+      "1": "Option B still discloses PHI to a third party, which requires much more than a data-use agreement under HIPAA.",
+      "3": "Option D treats images as opaque blobs and would discard rather than de-identify useful studies; Sensitive Data Protection is not the right tool for DICOM-aware transformations."
     }
   },
   {
@@ -525,9 +525,9 @@
     ],
     "hint": "Core Rule (GDPR cross-border access): Processing the data in place in an EU location avoids any cross-border copy, and a VPC Service Controls perimeter with a context-aware access level enforces both the identity and the managed-device condition on every API call, so approved US analysts can query without the data leaving the EU.",
     "whyWrong": {
-      "1": "Incorrect distractor (Replicate the datasets nightly to a US region with the BigQuery Data T…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export a pseudonymized extract to Cloud Storage in the US each week an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant the analysts the BigQuery Data Viewer role on the EU datasets an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B creates a copy of personal data in the US, which the DPO explicitly prohibited.",
+      "2": "Option C moves data outside the EU and onto endpoints that are hard to govern; pseudonymized data is still personal data under GDPR.",
+      "3": "Option D provides no device control and a VPN does not restrict where data can be copied."
     }
   },
   {
@@ -554,9 +554,9 @@
     ],
     "hint": "Core Rule (Logging data residency): Log bucket locations are immutable, so existing projects need new regional buckets with the _Default sink redirected to them, and the resource locations organization policy also governs the location of the _Default and _Required buckets created for new projects, ensuring future compliance automatically.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Log Analytics on the _Default bucket and filter out any log ent…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Cloud Storage sink to a bucket in europe-west9 and disable th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Change the location of the existing _Default bucket from global to eur…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does not change where data is stored.",
+      "2": "Option C exports to a compliant location but disabling the _Default bucket loses interactive Logs Explorer analysis and does not address the _Required bucket.",
+      "3": "Option D is impossible because a log bucket's location cannot be changed after creation."
     }
   },
   {
@@ -583,9 +583,9 @@
     ],
     "hint": "Core Rule (Assured Workloads monitoring): Assured Workloads continuously monitors folders for deviations from the control package's required organization policies and lists them as violations with remediation guidance; notifications can be configured so the compliance team learns about a violation promptly, which is the purpose-built, lowest-effort control.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export Cloud Audit Logs to BigQuery and schedule a daily query that lo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Cloud Asset Inventory to take a daily snapshot of organization pol…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Security Command Center Standard and rely on the misconfigurati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a custom detective pipeline with up to a day of delay.",
+      "1": "Option B also introduces delay and requires custom diffing logic.",
+      "2": "Option C is wrong because Security Command Center Standard does not evaluate compliance against Assured Workloads control packages."
     }
   },
   {
@@ -612,9 +612,9 @@
     ],
     "hint": "Core Rule (Generative AI data residency): Vertex AI supports data residency commitments for Gemini when you call a regional endpoint in a supported EU location, keeping data at rest and ML processing within that region, and Google Cloud's enterprise terms state that customer data is not used to train Google foundation models without permission.",
     "whyWrong": {
-      "0": "Incorrect distractor (Call the Gemini API through Google AI Studio with an API key, because …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Vertex AI with the global endpoint for lowest latency, and encrypt…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy an open model from Model Garden on GKE in europe-west8 because …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A uses a consumer-oriented developer tool that does not carry enterprise data residency commitments.",
+      "1": "Option B uses the global endpoint, which does not guarantee EU processing, and client-side encryption would make summarization impossible.",
+      "3": "Option D is unnecessarily complex and based on a false premise, since Gemini models are available with EU regional endpoints."
     }
   },
   {
@@ -641,9 +641,9 @@
     ],
     "hint": "Core Rule (Children's privacy and analytics): COPPA treats persistent identifiers that can track a child across sites or services as personal information, so using an app-scoped pseudonymous ID and minimizing collected events keeps the data out of scope as far as possible, and BigQuery partition or table expiration enforces the 90-day retention automatically.",
     "whyWrong": {
-      "1": "Incorrect distractor (Collect the mobile advertising ID so that engagement can be joined wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store raw events indefinitely in Cloud Storage Archive class because i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Send analytics events to a third-party analytics SaaS that offers a CO…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B collects an advertising identifier, which is exactly the kind of cross-service tracking identifier the law targets.",
+      "2": "Option C violates the 90-day deletion requirement regardless of storage class.",
+      "3": "Option D outsources the problem without ensuring the identifiers and retention requirements are met, and removes the analytics capability the team needs."
     }
   },
   {
@@ -670,9 +670,9 @@
     ],
     "hint": "Core Rule (Shared responsibility for HIPAA): Under the shared responsibility model, Google secures the infrastructure, physical facilities and the operation of covered services, and the BAA covers Google's obligations as a business associate, but the customer remains responsible for how it configures and uses the platform: identity and access, key management choices, audit logging, application-level security and PHI handling.",
     "whyWrong": {
-      "0": "Incorrect distractor (Because the BAA is signed, Google is responsible for all HIPAA adminis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The provider is responsible for physical data center security audits, …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Responsibility is determined per service by Cloud Support at the time …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A overstates Google's role; the BAA does not transfer the customer's safeguards to Google.",
+      "2": "Option C reverses the responsibilities.",
+      "3": "Option D is wrong because responsibilities are defined up front in the terms and documentation, not decided during incidents."
     }
   },
   {
@@ -701,9 +701,9 @@
     ],
     "hint": "Core Rule (LGPD data residency): The resource locations constraint on the folder is the technical preventive control that keeps location-bound resources in Brazilian regions, and Access Transparency gives the bank logged visibility into any Google personnel access to its content, which addresses the outsourcing oversight requirement.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy Cloud Storage buckets in the US multi-region with a bucket labe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use the Premium network tier so that traffic between Brazilian users a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Configure Cloud CDN with a cache key restricted to Brazilian points of…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B stores data in the US, and labels are metadata that enforce nothing.",
+      "3": "Option D affects routing performance, not data storage location or provider access.",
+      "4": "Option E is about content delivery caching and is unrelated to where personal data is stored or who can access it."
     }
   },
   {
@@ -730,9 +730,9 @@
     ],
     "hint": "Core Rule (Sovereign cloud options): Google Distributed Cloud air-gapped is designed for the strictest sovereignty and classification requirements: it runs Google Cloud services in a fully disconnected environment that the customer or its partner operates, with no connection to Google.",
     "whyWrong": {
-      "0": "Incorrect distractor (Assured Workloads with the IL5 control package in a US region, combine…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Google Distributed Cloud connected racks in the agency's facility, man…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Sovereign Controls by Partners, where a local trusted partner operates…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still runs on Google-operated public cloud infrastructure, which the classification rules prohibit.",
+      "1": "Option B is wrong because Google Distributed Cloud connected requires connectivity to Google Cloud for management and is operated by Google.",
+      "2": "Option C keeps workloads on Google Cloud regions with partner-controlled keys and support, which still involves Google infrastructure and connectivity."
     }
   }
 ]

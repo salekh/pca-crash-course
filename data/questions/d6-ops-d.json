@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Binary Authorization is the deploy-time policy control for GKE and Cloud Run: it admits only images that carry the required cryptographically signed attestations, such as a Cloud Build provenance attestation and a vulnerability-scan attestation, and it supports dry-run for safe rollout and break-glass annotations that allow but log emergency exceptions.",
     "whyWrong": {
-      "0": "Incorrect distractor (Restrict kubectl access to the production cluster to a single senior e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure a Kubernetes admission webhook that checks image names for t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Artifact Analysis vulnerability scanning on Artifact Registry a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Restrict kubectl access to the production cluster to a single senior engineer who verifies image provenance manually before applying manifests\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable Binary Authorization on the production cluster with a) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Configure a Kubernetes admission webhook that checks image names for the string 'cloudbuild' before admitting pods\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable Binary Authorization on the production cluster with a) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Enable Artifact Analysis vulnerability scanning on Artifact Registry and send an email to the team whenever a critical vulnerability is found\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable Binary Authorization on the production cluster with a) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Security scanning gates in CI): A quality gate must be enforced in the pipeline: On-Demand Scanning lets a Cloud Build step scan the image before it is pushed, and failing the build on critical findings guarantees vulnerable images never enter the registry or any environment.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a log-based alert on Artifact Registry scan results and page th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move image builds to developer laptops where engineers can inspect sca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Schedule the weekly review to occur daily instead so that vulnerable i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Create a log-based alert on Artifact Registry scan results and page the on-call engineer whenever a critical vulnerability is detected\") is incorrect because it does not meet the scenario's core requirement; Option A (Add a Cloud Build step that runs Artifact Analysis On-Demand) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Move image builds to developer laptops where engineers can inspect scan results before pushing\") is incorrect because it does not meet the scenario's core requirement; Option A (Add a Cloud Build step that runs Artifact Analysis On-Demand) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Schedule the weekly review to occur daily instead so that vulnerable images are found sooner\") is incorrect because it does not meet the scenario's core requirement; Option A (Add a Cloud Build step that runs Artifact Analysis On-Demand) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Code review and presubmit checks): Branch protection with mandatory peer review and an automated presubmit build is the lightweight, industry-standard quality gate: it catches mistakes before they merge, keeps continuous deployment intact, and scales with the team.",
     "whyWrong": {
-      "0": "Incorrect distractor (Introduce a weekly release meeting in which the CTO reviews every comm…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Require each developer to test changes manually in production behind a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Disable automatic deployment and have the on-call engineer deploy manu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Introduce a weekly release meeting in which the CTO reviews every commit from the previous week before it is deployed\") is incorrect because it does not meet the scenario's core requirement; Option C (Protect the main branch so that changes arrive through pull ) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Require each developer to test changes manually in production behind an IP allowlist before merging\") is incorrect because it does not meet the scenario's core requirement; Option C (Protect the main branch so that changes arrive through pull ) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Disable automatic deployment and have the on-call engineer deploy manually at the end of each day\") is incorrect because it does not meet the scenario's core requirement; Option C (Protect the main branch so that changes arrive through pull ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -112,9 +112,9 @@
     ],
     "hint": "Core Rule (CI quality gates): Automated static analysis and enforced test execution with coverage thresholds are objective, repeatable gates that catch a large class of defects and security issues early, which is the essence of shifting quality control left in the pipeline.",
     "whyWrong": {
-      "1": "Incorrect distractor (A manual sign-off from the head of engineering recorded in an email th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A requirement that the build finishes in under 60 seconds, to keep dev…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (A step that automatically merges the pull request if the developer has…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"A manual sign-off from the head of engineering recorded in an email thread\") is incorrect because it does not meet the scenario's core requirement; Option A (Static analysis and linting of the source code, failing the ), Option D (Unit and integration test execution with a minimum code-cove) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"A requirement that the build finishes in under 60 seconds, to keep developers productive\") is incorrect because it does not meet the scenario's core requirement; Option A (Static analysis and linting of the source code, failing the ), Option D (Unit and integration test execution with a minimum code-cove) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"A step that automatically merges the pull request if the developer has more than two years of tenure\") is incorrect because it does not meet the scenario's core requirement; Option A (Static analysis and linting of the source code, failing the ), Option D (Unit and integration test execution with a minimum code-cove) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -141,9 +141,9 @@
     ],
     "hint": "Core Rule (Infrastructure configuration validation): Terraform policy validation (gcloud terraform vet with the Policy Library) evaluates the planned changes against organization constraints before anything is created, so non-compliant infrastructure fails in the pipeline rather than being detected afterwards; enforcing the most important rules with organization policy constraints (such as restricting public access and external IPs) ensures they hold even if someone bypasses the pipeline.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant the Cloud Build service account only the Viewer role so that non…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Ask Security Command Center to scan more frequently so that violations…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Require every Terraform plan to be reviewed by the security team in a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Grant the Cloud Build service account only the Viewer role so that non-compliant resources cannot be created\") is incorrect because it does not meet the scenario's core requirement; Option D (Add a policy validation step to the Cloud Build pipeline tha) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Ask Security Command Center to scan more frequently so that violations are detected within minutes of creation\") is incorrect because it does not meet the scenario's core requirement; Option D (Add a policy validation step to the Cloud Build pipeline tha) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Require every Terraform plan to be reviewed by the security team in a weekly meeting before it can be applied\") is incorrect because it does not meet the scenario's core requirement; Option D (Add a policy validation step to the Cloud Build pipeline tha) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule (Configuration drift on GKE): Config Sync is GKE's GitOps controller: it continuously reconciles each cluster to the Git-declared state and automatically reverts drift caused by manual edits, and fleet-level management makes it uniform across all 25 clusters; Policy Controller adds admission-time enforcement of security and organizational constraints.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run a nightly job that executes kubectl diff against every cluster and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Revoke kubectl access from all engineers and require every change, inc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Deploy to redeploy all manifests to every cluster every hour…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Run a nightly job that executes kubectl diff against every cluster and emails the differences to the platform team\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable Config Sync on all clusters as part of a fleet, point) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Revoke kubectl access from all engineers and require every change, including emergencies, to go through a weekly change board\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable Config Sync on all clusters as part of a fleet, point) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Use Cloud Deploy to redeploy all manifests to every cluster every hour so that manual changes are overwritten\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable Config Sync on all clusters as part of a fleet, point) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule (Infrastructure drift detection): Drift detection for Terraform-managed infrastructure is achieved by regularly executing a plan against live state and surfacing any difference; combining that with least-privilege IAM that removes out-of-band write access closes the gap that allowed the manual edit.",
     "whyWrong": {
-      "1": "Incorrect distractor (Run terraform apply automatically every hour so that any manual change…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Data Access audit logs on all services and review them weekly f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the Terraform state in a Cloud Storage bucket with object versio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Run terraform apply automatically every hour so that any manual change is immediately reverted without notification\") is incorrect because it does not meet the scenario's core requirement; Option A (Schedule a daily Cloud Build job that runs terraform plan ag) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable Data Access audit logs on all services and review them weekly for console modifications\") is incorrect because it does not meet the scenario's core requirement; Option A (Schedule a daily Cloud Build job that runs terraform plan ag) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Store the Terraform state in a Cloud Storage bucket with object versioning so that previous states can be restored after drift is discovered\") is incorrect because it does not meet the scenario's core requirement; Option A (Schedule a daily Cloud Build job that runs terraform plan ag) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule (Cost anomaly detection): Cloud Billing anomaly detection automatically identifies unexpected spending patterns and alerts on them, and budgets with threshold notifications provide a complementary control that can trigger automation via Pub/Sub; together they give timely, low-effort visibility.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export billing data to BigQuery and manually review the totals every F…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Set a hard quota on the number of Dataflow workers in each project so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ask each researcher to check the Billing console once a day): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Export billing data to BigQuery and manually review the totals every Friday\") is incorrect because it does not meet the scenario's core requirement; Option C (Use Cloud Billing cost anomaly detection to receive alerts w) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Set a hard quota on the number of Dataflow workers in each project so that a runaway job cannot consume more than a fixed amount\") is incorrect because it does not meet the scenario's core requirement; Option C (Use Cloud Billing cost anomaly detection to receive alerts w) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Ask each researcher to check the Billing console once a day\") is incorrect because it does not meet the scenario's core requirement; Option C (Use Cloud Billing cost anomaly detection to receive alerts w) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule (SLO reviews): An SLO should represent the reliability users need, not the maximum the system has happened to achieve; tightening it merely because performance exceeded it would raise costs and constrain future change without a user benefit, and it removes the room to spend budget on innovation and resilience testing that SRE recommends.",
     "whyWrong": {
-      "0": "Incorrect distractor (Raise the SLO to 99.99% immediately, because an SLO should always refl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Remove the SLO, since the service is clearly reliable enough and the o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Raise the SLO to 99.999% to give the team an ambitious target for next…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Raise the SLO to 99.99% immediately, because an SLO should always reflect the best performance the service has demonstrated\") is incorrect because it does not meet the scenario's core requirement; Option D (Keep the SLO at 99.9% unless users actually need more reliab) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Remove the SLO, since the service is clearly reliable enough and the objective is no longer useful\") is incorrect because it does not meet the scenario's core requirement; Option D (Keep the SLO at 99.9% unless users actually need more reliab) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Raise the SLO to 99.999% to give the team an ambitious target for next year\") is incorrect because it does not meet the scenario's core requirement; Option D (Keep the SLO at 99.9% unless users actually need more reliab) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule (Capacity headroom for zonal failure): Surviving a zone failure without impact requires N+1 capacity to already be running: with three zones, each zone must be able to absorb one-third more load, which means steady-state utilization must stay at or below about two-thirds; the autoscaler cannot add instances fast enough during a sudden shift, so headroom must be pre-provisioned and its adequacy validated through failure testing.",
     "whyWrong": {
-      "1": "Incorrect distractor (Move the instance group to a single zone with larger machine types so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Keep the 90% target but configure the autoscaler's cool-down period to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace the managed instance group with an unmanaged instance group so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Move the instance group to a single zone with larger machine types so that a zonal outage affects either all traffic or none, simplifying the failure mode\") is incorrect because it does not meet the scenario's core requirement; Option A (Lower the autoscaler's target utilization so that steady-sta) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Keep the 90% target but configure the autoscaler's cool-down period to zero so that scaling reacts faster\") is incorrect because it does not meet the scenario's core requirement; Option A (Lower the autoscaler's target utilization so that steady-sta) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Replace the managed instance group with an unmanaged instance group so that instances can be added manually during an incident\") is incorrect because it does not meet the scenario's core requirement; Option A (Lower the autoscaler's target utilization so that steady-sta) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule: Chaos engineering is disciplined experimentation: form a hypothesis about steady state, minimize blast radius, start in lower environments before production, define clear abort conditions and rollback, inform stakeholders, and measure with existing observability, then document learnings and action items.",
     "whyWrong": {
-      "0": "Incorrect distractor (Shut down a production zone's instances during the dinner peak without…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Rely on the architecture review documents, because deliberately inject…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ask Google Cloud support to disable a zone for the company's project s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Shut down a production zone's instances during the dinner peak without notice so that the test is as realistic as possible\") is incorrect because it does not meet the scenario's core requirement; Option C (Start with a hypothesis (for example, 'losing zone B causes ) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Rely on the architecture review documents, because deliberately injecting failures into a working system is contrary to reliability goals\") is incorrect because it does not meet the scenario's core requirement; Option C (Start with a hypothesis (for example, 'losing zone B causes ) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Ask Google Cloud support to disable a zone for the company's project so that the test is performed by the provider\") is incorrect because it does not meet the scenario's core requirement; Option C (Start with a hypothesis (for example, 'losing zone B causes ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule (Penetration testing on Google Cloud): Google Cloud does not require customers to notify or obtain permission before conducting penetration tests against their own resources, provided the activity complies with the Acceptable Use Policy and Terms of Service and is confined to the customer's own applications and projects; attacking Google's infrastructure or other tenants is prohibited.",
     "whyWrong": {
-      "0": "Incorrect distractor (Google must approve every penetration test in writing at least 30 days…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Penetration testing is prohibited on Google Cloud; the company must re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (The test may proceed only if the company temporarily disables Cloud Ar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Google must approve every penetration test in writing at least 30 days in advance, and tests may be run only from Google-provided IP ranges\") is incorrect because it does not meet the scenario's core requirement; Option B (No advance notice or approval from Google is required to tes) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Penetration testing is prohibited on Google Cloud; the company must rely solely on Google's own compliance reports\") is incorrect because it does not meet the scenario's core requirement; Option B (No advance notice or approval from Google is required to tes) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"The test may proceed only if the company temporarily disables Cloud Armor and VPC Service Controls so that the testers can reach all endpoints\") is incorrect because it does not meet the scenario's core requirement; Option B (No advance notice or approval from Google is required to tes) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule (Load testing before launch): A realistic pre-launch load test must reproduce the expected scale, ramp shape, and end-to-end user journeys, including all dependencies, with headroom above the forecast; a single laptop cannot generate 50,000 requests per second, and testing at 1% of expected load proves nothing about behavior at peak, autoscaler ramp rates, quota limits, or database saturation.",
     "whyWrong": {
-      "0": "Incorrect distractor (Approve the launch, because the platform is serverless and will scale …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run the existing laptop test for a longer duration, since duration mat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Test only the front-end web tier at high load and mock all back-end ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Approve the launch, because the platform is serverless and will scale automatically to whatever traffic arrives\") is incorrect because it does not meet the scenario's core requirement; Option D (Run a distributed load test (for example, Locust or a simila) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Run the existing laptop test for a longer duration, since duration matters more than throughput for finding problems\") is incorrect because it does not meet the scenario's core requirement; Option D (Run a distributed load test (for example, Locust or a simila) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Test only the front-end web tier at high load and mock all back-end calls, because the back end is shared and should not be disturbed\") is incorrect because it does not meet the scenario's core requirement; Option D (Run a distributed load test (for example, Locust or a simila) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -402,9 +402,9 @@
     ],
     "hint": "Core Rule: A non-critical dependency should never take down a critical user journey; graceful degradation means bounding the wait with a short timeout and serving a reasonable fallback so the page still loads, which the Well-Architected Framework reliability pillar recommends explicitly.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the timeout for the recommendation call to 60 seconds so that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy a second copy of the recommendation service and retry the call …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the recommendation service to the same GKE cluster as the product…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Increase the timeout for the recommendation call to 60 seconds so that slow responses are eventually received\") is incorrect because it does not meet the scenario's core requirement; Option A (Design the product page to degrade gracefully: call the reco) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Deploy a second copy of the recommendation service and retry the call against it whenever the first one fails\") is incorrect because it does not meet the scenario's core requirement; Option A (Design the product page to degrade gracefully: call the reco) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Move the recommendation service to the same GKE cluster as the product page to eliminate network latency\") is incorrect because it does not meet the scenario's core requirement; Option A (Design the product page to degrade gracefully: call the reco) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -431,9 +431,9 @@
     ],
     "hint": "Core Rule (Retries, backoff, and circuit breakers): Retry storms are a classic cascading-failure pattern; the remedy is a combination of controlled retries (exponential backoff with jitter and a bounded retry budget), timeouts so callers do not pile up, a circuit breaker that sheds calls to an unhealthy dependency so it can recover, and idempotency so retries cannot cause duplicate side effects.",
     "whyWrong": {
-      "0": "Incorrect distractor (Remove all retries from the trip service so that a single failure is r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Increase the fare service's capacity by 300% so that it can absorb ret…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Queue every fare request in Pub/Sub and process them asynchronously so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Remove all retries from the trip service so that a single failure is returned to the user immediately\") is incorrect because it does not meet the scenario's core requirement; Option C (Implement retries with exponential backoff and jitter, cap t) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Increase the fare service's capacity by 300% so that it can absorb retry storms in the future\") is incorrect because it does not meet the scenario's core requirement; Option C (Implement retries with exponential backoff and jitter, cap t) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Queue every fare request in Pub/Sub and process them asynchronously so that the fare service is never called synchronously\") is incorrect because it does not meet the scenario's core requirement; Option C (Implement retries with exponential backoff and jitter, cap t) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -462,9 +462,9 @@
     ],
     "hint": "Core Rule: Surviving overload requires shedding excess or low-value load before it saturates the system: Cloud Armor rate limiting removes abusive clients at the edge without consuming backend capacity, and application-level load shedding with prioritization ensures that when capacity is exceeded, the service fails fast for low-priority requests and keeps serving high-value users rather than collapsing for everyone.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure the load balancer health check to mark backends unhealthy so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Increase the Kubernetes pod memory limits so that pods can queue more …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable autoscaling during breaking-news events so that the number of …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Configure the load balancer health check to mark backends unhealthy sooner so that overloaded pods are removed from rotation faster\") is incorrect because it does not meet the scenario's core requirement; Option B (Apply Cloud Armor rate-limiting rules at the load balancer t), Option D (Implement application-level load shedding that rejects low-p) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Increase the Kubernetes pod memory limits so that pods can queue more requests before failing\") is incorrect because it does not meet the scenario's core requirement; Option B (Apply Cloud Armor rate-limiting rules at the load balancer t), Option D (Implement application-level load shedding that rejects low-p) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"Disable autoscaling during breaking-news events so that the number of pods is predictable\") is incorrect because it does not meet the scenario's core requirement; Option B (Apply Cloud Armor rate-limiting rules at the load balancer t), Option D (Implement application-level load shedding that rejects low-p) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -491,9 +491,9 @@
     ],
     "hint": "Core Rule (Regional isolation and blast radius): The outage was caused by a global singleton that coupled all regions; true regional isolation requires that each region can operate on its own state and that configuration and code changes propagate progressively with verification, so a bad change is caught in the first region.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the single global configuration store but add a schema validation…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replicate the Firestore document to a second global database in a diff…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Reduce the number of regions to two so that a global change affects fe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Keep the single global configuration store but add a schema validation step before writes so that malformed values are rejected\") is incorrect because it does not meet the scenario's core requirement; Option B (Give each region its own independent configuration store and) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Replicate the Firestore document to a second global database in a different provider so that there is a fallback copy\") is incorrect because it does not meet the scenario's core requirement; Option B (Give each region its own independent configuration store and) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Reduce the number of regions to two so that a global change affects fewer stacks\") is incorrect because it does not meet the scenario's core requirement; Option B (Give each region its own independent configuration store and) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -520,9 +520,9 @@
     ],
     "hint": "Core Rule (Dependency failure planning): Planning for dependency failure means the critical business transaction must not be hard-coupled to a single external system: accepting the order and processing payment asynchronously through a durable queue allows the business to continue during an outage, and a secondary provider adds redundancy for the payment step itself.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the timeout of the payment call to 10 minutes so that custome…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Display a maintenance page for the whole site whenever the provider's …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Retry every failed payment call up to 50 times so that the order event…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Increase the timeout of the payment call to 10 minutes so that customers wait until the provider recovers\") is incorrect because it does not meet the scenario's core requirement; Option D (Decouple order acceptance from payment capture: accept the o) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Display a maintenance page for the whole site whenever the provider's status page reports an incident\") is incorrect because it does not meet the scenario's core requirement; Option D (Decouple order acceptance from payment capture: accept the o) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Retry every failed payment call up to 50 times so that the order eventually succeeds when the provider comes back\") is incorrect because it does not meet the scenario's core requirement; Option D (Decouple order acceptance from payment capture: accept the o) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -549,9 +549,9 @@
     ],
     "hint": "Core Rule (Zero-downtime host maintenance): Compute Engine live migration keeps a VM running while the underlying host is serviced, and it is the default policy for most machine types; the VM was being stopped only because its policy was set to TERMINATE, so switching to MIGRATE removes the interruption with a one-line change.",
     "whyWrong": {
-      "1": "Incorrect distractor (Move the VM into a managed instance group with autohealing so that a r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Schedule a nightly reboot of the VM so that pending maintenance is app…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable the automatic restart option so that the VM starts again immedi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Move the VM into a managed instance group with autohealing so that a replacement VM is created after each maintenance stop\") is incorrect because it does not meet the scenario's core requirement; Option A (Change the VM's on-host-maintenance policy to MIGRATE so tha) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Schedule a nightly reboot of the VM so that pending maintenance is applied at a predictable time\") is incorrect because it does not meet the scenario's core requirement; Option A (Change the VM's on-host-maintenance policy to MIGRATE so tha) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Enable the automatic restart option so that the VM starts again immediately after the maintenance event\") is incorrect because it does not meet the scenario's core requirement; Option A (Change the VM's on-host-maintenance policy to MIGRATE so tha) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -578,9 +578,9 @@
     ],
     "hint": "Core Rule (Disaster recovery testing): A DR plan that has never been tested is an assumption, not a capability; regular, rehearsed exercises reveal missing permissions, outdated runbooks, undocumented dependencies, and staff knowledge gaps, and they produce real measurements of RTO and RPO, which the Well-Architected Framework reliability pillar requires.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rewrite the plan in more detail so that new engineers can follow it if…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Assume the plan is valid, because the underlying Google Cloud services…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Purchase a Premium Support plan so that Google can execute the recover…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Rewrite the plan in more detail so that new engineers can follow it if a disaster occurs\") is incorrect because it does not meet the scenario's core requirement; Option C (Schedule regular DR exercises (for example, quarterly) that ) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Assume the plan is valid, because the underlying Google Cloud services have not changed\") is incorrect because it does not meet the scenario's core requirement; Option C (Schedule regular DR exercises (for example, quarterly) that ) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Purchase a Premium Support plan so that Google can execute the recovery on the airline's behalf during a disaster\") is incorrect because it does not meet the scenario's core requirement; Option C (Schedule regular DR exercises (for example, quarterly) that ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -607,9 +607,9 @@
     ],
     "hint": "Core Rule (Fault injection in a service mesh): Service mesh fault injection lets you introduce artificial latency or error responses at the proxy layer for a chosen fraction of traffic without modifying or breaking the downstream service, which makes resilience tests repeatable, targeted, and safe, and the mesh's built-in telemetry shows exactly how callers respond.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask each downstream team to add an environment variable that makes the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Block the downstream service's IP address with a firewall rule during …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run a CPU stress tool on the downstream service's nodes to make it slo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Ask each downstream team to add an environment variable that makes their service return errors on demand, and coordinate manual test sessions\") is incorrect because it does not meet the scenario's core requirement; Option B (Use Cloud Service Mesh fault injection in the VirtualService) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Block the downstream service's IP address with a firewall rule during business hours and watch what happens to callers\") is incorrect because it does not meet the scenario's core requirement; Option B (Use Cloud Service Mesh fault injection in the VirtualService) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Run a CPU stress tool on the downstream service's nodes to make it slow, then observe the callers\") is incorrect because it does not meet the scenario's core requirement; Option B (Use Cloud Service Mesh fault injection in the VirtualService) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -636,9 +636,9 @@
     ],
     "hint": "Core Rule (Health check design): A load balancer health check should answer 'can this instance serve traffic', not 'are all dependencies healthy'; when a shared dependency is included, every instance fails together and a partial degradation becomes a total outage, which is a well-known cascading failure pattern.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the health check's unhealthy threshold to ten consecutive fai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Remove the health check entirely so that the load balancer always send…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move the inventory dependency check to a separate endpoint that pages …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Increase the health check's unhealthy threshold to ten consecutive failures so that brief dependency slowdowns are tolerated\") is incorrect because it does not meet the scenario's core requirement; Option D (Make the load balancer health check shallow, verifying only ) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Remove the health check entirely so that the load balancer always sends traffic to all instances\") is incorrect because it does not meet the scenario's core requirement; Option D (Make the load balancer health check shallow, verifying only ) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Move the inventory dependency check to a separate endpoint that pages the on-call engineer but keep it in the load balancer health check as well\") is incorrect because it does not meet the scenario's core requirement; Option D (Make the load balancer health check shallow, verifying only ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -667,9 +667,9 @@
     ],
     "hint": "Core Rule (Acting on load test results): The bottleneck is the database, not compute; caching repeated reads in Memorystore removes most of the load at the source, and read replicas or a larger tier increase remaining read capacity, after which the test must be repeated to prove the fix at target load plus headroom.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the Cloud Run maximum instance count so that more instances c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Lower the load test target to 60% so that the test passes): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Switch the Cloud Run service to Spot-style pricing to reduce cost duri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Increase the Cloud Run maximum instance count so that more instances can send queries to the database\") is incorrect because it does not meet the scenario's core requirement; Option A (Introduce a Memorystore for Redis cache in front of Cloud SQ), Option C (Add Cloud SQL read replicas and route read-only catalog quer) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Lower the load test target to 60% so that the test passes\") is incorrect because it does not meet the scenario's core requirement; Option A (Introduce a Memorystore for Redis cache in front of Cloud SQ), Option C (Add Cloud SQL read replicas and route read-only catalog quer) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"Switch the Cloud Run service to Spot-style pricing to reduce cost during the launch\") is incorrect because it does not meet the scenario's core requirement; Option A (Introduce a Memorystore for Redis cache in front of Cloud SQ), Option C (Add Cloud SQL read replicas and route read-only catalog quer) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -696,9 +696,9 @@
     ],
     "hint": "Core Rule: MIG autohealing uses an application-level health check to detect instances whose VM is running but whose application is unresponsive, and it recreates them automatically without human involvement, which directly removes this weekly toil.",
     "whyWrong": {
-      "1": "Incorrect distractor (Set up an alerting policy on instance CPU utilization that pages an en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable automatic restart in the instance template so that the VM reboo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Reduce the instance group size to one so that a deadlock is easier to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Set up an alerting policy on instance CPU utilization that pages an engineer to restart the instance\") is incorrect because it does not meet the scenario's core requirement; Option A (Configure autohealing on the managed instance group with an ) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable automatic restart in the instance template so that the VM reboots when the process deadlocks\") is incorrect because it does not meet the scenario's core requirement; Option A (Configure autohealing on the managed instance group with an ) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Reduce the instance group size to one so that a deadlock is easier to notice and fix\") is incorrect because it does not meet the scenario's core requirement; Option A (Configure autohealing on the managed instance group with an ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -725,9 +725,9 @@
     ],
     "hint": "Core Rule (Web application security scanning): Web Security Scanner, part of Security Command Center, crawls and tests deployed App Engine, Compute Engine, and GKE/Cloud Run web applications for common vulnerabilities such as XSS, mixed content, and outdated libraries, and custom scans can be scheduled against non-production URLs with authentication, which fits a pre-release quality gate.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rely on Cloud Armor's preconfigured WAF rules in production, since the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Data Access audit logs on the portal and search for suspicious …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run Artifact Analysis vulnerability scanning on the container images, …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Rely on Cloud Armor's preconfigured WAF rules in production, since they block the same classes of attacks\") is incorrect because it does not meet the scenario's core requirement; Option C (Configure Security Command Center Web Security Scanner custo) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Enable Data Access audit logs on the portal and search for suspicious request patterns after launch\") is incorrect because it does not meet the scenario's core requirement; Option C (Configure Security Command Center Web Security Scanner custo) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Run Artifact Analysis vulnerability scanning on the container images, which also detects application-level web vulnerabilities\") is incorrect because it does not meet the scenario's core requirement; Option C (Configure Security Command Center Web Security Scanner custo) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -754,9 +754,9 @@
     ],
     "hint": "Core Rule (Poison messages and dead-letter topics): Pub/Sub dead-letter topics are designed for poison messages: after the configured number of failed delivery attempts, the message is forwarded to the dead-letter topic and removed from the main subscription, so the pipeline keeps moving and the bad message is preserved for debugging; alerting on the dead-letter backlog provides visibility.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure the service to acknowledge every message immediately upon re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Increase the acknowledgment deadline to the maximum value so that the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Switch the subscription to ordered delivery so that the malformed mess…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Configure the service to acknowledge every message immediately upon receipt, before processing, so that failures do not cause redelivery\") is incorrect because it does not meet the scenario's core requirement; Option B (Configure a dead-letter topic on the subscription with a max) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Increase the acknowledgment deadline to the maximum value so that the service has more time to process each message\") is incorrect because it does not meet the scenario's core requirement; Option B (Configure a dead-letter topic on the subscription with a max) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Switch the subscription to ordered delivery so that the malformed message is processed in isolation\") is incorrect because it does not meet the scenario's core requirement; Option B (Configure a dead-letter topic on the subscription with a max) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -785,9 +785,9 @@
     ],
     "hint": "Core Rule (Zone-resilient GKE design): Zone resilience needs both compute and data to be spread across zones: a regional cluster with multi-zone node pools and spread constraints keeps the control plane and application replicas available when a zone fails, and a regional (HA) Cloud SQL instance replaces the single-zone StatefulSet with a managed database that fails over automatically.",
     "whyWrong": {
-      "1": "Incorrect distractor (Keep the zonal cluster but increase the Deployment to nine replicas so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable GKE node auto-upgrade so that nodes are always on the latest ve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Store the database files on a Cloud Storage bucket mounted with Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Keep the zonal cluster but increase the Deployment to nine replicas so that more pods are available during an outage\") is incorrect because it does not meet the scenario's core requirement; Option A (Recreate the cluster as a regional GKE cluster with node poo), Option D (Move the PostgreSQL database to a Cloud SQL instance configu) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable GKE node auto-upgrade so that nodes are always on the latest version\") is incorrect because it does not meet the scenario's core requirement; Option A (Recreate the cluster as a regional GKE cluster with node poo), Option D (Move the PostgreSQL database to a Cloud SQL instance configu) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"Store the database files on a Cloud Storage bucket mounted with Cloud Storage FUSE so that they survive a zone failure\") is incorrect because it does not meet the scenario's core requirement; Option A (Recreate the cluster as a regional GKE cluster with node poo), Option D (Move the PostgreSQL database to a Cloud SQL instance configu) is the Google Cloud recommended pattern here."
     }
   }
 ]

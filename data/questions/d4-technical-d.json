@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Warm standby DR): A 15-minute RTO is too short to create a GKE cluster, pull images, and warm up an application from nothing, but does not require paying for full capacity: warm standby keeps a small running cluster with the application already deployed so it can scale out in minutes, and the cross-region read replica satisfies the sub-minute RPO.",
     "whyWrong": {
-      "0": "Incorrect distractor (Backup and restore: nightly Cloud SQL backups to a multi-region bucket…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Hot multi-site: run identical full-size GKE clusters in both regions w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Pilot light: replicate the database to us-east1 and create the GKE clu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot meet either objective.",
+      "2": "Option C meets the objectives but at the full duplicate cost that finance rejected.",
+      "3": "Option D is a pilot light whose compute-tier creation (cluster provisioning, node registration, image pulls) typically takes longer than 15 minutes, putting the RTO at risk."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Cloud Storage DR): Dual-region buckets replicate data between two specific regions behind a single bucket name, so the application reads and writes the same path during a regional outage with no copying logic; turbo replication adds a 15-minute recovery point objective backed by an SLA, which is exactly the requirement.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the regional bucket and run Storage Transfer Service jobs every h…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Object Versioning and a retention policy on the existing region…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Cloud Run function triggered on object finalize that copies e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A produces an RPO of at least one hour plus job duration and requires the application to switch bucket names during a disaster.",
+      "1": "Option B protects against overwrites and deletions but does nothing for regional availability.",
+      "2": "Option C is custom event-driven replication that can lag under 20 TB/day, has no RPO guarantee, and still uses two bucket names."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Bigtable replication for DR): Bigtable supports multi-cluster instances with asynchronous replication between clusters in different regions; with a multi-cluster routing application profile, Bigtable automatically routes requests to the nearest available cluster and transparently fails over when a cluster becomes unreachable, so clients need no reconfiguration and reads stay low-latency in the surviving region, with an RPO measured in seconds.",
     "whyWrong": {
-      "1": "Incorrect distractor (Schedule hourly Bigtable backups and copy them to a second region, the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export the tables nightly to Cloud Storage with a Dataflow job and re-…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Bigtable point-in-time recovery and rely on it to recover the i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B provides an RPO of an hour and a restore-based RTO that requires re-pointing clients.",
+      "2": "Option C has a 24-hour RPO and a long RTO.",
+      "3": "Option D describes a feature that is not a cross-region failover mechanism; Bigtable backups and replication are the relevant capabilities."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (Failover automation): Manual multi-step runbooks fail under pressure, which is exactly what the game day demonstrated; Google's DR guidance recommends automating recovery so it is fast, ordered, repeatable, and testable.",
     "whyWrong": {
-      "0": "Incorrect distractor (Assign each step to a different engineer so that all steps can be perf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Print the runbook and store copies in the office and the data center s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Reduce the number of steps by removing the stakeholder notification an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces coordination failures and does not respect the ordering dependencies that already caused errors.",
+      "1": "Option B addresses availability of the document, not the speed or correctness of execution.",
+      "3": "Option D removes steps that are part of a correct failover (stakeholders need to know, and secrets may have to point at the promoted instance), so it trades correctness for speed."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule: Snapshot schedules are a managed Compute Engine feature: a resource policy defines frequency, retention (automatic deletion after 30 days), and the snapshot storage location, which can be set to a multi-region or another region so the recovery points survive a us-west1 outage, all without scripts.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write a cron job on the VM that runs gcloud compute disks snapshot eve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a nightly image of the VM's boot disk and store it in the same …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable persistent disk asynchronous replication to a disk in us-east1 …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A reproduces the feature with custom code that must be maintained and can silently fail.",
+      "2": "Option C covers only the boot disk, not the 2 TB data disk, and same-region storage does not meet the regional-outage requirement.",
+      "3": "Option D provides a continuously updated replica for low-RPO failover, not 30 independent daily recovery points; corruption would replicate to the target, so it does not replace backups."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule (Game day planning): A useful game day is a controlled experiment: the team states what it expects to happen (hypothesis), how success will be measured (RTO, RPO, SLIs), precisely what will be broken, and when and how to abort, which contains customer impact and produces objective evidence.",
     "whyWrong": {
-      "1": "Incorrect distractor (Do not announce the exercise to anyone outside the SRE team so that th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Inject several unrelated failures simultaneously (region loss, expired…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Skip the post-exercise review if the failover succeeds, since no actio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is a surprise test, which is appropriate only for mature organizations and conflicts with the CIO's concern about impact; announced exercises still validate the technical failover.",
+      "3": "Option D confounds the results and increases blast radius; one variable at a time is the chaos-engineering principle.",
+      "4": "Option E discards learning; even successful exercises reveal slow steps and near-misses that should become action items."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule (Fault injection with service mesh): Service meshes provide fault injection at the proxy layer: routing rules can add fixed delays or return HTTP errors for a percentage of requests to a specific destination, so the real order service is exercised against a slow or failing payment dependency without touching application code, and the experiment can be scripted and repeated as part of release validation.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add unit tests that mock the payment client and assert that the retry …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Ask the payment team to schedule a real outage of their service once a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Increase the resource limits of the order service so it can withstand …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A tests the client library in isolation and cannot reveal end-to-end cascading behavior such as thread pool exhaustion or timeout stacking.",
+      "1": "Option B is a real production outage with no control over blast radius and a quarterly cadence that is too infrequent.",
+      "2": "Option C is a guess that does not address timeouts, retries storms, or circuit breaker tuning."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule: Backup for GKE is the managed service for exactly this need: a backup plan selects namespaces or applications, captures both the Kubernetes resource state (including Secrets and custom resources) and the persistent volume data in a consistent way, can store backups in a different region, and restore plans recreate the workload in another cluster, which makes regular DR validation straightforward.",
     "whyWrong": {
-      "1": "Incorrect distractor (Schedule persistent disk snapshots of the nodes' boot disks every four…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Commit all Kubernetes manifests to Git and rely on Config Sync to recr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run kubectl get all -o yaml nightly into a Cloud Storage bucket and ta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B snapshots node boot disks, which contain no application data or Kubernetes state.",
+      "2": "Option C restores declarative configuration but not the data in persistent volumes, and Secrets are often excluded from Git, so the application would come up empty.",
+      "3": "Option D misses persistent volume claims' bound data ordering and custom resources, and manual snapshots do not scale or provide an application-consistent restore."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule (DR and data residency): The constraints are DR plus data residency, so the DR region must be inside Canada: Toronto (northamerica-northeast2) provides a geographically separate second region within the jurisdiction, and the constraints/gcp.resourceLocations organization policy (optionally with an Assured Workloads folder for Canada regions) prevents anyone from accidentally creating resources or replicas elsewhere.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use us-east4 as the DR region because it is the closest region to Mont…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use a multi-region Cloud Storage location and a Spanner nam-eur-asia c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep everything in Montreal and rely on zonal redundancy, because a wh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates the residency requirement outright.",
+      "1": "Option B uses multi-region locations that span the US or multiple continents, which also violates residency.",
+      "3": "Option D ignores the stated policy requirement; zonal redundancy does not protect against a regional event, and Google's reliability guidance is to plan for regional failure when the business requires it."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule (Environment separation in the SDLC): Projects are the boundary for IAM, quotas, billing, and organization policy, so Google's resource hierarchy guidance is to place each environment in its own project (grouped under folders such as dev, nonprod, prod) with developers holding broad roles only in lower environments, stricter organization policies on production, and an automated pipeline promoting the same artifact from one project to the next.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep one project and add labels to every resource so that cost can be …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a separate Google Cloud organization for production so that it …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move development and test workloads to a different region within the s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A solves cost reporting only; quotas and IAM remain shared.",
+      "2": "Option C is unnecessary and complicates billing, identity, and shared services; folders provide the required separation within one organization.",
+      "3": "Option D is wrong because most quotas are per project (some per region), and it does nothing for IAM or blast radius."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule: Cloud Deploy deploy policies are the built-in mechanism for this: a policy with a rolloutRestriction rule and timeWindows blocks the specified actions (create release, promote, rollback, advance) against selected pipelines or targets during the window, is enforced server-side regardless of who initiates the action, and can be bypassed only by principals with the Policy Overrider role, giving an auditable exception path.",
     "whyWrong": {
-      "0": "Incorrect distractor (Revoke the Cloud Deploy Releaser role from all developers at the start…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add a Cloud Build step that checks the current date against a hard-cod…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Pause the delivery pipeline object during freeze windows and unpause i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is manual, error-prone IAM churn that also blocks non-production work.",
+      "1": "Option B is easy to bypass (a direct gcloud deploy releases promote skips the build) and hard to maintain.",
+      "2": "Option C is a blunt instrument that also blocks lower environments and emergency rollbacks and requires someone to remember to unpause."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule (Feature flags as kill switches): The requirement decouples releasing a feature from deploying code, which is precisely what feature flags provide: the code path is evaluated at runtime against a flag that supports percentage rollouts and can be flipped off instantly, while the deployed revision with its bug fixes stays in place.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy the feature as a separate Cloud Run revision and use traffic sp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set an environment variable on the Cloud Run service to enable the fea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ship the feature in a new container image and use Cloud Deploy canary …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B ties the feature to a revision, so turning it off also removes the bug fixes in that revision and mixes release control with deployment.",
+      "2": "Option C is wrong because changing an environment variable on Cloud Run creates and deploys a new revision, which is a redeployment.",
+      "3": "Option D is a deployment strategy for rolling out an image, not a runtime switch, and again couples the feature to the artifact."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule (Database schema changes in CI/CD): Progressive delivery means two application versions run concurrently, so schemas must be compatible with both: the expand/contract (parallel change) pattern adds new structures first, has the application tolerate both, migrates data, and removes the old structure only after every running version has moved on.",
     "whyWrong": {
-      "0": "Incorrect distractor (Apply schema changes only after the canary reaches 100% of traffic, so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Stop the application during each schema migration to guarantee that on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep two databases, one per application version, and switch the connec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still leaves a window where a rollback of the application would hit a schema it cannot use.",
+      "1": "Option B is exactly the downtime the team wants to eliminate.",
+      "3": "Option D duplicates data with no consistency guarantees and does not scale to frequent releases."
     }
   },
   {
@@ -404,9 +404,9 @@
     ],
     "hint": "Core Rule (Blue/green deployments on GKE): Blue/green on GKE with the Gateway API is implemented by running both versions concurrently and moving 100% of the HTTPRoute weight from blue to green (and back if needed); keeping blue alive for the rollback window is what makes rollback instant.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run green against a fresh copy of the database so that the two environ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Delete the blue Deployment immediately after cutover to free resources…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Use a Kubernetes Deployment with maxSurge 100% so that Kubernetes perf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates data divergence: writes to green's copy would be lost on rollback, violating the no-data-loss requirement.",
+      "2": "Option C removes the rollback capability.",
+      "4": "Option E describes a rolling update, which terminates old pods as new ones become ready and does not provide an atomic switch or a retained previous environment."
     }
   },
   {
@@ -433,9 +433,9 @@
     ],
     "hint": "Core Rule (Serverless multi-region DR): A global external Application Load Balancer with serverless NEG backends in two regions provides a single anycast IP and custom hostname, and automatically routes requests to the healthy region when one region's Cloud Run backends fail; using a multi-region Firestore location keeps the data available in both regions.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy the services to europe-west4 as well and instruct customers to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Cloud DNS weighted routing policy across the two regions' def…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Cloud Run multi-region deployment and rely on the run.app URL t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires device changes, which are impossible.",
+      "2": "Option C uses DNS weighting, which is not health-based on its own, still exposes region-specific run.",
+      "3": "Option D describes multi-region deployment for the load-balanced pattern, but the default run."
     }
   },
   {
@@ -464,9 +464,9 @@
     ],
     "hint": "Core Rule (DR scope for caches): DR planning should reflect each component's role: a read-through cache holds derived, rebuildable state, so the right investment is making the application tolerate a cold cache and recreating the instance during failover, not replicating it.",
     "whyWrong": {
-      "1": "Incorrect distractor (Replicate the cache byte-for-byte to the DR region because every compo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move all authoritative data from Cloud SQL into Redis so that only one…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Remove the cache entirely to simplify the DR plan): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B spends effort on a component with no unique data and adds operational complexity.",
+      "3": "Option D makes an in-memory cache the system of record, which is a durability anti-pattern.",
+      "4": "Option E sacrifices normal-operation performance for DR simplicity, which is an unnecessary trade-off."
     }
   },
   {
@@ -493,9 +493,9 @@
     ],
     "hint": "Core Rule (Code review and CI gates): Branch protection with required reviews and required status checks is the standard lightweight control: the Cloud Build pull-request trigger runs tests and reports status, the merge is blocked until it passes and a peer has reviewed, and the existing main-branch trigger continues to deploy on every merge, so deployment frequency is preserved.",
     "whyWrong": {
-      "0": "Incorrect distractor (Require every change to be approved by the CTO in a weekly release mee…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Disable the Cloud Build trigger and have a designated engineer deploy …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add a 24-hour soak period in a staging environment before any change r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a heavyweight external approval that DORA research links to slower delivery without better stability.",
+      "1": "Option B removes automation and introduces manual, unrepeatable deployments.",
+      "2": "Option C adds a full day of latency to every change, which contradicts 'without slowing daily deployments' and does not by itself add a test gate."
     }
   },
   {
@@ -522,9 +522,9 @@
     ],
     "hint": "Core Rule (Cloud Build approvals): Cloud Build triggers support a native approval gate: when enabled, builds from that trigger enter a pending-approval state, approvers are notified, and a principal with roles/cloudbuild.builds.approver must approve (with an optional comment and URL) before the build executes, all of which is recorded in the build history and audit logs.",
     "whyWrong": {
-      "1": "Incorrect distractor (Split the pipeline so that terraform plan runs in Cloud Build but terr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add a build step that sleeps for one hour after plan, giving reviewers…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run terraform apply with the -auto-approve flag removed so that Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B breaks the automation and makes production changes depend on individual laptops and permissions.",
+      "2": "Option C is a timeout, not an approval; silence becomes consent and the record shows nothing.",
+      "3": "Option D does not work because Cloud Build steps are non-interactive; the build would hang and time out."
     }
   },
   {
@@ -551,9 +551,9 @@
     ],
     "hint": "Core Rule (DR capacity planning): Two independent problems appeared: quota (a per-project administrative limit) and physical capacity.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add a step to the failover runbook that files a quota increase request…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Switch the DR region's instance groups to Spot VMs, which are more lik…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the DR site to a larger region such as us-central1, which rarely …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A puts a human approval process with unbounded latency on the critical path of a 30-minute RTO.",
+      "2": "Option C is the opposite of a guarantee; Spot VMs are preemptible and may be unavailable precisely during large-scale events.",
+      "3": "Option D moves the problem; every region can experience capacity constraints, and the quota issue would remain."
     }
   },
   {
@@ -582,9 +582,9 @@
     ],
     "hint": "Core Rule (Postmortem follow-through): A postmortem only has value if its action items are completed and actually prevent recurrence.",
     "whyWrong": {
-      "1": "Incorrect distractor (Limit postmortems to incidents that cause more than eight hours of dow…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Assign action items to the engineer who caused the incident so that ac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Replace written postmortems with a verbal debrief in the next team mee…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B reduces learning; many valuable postmortems come from near-misses and short incidents.",
+      "3": "Option D contradicts blameless culture and makes people less likely to report issues; ownership should go to the team best placed to make the systemic change.",
+      "4": "Option E loses the shared, searchable record that helps future responders and trend analysis."
     }
   },
   {
@@ -611,9 +611,9 @@
     ],
     "hint": "Core Rule (BigQuery disaster recovery): BigQuery offers managed cross-region dataset replication: a secondary replica in another region is kept in sync asynchronously and can be promoted to primary during a regional outage, which meets a multi-hour RTO with no custom pipeline; where residency permits, a multi-region location (US or EU) additionally spreads data across regions automatically.",
     "whyWrong": {
-      "0": "Incorrect distractor (Schedule a daily BigQuery export of every table to Cloud Storage in a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Store the datasets in a single region and rely on BigQuery's built-in …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a Dataflow pipeline that streams every new row into a duplicate…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but has a 24-hour RPO, a manual restore process, and requires maintaining export/import jobs for every table and schema change.",
+      "1": "Option B does not address a regional outage.",
+      "3": "Option D duplicates the managed feature with a streaming pipeline that must be operated and monitored and that does not naturally handle DDL, backfills, or deletes."
     }
   },
   {
@@ -642,9 +642,9 @@
     ],
     "hint": "Core Rule (Infrastructure drift detection): Drift detection is achieved by regularly planning against production: a scheduled plan with a detailed exit code reports when live state diverges from code, so manual changes are surfaced within hours rather than at the next audit.",
     "whyWrong": {
-      "2": "Incorrect distractor (Run terraform apply -refresh-only automatically whenever drift is dete…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Delete any resource not present in Terraform state automatically with …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Move all infrastructure definitions into a single root module so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "2": "Option C silently accepts drift into state, which legitimizes unreviewed changes instead of flagging them.",
+      "3": "Option D is dangerous; it would delete resources created legitimately outside Terraform (or by other tooling) and could cause outages.",
+      "4": "Option E increases blast radius and plan time and is contrary to Google's recommendation to split root modules by environment and component."
     }
   }
 ]

@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Blameless postmortems): Google SRE practice holds that incidents are caused by systems that allow a mistake to become an outage, not by individuals; a blameless postmortem surfaces the real contributing factors (no peer review, no automated validation, no canary, slow detection) and converts them into owned, tracked action items such as putting network changes through Terraform with plan review and policy checks.",
     "whyWrong": {
-      "0": "Incorrect distractor (Support the disciplinary action so that engineers understand the serio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Restrict production IAM permissions to a single senior administrator w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Close the incident once service is restored and schedule a general tra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates a culture in which people hide mistakes, so future incidents are learned from less, and a director sign-off is a low-value manual gate that DORA research associates with slower delivery and no stability gain.",
+      "2": "Option C creates a single point of failure and a bottleneck without removing the possibility of error.",
+      "3": "Option D skips the analysis entirely, so the systemic causes remain."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Correlating logs and traces): Tail latency spread across many hops is a distributed tracing problem.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the log level of every service to DEBUG and create a log-base…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Install Cloud Profiler agents in every service and compare CPU flame g…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create an uptime check for the checkout endpoint with a five-second ti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A increases log volume and cost, and a keyword metric does not attribute latency to a specific hop.",
+      "1": "Option B measures CPU usage within a process; it cannot show waiting on downstream calls, which is the usual source of distributed latency.",
+      "2": "Option C only detects that the endpoint is slow from the outside, which the team already knows."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule: Error Reporting ingests exception stack traces from Cloud Logging for Cloud Run, Cloud Run functions, GKE, App Engine, and Compute Engine automatically, deduplicates them into error groups with occurrence counts and first/last seen timestamps, and can send a notification when a new error group is detected, which is exactly the requested behavior with no code changes.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a log-based counter metric on severity=ERROR and alert when the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export all logs to BigQuery and schedule a query that clusters error m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Wrap every function handler in a try/except block that publishes excep…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B fires on any error volume, cannot distinguish new error types from known ones, and provides no grouping.",
+      "2": "Option C is a custom analytics pipeline with hourly latency and maintenance burden.",
+      "3": "Option D requires modifying every function and rebuilds functionality that Error Reporting provides out of the box."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: Cloud Profiler is a continuous, low-overhead (typically under 1% CPU) statistical profiler designed for production; it aggregates CPU-time and other profiles per service version and lets you compare two versions side by side, which directly reveals the functions whose CPU share grew.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable DEBUG logging with timing statements around each major function…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Take a heap and CPU dump from a production instance using a debugger a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Cloud Trace sampling at 100% and inspect the spans for the slow…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A perturbs the code, adds log cost, and only measures the functions you guessed to instrument.",
+      "1": "Option B is impractical on Cloud Run (no SSH to instances) and a paused debugger would disrupt live requests.",
+      "3": "Option D measures request latency across service boundaries; it does not attribute CPU time to code paths, and 100% sampling adds cost for no benefit here."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule: Gemini Cloud Assist investigations are purpose-built for this situation: launched from an alert, a log entry, or a resource, an investigation gathers relevant Cloud Logging entries, Cloud Monitoring signals, Cloud Audit Log changes, and configuration for the affected resources and its dependencies, then presents ranked observations and hypotheses with suggested next steps, which cuts the manual data-gathering phase that dominates time to restore.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write a runbook for each service that lists the exact Logs Explorer qu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure every alerting policy to page the entire engineering organiz…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export all logs and metrics to BigQuery and train a custom Vertex AI m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A helps but is static, decays as systems change, and still relies on the engineer to correlate the data.",
+      "2": "Option C causes alert fatigue and is not a sustainable incident-response model.",
+      "3": "Option D is a large custom ML project with uncertain outcome and significant maintenance."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule (Incident response roles): Google's incident management framework separates roles: the Incident Commander holds overall command and delegates, the Operations Lead is the only role making production changes (eliminating the conflicting changes seen here), and the Communications Lead handles stakeholder and customer updates on a cadence using a living incident document, which removes executive interruptions and inconsistent messaging.",
     "whyWrong": {
-      "1": "Incorrect distractor (Require all responders to make changes as soon as they have a hypothes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rotate the Incident Commander role every 15 minutes so no single perso…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Postpone all communication until the root cause is confirmed to avoid …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B recreates the chaos; changes must be coordinated through the Operations Lead.",
+      "2": "Option C is far too frequent; handoffs are planned at natural boundaries with an explicit handover, not on a timer that would lose context.",
+      "4": "Option E withholds information; SRE practice is to communicate early and often with what is known, updating as understanding improves."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule (Load testing on GKE): Google's reference architecture for distributed load testing uses Locust on GKE: a master pod coordinates many worker pods that can be scaled horizontally to generate tens of thousands of simulated users, test scripts are versioned in Git, and the system is reusable for future events.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run Apache Bench from Cloud Shell in a loop and extrapolate the result…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Purchase a commercial load-testing SaaS product and point it at the pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replay a sample of production access logs at real time speed with a Da…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot generate the load and extrapolation misses non-linear failure modes like connection pool exhaustion.",
+      "1": "Option B targets production, risking real customer impact, and adds cost for a one-off.",
+      "3": "Option D replays at real-time speed, so it reproduces historical peaks, not the 50,000-user forecast, and Dataflow is not designed as an HTTP load generator."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule: Chaos engineering is disciplined experimentation: define the steady state (SLIs), form a hypothesis (the platform stays within SLO when one zone is lost), minimize blast radius, run the experiment, and learn.",
     "whyWrong": {
-      "1": "Incorrect distractor (Proceed with the proposed production experiment because only productio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace chaos experiments with a tabletop discussion of failure scenar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run chaos experiments only in production, but do so at 3 a.m. on weeke…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is an unbounded production experiment with no hypothesis or abort plan, which is not chaos engineering; it is gambling with customer impact.",
+      "2": "Option C leaves the zonal-failover design unverified; tabletop exercises complement but do not replace actual experiments.",
+      "3": "Option D still skips the learning phase and ignores that a poorly scoped experiment can cause damage regardless of time."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule (Policy as code for Terraform): gcloud beta terraform vet (the successor to Terraform Validator) evaluates a Terraform plan against Constraint Framework policies from a shared policy library, so the security team maintains bucket-access, location, and label constraints in one repository and every pipeline enforces them before apply, providing a fast, actionable failure to the developer.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable the organization policy constraints for public access preventio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add a code-review checklist item asking reviewers to confirm bucket AC…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run terraform validate in the pipeline, which checks the configuration…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a valuable defense in depth and should also be used, but it enforces at apply time (partial applies and confusing errors) and organization policy cannot express arbitrary label requirements.",
+      "1": "Option B is manual and unreliable at scale.",
+      "2": "Option C misunderstands terraform validate, which checks syntax and schema correctness, not organizational policy."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: Policy Controller (based on Open Policy Agent Gatekeeper) applies constraints fleet-wide, ships a template library that includes privileged-container and required-label constraints, and supports enforcementAction: dryrun so violations are only recorded in audit results; this lets the team see the impact, fix workloads, and then flip to deny without an outage.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write a Cloud Build job that runs kubectl get across all clusters nigh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Binary Authorization on all clusters with a policy that rejects…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Apply Kubernetes PodSecurity admission at the privileged level on ever…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a home-grown detective control that neither prevents new violations nor integrates with the fleet.",
+      "2": "Option C is wrong because Binary Authorization validates image provenance and attestations, not pod security context.",
+      "3": "Option D is confused: the privileged PodSecurity level allows everything, and there is no PodSecurity mechanism for required labels; it is also manual per namespace."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule (Cloud emulators): The Google Cloud CLI ships emulators for Pub/Sub, Firestore, Bigtable, Spanner, and Datastore; the official client libraries automatically target them when PUBSUB_EMULATOR_HOST or FIRESTORE_EMULATOR_HOST is set, so tests exercise real library code paths against a local, free, isolated service that can also run as a container in Cloud Build.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create one shared development project with a single Pub/Sub topic and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Mock the Pub/Sub and Firestore client libraries entirely with in-memor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Provision a dedicated project per developer with Terraform and destroy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates test interference between developers and CI runs and still costs money.",
+      "1": "Option B tests the mocks rather than the real client behavior and requires the team to maintain stubs that drift from the API.",
+      "3": "Option D gives isolation but is slow to provision, costs money, and is heavyweight for unit tests."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule (Pre-production parity): Environment parity is about matching configuration and topology, not raw capacity: provisioning staging from the same Terraform modules guarantees identical failover behavior, replica configuration, and network policy, while machine sizes and node counts can be reduced through variables to control cost.",
     "whyWrong": {
-      "1": "Incorrect distractor (Make staging an exact full-size clone of production, including instanc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Keep staging as is and add a rule that all changes touching failover o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace staging with the developers' local minikube clusters and the C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B achieves parity but at unnecessary cost that leadership rejected.",
+      "2": "Option C uses production as the test environment, which is the failure mode they are trying to eliminate.",
+      "3": "Option D removes the shared integration environment entirely and points developers at production data, which is a security and reliability anti-pattern."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule (Testing Terraform modules): Static checks (fmt, validate, tflint) catch syntax and style, policy validation catches compliance issues, but only an apply-based integration test in a disposable project detects behavioral regressions such as renamed outputs, wrong dependencies, or provider-version breakage; the ephemeral project is created and destroyed by the pipeline, so cost is bounded to the test duration.",
     "whyWrong": {
-      "0": "Incorrect distractor (Require consumers to pin module versions and test new versions in thei…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run terraform fmt -check and terraform validate in the module pipeline…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy each module change to the production project of one volunteer a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A pushes the testing burden to 40 teams and discovers regressions after publication.",
+      "1": "Option B is exactly the insufficient approach that missed the recent failure.",
+      "2": "Option C uses a production environment as a test bed and puts one team at risk."
     }
   },
   {
@@ -402,9 +402,9 @@
     ],
     "hint": "Core Rule (Release correlation during troubleshooting): Cloud Run's built-in request metrics carry the revision_name label, so grouping the 5xx request count (or ratio) by revision immediately shows whether the 20% revision is generating a disproportionate share of errors, which is the direct evidence needed to justify a traffic rollback.",
     "whyWrong": {
-      "0": "Incorrect distractor (Open Error Reporting and look at the total count of errors in the last…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run a load test against the new revision's tag URL from Cloud Shell an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Query Cloud Audit Logs to confirm the time the revision was deployed a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A shows aggregate error groups without attribution to a revision.",
+      "2": "Option C takes time, adds synthetic load during an incident, and may not reproduce the real traffic mix that triggers the errors.",
+      "3": "Option D establishes temporal correlation only; the errors could equally come from an upstream dependency that changed at the same time, so it does not prove causation."
     }
   },
   {
@@ -431,9 +431,9 @@
     ],
     "hint": "Core Rule (Load balancer troubleshooting): Application Load Balancer logs include a statusDetails field that names the precise reason the proxy generated a response, such as backend_connection_closed_before_data_sent_to_client, backend_timeout, or failed_to_pick_backend; because the 502 is generated by the proxy, the backend never sees the request as an error, which is why application logs are silent.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the number of backend pods by 50% and wait to see if the 502 …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Cloud Trace on the backend service and look for traces longer t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace the Application Load Balancer with a passthrough Network Load …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a blind change that does not diagnose anything.",
+      "1": "Option B cannot capture requests that never reached the application or that the proxy aborted.",
+      "3": "Option D changes the architecture without understanding the problem and would lose TLS termination, Cloud Armor, and CDN capabilities."
     }
   },
   {
@@ -460,9 +460,9 @@
     ],
     "hint": "Core Rule (Test strategy): The test pyramid places many fast unit tests at the base, fewer integration and contract tests in the middle, and very few end-to-end tests at the top; this gives developers feedback in minutes, reduces the flakiness inherent in full-stack tests, and preserves confidence with a handful of critical user journeys.",
     "whyWrong": {
-      "1": "Incorrect distractor (Run the end-to-end suite on more powerful Cloud Build machine types so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Remove automated end-to-end tests and rely on a manual QA pass before …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the end-to-end suite to a nightly schedule and allow merges to ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B halves the time but leaves the flakiness and slow feedback structure intact.",
+      "2": "Option C replaces automation with slow, expensive manual work and reduces deployment frequency.",
+      "3": "Option D removes the quality gate from the merge decision entirely, which increases change failure rate."
     }
   },
   {
@@ -491,9 +491,9 @@
     ],
     "hint": "Core Rule (Validating GKE upgrades): Release channels provide a natural validation pipeline: because each channel receives the same versions in sequence, running pre-production on a faster channel means workloads and tests see a new Kubernetes minor version and node image weeks before production, so deprecations surface early.",
     "whyWrong": {
-      "0": "Incorrect distractor (Disable auto-upgrade on all production clusters and upgrade manually o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move all production clusters to GKE Autopilot, which never applies upg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Set the production node pools to a fixed node image and never change i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A falls out of support (GKE supports a limited number of minor versions) and leaves clusters unpatched, contradicting the security requirement.",
+      "2": "Option C is false; Autopilot clusters are also auto-upgraded within their channel.",
+      "4": "Option E is impossible long-term since node versions must remain compatible with the control plane and would leave nodes unpatched."
     }
   },
   {
@@ -520,9 +520,9 @@
     ],
     "hint": "Core Rule (Log retention for root cause analysis): Cloud Logging log buckets support configurable retention from 1 to 3650 days; creating a user-defined bucket with 365-day retention and routing the application logs to it with a sink keeps the logs searchable in Logs Explorer and Log Analytics with no extra pipeline, and locking the bucket prevents anyone from shortening retention.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a log sink that exports all application logs to BigQuery and re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Ask developers to also write logs to local files on each instance and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Increase the retention of the _Required log bucket to 365 days): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works technically but BigQuery table expiration defaults to none for sink-created tables (so cost grows unbounded) and forces the team to use SQL rather than the logging tools; it also does not answer 'without building a custom pipeline' as neatly.",
+      "1": "Option B is a fragile manual process that misses ephemeral instances.",
+      "2": "Option C is not possible: the _Required bucket has a fixed 400-day retention and only holds Admin Activity audit logs and similar mandatory logs, not application logs."
     }
   },
   {
@@ -549,9 +549,9 @@
     ],
     "hint": "Core Rule (Root cause analysis methodology): Effective troubleshooting is scientific: preserve evidence first, then triage, examine, diagnose with a specific hypothesis, and test with a single change so that the outcome is attributable; recording the steps feeds a postmortem that leads to a permanent fix.",
     "whyWrong": {
-      "0": "Incorrect distractor (Automate the three remediation actions in a Cloud Run job triggered by…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Increase resource requests for all pods and the size of the Memorystor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Open a support case with Google Cloud at the next occurrence and take …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A automates the guesswork and hides the underlying defect, which will eventually manifest in a way the script cannot fix.",
+      "1": "Option B is an expensive shotgun change without evidence that capacity is the issue.",
+      "3": "Option D abdicates responsibility; support can help, but the team must still collect data and mitigate customer impact."
     }
   },
   {
@@ -578,9 +578,9 @@
     ],
     "hint": "Core Rule (Ephemeral test environments): Cloud Run revision tags create a stable, unique URL for a specific revision that receives no production traffic, so each pull request gets an isolated preview that scales to zero when idle (near-zero cost), is created and torn down entirely by the pipeline, and is exactly what QA and product managers can test.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create ten permanent Cloud Run services named review-1 through review-…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy each pull request to a dedicated GKE Autopilot cluster created …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy each pull request to the staging service and ask reviewers to c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a manual pool with limited capacity and coordination overhead.",
+      "2": "Option C provides isolation but a cluster per PR is slow to create and far more expensive and complex than needed for a Cloud Run workload.",
+      "3": "Option D reintroduces the shared-environment conflicts the team is trying to remove."
     }
   },
   {
@@ -607,9 +607,9 @@
     ],
     "hint": "Core Rule (Post-deployment validation): Cloud Monitoring synthetic monitors execute a scripted browser or API journey on a schedule from Google-managed infrastructure and integrate with alerting, which covers the continuous external validation; reusing the same script as a Cloud Deploy verify step makes the journey a deployment gate, so a broken transfer flow fails the rollout instead of being discovered later.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add readiness and liveness probes to the portal pods that call the tra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create an uptime check on the login page URL and alert when it returns…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Schedule a Cloud Run job that runs the manual test script every hour a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A misuses health probes, which are meant to be cheap and local; multi-step business transactions in probes would cause pod restarts during transient issues.",
+      "1": "Option B validates only that the login page loads, not the transfer or statement functionality.",
+      "2": "Option C is bespoke, has no alerting integration, and is not connected to the deployment pipeline."
     }
   },
   {
@@ -636,9 +636,9 @@
     ],
     "hint": "Core Rule (Load test design): A load test is only as valid as its model of production: realistic journeys exercise authentication, session state, database writes, and downstream calls that a single cached GET never touches; ramping reproduces autoscaler and connection-pool behavior; multi-region generation reflects load balancer and CDN behavior; and pass/fail based on production SLIs plus dependency saturation catches the bottleneck (often a database or third-party API) before the deadline.",
     "whyWrong": {
-      "1": "Incorrect distractor (Run the previous test again but at 20x the request rate to add a safet…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use production traffic mirroring to send a copy of live requests to st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Skip load testing and instead set very high autoscaling limits on all …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B repeats an unrepresentative test at higher volume and would still miss the write path.",
+      "2": "Option C mirrors current traffic, which is 1x, not 12x, and mirroring authenticated multi-step sessions with side effects is impractical.",
+      "3": "Option D ignores non-scalable dependencies such as databases and quotas, which are usually what fails at peak."
     }
   },
   {
@@ -667,9 +667,9 @@
     ],
     "hint": "Core Rule (Distributed tracing instrumentation): Fragmented traces are a context-propagation problem, not a sampling problem: spans from different services are stitched into one trace only when each service reads the incoming trace context header and forwards it on its outbound calls, so every service (including the legacy one) must propagate traceparent or X-Cloud-Trace-Context.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable 100% trace sampling on the Cloud Run gateway so every fragment …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace the legacy Compute Engine service with a Cloud Run service so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Create a log-based metric that counts requests per service and correla…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A increases cost and volume but still produces fragments if headers are not propagated.",
+      "3": "Option D is a rewrite that is unnecessary for tracing; Cloud Run adds request-level spans but application code must still propagate context downstream.",
+      "4": "Option E is a coarse correlation technique that cannot reconstruct individual request paths."
     }
   }
 ]

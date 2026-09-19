@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Artifact Analysis provides automatic vulnerability scanning for images pushed to Artifact Registry when the Container Scanning API is enabled, storing findings as occurrences that can be viewed in the console and queried through the API, with no infrastructure to operate.",
     "whyWrong": {
-      "0": "Incorrect distractor (Install an open-source scanner on a Compute Engine VM and schedule it …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run Web Security Scanner against the container registry endpoint to id…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Security Command Center Standard, which scans all container ima…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A adds operational overhead and delays results by up to a day.",
+      "2": "Option C is a web-application scanner, not an image scanner.",
+      "3": "Option D is incorrect because image scanning is a function of Artifact Analysis, not of Security Command Center Standard."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: Binary Authorization is the deploy-time admission control that enforces signed attestations, so the cluster itself refuses images that were not attested by the trusted pipeline and scanner regardless of who runs kubectl; this provides the auditable proof required.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure a GKE admission webhook that checks image names against an a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant developers only the Kubernetes Engine Viewer role in production …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Artifact Analysis scanning on the repository and configure a Cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A only checks the image location, not how it was built or scanned, and can be bypassed by pushing an untrusted image to the allowed repository.",
+      "1": "Option B is a manual process dependent on people.",
+      "2": "Option C gates the build but does not stop someone from deploying a different image directly to the cluster."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (SLSA and build provenance): Cloud Build runs each build in an isolated, ephemeral environment and produces signed SLSA provenance for container images, and Binary Authorization can require the automatically generated built-by-cloud-build attestation, giving end-to-end provenance generation and verification without custom tooling.",
     "whyWrong": {
-      "1": "Incorrect distractor (Run Jenkins on a dedicated Compute Engine VM with a long-lived service…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Artifact Analysis vulnerability scanning on the repository, whi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Configure Cloud Deploy to record the Git commit hash in release annota…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B uses a persistent, self-managed builder with long-lived credentials and home-grown signing, which does not meet Level 3 isolation or non-falsifiability guarantees.",
+      "2": "Option C confuses vulnerability scanning with provenance; SLSA is about build integrity, not CVEs.",
+      "3": "Option D records metadata but neither signs it nor enforces verification at deploy time."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (Assured Open Source Software): Assured OSS provides Java and Python packages that Google builds with its own secured pipelines, regularly scans, signs and provides with SLSA provenance and SBOMs; it is consumed through Artifact Registry with standard Maven and pip configuration.",
     "whyWrong": {
-      "0": "Incorrect distractor (Vendor every dependency into the Git repository and manually review ea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Fork each open-source project into a private repository and rebuild al…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Block all outbound internet access from Cloud Build workers so that de…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is labor-intensive and does not provide independent build assurance.",
+      "1": "Option B requires the vendor to become the maintainer of hundreds of projects.",
+      "3": "Option D breaks builds entirely rather than providing a trusted source."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule: The GKE security posture dashboard provides built-in workload configuration auditing against Pod Security Standards and, with advanced vulnerability insights, scans running workloads for OS and language-package vulnerabilities, showing findings with remediation steps in the Google Cloud console.",
     "whyWrong": {
-      "0": "Incorrect distractor (Install a third-party Kubernetes security operator in each cluster and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud IDS packet mirroring on the GKE node subnets to detect vu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Schedule kube-bench runs from a Cloud Build trigger and publish the re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A adds third-party agents the team wants to avoid.",
+      "2": "Option C inspects network traffic and does not evaluate workload configuration or package vulnerabilities.",
+      "3": "Option D covers only CIS node benchmarks and is not continuous or integrated into a dashboard."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule: Container-Optimized OS is a minimal, Google-maintained Linux image with a read-only root filesystem, verified boot and automatic updates, designed specifically for running containers securely on Google Cloud; it is the GKE default and recommended choice.",
     "whyWrong": {
-      "1": "Incorrect distractor (A custom Ubuntu image with a hardened configuration built and patched …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Windows Server nodes so that the team can use familiar Group Policy ha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A general-purpose Debian image with Docker installed via a startup scr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B shifts patching and hardening onto the team.",
+      "2": "Option C is only for Windows workloads and has a larger footprint.",
+      "3": "Option D is not a supported GKE node image and would require the team to manage the runtime and OS."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule (Software supply chain): Least-privilege IAM on the repository plus immutable tags ensures that only the pipeline can publish and that published versions cannot be replaced, and Binary Authorization for Cloud Run enforces at deploy time that only attested images run, with an organization policy preventing teams from disabling it.",
     "whyWrong": {
-      "1": "Incorrect distractor (Grant all developers Artifact Registry Administrator so that they can …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store production images in a public Docker Hub repository so that Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable Cloud Audit Logs for Artifact Registry to reduce noise from im…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B grants developers the very access the requirement prohibits.",
+      "2": "Option C exposes internal images publicly and loses control over provenance.",
+      "4": "Option E removes the audit trail needed for supply chain investigations."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule: Binary Authorization dry-run mode evaluates the policy and records would-be violations in audit logs while still admitting all pods, which lets the team discover unattested images and fix pipelines before turning on enforcement, the same rollout approach recommended for other preventive controls.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Binary Authorization with an 'always deny' default rule during …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable enforcement only on new node pools and migrate workloads gradua…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add every currently running image digest to the policy's exempt images…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A knowingly risks outages.",
+      "1": "Option B is not how Binary Authorization works; policies apply cluster-wide, not per node pool.",
+      "3": "Option D permanently exempts every current image, including any that are non-compliant, which defeats the purpose of the control."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule: Artifact Registry remote repositories act as a caching proxy for upstream public registries so artifacts are pulled and cached through one controlled point, can be scanned with Artifact Analysis, and remain available if the upstream is down; combining this with an admission policy that only allows the organization's registry closes the direct-pull path.",
     "whyWrong": {
-      "0": "Incorrect distractor (Mirror needed images once into a Cloud Storage bucket and configure co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Ask every team to copy the images they use into their own project's Ar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a network firewall rule that blocks egress to Docker Hub and ha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is not a supported image distribution mechanism and lacks scanning.",
+      "1": "Option B duplicates effort across teams and relies on discipline.",
+      "2": "Option C blocks traffic but provides no cache or scan, and the exception process becomes a bottleneck."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: Model Armor is Google Cloud's managed service for screening LLM prompts and responses against prompt injection and jailbreak, sensitive data (via Sensitive Data Protection), malicious URLs and harmful content, and it works independently of the underlying model.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add instructions to the system prompt telling the model to refuse any …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Armor on the chatbot's load balancer with preconfigured W…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Fine-tune the Gemini model on examples of refused prompts so that it l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on the model obeying instructions, which is exactly what prompt injection defeats.",
+      "2": "Option C protects against web-layer attacks such as SQL injection and DDoS, not natural-language attacks on an LLM.",
+      "3": "Option D is costly, must be repeated for each model version, and provides no guarantee."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule: Sensitive Data Protection can inspect and transform data at scale; deterministic cryptographic tokenization or format-preserving encryption replaces identifiers consistently, so the same customer maps to the same token and records remain linkable while raw PII never enters training.",
     "whyWrong": {
-      "1": "Incorrect distractor (Ask the data science team to sign a data-handling agreement and train …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Sensitive Data Protection to redact all detected identifiers with …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Encrypt the Cloud Storage bucket with CMEK so that identifiers are pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B does not remove identifiers from the training data; a perimeter is an exfiltration control, not a privacy transformation.",
+      "2": "Option C removes identifiers but destroys linkability across records.",
+      "3": "Option D protects data at rest but the training job still reads plaintext PII."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule (Secure model deployment): Vertex AI supports private endpoints for online prediction through Private Service Connect or VPC Network Peering, so predictions are served over private IP addresses within Google's network and the endpoint has no public exposure.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy the endpoint as a public endpoint and restrict callers with a C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy the model to a Compute Engine VM with an internal IP address in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep the public endpoint but require an API key in every request from …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A leaves a public endpoint that is only IP-filtered.",
+      "1": "Option B abandons the managed platform and its scaling, monitoring and model registry features.",
+      "3": "Option D is an authentication mechanism (and a weak one) rather than network isolation; the endpoint would still be internet-reachable."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule (VPC Service Controls for Vertex AI): VPC Service Controls is the control that prevents data from being moved to projects outside the perimeter through Google APIs, access levels enforce device and identity context for API calls, and private-IP Workbench instances with Private Google Access to the restricted VIP remove internet exposure while still reaching protected services.",
     "whyWrong": {
-      "0": "Incorrect distractor (Encrypt all datasets with CMEK, restrict the key to the researchers' g…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant researchers only the Vertex AI User role and rely on IAM to prev…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy Workbench instances with external IPs behind Cloud Armor and re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A protects data at rest and logs access but does not stop authorized users from exporting data to another project.",
+      "1": "Option B is insufficient because a researcher with legitimate read access can still copy data to any project they control.",
+      "2": "Option C exposes the notebooks publicly and addresses only authentication strength."
     }
   },
   {
@@ -402,9 +402,9 @@
     ],
     "hint": "Core Rule (CMEK for Vertex AI): Vertex AI supports CMEK on most resources; you provide a regional Cloud KMS key at resource creation time and grant the Vertex AI service agent permission to use it, after which datasets, training outputs, models and endpoints are encrypted with that key and revoking it renders them unusable, with no training code changes.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Confidential Computing for the training jobs, which encrypts al…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store training data in a CMEK-protected Cloud Storage bucket, because …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Encrypt the training data client-side with Tink before uploading and d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A addresses in-use memory encryption, not customer-controlled keys for stored artifacts.",
+      "2": "Option C is incorrect because Vertex AI does not inherit the source bucket's key; each resource must specify its CMEK.",
+      "3": "Option D requires code changes and does not cover model artifacts and endpoint resources that Vertex AI writes itself."
     }
   },
   {
@@ -431,9 +431,9 @@
     ],
     "hint": "Core Rule (Model Garden governance): Vertex AI provides an organization policy constraint that restricts which models can be accessed or deployed, and applying it at the organization level makes it inherited by all projects and enforced by the API regardless of developer behavior.",
     "whyWrong": {
-      "1": "Incorrect distractor (Send developers a list of approved models and monitor usage through Cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Remove the Vertex AI User role from all developers and require them to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a VPC Service Controls perimeter and add Vertex AI as a restric…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is not an enforceable control and billing data is not a real-time gate.",
+      "2": "Option C blocks all self-service development, which conflicts with the goal of letting developers build features.",
+      "3": "Option D controls where API calls can come from, not which models can be used."
     }
   },
   {
@@ -462,9 +462,9 @@
     ],
     "hint": "Core Rule (AI data governance): Vertex AI is the enterprise entry point to Gemini and is covered by Google Cloud's data governance commitments: customer prompts and data are not used to train Google's foundation models and zero-data-retention settings are available, and choosing an EU regional endpoint keeps ML processing in the required geography.",
     "whyWrong": {
-      "1": "Incorrect distractor (Have lawyers paste documents into the consumer Gemini web application …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use a third-party wrapper service that forwards prompts to Gemini thro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Fine-tune a model on all client documents so that the documents no lon…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B uses a consumer product outside the firm's enterprise controls and agreements.",
+      "3": "Option D routes confidential data through a third party in the US, violating residency and confidentiality.",
+      "4": "Option E does not address the governance requirements and embeds confidential data into model weights."
     }
   },
   {
@@ -496,9 +496,9 @@
     ],
     "hint": "Core Rule (Securing generative AI applications): Model Armor addresses prompt injection and jailbreak (including attacks embedded in retrieved documents) and can flag sensitive data in prompts and responses; Sensitive Data Protection reduces the PII that can leak by de-identifying the corpus and screening outputs; and VPC Service Controls prevents exfiltration of the vector store and data to projects outside the perimeter.",
     "whyWrong": {
-      "1": "Incorrect distractor (Grant the assistant's Cloud Run service account the Editor role on the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the Gemini API key in the frontend JavaScript so the browser can…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Disable Cloud Audit Logs for Vertex AI to avoid recording customer pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B violates least privilege; the service account should have narrowly scoped Vertex AI and storage roles.",
+      "3": "Option D exposes credentials to end users.",
+      "5": "Option F removes the audit trail needed for security investigations; sensitive prompt content should be handled with log field redaction or exclusion rather than disabling audit logs."
     }
   },
   {
@@ -525,9 +525,9 @@
     ],
     "hint": "Core Rule (Secure AI retrieval): Vertex AI Search supports access-control-aware data stores that ingest document ACLs from sources like Google Drive and Cloud Storage; when the end user's identity is passed with the request, retrieval is filtered to documents that user is authorized to view, providing platform-level enforcement.",
     "whyWrong": {
-      "0": "Incorrect distractor (Index all documents into a single data store and instruct the model in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create one data store per department and route each user's questions t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Apply Sensitive Data Protection to redact confidential sections from a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on prompt instructions, which the requirement excludes and which can be bypassed.",
+      "2": "Option C is coarse-grained, ignores per-user and per-document restrictions, and does not handle cross-department access.",
+      "3": "Option D destroys legitimate content for authorized users and does not model per-user permissions."
     }
   },
   {
@@ -554,9 +554,9 @@
     ],
     "hint": "Core Rule (API credential security): Credentials embedded in client applications can always be extracted, so the recommended design is to keep model credentials on a trusted backend that uses its attached service account, and to authenticate end users to that backend with an identity solution plus App Check to limit abuse.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rotate the API key, obfuscate it in the next app release, and set a bi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Rotate the API key and restrict it to the app's bundle identifier and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Switch the app to a service account JSON key stored in the app's encry…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is security through obscurity and a budget alert only detects abuse after the fact.",
+      "1": "Option B reduces but does not remove the risk, because application restrictions can be spoofed and the key remains extractable.",
+      "3": "Option D replaces one extractable secret with a more powerful one."
     }
   },
   {
@@ -583,9 +583,9 @@
     ],
     "hint": "Core Rule (Cloud Build security): Cloud Build triggers can run as user-managed service accounts, allowing least-privilege, per-pipeline identities so a compromised trigger cannot deploy outside its scope; protecting the branch that holds build configuration prevents unilateral changes, and private pools and log access controls address exposure of sensitive build output.",
     "whyWrong": {
-      "1": "Incorrect distractor (Grant the default Cloud Build service account the Owner role so that b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move all builds to developers' laptops so that the Cloud Build service…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Disable Cloud Build audit logging to hide deployment details from deve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B expands the blast radius.",
+      "2": "Option C removes the auditable, isolated build environment and typically worsens supply chain security.",
+      "3": "Option D reduces visibility for security teams rather than reducing risk."
     }
   },
   {
@@ -612,9 +612,9 @@
     ],
     "hint": "Core Rule (Vulnerability gating in CI): On-Demand Scanning lets a pipeline scan a local or registry image synchronously with Artifact Analysis and inspect the results, so a build step can enforce a severity threshold before the image is promoted.",
     "whyWrong": {
-      "0": "Incorrect distractor (Push the image to production first and rely on Artifact Registry's aut…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add a manual approval step in Cloud Build where a security engineer ch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Web Security Scanner in Security Command Center and configure i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A allows vulnerable images into production and only notifies afterward.",
+      "1": "Option B introduces manual toil and delays into every build.",
+      "3": "Option D is wrong because Web Security Scanner tests running web applications, not container images."
     }
   },
   {
@@ -645,9 +645,9 @@
     ],
     "hint": "Core Rule (GKE hardening): Shielded GKE Nodes provide verified boot and integrity monitoring; Pod Security Admission or Policy Controller enforces the Pod Security Standards that forbid privileged containers and hostPath; and Workload Identity Federation for GKE, through the GKE metadata server, gives pods their own identities while blocking access to the node service account credentials.",
     "whyWrong": {
-      "2": "Incorrect distractor (Grant the node service account the Editor role so that pods have any p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Run all application pods in the kube-system namespace so that they inh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Disable Cloud Logging on the cluster to avoid storing patient data in …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "2": "Option C is the opposite of least privilege.",
+      "4": "Option E is an anti-pattern that mixes application workloads with system components and does not add policy enforcement.",
+      "5": "Option F removes observability and audit capability; sensitive data should be handled with log redaction and access control rather than disabling logging."
     }
   },
   {
@@ -674,9 +674,9 @@
     ],
     "hint": "Core Rule: Model Armor floor settings let organization- or folder-level administrators define a minimum sanitization baseline that all templates in scope must satisfy, providing central governance while teams keep autonomy to be stricter.",
     "whyWrong": {
-      "0": "Incorrect distractor (Publish a recommended Model Armor template in an internal wiki and ask…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a single shared Model Armor template in a central project and g…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use an IAM deny policy to prevent teams from creating their own Model …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is guidance, not enforcement.",
+      "2": "Option C provides a template but does not stop teams from using weaker ones or none at all.",
+      "3": "Option D blocks template creation entirely, which prevents teams from applying stricter, application-specific controls and does not by itself require any filtering."
     }
   },
   {
@@ -705,9 +705,9 @@
     ],
     "hint": "Core Rule (Sensitive data discovery): Sensitive Data Protection's discovery service continuously profiles data across an organization, folder or project and reports which tables and buckets contain sensitive infoTypes, keeping the inventory current automatically; the profiles can then drive column-level security with policy tags or de-identification so training uses protected data.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask each data owner to fill in a spreadsheet describing which of their…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export all tables to CSV and run a one-time regex search for card-numb…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Grant the data science teams BigQuery Data Viewer at the organization …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is manual and quickly stale.",
+      "2": "Option C is a one-time, error-prone effort that creates additional copies of sensitive data.",
+      "4": "Option E grants broad access before protections exist, which is the reverse of the desired order."
     }
   },
   {
@@ -734,9 +734,9 @@
     ],
     "hint": "Core Rule (Vertex AI access control): Separation of duties in Vertex AI is achieved by granting data scientists a role that allows experimentation, training and model registration while reserving endpoint deployment and deletion permissions (aiplatform.endpoints.deploy, aiplatform.endpoints.delete and related) for the MLOps group through the administrator role or a custom role.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant both groups the Vertex AI Administrator role and document the de…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant the data scientists the project Editor role and the MLOps team t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant both groups the Vertex AI Viewer role and have the platform team…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on documentation rather than enforcement.",
+      "1": "Option B uses basic roles that grant broad, unrelated permissions across the whole project.",
+      "3": "Option D blocks both teams from doing their jobs and creates a bottleneck."
     }
   }
 ]

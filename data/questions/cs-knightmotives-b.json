@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Load testing and SLOs): Reliability must be verified, not assumed: explicit SLOs make the target measurable, load testing at a multiple of peak validates the design (including Spanner schema hotspots and downstream dependencies) before dealers are exposed, and burn-rate alerts provide the production early warning leadership asked for.",
     "whyWrong": {
-      "0": "Incorrect distractor (Launch to all dealers and rely on Cloud Run autoscaling to absorb what…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Ask a few dealers to try the system manually the week before launch an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Provision the maximum instance count on Cloud Run and the largest Span…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A repeats the old system's approach of discovering problems in production.",
+      "1": "Option B is unscientific and cannot reproduce peak load.",
+      "3": "Option D wastes money and still does not prove behavior under load, because bottlenecks such as hot keys or third-party dependencies are not solved by capacity."
     }
   },
   {
@@ -55,10 +55,10 @@
     ],
     "hint": "Core Rule (Chaos engineering and DR testing): The Well-Architected Framework reliability pillar recommends proving recovery through regular DR drills and chaos engineering: game days validate real failover behavior and measure RTO, and automated fault-injection tests in the pipeline keep the guarantee true as the system evolves.",
     "whyWrong": {
-      "0": "Incorrect distractor (Review the architecture diagram annually with the dealer council and s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Turn off health checks so the load balancer never removes backends and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Keep a manual runbook that instructs the on-call engineer to change DN…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Reduce the Spanner configuration to a single region to simplify failov…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is documentation, not evidence.",
+      "2": "Option C blinds the load balancer and would send traffic to a failed region.",
+      "4": "Option E reintroduces manual, slow failover that the multi-region design was meant to eliminate.",
+      "5": "Option F removes the very resilience being tested."
     }
   },
   {
@@ -85,9 +85,9 @@
     ],
     "hint": "Core Rule (Edge computing with Google Distributed Cloud): A 50-millisecond, line-stopping decision with unreliable WAN links must be computed on-premises; Google Distributed Cloud connected brings GKE-managed hardware with GPUs into the plant, operates during disconnection, and is managed centrally as part of a fleet, so models trained in Vertex AI can be rolled out consistently across all plants.",
     "whyWrong": {
-      "0": "Incorrect distractor (Stream camera frames to a Vertex AI endpoint in the nearest Google Clo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run inference on Cloud Run functions triggered by frames uploaded to C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Install standalone GPU workstations on each line with manually copied …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option B depend on the WAN round trip and connectivity that the case study says is a challenge, and cannot meet the latency bound.",
+      "1": "Option B depend on the WAN round trip and connectivity that the case study says is a challenge, and cannot meet the latency bound.",
+      "2": "Option C works locally but is unmanaged, inconsistent across plants, and impossible to update safely at scale."
     }
   },
   {
@@ -117,10 +117,10 @@
     ],
     "hint": "Core Rule (GKE Enterprise multicloud): GKE Enterprise fleets are the multicloud management plane: attached clusters (and GKE on other clouds) bring external clusters into the same inventory, and fleet-scoped Config Sync and Policy Controller enforce identical configuration and guardrails everywhere from a single Git source, giving one workflow across Google Cloud, the other cloud, and on-premises.",
     "whyWrong": {
-      "1": "Incorrect distractor (Migrate every cluster to Google Cloud before attempting any standardiz…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Maintain a separate CI/CD pipeline and policy repository per cloud to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Build custom dashboards per environment by exporting each cluster's me…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Connect the clusters with VPC Network Peering between the clouds.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B ignores the contractual and latency constraints.",
+      "3": "Option D institutionalizes the fragmentation the case study is trying to remove.",
+      "4": "Option E is manual and not a management solution.",
+      "5": "Option F is wrong because VPC Network Peering only connects Google Cloud VPC networks, not other clouds or data centers."
     }
   },
   {
@@ -147,9 +147,9 @@
     ],
     "hint": "Core Rule (Time-series storage selection): Bigtable is designed for massive write throughput and low-latency key-based reads of time-series data, and a vehicle-ID-plus-reversed-timestamp row key makes 'latest readings for a vehicle' a fast scan; BigQuery serves the analytical workload, and Pub/Sub plus Dataflow feeds both without custom infrastructure.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write all telemetry to Cloud SQL for PostgreSQL with a table partition…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store every reading as a JSON object in Cloud Storage and query it wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Write all telemetry directly to Spanner and run both operational and a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot sustain millions of writes per second.",
+      "2": "Option C produces billions of small objects and slow external-table scans, and cannot provide millisecond lookups.",
+      "3": "Option D is far more expensive at this ingest volume and Spanner is optimized for relational transactions, not petabyte-scale analytics."
     }
   },
   {
@@ -176,9 +176,9 @@
     ],
     "hint": "Core Rule (Content distribution and signed URLs): Cloud Storage with Cloud CDN scales global distribution of large binaries with edge caching, signed URLs restrict downloads to authenticated vehicles for a limited time, and an update service controlling cohorts implements staged rollout with the ability to halt, which together meet security, scale, and safety requirements.",
     "whyWrong": {
-      "0": "Incorrect distractor (Host the packages on a Compute Engine web server in one region and let…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Email dealers a USB image and have vehicles updated during service vis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Publish packages to a public Cloud Storage bucket and announce the URL…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a single-region, single-server bottleneck with poor latency for distant vehicles.",
+      "1": "Option B contradicts the goal of modern, over-the-air experiences and takes months.",
+      "2": "Option C is insecure and a simultaneous global release cannot be halted if defective."
     }
   },
   {
@@ -206,9 +206,9 @@
     ],
     "hint": "Core Rule (Key management and separation of duties): Separation of duties is achieved by keeping keys in a security-owned project where data administrators only have permission to use, not manage, the keys; CMEK with automatic rotation covers BigQuery and Cloud Storage; and Cloud External Key Manager with Key Access Justifications gives KnightMotives an externally held key and the ability to approve or deny each Google access to it, which satisfies the EU sovereignty requirement.",
     "whyWrong": {
-      "1": "Incorrect distractor (Rely on Google default encryption at rest for all data and enable Data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create Cloud KMS keys inside the data-platform project so the platform…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Encrypt the data client-side with a key stored in Secret Manager in th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B provides no customer control over keys.",
+      "2": "Option C puts key control in the hands of the team it must be separated from and relies on manual rotation.",
+      "3": "Option D creates an operational burden, breaks native BigQuery querying, and stores the key where the data team controls it."
     }
   },
   {
@@ -235,9 +235,9 @@
     ],
     "hint": "Core Rule (Environment provisioning and guardrails): A project factory automates repeatable, reviewed provisioning of projects with the security baseline built in, and organization policy constraints inherited from the folder cannot be removed by project-level administrators, giving both speed and enforced guardrails; Service Catalog adds governed self-service.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant each team lead the Organization Administrator role so they can c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create one shared project for all teams to avoid the overhead of provi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Document a 40-page manual checklist that each team must follow when cr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A hands out a highly privileged role, violating least privilege and inviting the misconfigurations feared.",
+      "1": "Option B eliminates isolation between teams and blast-radius containment.",
+      "3": "Option D is slow, unenforced, and will drift exactly as before."
     }
   },
   {
@@ -264,9 +264,9 @@
     ],
     "hint": "Core Rule (Migration strategy for VMware workloads): Google Cloud VMware Engine is the lift-and-shift path for VMware estates: HCX migrates VMs with minimal downtime, vSphere-dependent licensing and operational skills carry over unchanged, and modernization can follow incrementally, which is the lowest-risk option against a hard deadline.",
     "whyWrong": {
-      "0": "Incorrect distractor (Refactor the applications into containers on GKE Autopilot before the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rebuild each application on Cloud Run and migrate the databases to Spa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Extend the data-center contract by five years and revisit migration la…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option C are refactoring efforts that cannot be completed safely for 600 VMs in nine months and require skills the team lacks.",
+      "2": "Option C are refactoring efforts that cannot be completed safely for 600 VMs in nine months and require skills the team lacks.",
+      "3": "Option D postpones the modernization the business needs and continues the capital spending the CFO is trying to shift."
     }
   },
   {
@@ -293,9 +293,9 @@
     ],
     "hint": "Core Rule (ML lifecycle and reproducibility): Vertex AI Pipelines automatically track lineage—dataset versions, code artifacts, parameters, metrics, and produced models—in Vertex ML Metadata, and Model Registry provides versioned, evaluated models that can be tied to a release, giving a reproducible, auditable trail that satisfies regulatory evidence requests and the case study's demand for compliance with evolving autonomous-vehicle regulations.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask engineers to record training details in a shared document after ea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Save every model file with the training date in its filename in a Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Keep the notebooks but require a screenshot of the evaluation metrics …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option C depend on human diligence and are incomplete and unverifiable.",
+      "1": "Option B captures the model binary but none of the data, code, or evaluation lineage.",
+      "2": "Option C depend on human diligence and are incomplete and unverifiable."
     }
   },
   {
@@ -322,9 +322,9 @@
     ],
     "hint": "Core Rule (Generative AI in-vehicle assistant): Grounding Gemini in a Vertex AI Search data store restricts answers to the authoritative manual content (with metadata filters for model and year), which prevents fabrication; function calling lets the model invoke backend actions; and exposing it as a centrally managed API delivers the cohesive experience across all models while allowing updates without firmware changes.",
     "whyWrong": {
-      "1": "Incorrect distractor (Embed a different fine-tuned model in each vehicle line's firmware, tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the Natural Language API to extract entities from the driver's spe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Prompt a Gemini model with no external data and instruct it to answer …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B multiplies models, drifts across lines, and cannot be updated centrally, recreating the fragmentation problem.",
+      "2": "Option C is not conversational and cannot execute actions.",
+      "3": "Option D will hallucinate model-specific details and has no access to KnightMotives' systems."
     }
   },
   {
@@ -351,9 +351,9 @@
     ],
     "hint": "Core Rule (Business intelligence and row-level access): Looker's governed semantic layer with user attributes (or BigQuery row-level security enforced at the data layer) lets a single dashboard definition serve all dealers while each user sees only permitted rows; analysts get an unrestricted attribute.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a BigQuery dataset and a Looker Studio report for each dealer a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Export each dealer's data nightly to a spreadsheet and email it to the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Give every dealer the BigQuery Data Viewer role on the shared dataset …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A multiplies maintenance by the number of dealers, the very outcome to avoid.",
+      "1": "Option B is not self-service and leaks data through email.",
+      "3": "Option D relies on dealers voluntarily filtering and exposes every dealer's data to every other dealer, a serious confidentiality failure for a company recovering from breaches."
     }
   },
   {
@@ -380,9 +380,9 @@
     ],
     "hint": "Core Rule: Sensitive Data Protection discovery continuously profiles BigQuery and Cloud Storage data across the organization, classifies infoTypes such as names, addresses, and locations, assigns sensitivity and risk levels, and integrates with Dataplex and Security Command Center so the inventory stays current without manual effort.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask each data owner to fill in a quarterly questionnaire about the col…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write SQL queries with regular expressions against every table each mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run the Cloud Data Loss Prevention API once on a sample of tables duri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is unreliable and stale.",
+      "2": "Option C is brittle, expensive at scale, and misses many infoTypes.",
+      "3": "Option D is a one-time snapshot that becomes outdated as soon as new data lands."
     }
   },
   {
@@ -409,9 +409,9 @@
     ],
     "hint": "Core Rule (Mainframe data integration): The Mainframe Connector is designed for exactly this case: it runs inside existing batch JCL, converts EBCDIC/copybook data, moves it to Cloud Storage, and loads BigQuery, and it supports remote transcoding on Cloud Run to minimize mainframe MIPS, respecting the constraint against daytime online load.",
     "whyWrong": {
-      "0": "Incorrect distractor (Install a Datastream agent on the mainframe to capture changes from th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Have dealer tools query the mainframe directly through a REST gateway …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Print the datasets to PDF reports and process them with Document AI.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because Datastream does not support mainframe VSAM sources.",
+      "1": "Option B adds online load to the mainframe during business hours and leaves the data siloed rather than in the platform.",
+      "3": "Option D is an absurdly lossy and fragile path for structured data."
     }
   },
   {
@@ -438,9 +438,9 @@
     ],
     "hint": "Core Rule (Secure developer environments): Cloud Workstations provide managed, ephemeral, centrally configured development environments running inside KnightMotives' VPC; source and credentials never leave Google Cloud, images are standardized and patched centrally, and access is governed by IAM and IAP, meeting both the security and day-one productivity goals.",
     "whyWrong": {
-      "1": "Incorrect distractor (Ship each contractor a company laptop and require them to install the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Let contractors use their own laptops but require them to email the co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a shared Compute Engine VM with a single user account that all …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is slow, costly, and still places code on endpoints.",
+      "2": "Option C exposes code on unmanaged devices with only after-the-fact review.",
+      "3": "Option D uses shared credentials with no isolation or auditability, a serious anti-pattern."
     }
   },
   {
@@ -467,9 +467,9 @@
     ],
     "hint": "Core Rule (Regional deployment and organization policy): The resource-locations organization policy constraint is enforced by the platform at creation time, so resources cannot be created outside allowed locations; scoping it per country folder gives each launch its own allow list while other folders stay unrestricted, satisfying the 'guarantee' and 'do not slow other teams' requirements.",
     "whyWrong": {
-      "0": "Incorrect distractor (Publish a wiki page listing approved regions and audit resources manua…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set the resourceLocations constraint at the organization root to allow…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use a Terraform variable for region and trust code review to catch mis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option D are advisory controls that depend on humans and only detect violations after the fact.",
+      "2": "Option C applies the restriction to the entire company, blocking legitimate global workloads and mixing the two countries' data locations together.",
+      "3": "Option D are advisory controls that depend on humans and only detect violations after the fact."
     }
   },
   {
@@ -499,10 +499,10 @@
     ],
     "hint": "Core Rule (Observability strategy): Detecting user-visible degradation requires SLOs measured where users experience the service, with burn-rate alerts that reach an on-call responder before dealers notice, and diagnosing multi-service failures requires distributed tracing with correlated structured logs so a single order can be followed end to end.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure a single email alert that fires on every logged error across…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set every service's logging level to DEBUG permanently to capture maxi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Review dashboards in a weekly meeting and file tickets for anomalies o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Rely on Cloud Profiler alone to identify slow orders.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is noisy, drowns real signals, and repeats the email-only failure pattern.",
+      "2": "Option C explodes log volume and cost without improving detection.",
+      "4": "Option E is far too slow for production incidents.",
+      "5": "Option F profiles CPU and memory in a process; it does not trace requests across services."
     }
   },
   {
@@ -529,9 +529,9 @@
     ],
     "hint": "Core Rule (Progressive delivery): Cloud Deploy natively supports canary strategies for Cloud Run using revision traffic splitting, with verification phases that can evaluate metrics and automatically roll back or halt promotion, which limits the blast radius of a bad release to a small share of traffic and removes the human delay.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy new revisions directly to 100% of traffic but schedule releases…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Maintain two identical Cloud Run services and switch DNS between them …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add more manual QA sign-offs before each release to catch bugs earlier…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still exposes all dealers to a defect and ignores global time zones.",
+      "1": "Option B is a blue/green pattern that relies on manual checks and DNS propagation, offering no gradual exposure.",
+      "2": "Option C slows delivery and cannot catch every production-only issue."
     }
   },
   {
@@ -561,10 +561,10 @@
     ],
     "hint": "Core Rule (Ransomware resilience and backup): Ransomware resilience requires backups that a compromised production administrator cannot alter: Backup and DR Service backup vaults are isolated from the source project and enforce retention so backups cannot be deleted early even by an Owner, and Spanner point-in-time recovery plus scheduled backups protect against malicious writes and deletes, which replication alone faithfully propagates.",
     "whyWrong": {
-      "0": "Incorrect distractor (Take persistent disk snapshots into the same project and grant the bac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rely on Spanner's multi-region replication as the backup, because data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Store backups on a Filestore share mounted read-write on the productio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Disable Cloud Audit Logs to reduce the amount of data an attacker coul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A keeps backups within the attacker's reach and over-privileges the operator.",
+      "2": "Option C confuses high availability with backup; replication copies the encryption or deletion instantly.",
+      "4": "Option E exposes backups to the same compromised hosts.",
+      "5": "Option F destroys forensic evidence needed for incident response."
     }
   },
   {
@@ -591,9 +591,9 @@
     ],
     "hint": "Core Rule (Migration wave prioritization): Google's migration guidance recommends starting with workloads that have low complexity and dependencies but meaningful business value, so early wins build momentum and skills; the build-to-order system matches this profile and directly addresses the dealer-relationship pain described in the case study.",
     "whyWrong": {
-      "1": "Incorrect distractor (The mainframe supply-chain system, because it is the oldest and theref…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The in-vehicle software platform, because it has the largest long-term…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (The ERP, because finance owns the budget for the program.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B chooses the highest-risk, most entangled system with scarce skills as the first move, which could derail the program.",
+      "2": "Option C involves safety-critical embedded systems, hardware constraints, and regulatory complexity that are unsuitable for a first project.",
+      "3": "Option D selects based on budget ownership rather than risk and value."
     }
   }
 ]

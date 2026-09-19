@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Transfer Appliance): At 200 Mbps, even with the whole link dedicated, 800 TB would take roughly a year to upload, so no online method meets the six-week deadline.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use gcloud storage cp with parallel composite uploads over the existin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Order a Dedicated Interconnect and use Storage Transfer Service once i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Compress the footage and use Storage Transfer Service with the on-prem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and D are online transfers limited by the same link, and video footage compresses poorly, so compression does not change the outcome.",
+      "1": "Option B would require weeks to months for circuit provisioning and violates the constraint against buying new connectivity.",
+      "3": "Option D (\"Compress the footage and use Storage Transfer Service with the on-premises agent to upload it over the internet.\") is incorrect because it does not meet the scenario's core requirement; Option C (Order Transfer Appliances, copy the footage onto them on-pre) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Storage Transfer Service from other clouds): Storage Transfer Service natively supports Amazon S3 as a source, can run on a schedule, handles parallelism, retries and integrity checks, and can be configured to copy only newer objects; it is fully managed, so there is no code to maintain.",
     "whyWrong": {
-      "1": "Incorrect distractor (Write a Cloud Run job that lists the S3 bucket with the AWS SDK and st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy a Compute Engine VM running a cron job that executes aws s3 syn…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ask the partner to ship a Transfer Appliance every week with the accum…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B works but requires writing, securing and operating custom transfer code, contradicting the minimal-code requirement.",
+      "2": "Option C introduces a VM to patch and monitor, adds a double copy through local disk, and is the highest-overhead option.",
+      "3": "Option D is meant for one-time bulk transfers when bandwidth is inadequate, not for daily incremental feeds of a few terabytes."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Datastream change data capture): Datastream is Google's serverless change data capture and replication service; it reads Oracle (and MySQL, PostgreSQL, SQL Server) transaction logs, which imposes minimal load on the source, and it can deliver changes directly into BigQuery with low latency using private connectivity over Interconnect or VPN.",
     "whyWrong": {
-      "0": "Incorrect distractor (Schedule an hourly Dataproc job that runs full table extracts through …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Install a third-party replication tool on a Compute Engine VM to read …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Database Migration Service to migrate the Oracle database into Big…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A adds heavy query load with full extracts and delivers data with up to an hour of latency, failing both constraints.",
+      "1": "Option B meets the technical need but requires the company to license, patch and operate the replication server, which the DBA team wants to avoid.",
+      "2": "Option C is wrong because Database Migration Service targets Cloud SQL, AlloyDB and Spanner as destinations for database migrations, not BigQuery for analytics replication."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: Database Migration Service (DMS) is the managed, no-cost way to migrate MySQL to Cloud SQL with minimal downtime: it performs an initial load and then continuous replication of changes, so the application keeps running until you promote the destination in a cutover that typically takes minutes.",
     "whyWrong": {
-      "0": "Incorrect distractor (Take a mysqldump backup, upload it to Cloud Storage, import it into Cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Cloud SQL instance and write a custom Dataflow pipeline that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Transfer Appliance to ship the database files to Google and attach…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a one-shot dump and restore that would take hours for 400 GB, far exceeding the 15-minute window.",
+      "2": "Option C demands significant engineering for a problem a managed service already solves and does not handle ongoing changes cleanly.",
+      "3": "Option D is nonsensical for a managed database; Cloud SQL does not accept raw data files from appliances, and the volume does not justify offline transfer."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule (Heterogeneous database migration): DMS supports heterogeneous Oracle to PostgreSQL migrations with a conversion workspace that converts schema and code objects, flags items needing attention and offers Gemini-assisted conversion and explainability, addressing the team's limited PostgreSQL skills.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run Oracle on Compute Engine with bring-your-own-license and switch to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Export the Oracle schema and data with Data Pump, manually rewrite eve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Datastream to replicate the Oracle tables into BigQuery and rewrit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does not achieve the business goal of eliminating Oracle license fees.",
+      "1": "Option B is a manual, error-prone approach with a long outage and no tooling assistance.",
+      "3": "Option D is architecturally wrong because BigQuery is an analytical warehouse, not an OLTP database, and would require a complete application rewrite."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule (DR tiers and trade-offs): The reliability pillar recommends matching DR investment to the business impact of each workload.",
     "whyWrong": {
-      "1": "Incorrect distractor (Tier 1 (patient-facing scheduling, RPO near zero, RTO of minutes): nig…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Tier 3 (internal reporting, RPO of 24 hours, RTO of 2 days): hot stand…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (All tiers: single-zone deployment with weekly backups, because Google …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B fails Tier 1 objectives outright: nightly snapshots imply up to 24 hours of data loss and manual rebuild takes hours.",
+      "2": "Option C over-engineers Tier 3, spending hot-standby money on a workload that tolerates days of downtime.",
+      "4": "Option E ignores the stated objectives and provides no regional resilience for critical patient-facing systems."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule (External API integration with Apigee): The requirements (partner onboarding portal, credentials, quotas, monetization, analytics, no backend changes) describe a full API management platform, which is exactly Apigee's role as the integration pattern for external consumers; policies are applied at the proxy layer so backends remain unchanged.",
     "whyWrong": {
-      "0": "Incorrect distractor (Expose the GKE services through an external passthrough Network Load B…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add rate-limiting and API-key logic to each microservice and publish O…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Armor rate-based rules on the load balancer to limit each pa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A provides no authentication, quotas or analytics and relies on brittle IP allowlists.",
+      "2": "Option C spreads cross-cutting concerns across every service, duplicating code and changing the backend, and provides no monetization or portal.",
+      "3": "Option D can throttle by IP but cannot identify partners, issue keys, meter usage per tier or bill; Cloud Armor is a WAF and DDoS layer, not an API product platform."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule (Asynchronous integration with legacy systems): This is the classic asynchronous, queue-based load-leveling pattern.",
     "whyWrong": {
-      "0": "Incorrect distractor (Have Cloud Run call the ERP synchronously over Cloud Interconnect and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Store orders in Cloud SQL and have the ERP poll the database every min…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure Cloud Run to retry failed ERP calls with exponential backoff…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A couples customer requests to ERP availability and demands a costly capacity increase in a legacy system.",
+      "1": "Option B works as a crude buffer but introduces polling latency, database coupling and custom code on both sides where a managed messaging service already exists.",
+      "2": "Option C keeps requests open in Cloud Run for hours, exhausting instances and still surfacing errors when retries expire, and it does not solve the throughput mismatch."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule (SaaS integration with Application Integration): Application Integration is Google Cloud's managed integration-platform-as-a-service; combined with Integration Connectors (which provide prebuilt, event-capable connectivity to SaaS systems such as Salesforce and Slack), it lets a low-code team model the trigger-transform-write-back flow visually while giving IT central execution logs, metrics and retry handling.",
     "whyWrong": {
-      "1": "Incorrect distractor (Write a Cloud Run function that polls the Salesforce API every minute,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export Salesforce opportunities nightly to BigQuery with BigQuery Data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Install an open-source workflow engine on a Compute Engine VM and buil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B requires custom code, polling latency, credential management and self-built monitoring, exactly what IT wants to avoid.",
+      "2": "Option C is a batch analytics pattern with a 24-hour delay and no write-back, failing the real-time requirement.",
+      "3": "Option D adds a server to operate and custom connectors to maintain, the highest-overhead choice."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule (Bucket-to-bucket data movement): Storage Transfer Service is the recommended tool for bucket-to-bucket transfers, especially at petabyte scale: it is serverless, parallelizes the copy inside Google's network, provides progress and logging, supports incremental scheduled runs, and preserves metadata.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run gcloud storage cp -r from a Compute Engine VM in europe-west4 and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Order a Transfer Appliance, download the data to it from us-east1, and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Write a Dataflow pipeline that reads each object and writes it to the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is feasible but ties up a VM for days, requires manual supervision and is fragile on failure.",
+      "1": "Option B is an offline device intended for on-premises sources; it makes no sense for data already inside Google Cloud.",
+      "3": "Option D requires writing and running a custom pipeline for a task a managed service already performs."
     }
   },
   {
@@ -316,9 +316,9 @@
     ],
     "hint": "Core Rule (gcloud storage vs gsutil): gcloud storage is the recommended successor to gsutil and is significantly faster for large transfers because it parallelizes uploads and uses parallel composite uploads automatically, with better retry behavior; changing the command in the script is a minimal change.",
     "whyWrong": {
-      "0": "Incorrect distractor (Switch to Transfer Appliance and ship a device to Google every night.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Split the upload across ten Compute Engine VMs that each run gsutil cp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Reduce the number of files by compressing the videos into a single arc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is an offline solution for bandwidth-constrained situations, not for a nightly job on a 10 Gbps link.",
+      "2": "Option C adds infrastructure and complexity for a problem solved by the tool itself, and VMs in Google Cloud cannot read the on-premises render farm without extra plumbing.",
+      "3": "Option D adds hours of compression time, video compresses poorly, and a single huge archive makes retries and partial failures worse."
     }
   },
   {
@@ -345,9 +345,9 @@
     ],
     "hint": "Core Rule: A business impact analysis is the foundation of a BCP: it establishes how much downtime and data loss each business process can tolerate and what it would cost, which yields per-workload RTO and RPO.",
     "whyWrong": {
-      "1": "Incorrect distractor (Apply the same 1-hour RTO and 15-minute RPO to all workloads to keep t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Select the DR pattern for each workload based on which team has the mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Provision the hot standby only for the workloads that consume the most…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B ignores that a student portal and a research archive have very different criticality, leading to both over-spending and under-protection.",
+      "2": "Option C bases resilience on team skills rather than business need.",
+      "3": "Option D confuses compute size with business criticality; a small licensing server can be more critical than a large batch cluster."
     }
   },
   {
@@ -374,9 +374,9 @@
     ],
     "hint": "Core Rule (DR testing and validation): The reliability pillar states that a recovery plan that is not regularly tested cannot be trusted.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add a statement to the plan that the architecture is designed to meet …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Perform a one-time failover during the next public holiday and archive…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Increase the size of the standby region resources so that failover wil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is documentation, not evidence.",
+      "1": "Option B provides a single data point that becomes stale as the system changes; auditors expect a repeatable cadence.",
+      "2": "Option C spends money on capacity without validating the process, and most RTO failures come from process and automation gaps rather than raw capacity."
     }
   },
   {
@@ -406,9 +406,9 @@
     ],
     "hint": "Core Rule (Resilient integration with constrained systems): The deciding factors are the throughput mismatch (thousands versus 200 requests per second), the per-CPU-second cost model, and the nightly unavailability.",
     "whyWrong": {
-      "0": "Incorrect distractor (Have each new microservice open direct DB2 connections to the mainfram…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set up VPC Network Peering between the on-premises data center and the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Increase the mainframe's licensed capacity to handle the peak load fro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A ties every service to mainframe capacity and availability and maximizes the pay-per-use cost.",
+      "2": "Option C is invalid because VPC Network Peering connects VPC networks, not on-premises data centers, and latency is not the bottleneck.",
+      "3": "Option D is the most expensive path and still leaves the applications unresponsive during the nightly batch window."
     }
   },
   {
@@ -435,9 +435,9 @@
     ],
     "hint": "Core Rule: BigQuery Data Transfer Service is purpose-built for this: it offers managed, scheduled, no-code connectors for Google SaaS sources (Google Ads, YouTube, Campaign Manager, Google Play, and more), third-party SaaS via partner connectors, and data warehouse migrations from Teradata and Amazon Redshift, with scheduled runs and historical backfills.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write Apache Beam pipelines on Dataflow for each source and trigger th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Export each source to CSV files manually every week and load them with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Datastream to capture changes from Google Ads and YouTube and stre…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but requires writing and maintaining pipelines and an orchestration layer, which contradicts the configuration-over-code preference.",
+      "1": "Option B is manual, error-prone and not automated.",
+      "3": "Option D is wrong because Datastream sources are relational databases (Oracle, MySQL, PostgreSQL, SQL Server), not SaaS advertising platforms."
     }
   },
   {
@@ -464,9 +464,9 @@
     ],
     "hint": "Core Rule (Large on-premises dataset transfer with ongoing changes): Storage Transfer Service for on-premises data uses lightweight agents that scale out, resume on failure, verify integrity, support bandwidth caps per agent pool, and can be scheduled for incremental synchronization, so it fits a multi-petabyte transfer with a changing source and an existing high-bandwidth Interconnect (4 PB over 10 Gbps is roughly 40 days of full-link time, feasible in the background).",
     "whyWrong": {
-      "0": "Incorrect distractor (Order several Transfer Appliances, load the entire dataset, and ask us…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run a single gcloud storage rsync command from an on-premises server a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Mount the bucket on the NAS with Cloud Storage FUSE and let users writ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is unnecessary given the available bandwidth and requires an operational freeze that the business cannot sustain for the weeks of appliance turnaround.",
+      "2": "Option C is a single-threaded, non-resumable process for a job of this scale and offers no bandwidth control.",
+      "3": "Option D changes the working model for users and does not migrate the existing 4 PB."
     }
   },
   {
@@ -493,9 +493,9 @@
     ],
     "hint": "Core Rule (SQL Server migration to Cloud SQL): Database Migration Service supports homogeneous SQL Server migrations to Cloud SQL by consuming native full, differential and transaction log backup files placed in Cloud Storage; it restores them continuously so the destination stays nearly current, and the cutover only requires applying the last log backup and promoting, which fits a short overnight window.",
     "whyWrong": {
-      "1": "Incorrect distractor (Use Datastream to replicate the SQL Server tables into Cloud SQL for S…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Take a full backup, import it into Cloud SQL, and accept a multi-hour …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Migrate the SQL Server VM with Migrate to Virtual Machines and keep SQ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because Datastream destinations are BigQuery and Cloud Storage (and Spanner), not Cloud SQL for SQL Server.",
+      "2": "Option C is a one-shot import whose outage scales with the 1.",
+      "3": "Option D moves the server but leaves the company operating SQL Server itself, which defeats the goal of shedding patching and backup responsibilities."
     }
   },
   {
@@ -523,9 +523,9 @@
     ],
     "hint": "Core Rule (File-based integration with external partners): Cloud Storage plus Eventarc is the serverless event-driven integration pattern for file-based exchange: object-finalized events invoke Cloud Run within seconds, signed URLs (or IAM conditions on per-partner prefixes) scope access to each partner's location without distributing long-lived secrets, and there are no servers to run.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run an SFTP server on a Compute Engine instance, poll its directories …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Give each partner a service account key with Storage Object Creator on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask partners to email manifests to a shared mailbox and have staff upl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces a VM to patch, a polling delay and a single point of failure.",
+      "1": "Option B distributes long-lived service account keys, which is a security anti-pattern, and an hourly schedule fails the seconds-level latency requirement.",
+      "2": "Option C is manual and slow and provides no consistent security or auditability."
     }
   },
   {
@@ -552,9 +552,9 @@
     ],
     "hint": "Core Rule (Availability vs cost trade-off): The stated requirements are 99.9% availability, automatic zonal failover, PostgreSQL skills and low cost.",
     "whyWrong": {
-      "0": "Incorrect distractor (A Spanner multi-region instance spanning three continents to achieve 9…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (A single-zone Cloud SQL for PostgreSQL instance with daily automated b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A self-managed PostgreSQL cluster on three Compute Engine VMs across z…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A vastly over-engineers a single-country workload and is the most expensive choice, violating the budget constraint.",
+      "1": "Option B has no zonal resilience and relies on manual restore from backups, so it cannot meet the automatic-failover requirement.",
+      "3": "Option D can achieve the target but shifts patching, replication and failover operations to the team, increasing operational overhead and risk compared with the managed option."
     }
   },
   {
@@ -581,9 +581,9 @@
     ],
     "hint": "Core Rule (Storage Transfer Service from URL lists): Storage Transfer Service supports a URL list source: a hosted TSV file listing HTTP or HTTPS URLs together with object size and MD5 hash, which the service downloads directly into the bucket with integrity verification and no infrastructure to manage; updating the list and re-running the job handles new publications.",
     "whyWrong": {
-      "0": "Incorrect distractor (Provision a large Compute Engine VM, download the files with wget, and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Order a Transfer Appliance and ask the government agency to load the f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Write a Dataflow pipeline that fetches each URL and writes the bytes t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but requires provisioning, supervising and paying for a VM and offers no built-in verification.",
+      "2": "Option C is inappropriate because the data is not on the startup's premises and the agency will not load a device.",
+      "3": "Option D is custom code for a solved problem and adds cost and maintenance."
     }
   },
   {
@@ -611,9 +611,9 @@
     ],
     "hint": "Core Rule (DR with data residency constraints): The constraint is country-level residency, not just EU residency, combined with a regional-loss requirement.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy the primary environment in europe-west3 and use the EU multi-re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy across three zones in europe-west3 only, because zonal redundan…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy the primary environment in europe-west3 and the DR environment …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B violates residency because the EU multi-region replicates data to other EU countries.",
+      "2": "Option C keeps data in Germany but a multi-zone deployment does not survive a regional outage, failing the BCP requirement.",
+      "3": "Option D violates the German-only rule because Belgium is a different country, even though it is in the EU."
     }
   },
   {
@@ -640,9 +640,9 @@
     ],
     "hint": "Core Rule (Egress integration requiring static IPs): Cloud NAT lets private nodes reach the internet through a managed, highly available gateway, and when configured with manually allocated static external IPs it provides a stable, small set of source addresses that can be registered with the external system, no matter how many nodes exist.",
     "whyWrong": {
-      "0": "Incorrect distractor (Give each GKE node an external IP address and register the node IP ran…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Route payment calls through a single Compute Engine proxy VM with a st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask the payment processor to allowlist all of Google Cloud's published…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A exposes nodes publicly and produces changing IPs as the cluster autoscales, violating both security and the short-list requirement.",
+      "1": "Option B creates a single point of failure and a bottleneck that the team must patch and scale.",
+      "2": "Option C is impractical (the ranges are huge and change) and would effectively allow any Google Cloud customer to reach the processor, which it will reject."
     }
   },
   {
@@ -670,9 +670,9 @@
     ],
     "hint": "Core Rule (Choosing Datastream vs Database Migration Service): The two initiatives map to two purpose-built services.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use Datastream for the migration to Cloud SQL and BigQuery Data Transf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Database Migration Service for both the migration to Cloud SQL and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Transfer Appliance to move the database to Cloud SQL and federated…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A reverses the roles: Datastream does not migrate into Cloud SQL, and hourly copies are not near-real-time.",
+      "1": "Option B is wrong because DMS does not target BigQuery.",
+      "3": "Option D misuses Transfer Appliance (not applicable to managed databases) and federated queries put analytical load on the operational database rather than providing a replicated copy."
     }
   },
   {
@@ -702,9 +702,9 @@
     ],
     "hint": "Core Rule (Planning a large data transfer): Google's data transfer guidance starts with a bandwidth-and-time calculation: 600 TB at roughly half of a 10 Gbps link takes about 11 days, so an online transfer fits the window with margin, but the plan should state the offline fallback.",
     "whyWrong": {
-      "0": "Incorrect distractor (Copy the archives to a single large Compute Engine persistent disk fir…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Disable checksum validation to speed up the transfer and verify a rand…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Run the transfer at full link speed during business hours to complete …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A adds an unnecessary intermediate copy and a disk size limit problem.",
+      "3": "Option D removes the integrity evidence regulators need; checksums are cheap relative to the transfer.",
+      "4": "Option E would saturate the shared Interconnect and disrupt production applications, violating a stated constraint."
     }
   },
   {
@@ -731,9 +731,9 @@
     ],
     "hint": "Core Rule (Documenting design trade-offs): Design trade-offs should be made explicitly and documented, which is a core Well-Architected Framework practice.",
     "whyWrong": {
-      "0": "Incorrect distractor (Choose the self-managed option because it satisfies the most vocal eng…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Postpone the decision until the managed service supports the module, a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Choose the managed service and instruct the engineer to stop raising t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A prioritizes a single voice over evidence.",
+      "1": "Option B avoids the decision and introduces a caching design that will not scale across instances.",
+      "2": "Option C may land on the right service but without analysis it ignores a possibly legitimate functional requirement and damages team buy-in."
     }
   }
 ]

@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: The global external Application Load Balancer is the Layer 7 proxy that provides a single global anycast IP, TLS termination at Google Front Ends, URL maps for path and host routing, automatic routing of users to the nearest healthy backend region, and native Cloud CDN integration; it is the default choice for internet-facing HTTP(S) applications with a global audience.",
     "whyWrong": {
-      "0": "Incorrect distractor (A regional external Application Load Balancer in each region with DNS …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (An external passthrough Network Load Balancer with a backend service s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (An internal Application Load Balancer exposed through Cloud NAT.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A gives three IPs, relies on DNS for failover, and has no cross-region proximity routing.",
+      "1": "Option B is a Layer 4 pass-through balancer that is regional and cannot terminate TLS, route by URL, or use Cloud CDN.",
+      "3": "Option D is for private clients only; Cloud NAT does not expose internal load balancers to the internet."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: The regional external Application Load Balancer runs its Envoy-based proxies inside the chosen region, so TLS termination and Layer 7 processing happen only in europe-west3, meeting the residency requirement while still providing header-based routing and support for regional Cloud Armor security policies (WAF).",
     "whyWrong": {
-      "0": "Incorrect distractor (Global external Application Load Balancer with backends only in europe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (External passthrough Network Load Balancer in europe-west3 with TLS te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Classic Application Load Balancer with Premium Tier networking.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Global external Application Load Balancer with backends only in europe-west3.\") is incorrect because it does not meet the scenario's core requirement; Option B (Regional external Application Load Balancer in europe-west3 ) is the Google Cloud recommended pattern here.",
+      "2": "Option C keeps processing in-region but is Layer 4 only; it cannot route on HTTP headers and Cloud Armor's WAF rules are not available for passthrough load balancers.",
+      "3": "Option D (\"Classic Application Load Balancer with Premium Tier networking.\") is incorrect because it does not meet the scenario's core requirement; Option B (Regional external Application Load Balancer in europe-west3 ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule: The internal Application Load Balancer is an Envoy-based Layer 7 proxy with an internal IP address; it supports URL maps for path and host routing, weighted traffic splitting for canary deployments, header rewrites, and can mix MIG and GKE NEG backends, all without an internet-facing address.",
     "whyWrong": {
-      "1": "Incorrect distractor (An internal passthrough Network Load Balancer per microservice.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A global external Application Load Balancer with Cloud Armor rules tha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (An external proxy Network Load Balancer with an internal-only firewall…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is Layer 4 and cannot route by path or split traffic by weight, and it multiplies the number of load balancers.",
+      "2": "Option C is internet-facing by design; filtering by source IP does not make it private and internal RFC 1918 sources would not traverse it anyway.",
+      "3": "Option D is a TCP proxy for external clients and offers no HTTP routing."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: The external passthrough Network Load Balancer forwards packets without proxying, so UDP is supported, the original client source IP is preserved for the game server to read directly, and no extra hop is introduced; it is the standard choice for UDP and latency-sensitive gaming traffic.",
     "whyWrong": {
-      "0": "Incorrect distractor (Global external Application Load Balancer with WebSocket support.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (External proxy Network Load Balancer with PROXY protocol enabled.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Regional internal Application Load Balancer with global access enabled…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is an HTTP(S) proxy and does not support arbitrary UDP traffic.",
+      "1": "Option B supports only TCP, terminates the client connection at the proxy, and PROXY protocol is a workaround to recover the client IP rather than true preservation.",
+      "2": "Option C is for internal HTTP clients and cannot serve internet users or UDP."
     }
   },
   {
@@ -141,9 +141,9 @@
     ],
     "hint": "Core Rule (Cloud CDN and Cloud Armor): These two features are designed to work together on the global external Application Load Balancer: Cloud CDN caches static assets at Google's edge, cutting origin load and latency during spikes, while Cloud Armor applies WAF rules from the ModSecurity core rule set and rate limiting or adaptive protection at the edge to stop SQL injection, credential stuffing, and volumetric Layer 7 attacks before they reach the origin.",
     "whyWrong": {
-      "1": "Incorrect distractor (Move the application behind an external passthrough Network Load Balan…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy a third-party WAF appliance on a VM in front of the load balanc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Replace the global load balancer with Cloud DNS geo-routing to regiona…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B removes Layer 7 capabilities entirely, including CDN and Cloud Armor WAF.",
+      "2": "Option C introduces a bottleneck and single point of failure that would itself be overwhelmed by attack traffic.",
+      "4": "Option E abandons the anycast load balancer and its edge protections for slower DNS-based steering."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule: The global external proxy Network Load Balancer is the Layer 4 proxy for non-HTTP TCP traffic: in SSL-proxy mode it terminates TLS at Google's edge with managed certificates, offers a single anycast IP, and routes connections to the closest region with healthy capacity, which matches an MQTT-over-TLS fleet.",
     "whyWrong": {
-      "0": "Incorrect distractor (Global external Application Load Balancer with a custom port on the ba…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Regional external passthrough Network Load Balancer with TLS terminate…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Regional internal proxy Network Load Balancer with global access.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is an HTTP(S) proxy and will not pass raw MQTT frames.",
+      "2": "Option C is regional (no anycast or cross-region proximity routing) and leaves TLS termination to the VMs.",
+      "3": "Option D serves only internal clients and cannot accept internet traffic from devices."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule: The cross-region internal Application Load Balancer is a globally distributed Envoy-based Layer 7 balancer with internal addressing: clients in any region (and on-premises via hybrid connectivity) reach a single internal IP or hostname, traffic is steered to the closest healthy region, and if all backends in a region fail, it fails over automatically to the other region at the load balancer layer, with no DNS TTL delay.",
     "whyWrong": {
-      "0": "Incorrect distractor (A regional internal Application Load Balancer in each region with Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (A global external Application Load Balancer with backends in both regi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (An internal passthrough Network Load Balancer in each region with glob…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A depends on DNS-based failover, which is slower and subject to client caching.",
+      "1": "Option B exposes an internal API on a public IP, which violates the internal-only requirement.",
+      "3": "Option D is Layer 4, has no cross-region proximity logic, and pushes failover complexity to every client."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule: Google's 99.99% Dedicated Interconnect topology requires four connections spread across two metros with two edge availability domains per metro, terminating on at least two Cloud Routers in two different regions, with the VPC in global dynamic routing mode so all regions' subnets are advertised and reachable.",
     "whyWrong": {
-      "0": "Incorrect distractor (One 10 Gbps Dedicated Interconnect connection with two VLAN attachment…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Two 10 Gbps Dedicated Interconnect connections in the same edge availa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Two HA VPN gateways over the internet, one per colocation facility, wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a single point of failure and qualifies for no SLA.",
+      "1": "Option B qualifies only for the 99.",
+      "2": "Option C rides the public internet, tops out around 3 Gbps per tunnel, and does not meet the private 10 Gbps requirement."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule: Partner Interconnect is designed for organizations whose premises cannot reach a Dedicated Interconnect location or that need less than 10 Gbps: a service provider extends its network to the customer and offers VLAN attachments from 50 Mbps to 50 Gbps, giving private RFC 1918 connectivity without a physical presence in a colocation facility.",
     "whyWrong": {
-      "1": "Incorrect distractor (Order a 10 Gbps Dedicated Interconnect and build a long-haul fiber con…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Cross-Cloud Interconnect to connect the factory router to Google C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Direct Peering to exchange traffic with Google at the nearest inte…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B requires expensive new circuits and over-provisions a 10 Gbps port for 2 Gbps.",
+      "2": "Option C is for connecting Google Cloud to other cloud providers' networks, not to on-premises sites.",
+      "3": "Option D provides connectivity to Google's public services and edge, not private access to VPC networks, and Google recommends Interconnect for VPC access."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: HA VPN provides IPsec encryption over the internet, a 99.99% availability SLA when both gateway interfaces have tunnels to the peer, and uses Cloud Router with BGP for dynamic route exchange; it can be provisioned in hours, which meets every requirement for a 300 Mbps office link.",
     "whyWrong": {
-      "0": "Incorrect distractor (Classic VPN with a single tunnel and static routes.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Dedicated Interconnect with a 10 Gbps connection and IPsec over the VL…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Partner Interconnect with a Layer 3 partner and no additional encrypti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A offers only a 99.",
+      "1": "Option B is oversized, costly, and takes weeks to provision, and Interconnect is not encrypted by default.",
+      "3": "Option D takes longer to provision, is not encrypted, and is more than the office needs."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule: Cross-Cloud Interconnect is the Google-managed dedicated physical connection between a Google Cloud VPC and another cloud provider's network at 10 or 100 Gbps; it avoids the public internet, delivers predictable throughput and latency, and carries an SLA when deployed redundantly, so 50 TB per day (about 4.6 Gbps sustained) fits comfortably on two 10 Gbps links.",
     "whyWrong": {
-      "0": "Incorrect distractor (HA VPN between a Cloud VPN gateway and the other cloud's managed VPN s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Dedicated Interconnect into a colocation facility plus a customer-mana…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Storage Transfer Service running over the public internet with bandwid…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A crosses the internet and is limited to roughly 3 Gbps per tunnel with variable latency.",
+      "2": "Option C works technically but the company must procure colocation space, hardware, and cross-connects and operate the router itself, which is the opposite of Google-managed.",
+      "3": "Option D uses the public internet, violating the constraint."
     }
   },
   {
@@ -346,9 +346,9 @@
     ],
     "hint": "Core Rule (Cloud Router and BGP): Global dynamic routing mode makes each Cloud Router advertise subnets from every region and propagate learned on-premises routes to all regions, which is required when the two hybrid connections terminate in different regions and must each provide full reachability.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure the VPC with regional dynamic routing mode so each Cloud Rou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create static routes on-premises for each Google Cloud subnet pointing…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Advertise the same route priority on both paths so that traffic is loa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A breaks reachability to the other four regions over each path.",
+      "3": "Option D removes dynamic failover entirely.",
+      "4": "Option E would send traffic across both paths, including the lower-bandwidth encrypted VPN, when the requirement is Interconnect preference."
     }
   },
   {
@@ -375,9 +375,9 @@
     ],
     "hint": "Core Rule (Cloud NAT for serverless): Cloud Run instances do not have stable external IPs; the documented approach for a static egress IP is to send the service's outbound traffic into the VPC (Direct VPC egress or a Serverless VPC Access connector with all-traffic routing) and let a Cloud NAT gateway with manually reserved static IP addresses perform source NAT, so every instance appears from the fixed IPs regardless of scale.",
     "whyWrong": {
-      "0": "Incorrect distractor (Reserve a static external IP and assign it to the Cloud Run service in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Route the service's traffic through a Compute Engine proxy VM that has…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the Cloud Run instance IP addresses and ask the partner to allowli…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is not a Cloud Run capability.",
+      "1": "Option B works but introduces a self-managed single point of failure and bottleneck.",
+      "2": "Option C is insecure and impractical because Google's egress ranges are vast and shared with other customers."
     }
   },
   {
@@ -404,9 +404,9 @@
     ],
     "hint": "Core Rule: Cloud DNS peering zones let one VPC network delegate resolution of a namespace to another VPC's DNS configuration, so the application VPCs resolve internal.example.com by peering to the hub's private zone while the records remain authoritative and managed in the hub project alone; DNS peering works independently of VPC Network Peering.",
     "whyWrong": {
-      "1": "Incorrect distractor (Duplicate the private zone in each application project and synchronize…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable DNS forwarding on the VPC peering connections so DNS queries tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Convert internal.example.com to a public zone so that all VPCs can res…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B duplicates administration and introduces drift.",
+      "2": "Option C does not exist; VPC Network Peering does not carry DNS resolution and private zones are not shared across peered networks automatically.",
+      "3": "Option D exposes internal hostnames publicly, which is a security anti-pattern."
     }
   },
   {
@@ -433,9 +433,9 @@
     ],
     "hint": "Core Rule (GKE container networking): GKE Dataplane V2 is Google's eBPF-based, managed data plane (built on Cilium) that enforces Kubernetes NetworkPolicy natively without add-on installation and provides network policy logging, so namespace-to-namespace isolation and flow logging are achieved declaratively.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rely on VPC firewall rules that reference the node service accounts to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Install Calico manually on the cluster and write GlobalNetworkPolicy r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Give each tenant a separate node pool and use node taints to isolate t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot work because VPC firewall rules operate on node IPs and service accounts, not on pod-level namespace identity within a node.",
+      "1": "Option B is the legacy approach that requires operating a third-party CNI, which the team wants to avoid.",
+      "3": "Option D separates scheduling but pods on different node pools remain fully routable to each other without network policy."
     }
   },
   {
@@ -462,9 +462,9 @@
     ],
     "hint": "Core Rule: The GKE Gateway API is Google's recommended successor to Ingress: the gke-l7-global-external-managed GatewayClass (and its multi-cluster variant) provisions a global external Application Load Balancer that uses network endpoint groups for container-native routing straight to pods, supports GCPBackendPolicy for Cloud Armor and CDN, and its role-oriented model lets the platform team own the Gateway (listeners, certificates) while teams manage HTTPRoutes in their namespaces.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy an in-cluster ingress-nginx controller behind an external passt…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Kubernetes Service of type LoadBalancer for each storefront s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy a regional internal Application Load Balancer in each region an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on a passthrough balancer per region and an in-cluster proxy, losing the global anycast IP, Cloud Armor, and CDN integration.",
+      "2": "Option C creates one Layer 4 passthrough load balancer per service with no HTTP routing or shared certificate management.",
+      "3": "Option D is internal-only; Cloud NAT does not publish internal load balancers."
     }
   },
   {
@@ -491,9 +491,9 @@
     ],
     "hint": "Core Rule (Private Service Connect for managed services): Cloud SQL supports Private Service Connect: the instance exposes a service attachment and each consumer VPC creates an endpoint with an IP from its own subnet, so no private services access range is reserved, no VPC peering is created, and the transitive-routing limitation of peering is irrelevant because each VPC has its own endpoint.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure private services access and export custom routes across all …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Assign the instance a public IP and restrict access with authorized ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy the Cloud SQL Auth Proxy on a VM in each VPC and connect over t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A uses peering-based private services access, which requires an allocated range and is exactly the transitive-routing pattern the team wants to avoid (peered-of-peered VPCs cannot reach the instance).",
+      "1": "Option B and Option C both traverse public IPs, which is less secure and not private connectivity; the Auth Proxy adds encryption and IAM but still depends on a public endpoint in this configuration.",
+      "2": "Option C both traverse public IPs, which is less secure and not private connectivity; the Auth Proxy adds encryption and IAM but still depends on a public endpoint in this configuration."
     }
   },
   {
@@ -522,9 +522,9 @@
     ],
     "hint": "Core Rule (IP address planning): Google's VPC design best practices stress planning address space up front: cloud ranges must be carved out of the corporate IPAM so they never overlap with on-premises prefixes (overlaps break BGP-learned routing over Interconnect or VPN), and GKE secondary ranges for pods and services should be sized for growth because, although a subnet's primary range can be expanded in place, the pod range assigned at cluster creation cannot be shrunk or replaced (additional pod ranges can only be added for new node pools).",
     "whyWrong": {
-      "1": "Incorrect distractor (Use the auto mode VPC so that subnets are created automatically in eve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Reuse the same subnet ranges in each region, because regions are isola…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Allocate a /29 for each subnet and expand it only when it fills up.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is discouraged for enterprises because auto mode uses the fixed 10.",
+      "3": "Option D is impossible within one VPC and would break routing.",
+      "4": "Option E creates constant expansion work and fragmentation."
     }
   },
   {
@@ -551,9 +551,9 @@
     ],
     "hint": "Core Rule (VPC firewall rules): Google recommends service accounts over network tags as firewall selectors when a strong identity is needed: a VM's service account can be changed only by a principal with IAM permission to act as that service account, whereas network tags can be edited by anyone with instance-level compute permissions.",
     "whyWrong": {
-      "0": "Incorrect distractor (Allow TCP 5432 from the source IP range of the web subnet to the datab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Allow TCP 5432 from instances with the network tag web to instances wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Allow TCP 5432 from 0.0.0.0/0 to the database subnet and rely on Postg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is coarse; any VM placed in the web subnet gains database access.",
+      "2": "Option C is functional but tags are a weaker, mutable identity that developers can modify.",
+      "3": "Option D violates least privilege and exposes the database to the entire internet path."
     }
   },
   {
@@ -580,9 +580,9 @@
     ],
     "hint": "Core Rule: Cloud NGFW Enterprise adds Google-managed, Palo Alto Networks-powered intrusion prevention to network firewall policies, including TLS interception and inspection, and it blocks matching traffic inline for east-west and north-south flows without customer-managed appliances.",
     "whyWrong": {
-      "1": "Incorrect distractor (Enable VPC Flow Logs and create Cloud Monitoring alerts on suspicious …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy Cloud IDS endpoints in each subnet and configure them to drop m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Apply Cloud Armor security policies to internal traffic between the ti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is detective only and does not block anything.",
+      "2": "Option C is wrong because Cloud IDS is an out-of-band detection service that mirrors traffic; it cannot drop packets.",
+      "3": "Option D is wrong because Cloud Armor protects workloads behind external Application Load Balancers and does not apply to VM-to-VM traffic inside the VPC."
     }
   },
   {
@@ -609,9 +609,9 @@
     ],
     "hint": "Core Rule: Private Google Access for on-premises hosts works by routing API traffic to the special virtual IP ranges for private.googleapis.com or restricted.googleapis.com across the Interconnect: Cloud Router must advertise the /30 as a custom route, on-premises DNS must map googleapis.com names to it, and firewalls must permit it; the traffic then never touches the internet.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy a Cloud NAT gateway in the VPC and route on-premises API traffi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Private Google Access on the VPC subnets and instruct the HPC h…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Install the Cloud Storage FUSE client on the HPC nodes so that API tra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because Cloud NAT serves only VMs in the VPC, not on-premises hosts.",
+      "1": "Option B is wrong because the subnet-level Private Google Access setting applies to VM instances in that subnet, not to on-premises clients.",
+      "3": "Option D is a client library, not a network path; it still needs a route to the API endpoints."
     }
   },
   {
@@ -638,9 +638,9 @@
     ],
     "hint": "Core Rule (Cloud CDN media delivery): The standard media pattern is a Cloud Storage backend bucket behind a global external Application Load Balancer with Cloud CDN: segments are cached at Google's edge near subscribers, cache hits avoid origin egress charges, and Cloud CDN signed URLs or signed cookies grant time-limited access so unauthenticated users cannot fetch segments.",
     "whyWrong": {
-      "0": "Incorrect distractor (Make the bucket public and serve it directly from storage.googleapis.c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Serve segments from Compute Engine VMs in each region that copy the fi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Front the bucket with a regional external Application Load Balancer in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A has no access control and no edge caching, so latency and egress cost are both worse.",
+      "1": "Option B is a self-built CDN with cache management, scaling, and cost problems.",
+      "2": "Option C provides no global anycast IP and regional external Application Load Balancers do not support Cloud CDN."
     }
   },
   {
@@ -669,9 +669,9 @@
     ],
     "hint": "Core Rule (Multi-region load balancing): A single global external Application Load Balancer with backends in both regions provides one anycast IP, proximity-based routing to the nearest region with healthy capacity, and automatic failover when health checks fail in one region; Google-managed certificates (via the load balancer or Certificate Manager) are provisioned and renewed automatically, removing manual TLS operations.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy a regional external Application Load Balancer in each region an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Peer the two regional VPC subnets so that the load balancers can share…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Configure the two regions in a single zonal managed instance group so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B yields two IPs and DNS-based steering that is slow to fail over because of client caching.",
+      "2": "Option C is unnecessary because subnets in one VPC already communicate, and it is irrelevant to load balancer backends.",
+      "4": "Option E is invalid because a managed instance group is zonal or regional, never multi-regional."
     }
   },
   {
@@ -698,9 +698,9 @@
     ],
     "hint": "Core Rule (Internal load balancer global access): By default the forwarding rule of an internal passthrough Network Load Balancer is reachable only from clients in the same region; enabling global access allows clients in any region of the VPC (and connected networks) to reach it, which resolves the timeouts with a single configuration change.",
     "whyWrong": {
-      "1": "Incorrect distractor (The VPC is in regional dynamic routing mode; switch it to global dynam…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The load balancer needs a proxy-only subnet in asia-southeast1; create…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Internal load balancers cannot be reached across regions; deploy a sec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because dynamic routing mode governs Cloud Router route advertisement for hybrid connectivity, not intra-VPC reachability of load balancer IPs.",
+      "2": "Option C is wrong because proxy-only subnets are required for Envoy-based (proxy) load balancers, not passthrough ones.",
+      "3": "Option D is unnecessary duplication when the global access setting exists."
     }
   },
   {
@@ -727,9 +727,9 @@
     ],
     "hint": "Core Rule: Managed services that run in a Google-owned producer VPC, such as Cloud SQL (peering mode) and Memorystore for Redis, are reached over private IP through private services access: you allocate an address range in your VPC and create a private connection, which establishes the VPC peering to the service producer network on your behalf.",
     "whyWrong": {
-      "0": "Incorrect distractor (A Cloud NAT gateway so the managed services can reach the VMs.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A VPC Network Peering connection to the Cloud SQL project owned by Goo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A Serverless VPC Access connector in the same region as the instances.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is unrelated; Cloud NAT provides outbound internet for VMs.",
+      "2": "Option C describes the mechanism but you cannot peer manually with Google's producer project; the private connection must be created via the Service Networking API.",
+      "3": "Option D is for Cloud Run, Cloud Run functions, and App Engine to reach the VPC, not for Compute Engine VMs."
     }
   }
 ]

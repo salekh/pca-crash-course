@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (PCI DSS scope reduction): The most effective way to shrink PCI DSS scope is to keep cardholder data out of your environment entirely: with hosted fields or a redirect, the PAN travels straight from the browser to the PCI-certified processor and your systems only handle a non-sensitive token, so the storefront largely falls out of the cardholder data environment.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move the checkout API to Cloud Run so that the serverless platform's P…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Encrypt the PAN with a Cloud KMS key in the API tier before storing it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Place the GKE cluster inside a VPC Service Controls perimeter so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because using a compliant platform does not remove your application from scope if it still processes PANs; compliance is shared.",
+      "2": "Option C still stores PANs, which keeps the database, keys and surrounding systems in scope.",
+      "3": "Option D reduces exfiltration risk but does not change what data flows through your systems, so the scope stays the same."
     }
   },
   {
@@ -55,9 +55,9 @@
     ],
     "hint": "Core Rule (PCI DSS shared responsibility): PCI DSS follows the shared responsibility model: Google's Attestation of Compliance and PCI responsibility matrix, available through Compliance Reports Manager, evidence the physical and infrastructure controls Google operates, while the customer must build and evidence its own controls such as CDE segmentation, patching, logging, vulnerability scanning and access management.",
     "whyWrong": {
-      "1": "Incorrect distractor (Google Cloud's PCI DSS Attestation of Compliance means the startup's a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Google Cloud performs quarterly vulnerability scans of the startup's V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (The startup must file its Report on Compliance with Google Cloud befor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B overstates inheritance; the platform attestation does not make a customer application compliant.",
+      "3": "Option D is wrong because scanning customer operating systems and code is the customer's responsibility (Security Command Center's web security scanner can help but the obligation is the customer's).",
+      "4": "Option E is not a real requirement; reports are filed with acquirers or card brands, not with Google."
     }
   },
   {
@@ -84,9 +84,9 @@
     ],
     "hint": "Core Rule (Sensitive data discovery): Sensitive Data Protection discovery continuously profiles BigQuery data across an organization, folder or project, automatically detecting new and changed tables and producing column-level sensitivity and data-risk profiles, which gives the DPO a self-maintaining inventory without custom code.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask each business unit to fill in a spreadsheet describing the sensiti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Write a Dataflow pipeline that samples every table nightly and calls t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable BigQuery Data Access audit logs and analyze query text in Log A…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is manual, inaccurate and quickly stale.",
+      "1": "Option B reinvents the discovery service, costs more, and requires ongoing maintenance.",
+      "3": "Option D reveals who queried which tables but does not classify what the columns contain."
     }
   },
   {
@@ -113,9 +113,9 @@
     ],
     "hint": "Core Rule (Format-preserving encryption): FPE-FFX is deterministic, so the same input always yields the same token and joins keep working; it preserves the length and character set of the input, so a 10-digit number remains a 10-digit number for the legacy validation; and it is reversible by an authorized caller holding the wrapped key, which satisfies the fraud team's re-identification need.",
     "whyWrong": {
-      "1": "Incorrect distractor (Cryptographic hashing with a Cloud KMS-wrapped key.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replacement with the infoType name, for example PHONE_NUMBER.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deterministic encryption (AES-SIV) with a surrogate annotation.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is deterministic but irreversible, so escalations could not recover the number.",
+      "2": "Option C destroys both uniqueness and reversibility.",
+      "3": "Option D is deterministic and reversible but produces a longer base64 surrogate that would fail the 10-digit format check."
     }
   },
   {
@@ -142,9 +142,9 @@
     ],
     "hint": "Core Rule (Pseudonymization): A keyed cryptographic hash (HMAC) produces the same output for the same email, preserving per-customer analytics, and is one-way; because the key is wrapped in Cloud KMS and never given to the agency, they cannot rebuild the mapping even by hashing candidate emails.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use Sensitive Data Protection deterministic encryption with a key stor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Sensitive Data Protection format-preserving encryption so that the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace email addresses with a SHA-256 hash of the plain email, which …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is reversible, which the DPO prohibited for the recipient side and adds unnecessary risk.",
+      "1": "Option B is also reversible and makes the output look like a real email, which is undesirable.",
+      "2": "Option C is dangerous because an unkeyed hash of a low-entropy value like an email can be reversed with a dictionary or rainbow table attack, so it is not considered effective pseudonymization."
     }
   },
   {
@@ -171,9 +171,9 @@
     ],
     "hint": "Core Rule (Re-identification risk analysis): The concern is re-identification through quasi-identifiers, which is measured with metrics such as k-anonymity; Sensitive Data Protection risk analysis computes k-anonymity (and l-diversity, k-map and delta-presence) over BigQuery tables so the institute can iteratively generalize fields until the dataset satisfies the board's threshold.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run a Sensitive Data Protection inspection job on the dataset; if no P…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Apply BigQuery column-level security to the ZIP code and birth date co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Encrypt the ZIP code and birth date columns with a customer-managed en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A only looks for direct identifiers and gives false assurance about linkage attacks.",
+      "2": "Option C blocks the columns entirely, which defeats the research purpose and does not quantify risk.",
+      "3": "Option D protects data at rest but the published dataset would either be unusable or, once decrypted, just as re-identifiable."
     }
   },
   {
@@ -200,9 +200,9 @@
     ],
     "hint": "Core Rule: Policy tags provide native BigQuery column-level security: once access control is enforced on the taxonomy, users without the Data Catalog Fine-Grained Reader role on the tag cannot query the tagged columns even though they have table-level access, so analysts can still use SELECT on the remaining columns.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create two copies of the table, one with and one without the sensitive…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant analysts the BigQuery Data Viewer role and rely on a naming conv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Encrypt the two columns with AEAD functions and share the key only wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A duplicates data, doubles storage and creates consistency and governance drift.",
+      "1": "Option B is not a control at all.",
+      "3": "Option D works but requires application-level key handling, changes every query, and is harder to audit than the built-in column-level security."
     }
   },
   {
@@ -229,9 +229,9 @@
     ],
     "hint": "Core Rule (BigQuery row-level security): Row-level access policies filter query results per user or group directly on the base table, so a single table serves every manager while each sees only their permitted rows, with no per-region views or copies to maintain.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a separate dataset per region and use scheduled queries to copy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Attach a policy tag to the region column and grant each manager the Fi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable BigQuery dynamic data masking on the region column so that othe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B multiplies storage, introduces latency and creates a maintenance burden.",
+      "2": "Option C controls whether a column can be read at all, not which rows are visible.",
+      "3": "Option D masks column values but still returns all rows, so managers would see other regions' transactions with the region name hidden."
     }
   },
   {
@@ -258,9 +258,9 @@
     ],
     "hint": "Core Rule (BigQuery authorized views): An authorized view lets consumers query the view's results while the view itself is granted access to the source dataset, so the operations team never receives permissions on the underlying invoice rows and no data is copied.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant the operations team the BigQuery Data Viewer role on the finance…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Schedule a query that writes monthly totals to a Cloud Storage CSV fil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable row-level security on the invoice table so that operations user…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A gives full read access to the PII, relying on trust rather than a control.",
+      "1": "Option B creates exported copies with weaker access control and becomes stale.",
+      "2": "Option C is wrong because row-level security filters rows; it cannot transform detail rows into aggregates."
     }
   },
   {
@@ -287,9 +287,9 @@
     ],
     "hint": "Core Rule (BigQuery dynamic data masking): Dynamic data masking is built on policy tags: users with the Masked Reader role see the masked representation (an email mask keeps the domain), while users with the Fine-Grained Reader role see the raw value, and both run the exact same query against the same table, so no views or duplicate columns are needed.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create two views over the table, one applying REGEXP_REPLACE to the em…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store two copies of the email column, one full and one masked, and use…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Sensitive Data Protection to redact the email column in place and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires maintaining parallel views and breaks the requirement that both groups use identical SQL.",
+      "2": "Option C duplicates data and adds an ETL step.",
+      "3": "Option D destroys the data in BigQuery and moves the source of truth to another system, which is far more disruptive than necessary."
     }
   },
   {
@@ -316,9 +316,9 @@
     ],
     "hint": "Core Rule: A tokenization service isolates the only component that can produce clear-text PANs; application databases hold tokens and the last four digits, so the call center is removed from scope and the billing system re-identifies through a tightly controlled endpoint, which is the Google-documented pattern for PCI scope reduction.",
     "whyWrong": {
-      "0": "Incorrect distractor (Encrypt the PAN column in Cloud SQL with a customer-managed Cloud KMS …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Mask the PAN in the call center front-end with JavaScript so agents on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the full PAN in Secret Manager with one secret per customer and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still delivers the full PAN to the call center application, keeping it in scope.",
+      "1": "Option B masks only in the browser; the PAN still reaches the client, so the control is ineffective.",
+      "3": "Option D misuses Secret Manager as a customer database and still gives the application tier access to clear-text PANs."
     }
   },
   {
@@ -345,9 +345,9 @@
     ],
     "hint": "Core Rule (PII discovery in Cloud Storage): This is the reference architecture for automatic classification of uploaded data: an event-driven Cloud Run function invokes a Sensitive Data Protection inspection job per object, and the job's completion notification triggers a move to the appropriate bucket, giving near-real-time classification across many infoTypes and file formats including PDFs.",
     "whyWrong": {
-      "1": "Incorrect distractor (Require partners to add a metadata header stating whether the file con…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Storage Autoclass on the landing bucket so that sensitive…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run a weekly Dataproc job that greps every file for email address patt…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B trusts partners to self-declare and provides no technical verification.",
+      "2": "Option C confuses storage classes with security; Autoclass optimizes cost and does not classify content.",
+      "3": "Option D runs weekly, so sensitive files sit in the landing bucket for days, and a simple regex misses most PII types."
     }
   },
   {
@@ -375,9 +375,9 @@
     ],
     "hint": "Core Rule (PII in logs): Cloud Logging cannot rewrite entries on ingestion, so the compliant pattern is to route the raw stream through a sink to Pub/Sub, de-identify it with Sensitive Data Protection in Dataflow, land the sanitized copy where the SREs can query it, and use an exclusion filter so the personal data never lands in the _Default bucket; sinks are evaluated before exclusions, so the routed copy is unaffected.",
     "whyWrong": {
-      "0": "Incorrect distractor (Set the retention of the _Default log bucket to one day so that person…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Sensitive Data Protection redaction on the _Default log bucket …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Reduce the Ops Agent log level to ERROR so that fewer entries containi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still retains personal data for a day and destroys the troubleshooting history.",
+      "1": "Option B describes a capability that does not exist in log buckets.",
+      "2": "Option C reduces volume but does not remove personal data from the entries that are still written, and it hampers troubleshooting."
     }
   },
   {
@@ -406,9 +406,9 @@
     ],
     "hint": "Core Rule (PCI DSS on GKE): PCI DSS scope is determined by which systems store, process or transmit cardholder data or are connected to those systems, so segmenting the CDE into its own project and network with enforced firewall boundaries, and tokenizing so that other services never touch PANs, are the two changes that actually remove systems from scope.",
     "whyWrong": {
-      "0": "Incorrect distractor (Switch the shared cluster from GKE Standard to GKE Autopilot so that G…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Armor on the marketing site's load balancer to block OWAS…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Binary Authorization on the shared cluster so that only signed …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A improves operational security but the workloads still share the environment.",
+      "2": "Option C protects the marketing site but has no effect on which systems are in scope.",
+      "3": "Option D is a valuable supply-chain control and helps meet some requirements, but it applies to every workload equally and does not reduce scope."
     }
   },
   {
@@ -435,9 +435,9 @@
     ],
     "hint": "Core Rule (Sensitive Data Protection job triggers): Job triggers are the built-in scheduling mechanism for Sensitive Data Protection inspection jobs; combined with an inspection template for consistent infoType configuration and the Save to BigQuery action, they cover the requirement with no custom code.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Cloud Scheduler job that invokes a Cloud Run function which c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Write a scheduled query using BigQuery ML to classify columns and writ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable BigQuery Data Access audit logs and search for sensitive values…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but adds infrastructure and code to maintain.",
+      "1": "Option B is not a supported approach; BigQuery ML does not perform PII classification out of the box.",
+      "3": "Option D examines who accessed data, not what the data contains."
     }
   },
   {
@@ -464,9 +464,9 @@
     ],
     "hint": "Core Rule (Sensitive data in images): Sensitive Data Protection can inspect images directly, locate findings such as names, emails and account numbers using its built-in infoTypes, and return a redacted image with the findings blacked out, which is a single API call rather than a bespoke pipeline.",
     "whyWrong": {
-      "0": "Incorrect distractor (Build a custom pipeline with the Vision API to find text, a regular ex…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Downscale the screenshots so that text becomes unreadable before train…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Convert the screenshots to grayscale and rely on the assistant model n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A assembles the same capability by hand and will be less accurate and more expensive to maintain.",
+      "2": "Option C degrades the images for the intended training purpose and is unreliable, since larger text may remain readable.",
+      "3": "Option D does nothing to remove personal data and relies on hope rather than a control."
     }
   },
   {
@@ -493,9 +493,9 @@
     ],
     "hint": "Core Rule (Policy tag governance): A policy tag taxonomy can be used by tables in other projects, so hosting one taxonomy in a central governance project lets producers tag columns while the governance team controls who holds the Fine-Grained Reader role on each tag, achieving consistent classification and centralized entitlement.",
     "whyWrong": {
-      "1": "Incorrect distractor (Have each project create its own taxonomy with the same four tag names…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use table labels such as classification=restricted and write a schedul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store all sensitive tables in a single central project and give the da…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B fragments the scheme; identical names do not make tags equivalent, and access is scattered across project owners.",
+      "2": "Option C uses labels, which are informational metadata with no enforcement, and the script would operate at table rather than column granularity.",
+      "3": "Option D centralizes data instead of governance and breaks ownership boundaries and cost attribution."
     }
   },
   {
@@ -522,9 +522,9 @@
     ],
     "hint": "Core Rule (BigQuery authorized datasets): Authorized datasets extend the authorized view concept to a whole dataset: once curated is authorized on raw, any view created in curated can query raw tables, and consumers still only receive access to curated, so the per-view administrative step disappears without weakening the boundary.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant the analytics team the BigQuery Data Viewer role on the raw data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Materialize each view into a table in the curated dataset with a sched…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the views with BigQuery table snapshots taken hourly.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A gives the whole team direct access to PII, defeating the control.",
+      "1": "Option B duplicates data, adds cost and staleness, and the scheduled queries would themselves need access.",
+      "2": "Option C copies raw data into snapshots, which also exposes PII and does not address view authorization."
     }
   },
   {
@@ -551,9 +551,9 @@
     ],
     "hint": "Core Rule (Data masking precedence): When a principal has both the Fine-Grained Reader and Masked Reader roles on the same policy tag, BigQuery grants full access and returns the raw value, so a user who inherits Fine-Grained Reader through another group will see unmasked data while peers with only Masked Reader see masked results; the fix is to remove the broader grant.",
     "whyWrong": {
-      "0": "Incorrect distractor (The masking rule was created after her session started; ask her to sig…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Dynamic data masking only applies to queries from Looker Studio; her S…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (The column has two masking rules and BigQuery picked the raw one; dele…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because masking is evaluated at query time, not per session.",
+      "2": "Option C is false: masking applies to all query paths including the API and SQL tools.",
+      "3": "Option D misdescribes how rules work; multiple rules are resolved by a documented precedence order, and none of them return raw data to a Masked Reader."
     }
   },
   {
@@ -582,9 +582,9 @@
     ],
     "hint": "Core Rule (Cardholder data in analytics): The platform stays out of scope only if it never stores or processes cardholder data: a keyed hash or token preserves linkage across transactions without the PAN, and keeping only the BIN and last four digits gives issuer information while remaining a truncated, non-sensitive representation per PCI DSS truncation guidance.",
     "whyWrong": {
-      "1": "Incorrect distractor (Store the full PAN in a BigQuery column protected by a policy tag so t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the PAN encrypted with a customer-managed encryption key in the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Load the PAN into Vertex AI Feature Store, which is a PCI-compliant ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B and Option D both keep the full PAN in the analytics platform, so access controls or encryption do not remove it from scope.",
+      "3": "Option D both keep the full PAN in the analytics platform, so access controls or encryption do not remove it from scope.",
+      "4": "Option E is wrong because a compliant managed service does not exempt the customer's use of PANs from scope; the customer still stores cardholder data."
     }
   },
   {
@@ -611,9 +611,9 @@
     ],
     "hint": "Core Rule (Sensitive data discovery beyond BigQuery): Sensitive Data Protection discovery supports Cloud SQL and Cloud Storage in addition to BigQuery, so extending the existing scan configuration provides continuous profiling of those sources with no pipelines to build.",
     "whyWrong": {
-      "1": "Incorrect distractor (Export nightly database dumps to BigQuery so that the existing BigQuer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Install the Ops Agent on the Cloud SQL instances and enable query logg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a Dataflow pipeline that reads every table through JDBC and cal…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B copies personal data into another system, increasing exposure and cost.",
+      "2": "Option C is not possible for Cloud SQL, which is managed, and query logs do not classify stored data.",
+      "3": "Option D reinvents discovery with far more effort and cost."
     }
   },
   {
@@ -643,9 +643,9 @@
     ],
     "hint": "Core Rule (Pseudonymization for ML): Deterministic encryption with a KMS-wrapped key preserves joins for modeling while remaining reversible for the operations team, and separating the key into a controlled project and granting re-identification permissions only to the operations identity enforces the separation of duties the DPO requires.",
     "whyWrong": {
-      "1": "Incorrect distractor (Pseudonymize member identifiers with an unkeyed SHA-256 hash computed …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant the data science team the Cloud KMS CryptoKey Decrypter role so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Store the wrapped key in the same BigQuery dataset as the pseudonymize…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is an unkeyed hash that can be reversed by dictionary attack on structured identifiers and is not reversible for legitimate requests.",
+      "3": "Option D gives the data science team the very capability the DPO prohibited.",
+      "4": "Option E co-locates the secret with the data, so anyone with dataset access could attempt re-identification."
     }
   },
   {
@@ -672,9 +672,9 @@
     ],
     "hint": "Core Rule (PII in generative AI training data): The requirement is to remove personal data from the training set itself, which is a data transformation task: a repeatable Dataflow pipeline calling Sensitive Data Protection de-identification produces a sanitized corpus that can be re-run as new transcripts arrive.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add a system instruction to the fine-tuned model telling it never to r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Apply BigQuery column-level security to the transcript column so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Model Armor on the assistant's responses to filter out any persona…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does not remove the data; the model would still have been trained on it and prompt instructions can be bypassed.",
+      "1": "Option B controls who reads the data, not whether personal data is present in what the model learns.",
+      "2": "Option C is a valuable output guardrail but operates after the fact and does not satisfy the requirement that the training data contain no personal data."
     }
   },
   {
@@ -702,9 +702,9 @@
     ],
     "hint": "Core Rule (Auditing access to sensitive columns): Data Access audit logs record BigQuery reads including the query and referenced tables and columns, but they are not enabled by default for most services and, when enabled, are kept only 30 days in the _Default bucket, so a sink to long-term storage is required for a 12-month look-back; because the firm never enabled them, past reads cannot be reconstructed.",
     "whyWrong": {
-      "0": "Incorrect distractor (Query INFORMATION_SCHEMA.JOBS in each project; it retains 12 months of…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export the Admin Activity audit logs to BigQuery; they already contain…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Access Transparency and use its logs to list which users access…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because INFORMATION_SCHEMA.",
+      "2": "Option C is wrong because Admin Activity logs capture configuration changes, not data reads.",
+      "3": "Option D is wrong because Access Transparency records Google personnel actions, not the customer's users."
     }
   },
   {
@@ -731,9 +731,9 @@
     ],
     "hint": "Core Rule (Date shifting for health data): Date shifting moves dates by a random number of days within a configured range, and using the patient identifier as the context field ensures every date belonging to that patient is shifted by the same amount, so intervals such as time to readmission remain exact while real dates are hidden, which is the standard technique for this research need.",
     "whyWrong": {
-      "0": "Incorrect distractor (Replace every date with the first day of its year so that no exact dat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Remove all date columns from the shared dataset and provide the resear…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Generalize each date by bucketing it into a calendar month, which is s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option C both lose the day-level precision needed for interval analysis and can still leak information about timing.",
+      "1": "Option B removes the possibility of the researchers doing their own longitudinal analysis, which is the point of sharing the data.",
+      "2": "Option C both lose the day-level precision needed for interval analysis and can still leak information about timing."
     }
   }
 ]

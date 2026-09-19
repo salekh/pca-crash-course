@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (gcloud configurations): Named configurations are the built-in mechanism for exactly this: each configuration holds its own account, project, region/zone, and other properties, and gcloud config configurations activate switches all of them atomically; you can also target one for a single command with --configuration.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a shell alias per client that prepends --project, --account, an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Install a separate copy of the Google Cloud SDK in a different directo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Shell for one client and the local SDK for the other two so …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is fragile — an alias can be forgotten and does not cover tools such as bq or kubectl credentials that read the active configuration.",
+      "2": "Option C is heavy-handed and makes SDK updates painful.",
+      "3": "Option D does not scale to three clients and still leaves two sharing a single local SDK configuration."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: gcloud auth login authorizes the gcloud CLI itself, but client libraries use Application Default Credentials (ADC), which look first at GOOGLE_APPLICATION_CREDENTIALS, then at the well-known file created by gcloud auth application-default login, then at the metadata server.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run gcloud auth activate-service-account with a key file so the librar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the pat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run gcloud auth login again with the --update-adc flag omitted and res…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces a service account key, which the constraint forbids and which Google recommends avoiding.",
+      "1": "Option B points ADC at an internal gcloud database that is not a valid credential file.",
+      "2": "Option C changes nothing; plain gcloud auth login does not write ADC."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Service account impersonation): Impersonation lets an authenticated user obtain short-lived tokens for a service account without any key: the user needs the Service Account Token Creator role on that service account, and gcloud's --impersonate-service-account flag (or the auth/impersonate_service_account property) transparently uses it.",
     "whyWrong": {
-      "1": "Incorrect distractor (Rotate the key every 30 days with a Cloud Scheduler job and store it i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the key file with an API key restricted to the Cloud Run Admin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant engineers the deployer service account's roles directly on their…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B keeps a long-lived key in circulation; rotation reduces but does not remove the risk.",
+      "2": "Option C is invalid — API keys do not carry identity and cannot authorize IAM-protected admin operations.",
+      "3": "Option D widens the engineers' standing privileges and loses the separation the deployer identity provides."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (gcloud storage vs gsutil): The gcloud storage commands are the current, recommended CLI for Cloud Storage; they are significantly faster than gsutil because they use parallelism and parallel composite uploads by default without .boto tuning, and gsutil is now in maintenance mode.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep gsutil but add the -m flag and increase parallel_thread_count in …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Write a custom Python uploader using the Storage client library with a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Zip the files into one archive first and upload it with gsutil cp so o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A can help but requires manual tuning and remains on the legacy tool.",
+      "1": "Option B is custom code to maintain for a problem the CLI already solves.",
+      "3": "Option D changes the data layout (individual objects become inaccessible without downloading and extracting the archive) and does not use parallelism."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule (bq command-line tool): bq load is the CLI for batch loading: it accepts a Cloud Storage URI with a wildcard so all files load in a single job, reads gzipped CSV natively, and --time_partitioning_field creates or targets a column-partitioned table; the default write disposition appends.",
     "whyWrong": {
-      "0": "Incorrect distractor (bq query --use_legacy_sql=false \"LOAD DATA FROM FILES ...\" for each fi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (gcloud storage cp gs://shipments/2025-06-14/* . followed by bq insert …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (bq mk --transfer_config --data_source=google_cloud_storage with a sche…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works with the LOAD DATA SQL statement but looping per file creates hundreds of jobs unnecessarily.",
+      "2": "Option C downloads data locally and uses bq insert (streaming inserts from newline-delimited JSON), which is the wrong tool for bulk CSV loading and incurs streaming costs.",
+      "3": "Option D — the BigQuery Data Transfer Service for Cloud Storage — is a valid scheduled alternative, but a schedule per file is not how it works and the question specifically asks for the cron-driven script."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule (kubectl access to GKE): kubectl needs a kubeconfig entry for the cluster; gcloud container clusters get-credentials writes the endpoint, CA, and a user entry that obtains tokens through the gke-gcloud-auth-plugin from the current gcloud identity, so IAM roles like container.developer apply.",
     "whyWrong": {
-      "0": "Incorrect distractor (Download the cluster's admin kubeconfig from the console and copy its …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a service account key with cluster-admin permissions and set it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask an administrator to add the SRE's public IP to the cluster's maste…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on client certificates, which are disabled by default on modern GKE and bypass IAM.",
+      "1": "Option B creates a key and grants excessive privileges.",
+      "2": "Option C may be needed additionally for private clusters with authorized networks, but the immediate error is the missing kubeconfig context; without get-credentials, kubectl still has no cluster configured."
     }
   },
   {
@@ -197,9 +197,9 @@
     ],
     "hint": "Core Rule (gcloud output formatting and filtering): The --filter flag performs server-side/structured filtering on resource fields (labels, status), and --format=value(...) produces stable, machine-readable output that is not affected by changes to default table layout; the zone is needed because instances stop is a zonal command.",
     "whyWrong": {
-      "1": "Incorrect distractor (Pipe gcloud compute instances list to grep sandbox and awk to extract …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run gcloud compute instances stop --filter=\"labels.env=sandbox\" --all-…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export the instance inventory to a CSV from the console each morning a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B parses human-readable tables, which can change and is fragile.",
+      "2": "Option C is not valid — instances stop does not accept --filter or --all-zones.",
+      "3": "Option D is manual and immediately stale."
     }
   },
   {
@@ -226,9 +226,9 @@
     ],
     "hint": "Core Rule (Service enablement): APIs are disabled by default in new projects and must be explicitly enabled; the repeatable fix is to declare them as part of infrastructure as code (google_project_service resources, as the Cloud Foundation Toolkit project factory does) or in a bootstrap script using gcloud services enable, with explicit dependencies so resources are created only after the API is ready.",
     "whyWrong": {
-      "0": "Incorrect distractor (Instruct engineers to click the Enable API button in the console when …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant the Terraform service account the Owner role so it can call any …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Wait a few minutes and retry, because APIs are enabled automatically o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a manual step that will recur on every project.",
+      "1": "Option B misdiagnoses the problem — it is service enablement, not IAM, and Owner violates least privilege.",
+      "3": "Option D is wrong; APIs do not enable themselves on first use."
     }
   },
   {
@@ -258,9 +258,9 @@
     ],
     "hint": "Core Rule: Cloud Workstations provides managed, preconfigured developer environments inside your VPC: a workstation cluster can use a private gateway with no public IPs, a workstation configuration references a custom container image so every developer gets the same toolchain, and idle/running timeouts stop machines to save cost.",
     "whyWrong": {
-      "0": "Incorrect distractor (Give each developer a Compute Engine VM with an external IP and ask th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask developers to use Cloud Shell, since it already includes many deve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Distribute a Docker image of the dev environment for developers to run…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A puts unmanaged VMs on the internet and relies on manual setup.",
+      "2": "Option C — Cloud Shell — is a personal, ephemeral environment not attached to a customer VPC and not designed for enterprise dev-environment governance.",
+      "4": "Option E places source code on personal laptops, violating the constraint."
     }
   },
   {
@@ -287,9 +287,9 @@
     ],
     "hint": "Core Rule: Cloud Code is Google's IDE extension for VS Code, JetBrains, and Cloud Shell Editor; it wraps Skaffold to watch files and rebuild/redeploy automatically, supports debugging containers running on minikube or a remote GKE cluster, and provides explorers for Kubernetes and Cloud Run resources, logs, and Secret Manager.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use Cloud Build triggers on every git push and tail logs with gcloud l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Cloud Deploy with a fast dev pipeline that redeploys on each commi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write a Makefile that runs docker build, docker push, and kubectl appl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Use Cloud Build triggers on every git push and tail logs with gcloud logging tail in a second terminal.\") is incorrect because it does not meet the scenario's core requirement; Option D (Install the Cloud Code extension for VS Code, which uses Ska) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Use Cloud Deploy with a fast dev pipeline that redeploys on each commit.\") is incorrect because it does not meet the scenario's core requirement; Option D (Install the Cloud Code extension for VS Code, which uses Ska) is the Google Cloud recommended pattern here.",
+      "2": "Option C is a hand-built inner loop that lacks hot reload and IDE-integrated debugging and must be maintained by the team."
     }
   },
   {
@@ -316,9 +316,9 @@
     ],
     "hint": "Core Rule: Cloud Shell is free, requires only a browser, is authenticated as the signed-in user, ships with gcloud, kubectl, terraform, and many other tools, and persists $HOME (5 GB) across sessions while the VM itself is ephemeral.",
     "whyWrong": {
-      "1": "Incorrect distractor (A Cloud Workstations configuration with the default image, started on …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A small e2-micro Compute Engine VM accessed through SSH-in-browser wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (The Cloud Shell Editor only, since it provides a file browser and term…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is a strong enterprise option but incurs compute and cluster cost, which the scenario wants to avoid.",
+      "2": "Option C needs manual tool installation and management and is billed.",
+      "3": "Option D is part of Cloud Shell; the editor alone is not a separate offering and the correct answer is the Cloud Shell environment as a whole."
     }
   },
   {
@@ -345,9 +345,9 @@
     ],
     "hint": "Core Rule (Cloud Shell limitations): Cloud Shell is intended for interactive use: sessions terminate after inactivity, the VM is ephemeral, and there is a weekly usage quota, so it is the wrong platform for long-running batch work.",
     "whyWrong": {
-      "0": "Incorrect distractor (Re-run the job in Cloud Shell inside tmux and keep the browser tab ope…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Cloud Shell boost mode so the session runs on a larger machine …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Split the job into 60-minute chunks and manually start each chunk in a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A fights the platform's design and still hits the weekly quota and background-process termination.",
+      "1": "Option B (boost mode) provides more CPU/RAM but does not change session timeouts.",
+      "3": "Option D is manual toil that contradicts the goal of reliability without babysitting."
     }
   },
   {
@@ -374,9 +374,9 @@
     ],
     "hint": "Core Rule: The Pub/Sub emulator provides a local implementation of the API; official client libraries automatically use it when PUBSUB_EMULATOR_HOST is set, so no code changes are required.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a dedicated dev project with a topic per developer and rely on …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace Pub/Sub with a local RabbitMQ container for development and sw…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Mock the Pub/Sub API in unit tests and skip integration testing until …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does not work offline — client libraries do not cache messages for a disconnected network.",
+      "2": "Option C introduces a different messaging system with different semantics and a client swap that hides bugs.",
+      "3": "Option D loses local integration coverage entirely and delays feedback."
     }
   },
   {
@@ -403,9 +403,9 @@
     ],
     "hint": "Core Rule: The Spanner emulator is intended for functional development and testing: it runs in memory on a single host, stores no data across restarts, and explicitly does not emulate performance, capacity, or IAM/permission behavior.",
     "whyWrong": {
-      "0": "Incorrect distractor (The emulator does not support the DML statements used by the applicati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (The emulator requires a paid license for load testing; they should pur…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The emulator only supports the PostgreSQL dialect; they should convert…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is false — the emulator supports DML, DDL, and most query features.",
+      "1": "Option B is fictional; the emulator is free.",
+      "2": "Option C is wrong; the emulator supports both GoogleSQL and PostgreSQL dialects."
     }
   },
   {
@@ -432,9 +432,9 @@
     ],
     "hint": "Core Rule: The Bigtable emulator implements the data API locally and in memory, so tests exercise the real client library and request semantics with startup in seconds and no cloud resources.",
     "whyWrong": {
-      "1": "Incorrect distractor (Keep a permanent shared Bigtable instance for CI and have each build u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the integration tests with unit tests that mock the Bigtable c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Switch the CI tests to use Firestore, which has a mature emulator, and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B leaves a permanently billed instance and creates cross-build interference and cleanup risk.",
+      "2": "Option C removes real API coverage that integration tests are meant to provide.",
+      "3": "Option D tests the wrong database — behavior against Firestore says nothing about the Bigtable code paths."
     }
   },
   {
@@ -463,9 +463,9 @@
     ],
     "hint": "Core Rule (Cloud Emulators best practices): Emulators are discovered by the client libraries through environment variables, so setting them in the developer's shell or CI step keeps the application code identical across environments; and because emulators are in-memory (with limited optional persistence in some cases), each run should seed its own data and treat it as ephemeral.",
     "whyWrong": {
-      "1": "Incorrect distractor (Use the emulators to run production-scale load tests, because they imp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rely on the emulators to validate IAM policies and security rules exac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Point the production deployment at the emulator during initial rollout…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong: emulators do not model performance or scale.",
+      "2": "Option C is wrong for IAM — emulators bypass IAM entirely (Firestore security rules can be tested with the Firebase emulator, but IAM policies cannot).",
+      "4": "Option E is an anti-pattern; emulators are development tools with no durability, availability, or security guarantees."
     }
   },
   {
@@ -495,9 +495,9 @@
     ],
     "hint": "Core Rule (Quota management): The Cloud Quotas API lets you view, request, and preference quota values programmatically, so increases can be codified in provisioning workflows and tracked, and Monitoring quota metrics allow alerting before exhaustion.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a new project each time a quota is exhausted so that fresh defa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Retry 429 responses immediately in a tight loop until they succeed, si…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable the BigQuery API's quota by contacting support so that the ser…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is quota abuse and scatters resources across projects.",
+      "3": "Option D (\"Retry 429 responses immediately in a tight loop until they succeed, since the quota resets every second.\") is incorrect because it does not meet the scenario's core requirement; Option A (Use the Cloud Quotas API (gcloud quotas / QuotaPreference re), Option C (Implement truncated exponential backoff with jitter in the c) is the Google Cloud recommended pattern here.",
+      "4": "Option E is not possible; quotas protect the service, and the correct path is to request specific increases, not remove limits."
     }
   },
   {
@@ -524,9 +524,9 @@
     ],
     "hint": "Core Rule (Break-glass access via impersonation): Impersonation issues short-lived tokens (default one hour) for a privileged service account and logs both the principal that requested the token and the service account that performed the action, meeting attribution and no-long-lived-credential requirements; combining it with Privileged Access Manager makes even the Token Creator grant temporary and approval-gated.",
     "whyWrong": {
-      "0": "Incorrect distractor (Give administrators the Owner role but require them to use two-factor …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store a privileged service account key in Secret Manager and let admin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a shared privileged Google account whose password is held by th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates standing high privilege.",
+      "2": "Option C still relies on a long-lived key, even if rotated.",
+      "3": "Option D uses a shared identity that destroys individual attribution and violates basic identity hygiene."
     }
   },
   {
@@ -553,9 +553,9 @@
     ],
     "hint": "Core Rule (Access scopes vs IAM): On Compute Engine, OAuth access scopes on the instance limit what the attached service account's token can do, independent of IAM.",
     "whyWrong": {
-      "0": "Incorrect distractor (The service account lacks roles/bigquery.jobUser; add it and rerun the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (The BigQuery API is not enabled in the project; run gcloud services en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The script must use a service account key instead of the metadata serv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A would produce a permission denied error, not a scope error (and jobUser might also be needed later, but is not the cause here).",
+      "1": "Option B yields a different error about the API being disabled.",
+      "2": "Option C introduces a key, an anti-pattern, when the metadata server credentials work fine once scopes are fixed."
     }
   },
   {
@@ -582,9 +582,9 @@
     ],
     "hint": "Core Rule (bq query cost controls): A dry run returns the estimated bytes that a query would process without executing it or incurring cost, and --maximum_bytes_billed makes BigQuery fail the query up front if it would exceed the byte cap — together they give visibility and a hard guardrail (this also can be set as a project-level custom quota).",
     "whyWrong": {
-      "1": "Incorrect distractor (Add --use_legacy_sql=true to every query because legacy SQL scans fewe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add a sleep of 10 seconds before each query so analysts have time to c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add --batch to every query so it runs at lower priority and therefore …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is false; legacy SQL is not cheaper and is deprecated for new work.",
+      "2": "Option C provides no enforcement.",
+      "3": "Option D changes scheduling priority, not on-demand pricing, which is per byte scanned regardless of priority."
     }
   },
   {
@@ -611,9 +611,9 @@
     ],
     "hint": "Core Rule (gcloud compute ssh with IAP): IAP TCP forwarding provides identity-aware SSH/RDP tunnels to instances with only internal IPs: administrators authenticate with their Google identity, authorization is enforced by the IAP Tunnel Resource Accessor role (and optionally context-aware access), and a firewall rule permits traffic from IAP's proxy range.",
     "whyWrong": {
-      "0": "Incorrect distractor (Re-add external IPs but restrict the SSH firewall rule to the administ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy a bastion VM with an external IP in each VPC and use SSH agent …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud VPN from each administrator's home router to the VPC and con…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A reintroduces public exposure.",
+      "1": "Option B adds a bastion to patch and secure, which the scenario excludes.",
+      "3": "Option D is heavy infrastructure for occasional laptop access and does not scale per administrator."
     }
   },
   {
@@ -643,9 +643,9 @@
     ],
     "hint": "Core Rule (Local development credentials): ADC with impersonation (gcloud auth application-default login --impersonate-service-account) is Google's recommended way to run code locally as a production identity: the developer authenticates with their own account, needs only Token Creator on the service account, and receives short-lived tokens with no key material.",
     "whyWrong": {
-      "0": "Incorrect distractor (Developers create a JSON key for the production service account and st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Developers paste an OAuth access token from gcloud auth print-access-t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Developers share one team Google account so that ADC is identical on e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A downloads a key, explicitly forbidden.",
+      "2": "Option C is a manual, short-lived token in a file — fragile and insecure.",
+      "3": "Option D destroys individual attribution and is a basic identity anti-pattern."
     }
   },
   {
@@ -672,9 +672,9 @@
     ],
     "hint": "Core Rule (Authentication in Cloud Build): Cloud Build steps run with credentials of the build's service account exposed through the metadata server, so gcloud, kubectl, and client libraries in the build authenticate automatically without any activate-service-account step.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move the key file into the build's source repository so it does not ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the key with an API key stored as a substitution variable and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep the step but shorten the key's validity by rotating it on every b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a serious secret-in-source-control anti-pattern.",
+      "2": "Option C misunderstands API keys, which cannot authorize IAM-protected operations.",
+      "3": "Option D still uses long-lived keys and adds complexity."
     }
   },
   {
@@ -701,9 +701,9 @@
     ],
     "hint": "Core Rule: Cloud Shell Editor is a full browser-based IDE (based on Code-OSS) included with Cloud Shell; it bundles Cloud Code so you can edit, run functions locally with the Functions Framework, and deploy from the integrated terminal — no installation and no infrastructure setup.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask an engineer to install the Google Cloud SDK and VS Code on the Chr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use the Cloud Console's Cloud Run source editor only, since it deploys…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Workstations, which requires setting up a cluster and config…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates the device restriction.",
+      "1": "Option B is limited — inline source editing in the console has no terminal for local testing.",
+      "3": "Option D is a valid enterprise tool but requires an administrator to provision a cluster and configuration, which is unnecessary overhead for a one-off change."
     }
   },
   {
@@ -730,9 +730,9 @@
     ],
     "hint": "Core Rule (Testing REST APIs with gcloud tokens): gcloud auth print-access-token emits a short-lived OAuth 2.0 access token for the currently authenticated principal (or an impersonated service account), which is the standard way to call Google REST APIs ad hoc with curl; the call is authorized by the caller's IAM roles.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create an API key in the console, restrict it to the Healthcare API, a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Download a service account JSON key and pass it to curl with --cert.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use curl with basic authentication using her Google account email and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B fails because API keys identify a project, not a principal, and are only accepted by APIs that expose public or unauthenticated data — IAM-protected APIs reject them.",
+      "2": "Option C misuses a key file (and --cert is for TLS client certificates); it also creates a long-lived credential.",
+      "3": "Option D is not supported by Google APIs and would expose the account password."
     }
   }
 ]

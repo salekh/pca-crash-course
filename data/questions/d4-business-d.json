@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (FinOps culture): The problem is cultural and organizational: cost is invisible to the people who create it and not connected to business value; FinOps addresses this by combining visibility (showback), accountability, unit economics and continuous optimization, which the Well-Architected Framework's cost optimization pillar describes as fostering a culture of cost awareness and aligning spend with business value.",
     "whyWrong": {
-      "1": "Incorrect distractor (Have finance approve every new resource request before it is provision…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask Google for a larger enterprise discount so that the bill returns t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Freeze all new cloud projects until the bill decreases.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B introduces a central approval bottleneck that slows engineering without building awareness.",
+      "2": "Option C addresses price, not the efficiency and accountability gaps that caused spend to outpace growth.",
+      "3": "Option D halts business value creation and does nothing about existing waste."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Showback vs chargeback): Showback creates cost awareness and accountability without financial transfers, which is the right first step when attribution data is still imperfect and stakeholders need time to adapt; chargeback should follow once labels and allocation rules are reliable enough to be defensible.",
     "whyWrong": {
-      "0": "Incorrect distractor (Implement full chargeback immediately by invoicing each department for…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Keep absorbing costs centrally and rely on IT to optimize on behalf of…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Split the organization into a separate billing account per department …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces internal billing based on unreliable data, which will generate disputes and resistance.",
+      "1": "Option B leaves the incentive problem unsolved.",
+      "3": "Option D is an organizational restructuring that fragments billing and discount sharing to solve what is a reporting and change-management problem."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Cloud Billing hierarchy): Invoices are generated per Cloud Billing account, and each billing account has its own legal entity, currency and payment terms, so legally separate invoicing requires separate billing accounts; because billing accounts are independent of the resource hierarchy, all four can be used under one organization, preserving central IAM, Organization Policy and visibility.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use a single billing account for the organization and allocate costs t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a separate organization resource for each subsidiary, each with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use one billing account with a Cloud Billing subaccount per subsidiary…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A produces one invoice to one legal entity, which fails the requirement.",
+      "1": "Option B fragments governance and identity across four organizations unnecessarily.",
+      "2": "Option C is wrong because subaccounts are intended for resellers and roll up into the parent account's invoice, so they do not produce separate legal invoices."
     }
   },
   {
@@ -109,9 +109,9 @@
     ],
     "hint": "Core Rule (Billing IAM roles): Billing Account Viewer grants read-only access to cost information, transactions and reports for the billing account, which is exactly what a finance analyst needs and nothing more.",
     "whyWrong": {
-      "0": "Incorrect distractor (Billing Account Administrator on the billing account.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Project Owner on every project linked to the billing account.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Billing Account User on the billing account.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A allows managing payment settings, users and project links, which violates least privilege.",
+      "2": "Option C grants full control of resources in every project and does not even provide billing-account-level cost views.",
+      "3": "Option D allows linking projects to the billing account, which is a permission for project creators, not analysts."
     }
   },
   {
@@ -138,9 +138,9 @@
     ],
     "hint": "Core Rule (Cost of DR tiers): An RTO of one hour and RPO of five minutes rule out cold recovery but do not require continuous active-active operation; asynchronous cross-region replication keeps data loss within minutes, and a small pre-provisioned standby footprint that scales on failover fits within an hour, at a fraction of the cost of a second full production stack.",
     "whyWrong": {
-      "1": "Incorrect distractor (A cold pattern: nightly Cloud SQL backups exported to a multi-region C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The proposed active-active design, because only a multi-region databas…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A single-region high-availability design with a Cloud SQL standby in a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B has an RPO of up to 24 hours and a rebuild time that typically exceeds one hour.",
+      "2": "Option C is wrong because a cross-region replica achieves a 5-minute RPO without a globally distributed database, so the extra cost is not justified by the targets.",
+      "3": "Option D protects against zonal failure only and provides no recovery from a regional outage."
     }
   },
   {
@@ -167,9 +167,9 @@
     ],
     "hint": "Core Rule (Quotas as governance): Quotas are preventive limits enforced at provisioning time; lowering the GPU quota on each lab project through quota overrides makes it impossible to exceed the agreed capacity without an explicit increase request, which is the direct control for this failure mode.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure a Cloud Billing budget per lab project with alerts at 50%, 9…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Remove the Compute Admin role from all lab members and require the cen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Apply an Organization Policy constraint that restricts which regions l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A only notifies after spend has occurred and does not stop provisioning.",
+      "1": "Option B eliminates self-service for all labs and creates a bottleneck in central IT.",
+      "3": "Option D limits regions but does not restrict how many GPUs can be created in the allowed regions."
     }
   },
   {
@@ -196,9 +196,9 @@
     ],
     "hint": "Core Rule (Active Assist at scale): The Recommender service supports exporting recommendations and insights for the whole organization to BigQuery, which lets a central team aggregate, rank by estimated savings, attribute to owners and track status over time; this converts scattered per-project hints into a managed optimization backlog.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask each project owner to check the Recommendation Hub monthly and rep…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Grant the FinOps team the Owner role on all 900 projects so they can a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Write a script that applies every cost recommendation automatically ac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A depends on 900 individuals and produces inconsistent, unverifiable data.",
+      "2": "Option C grants excessive privilege and makes the central team responsible for changes in systems they do not operate.",
+      "3": "Option D applies changes such as VM resizing or deletion without owner review, which risks outages and is not a recommended practice."
     }
   },
   {
@@ -225,9 +225,9 @@
     ],
     "hint": "Core Rule (FinOps Hub and Gemini Cloud Assist): FinOps Hub is the built-in starting point for a cost optimization program: it aggregates Active Assist savings opportunities across the billing account, tracks a FinOps score for how well recommendations are being adopted, and Gemini Cloud Assist can explain cost anomalies and trends without writing SQL.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cloud Asset Inventory, to list every resource and compare monthly snap…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Cloud Monitoring dashboards, to chart CPU utilization across projects.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The monthly PDF invoice, to compare service totals with the previous m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A inventories resources but does not explain cost or rank optimizations.",
+      "1": "Option B shows utilization, not spend or optimization adoption.",
+      "2": "Option C is too coarse to explain the cause of a cost increase or reveal ignored opportunities."
     }
   },
   {
@@ -256,9 +256,9 @@
     ],
     "hint": "Core Rule (Committed use discount pitfalls): Resource-based commitments cannot be cancelled or refunded, but enabling CUD sharing at the billing account level lets the commitment apply to matching resources (same machine family and region) in any project under the account, which immediately reduces the waste; preventing recurrence requires data-driven, centrally governed purchasing using the recommender and flexible commitments when future usage is uncertain.",
     "whyWrong": {
-      "1": "Incorrect distractor (Cancel the remaining commitment through the console to stop the charge…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move the other teams' workloads to E2 machine types so they benefit fr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Open a support case asking Google to refund the unused portion of the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B and option E are not possible: commitments are binding for their term.",
+      "2": "Option C is wrong because a resource-based N1 commitment applies only to N1 resources, so moving workloads to E2 would not consume it.",
+      "4": "Option E (\"Open a support case asking Google to refund the unused portion of the commitment.\") is incorrect because it does not meet the scenario's core requirement; Option A (Enable committed use discount sharing on the billing account), Option D (For future purchases, use the committed use discount recomme) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -285,9 +285,9 @@
     ],
     "hint": "Core Rule (Network Service Tiers): Standard Tier delivers traffic over the public internet rather than Google's premium global backbone and is billed at lower egress rates; it is appropriate for regional workloads that use regional load balancing and do not need global anycast or Cloud CDN, which is exactly this marketplace's profile.",
     "whyWrong": {
-      "0": "Incorrect distractor (Migrate to a global external Application Load Balancer to benefit from…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Purchase committed use discounts for network egress.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Private Google Access on the subnets to make traffic free.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A moves in the opposite direction, requiring Premium Tier.",
+      "2": "Option C describes a discount type that does not exist for internet egress.",
+      "3": "Option D affects how VMs without external IPs reach Google APIs and has nothing to do with serving customers on the internet."
     }
   },
   {
@@ -314,9 +314,9 @@
     ],
     "hint": "Core Rule (Migration cutover strategy): A big-bang cutover of 150 interdependent applications by an inexperienced team concentrates all risk in one window with no opportunity to learn or roll back selectively; phased waves grouped by dependencies, each with go/no-go criteria and rollback, reduce risk while still meeting the fixed deadline, and hybrid connectivity mitigates the dual-environment concern.",
     "whyWrong": {
-      "0": "Incorrect distractor (Agree to the single weekend cutover but rehearse it once in a test env…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Postpone the migration and renew the lease for another year so that th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate only the databases in the first weekend and all applications t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A retains the concentrated risk; one rehearsal cannot surface the issues that a nine-month program of waves would.",
+      "1": "Option B incurs large cost and delays value without addressing the approach.",
+      "2": "Option C splits data from the applications that use it, introducing cross-environment latency for every application for a week and still leaving a massive single cutover."
     }
   },
   {
@@ -343,9 +343,9 @@
     ],
     "hint": "Core Rule (Stakeholder identification): The failure is one of stakeholder management: a stakeholder with binding requirements was never identified or consulted, so the fix is a systematic stakeholder analysis at initiation and traceable, signed-off requirements before design decisions are locked in.",
     "whyWrong": {
-      "1": "Incorrect distractor (Require the architecture team to obtain legal approval for every indiv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add the general counsel to the daily engineering stand-up for all futu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Default all future projects to single-region deployments so that resid…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is disproportionate and unworkable at resource granularity.",
+      "2": "Option C consumes the counsel's time on operational detail rather than engaging them at the requirements stage where their input matters.",
+      "3": "Option D is an architectural constraint imposed to avoid a process problem and would harm availability for workloads that have no residency restriction."
     }
   },
   {
@@ -372,9 +372,9 @@
     ],
     "hint": "Core Rule (Skills sourcing decisions): With a hard six-week deadline, no prior experience and no spare capacity, upskilling alone or hiring cannot deliver in time; a specialized partner using proven blueprints de-risks the deadline, and embedding the internal team ensures the bank can operate the foundation afterwards rather than remaining dependent.",
     "whyWrong": {
-      "0": "Incorrect distractor (Send the four engineers on a four-week training course and have them b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Post job openings for two senior cloud engineers and start the build w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Have the four engineers build the landing zone by following the docume…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A leaves two weeks for an unfamiliar, security-critical build.",
+      "1": "Option B is unpredictable in timing and senior hiring routinely takes longer than six weeks.",
+      "3": "Option D ignores that operations cannot be deferred and that first-time landing zone builds without guidance frequently need rework."
     }
   },
   {
@@ -401,9 +401,9 @@
     ],
     "hint": "Core Rule (Business continuity testing): Tabletop exercises validate the people and process elements of a BCP (roles, decisions, communication) without touching production, and technical recovery can be exercised safely in a non-production environment; documenting outcomes provides the audit evidence regulators expect.",
     "whyWrong": {
-      "0": "Incorrect distractor (Skip the exercise this year and provide the written plan as evidence.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Trigger an unannounced full production failover to prove the plan work…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ask Google Cloud support to certify that the plan is adequate.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does not satisfy the requirement to exercise the plan.",
+      "2": "Option C exposes members to unnecessary risk when the objective can be met more safely, and unannounced full failovers should only be considered once lower-risk tests are routine.",
+      "3": "Option D misunderstands the shared responsibility model: Google does not certify a customer's continuity plan."
     }
   },
   {
@@ -430,9 +430,9 @@
     ],
     "hint": "Core Rule: The gap is workforce continuity, not system availability: access depended on a physical location.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy a second VPN appliance at a backup office so that employees can…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move the on-premises source repositories to a second data center in an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Publish printed copies of the runbooks so that staff can work manually…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A moves the single point of failure to another building and assumes staff can travel during a regional event.",
+      "1": "Option B addresses only the repositories and still requires network access.",
+      "2": "Option C does not enable claims processing, which depends on the applications."
     }
   },
   {
@@ -459,9 +459,9 @@
     ],
     "hint": "Core Rule (Decision governance): Effective decision-making processes match the weight of governance to the consequences of the decision: reversible, contained decisions should be made quickly by the people closest to the work, while irreversible or broad-impact decisions merit deliberate review; guardrails and ADRs keep the delegated decisions consistent and auditable.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the board's meeting frequency to twice a week so that the que…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Abolish the architecture review board and let every team decide everyt…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Delegate all decisions to the CTO to remove the committee bottleneck.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B scales the bottleneck instead of removing unnecessary work from it.",
+      "2": "Option C removes governance for the decisions that genuinely need it and invites divergence.",
+      "3": "Option D moves the bottleneck to one person."
     }
   },
   {
@@ -490,9 +490,9 @@
     ],
     "hint": "Core Rule (Shared cost allocation): FinOps practice for shared costs is to first isolate them clearly (labeling shared services so their totals are precise) and then distribute them with a transparent allocation key that stakeholders have agreed in advance, implemented in the billing data pipeline so that every chargeback report is consistent.",
     "whyWrong": {
-      "0": "Incorrect distractor (Leave shared costs in the platform cost center permanently, since they…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Split the Interconnect into one dedicated connection per business unit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Charge shared costs entirely to the business unit with the highest rev…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A hides a fifth of the bill from the people whose consumption drives it.",
+      "3": "Option D duplicates infrastructure and increases total cost merely to simplify accounting.",
+      "4": "Option E is arbitrary and will be rejected by the affected business unit."
     }
   },
   {
@@ -519,9 +519,9 @@
     ],
     "hint": "Core Rule (Operational reviews): Customer success management after go-live is a structured, recurring feedback loop that connects operational data (SLOs, incidents, cost) to business outcomes and forward planning; Premium Support's Technical Account Manager exists to facilitate exactly these operational health and business reviews.",
     "whyWrong": {
-      "0": "Incorrect distractor (Open a P3 support case each month asking Google to summarize the accou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Subscribe the CIO to the Google Cloud release notes feed and the statu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Downgrade to Standard Support because the platform is stable and the m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A misuses the case process for account management.",
+      "1": "Option B provides information but no dialogue, prioritization or accountability.",
+      "3": "Option D removes the very capability the CIO needs and reduces incident response guarantees for a production platform."
     }
   },
   {
@@ -548,9 +548,9 @@
     ],
     "hint": "Core Rule (Storage class pitfalls): Colder storage classes trade a lower per-GB price for retrieval fees and minimum storage durations (30 days Nearline, 90 days Coldline, 365 days Archive), so data that is read regularly or deleted early can cost more in Archive than in Standard; the right approach is to classify data by measured access frequency and use Autoclass where the pattern is unknown.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move everything back to Standard storage; storage class optimization i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Keep Archive storage and instruct editors to request masters only once…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move the data to Coldline storage instead, which has no retrieval fees…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A overcorrects and forgoes real savings on dormant content.",
+      "1": "Option B changes the business process to fit a storage decision and still incurs retrieval and early deletion charges.",
+      "2": "Option C is wrong because Coldline also charges retrieval fees and has a 90-day minimum."
     }
   },
   {
@@ -576,9 +576,9 @@
     ],
     "hint": "Core Rule (Support plan selection): Standard Support is the entry-level paid tier that allows technical support cases with Google during business hours and a four-hour target response for P2 high-impact issues, which matches a business-hours workload at the lowest cost.",
     "whyWrong": {
-      "0": "Incorrect distractor (Continue with Basic Support and rely on documentation and community fo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enhanced Support, which provides 24/7 coverage with a one-hour respons…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Premium Support, which includes a named Technical Account Manager.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does not include technical case support, which is the capability that was missing.",
+      "2": "Option C and option D provide 24/7 coverage, faster responses and account management the firm explicitly does not need, at higher cost.",
+      "3": "Option D (\"Premium Support, which includes a named Technical Account Manager.\") is incorrect because it does not meet the scenario's core requirement; Option B (Standard Support, which provides unlimited technical support) is the Google Cloud recommended pattern here."
     }
   }
 ]

@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Pre-trained APIs vs custom models): The Cloud Vision API provides SafeSearch and OCR (text detection) as pre-trained, fully managed features that need no training data or ML expertise and can be integrated in days, which is the Google-recommended starting point when a pre-trained API already solves the task.",
     "whyWrong": {
-      "0": "Incorrect distractor (Train a custom image classification model in Vertex AI using labeled c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Fine-tune an open vision model from Model Garden on a GPU node pool in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy a Gemini model on a Vertex AI endpoint and write prompts that a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires labeled data, ML skills, and time the team does not have.",
+      "1": "Option B adds infrastructure and tuning effort for a solved problem.",
+      "3": "Option D could work but is more expensive per image and more complex than a purpose-built API for standard moderation and OCR."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (RAG with Vertex AI Search): Retrieval-augmented generation grounded on Vertex AI Search gives the model fresh, authoritative content at query time with built-in citations and out-of-the-box connectors for Cloud Storage and SharePoint, which minimizes hallucinations and engineering effort.",
     "whyWrong": {
-      "1": "Incorrect distractor (Fine-tune a Gemini model on the policy documents every night and serve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Load all documents into the Gemini prompt for every question using the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Build a custom pipeline that chunks documents, generates embeddings, s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because fine-tuning teaches style and behavior, not up-to-date facts, is expensive to repeat daily, and provides no citations.",
+      "2": "Option C is impractical and costly at 20,000 documents and does not scale.",
+      "3": "Option D works but re-implements what Vertex AI Search provides as a managed service, contradicting the least-effort constraint."
     }
   },
   {
@@ -80,9 +80,9 @@
     ],
     "hint": "Core Rule: Grounding with Google Search lets Gemini retrieve fresh, publicly available information at request time and return grounding metadata with source links, which directly fixes stale or fabricated facts without any indexing infrastructure.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the temperature parameter so the model generates more diverse…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Retrain the model monthly with the latest news articles using supervis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add a system instruction telling the model to only answer when it is c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A increases randomness and makes hallucinations worse.",
+      "1": "Option B is slow, expensive, and fine-tuning does not reliably inject factual knowledge.",
+      "2": "Option C may reduce some answers but cannot give the model knowledge it does not have and provides no sources."
     }
   },
   {
@@ -109,9 +109,9 @@
     ],
     "hint": "Core Rule (Prompting vs tuning): Google's guidance is to start with prompt design and few-shot examples, which requires no training data or infrastructure, delivers results in days, and is often accurate enough; systematic evaluation then tells you whether supervised tuning is justified.",
     "whyWrong": {
-      "0": "Incorrect distractor (Start the fine-tuning project immediately because tuned models always …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Train a custom text classification model in Vertex AI using AutoML.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use the Natural Language API's sentiment analysis feature to categoriz…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is unfounded and ignores the time and cost constraints.",
+      "2": "Option C needs labeled data and training cycles and is slower than prompting for an initial solution.",
+      "3": "Option D is wrong because sentiment analysis does not map emails to business-defined categories."
     }
   },
   {
@@ -138,9 +138,9 @@
     ],
     "hint": "Core Rule: Supervised fine-tuning is the right tool when you need the model to consistently follow a specialized output format or style that prompting cannot reliably achieve, and it lets you remove the long few-shot prompt, reducing latency and per-request cost; 5,000 quality examples is well within the recommended range.",
     "whyWrong": {
-      "1": "Incorrect distractor (Ground the model on a Vertex AI Search data store containing the JSON …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Switch to a larger Gemini model and add 50 more few-shot examples to t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ask the model to generate the JSON three times per request and choose …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because grounding supplies factual knowledge at query time and does not change output behavior.",
+      "2": "Option C increases cost and latency further and does not guarantee the format.",
+      "3": "Option D triples cost and still allows invalid outputs."
     }
   },
   {
@@ -166,9 +166,9 @@
     ],
     "hint": "Core Rule: Vertex AI Vector Search is purpose-built for approximate nearest-neighbor retrieval over billions of embeddings with millisecond latency and high QPS, using deployed indexes on autoscaling endpoints, so it meets the scale and latency targets.",
     "whyWrong": {
-      "0": "Incorrect distractor (BigQuery with the VECTOR_SEARCH function over a table of embeddings.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Cloud SQL for PostgreSQL with the pgvector extension.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Cloud Storage with a nightly Dataflow job that precomputes nearest nei…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is designed for analytical queries and cannot deliver 20 ms online latency at thousands of QPS.",
+      "1": "Option B works well for small to medium datasets but does not scale to 300 million vectors with these latency and throughput requirements.",
+      "3": "Option D cannot serve queries for new, never-before-seen uploaded photos because results are precomputed only for catalog items."
     }
   },
   {
@@ -195,9 +195,9 @@
     ],
     "hint": "Core Rule: Model Garden provides one-click deployment of open models such as Gemma and Llama onto managed Vertex AI endpoints inside your own project, where the weights and traffic stay under your control, and Private Service Connect keeps inference calls off the public internet without operating GPU infrastructure yourself.",
     "whyWrong": {
-      "0": "Incorrect distractor (Call the model through a third-party SaaS API and restrict access with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Download the weights to a Compute Engine VM with GPUs, install the ser…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use the Gemini API through the global endpoint and enable customer-man…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A sends data to an external provider, violating the boundary requirement.",
+      "2": "Option C satisfies the boundary but requires hands-on management of drivers, containers and scaling that the team wants to avoid.",
+      "3": "Option D uses a Google-hosted proprietary model rather than the required open model deployed within the project."
     }
   },
   {
@@ -224,9 +224,9 @@
     ],
     "hint": "Core Rule: Vertex AI Agent Builder is Google's platform for building agents: the Agent Development Kit is a code-first framework for multi-step reasoning agents with tool calling, and Agent Engine is the fully managed runtime that handles scaling, sessions and tracing, which matches every stated requirement.",
     "whyWrong": {
-      "0": "Incorrect distractor (Build a single Gemini prompt that includes the API documentation and a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use the Natural Language API to extract intents and route requests to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Train a custom sequence-to-sequence model on chat transcripts and host…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is fragile, lacks state management and security controls for tool execution, and provides no managed runtime.",
+      "1": "Option B is a classic intent-routing pattern that cannot perform multi-step reasoning with tools.",
+      "2": "Option C requires large training effort and still lacks tool integration and reasoning capabilities."
     }
   },
   {
@@ -253,9 +253,9 @@
     ],
     "hint": "Core Rule: Document AI provides specialized pre-trained processors such as the Invoice Parser that return normalized, structured entities including line items across many layouts, so the team gets high accuracy with almost no custom code and can pipe results directly into BigQuery.",
     "whyWrong": {
-      "1": "Incorrect distractor (Run the Cloud Vision API's text detection on each page and write regul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Send each PDF to the Natural Language API for entity extraction.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Translation to normalize the invoices and then parse them wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B yields raw text only and regular expressions break with every new layout.",
+      "2": "Option C extracts general entities from plain text and does not understand document structure, tables or invoice semantics.",
+      "3": "Option D misuses a translation service for a layout-understanding problem."
     }
   },
   {
@@ -284,9 +284,9 @@
     ],
     "hint": "Core Rule (Speech and language APIs): The pipeline requires converting audio to text with Speech-to-Text, whose diarization separates agent and customer turns, and then analyzing the text with the Natural Language API (sentiment and entity analysis) or Gemini for richer classification; the transcripts can then be indexed for search.",
     "whyWrong": {
-      "1": "Incorrect distractor (Video Intelligence API to detect speech segments in the audio files.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Text-to-Speech to convert the transcripts back into audio for quality …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Cloud Vision API to read any account numbers spoken during the calls.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B targets video content and is not the right tool for audio-only transcription.",
+      "3": "Option D goes in the wrong direction and adds no analytical value.",
+      "4": "Option E processes images, not spoken audio."
     }
   },
   {
@@ -313,9 +313,9 @@
     ],
     "hint": "Core Rule: Cloud Translation Advanced supports glossaries that force approved translations of domain terms and custom models trained on parallel data (previous human translations), directly addressing terminology consistency and domain quality with a managed service.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use the basic Cloud Translation API and post-process the output with a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Send each page to Gemini with an instruction to translate carefully.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Hire translators for all languages and store the results in Cloud Stor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is brittle, as find-and-replace ignores grammar and context and misses inflected forms.",
+      "1": "Option B lacks enforced glossary control and reproducibility for regulated terminology.",
+      "3": "Option D is expensive and slow and ignores the available automation."
     }
   },
   {
@@ -342,9 +342,9 @@
     ],
     "hint": "Core Rule: The Video Intelligence API is a pre-trained service that analyzes whole videos and provides explicit content detection, shot change detection and text detection with time offsets, covering all three requirements without any training.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cloud Vision API applied to one frame per second extracted with FFmpeg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Vertex AI AutoML video classification trained on labeled examples of e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Speech-to-Text with profanity filtering enabled on the audio track.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires building a frame-extraction pipeline and loses temporal context such as shot boundaries.",
+      "2": "Option C requires labeled data and training and only covers classification.",
+      "3": "Option D analyzes only audio and cannot detect visual content or text."
     }
   },
   {
@@ -371,9 +371,9 @@
     ],
     "hint": "Core Rule: Conversational Agents (Dialogflow CX) combines visual, deterministic flows with state management and audit logging for regulated processes, generative data store agents grounded on web content for FAQs, and built-in telephony and contact-center integrations, which covers every requirement in one managed platform.",
     "whyWrong": {
-      "0": "Incorrect distractor (Build the assistant with raw Gemini API calls and a custom state machi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Speech-to-Text and Text-to-Speech with a rules engine written in J…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the Natural Language API for intent classification and a spreadshe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A rebuilds conversation management, speech handling and telephony integration from scratch.",
+      "1": "Option B lacks natural language understanding and multi-turn dialog management.",
+      "2": "Option C provides only intent detection, not conversation flows, voice or telephony."
     }
   },
   {
@@ -400,9 +400,9 @@
     ],
     "hint": "Core Rule: Vertex AI Search for commerce provides retail-specific, continuously retrained recommendation models (such as frequently bought together, others you may like and recommended for you) that only require a catalog and user event stream, which is ideal for a small team needing production-quality results quickly.",
     "whyWrong": {
-      "1": "Incorrect distractor (Train a custom two-tower recommendation model with TensorFlow on Verte…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use BigQuery ML to create a matrix factorization model and export pred…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ask Gemini to recommend products by including the user's full purchase…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B demands substantial ML engineering and ongoing retraining work.",
+      "2": "Option C is feasible but requires custom feature pipelines, nightly batch refresh instead of real-time personalization, and manual model management.",
+      "3": "Option D is expensive, slow, and not a proper collaborative-filtering approach at web scale."
     }
   },
   {
@@ -429,9 +429,9 @@
     ],
     "hint": "Core Rule (Accelerator selection): Cloud TPU pods are designed for large-scale training of transformer models in JAX, with thousands of chips connected by the high-bandwidth ICI interconnect within one slice, delivering the best price-performance per training step when there is no CUDA dependency.",
     "whyWrong": {
-      "0": "Incorrect distractor (A managed instance group of N2 VMs with the largest available vCPU cou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (A3 VMs with NVIDIA H100 GPUs launched individually across several regi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Cloud Run jobs with GPU support running many parallel containers.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is unsuitable; CPUs are orders of magnitude too slow for pre-training.",
+      "1": "Option B can work, but GPUs spread across regions cannot form a single high-bandwidth training domain and typically cost more per step for this workload.",
+      "3": "Option D is meant for short, independent tasks and lacks multi-node collective communication."
     }
   },
   {
@@ -458,9 +458,9 @@
     ],
     "hint": "Core Rule: Dynamic Workload Scheduler, part of the AI Hypercomputer consumption model, lets you request a set of accelerators that are provisioned together atomically once available for a bounded duration, with Flex Start suited to jobs that can tolerate a delayed start, which resolves the stock-out problem without paying for idle reservations.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write a retry loop that attempts to create the VMs in every region unt…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Purchase a three-year committed use discount for 256 GPUs to guarantee…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Split the job into 256 single-GPU Cloud Run functions that run indepen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is brittle, may acquire partial capacity, and cross-region fragments break a distributed training job.",
+      "2": "Option C guarantees capacity but commits to paying for hardware used only a fraction of the time, contradicting the cost constraint.",
+      "3": "Option D ignores the need for tightly coupled multi-GPU training and Cloud Run functions are unsuited to multi-day jobs."
     }
   },
   {
@@ -487,9 +487,9 @@
     ],
     "hint": "Core Rule (Model serving): Vertex AI endpoints offer managed online prediction for custom and prebuilt containers, including autoscaling, request-response logging that feeds model monitoring, and percentage-based traffic splitting between deployed models, with no clusters to operate.",
     "whyWrong": {
-      "1": "Incorrect distractor (Containerize the model with FastAPI and deploy it to a GKE Standard cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy the model on a Compute Engine MIG behind an internal Applicatio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Load the model into BigQuery ML and have the application run SQL predi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B meets the functional needs but requires Kubernetes skills the team lacks.",
+      "2": "Option C requires building and operating the serving stack, health checks and rollout mechanics manually.",
+      "3": "Option D is designed for batch or analytical SQL predictions and is not a low-latency online serving path."
     }
   },
   {
@@ -518,9 +518,9 @@
     ],
     "hint": "Core Rule (Gemini model selection): When a smaller model meets the accuracy bar, choosing Gemini Flash or Flash-Lite gives far lower cost and latency per request, and routing only ambiguous items to a more capable model is a common cost optimization pattern for high-volume classification.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use the most capable Gemini Pro model for every request to maximize ac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Fine-tune a Gemini Pro model and serve it with Provisioned Throughput.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable thinking on every request so the model reasons before classifyi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A spends many times more per request for no measurable benefit.",
+      "2": "Option C adds tuning and fixed throughput cost on the most expensive model when it is not needed.",
+      "3": "Option D increases token usage and latency, which is the opposite of the cost target for a simple task."
     }
   },
   {
@@ -546,9 +546,9 @@
     ],
     "hint": "Core Rule: Gemini batch prediction on Vertex AI is designed for large offline workloads, accepts BigQuery or Cloud Storage as input and output natively, is priced lower than online requests, and requires no serving infrastructure or rate-limit handling, matching the cost and simplicity goals.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy a Cloud Run service that calls the Gemini online API for each a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Provision a Vertex AI endpoint with a dedicated GPU pool and stream th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Spin up a Dataproc cluster and run an open-source summarization model …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A pays online prices, hits quota limits, and requires custom retry and throughput management.",
+      "1": "Option B provisions expensive dedicated capacity for a one-time job.",
+      "3": "Option D involves cluster management, model tuning and quality validation for an open model that is unnecessary here."
     }
   },
   {
@@ -574,9 +574,9 @@
     ],
     "hint": "Core Rule: Context caching stores a large, repeated prompt prefix such as the full case file on the Vertex AI side so that subsequent requests reference the cache instead of resending the tokens, which cuts input cost significantly and reduces latency while still giving the model the entire document.",
     "whyWrong": {
-      "0": "Incorrect distractor (Reduce the document to a 10-page summary and use it as the context for…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Switch every request to batch prediction to benefit from discounted to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Increase the maximum output tokens so the model can answer more questi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates the requirement to answer from the complete document.",
+      "2": "Option C is for asynchronous offline workloads and would not support interactive sessions.",
+      "3": "Option D affects output length only and does nothing about repeated input tokens."
     }
   },
   {
@@ -602,9 +602,9 @@
     ],
     "hint": "Core Rule: Provisioned Throughput reserves dedicated generative AI model capacity for a fixed monthly fee, providing deterministic throughput and cost for baseline traffic, and requests beyond the reservation can be configured to spill over to on-demand capacity for bursts.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy an open model from Model Garden on reserved GPUs instead of usi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Open a support case requesting an unlimited quota increase for the pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add a Memorystore cache in front of Gemini so repeated questions never…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B replaces the model the product depends on and requires building a serving stack.",
+      "2": "Option C is not a capacity guarantee; quotas are shared, subject to availability and cannot be made unlimited.",
+      "3": "Option D may reduce volume for exact duplicates but cannot provide guaranteed capacity for the majority of unique conversational requests."
     }
   },
   {
@@ -633,9 +633,9 @@
     ],
     "hint": "Core Rule: Data residency for generative AI on Vertex AI is achieved by using a regional endpoint in an allowed region, which keeps data at rest and ML processing within that region, and by locating the grounding data store and source documents in compliant locations; together these produce an auditable in-region design.",
     "whyWrong": {
-      "2": "Incorrect distractor (Use the global Gemini endpoint to maximize availability and apply Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the documents in a US multi-region bucket encrypted with custome…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Place the project inside a VPC Service Controls perimeter, which guara…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "2": "Option C is wrong because the global endpoint may process requests in any region regardless of where users connect from.",
+      "3": "Option D keeps data in the US even though the key is in Switzerland; encryption location does not change storage location.",
+      "4": "Option E misstates VPC Service Controls, which limit API access paths and exfiltration but do not control where processing occurs."
     }
   },
   {
@@ -662,9 +662,9 @@
     ],
     "hint": "Core Rule (Gemini Enterprise and NotebookLM): Gemini Enterprise, including NotebookLM Enterprise, is Google's no-code offering for knowledge workers: users upload or connect sources, ask questions with citations, generate summaries and audio overviews, and search enterprise systems, all under enterprise-grade security and data governance.",
     "whyWrong": {
-      "0": "Incorrect distractor (Give each analyst a Vertex AI Workbench instance with a Gemini noteboo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Build a custom RAG application with the Agent Development Kit and Vert…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Provide analysts with the public consumer Gemini app and instruct them…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A targets data scientists writing code and is not a research assistant.",
+      "1": "Option B requires a development project, which leadership wants to avoid.",
+      "2": "Option C lacks enterprise data protection and prevents analysts from using the confidential documents that are the whole point of the request."
     }
   },
   {
@@ -691,9 +691,9 @@
     ],
     "hint": "Core Rule (MLOps on Vertex AI): Vertex AI Pipelines orchestrates the ML lifecycle as versioned, reproducible steps, so an evaluation component can block promotion of underperforming models, the Model Registry provides versioning and approval, and ML Metadata records lineage for audits, which addresses repeatability, gating and traceability with managed services.",
     "whyWrong": {
-      "0": "Incorrect distractor (Schedule the notebook with Cloud Scheduler and Vertex AI Workbench exe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Store the model files in Artifact Registry and require a code review b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move training to BigQuery ML so that models are retrained by SQL and a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A automates execution but keeps the fragile notebook and adds no evaluation gate or lineage.",
+      "1": "Option B adds governance for artifacts but does not validate model quality or automate the workflow.",
+      "3": "Option D changes the training tool without introducing evaluation gates, and BigQuery ML does not automatically deploy models to online endpoints."
     }
   },
   {
@@ -720,9 +720,9 @@
     ],
     "hint": "Core Rule (Gemini assistants in Google Cloud): Gemini Code Assist provides AI code completion, generation and chat inside IDEs such as VS Code, and its code customization feature grounds suggestions in the organization's private repositories, while Gemini Cloud Assist is the console-integrated assistant for designing, operating, troubleshooting and optimizing cost of Google Cloud resources.",
     "whyWrong": {
-      "0": "Incorrect distractor (Gemini Cloud Assist for the developers and Vertex AI Studio for the op…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Gemini Enterprise for the developers and Cloud Workstations for the op…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Vertex AI Agent Builder for the developers and Gemini Code Assist for …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A swaps the products; Cloud Assist is not an IDE coding tool and Vertex AI Studio is a model prototyping environment.",
+      "2": "Option C misuses Gemini Enterprise, which targets knowledge workers, and Cloud Workstations is a managed development environment, not an AI assistant.",
+      "3": "Option D uses an agent development platform for coding help and an IDE assistant for operations, neither of which fits."
     }
   }
 ]

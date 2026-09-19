@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Service Catalog is Google Cloud's mechanism for curated self-service: the central team publishes Terraform-based (or link-based) solutions, controls their versions and exposed parameters, and shares the catalog at the organization, folder, or project level, so business units deploy only vetted patterns while the platform team retains governance and can see who launched what.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant business-unit leads the Project Editor role and publish the appr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a shared Cloud Build trigger that business units invoke with su…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Record a video walkthrough of the console steps for each pattern and a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A gives broad permissions and relies on users running raw Terraform correctly, with no version control over which revision they apply.",
+      "1": "Option B is possible but requires each unit to hold Cloud Build permissions and know substitution details, and it lacks a discoverable catalog and per-solution access control.",
+      "3": "Option D is manual and inherently non-compliant with the 'approved version' requirement."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: A project factory is the Google-recommended pattern (used in the Cloud Foundation Toolkit and the enterprise foundations blueprint): a Terraform module encapsulates billing linkage, API enablement, Shared VPC attachment, labels, and IAM bindings so every project is created identically, and putting it behind a pull-request workflow adds review and an audit trail while making creation a self-service request.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a detailed checklist in the ticketing system and require a seco…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create one large project per business unit so that fewer projects need…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Write a gcloud shell script that administrators run from Cloud Shell a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B still depends on humans following steps, which is the root cause of the findings.",
+      "2": "Option C harms isolation, IAM boundaries, and quota management, contrary to the resource hierarchy guidance.",
+      "3": "Option D automates part of the work but still leaves a manual console step, does not enforce ordering, and has no review or state tracking."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Golden images): Baking a golden image moves configuration from boot time to build time: a Packer pipeline in Cloud Build produces a tested, hardened image with all agents installed, publishes it to a family so consumers always get the latest approved version, and the constraints/compute.trustedImageProjects organization policy prevents teams from booting anything else.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the startup scripts but add retries and a Cloud Monitoring alert …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use OS Config guest policies to install the agents after each VM boots): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask each team to manually build a base VM, install the components, and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A treats the symptom; VMs are still non-compliant until the script finishes and failures still occur.",
+      "1": "Option B helps with ongoing configuration but still leaves a window after boot and does not address CIS hardening of the base OS.",
+      "2": "Option C produces inconsistent, unversioned, undocumented images that cannot be audited or reproduced."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (Image families and deprecation): An image family always resolves to its newest non-deprecated image, so templates that reference the family pick up each new release without edits; if a release is bad, setting its state to DEPRECATED (warning) or OBSOLETE (blocks new use) causes the family to point back to the previous image while the artifact is preserved for forensics and rollback.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add a description field to each image indicating whether it is current…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Delete every old image immediately after publishing a new one so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store image names in a Secret Manager secret that templates read at bo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is advisory only and does nothing to change what templates launch.",
+      "2": "Option C destroys rollback capability and can break running MIGs that need to recreate instances from the original image.",
+      "3": "Option D is a misuse of Secret Manager and cannot influence which image an instance template boots from because the image is chosen before boot."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule: Infrastructure Manager is Google Cloud's managed Terraform service: you submit a deployment that points at a Git repository or Cloud Storage source, it runs plan and apply on Google-managed workers (Cloud Build under the hood), stores state securely, records each revision with logs, and controls who can create or update deployments through IAM.",
     "whyWrong": {
-      "0": "Incorrect distractor (Set up a Jenkins server on Compute Engine to run Terraform with a shar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Continue running Terraform locally but store the state file in a share…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Convert the Terraform code to Deployment Manager templates and deploy …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces a server to patch and secure and a shared directory that still does not lock state properly.",
+      "1": "Option B is unsafe: Drive offers no locking and no consistency guarantees for state.",
+      "3": "Option D is a step backwards because Deployment Manager is deprecated and Google recommends migrating to Terraform or Infrastructure Manager."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule (Self-service provisioning with guardrails): Two layers are needed: a paved road and a guardrail.",
     "whyWrong": {
-      "1": "Incorrect distractor (Grant application teams the Cloud SQL Admin role in their projects and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask the security team to review each Cloud SQL instance manually every…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable the Cloud SQL Admin API in all application projects so that on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B relies on documentation, which the question explicitly says is insufficient.",
+      "2": "Option C is slow, detective, and destructive.",
+      "4": "Option E removes self-service entirely and recreates the ticket queue."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule: Config Connector is a Kubernetes add-on that represents Google Cloud resources as custom resources, continuously reconciling their actual state with the declared manifests; combined with Config Sync, the tenant's namespace, RBAC, and cloud resources are all described in one Git repository and applied and drift-corrected by the same mechanism, satisfying 'no second toolchain.' Option A is valid in general but introduces Terraform state and a separate workflow next to the GitOps pipeline.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write a Terraform configuration per tenant and run it from a Cloud Bui…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Have the application create its own resources at startup using the Goo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create the resources manually in the console when onboarding each tena…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is valid in general but introduces Terraform state and a separate workflow next to the GitOps pipeline.",
+      "2": "Option C is an anti-pattern: infrastructure created imperatively at runtime is invisible to review, hard to reconcile, and requires overly broad permissions.",
+      "3": "Option D is manual and unscalable."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule (Terraform state management): Google's Terraform best practices recommend a remote backend in Cloud Storage with object versioning (for recovery) and native locking, and separating state per environment and per logical component so that a change in dev cannot touch production resources and teams working on different components do not contend for the same lock; state must never be committed to Git because it contains sensitive values.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the single state but move it to a Cloud Storage bucket and ask en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move the state file to Secret Manager so it is encrypted and versioned): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Split the code by environment using Terraform workspaces on the same b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A solves durability but not the blast-radius or contention problems.",
+      "1": "Option B misuses Secret Manager; it is not a Terraform backend and would break the workflow.",
+      "2": "Option C uses workspaces, which Google advises against for environment separation because all environments still share one backend configuration and it is easy to apply to the wrong workspace."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule (Terraform module versioning): Pinning module versions is a core Terraform best practice: consumers reference an immutable tag such as ?ref=v2.3.1, so upstream changes never enter a plan until the consumer deliberately bumps the version, and semantic versioning signals whether a change is breaking.",
     "whyWrong": {
-      "1": "Incorrect distractor (Ask the platform team to notify consumers by email before merging any …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Copy the module code into each product team's repository so that they …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Protect the main branch so that only the platform lead can merge modul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is a courtesy that does not prevent the plan from changing, since the source still tracks main.",
+      "2": "Option C forks the module ten times, losing the benefits of shared maintenance and security fixes.",
+      "3": "Option D controls who can merge but not when consumers receive the change."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule (Immutable infrastructure): Moving the expensive, failure-prone work (installs and asset downloads) from boot time into an image build makes instance startup nearly instantaneous and deterministic, so the autoscaler's new instances become healthy in well under a minute; only truly instance-specific configuration remains in the startup script.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the autoscaler's cool-down period so that it starts instances…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Switch the instance group to a larger machine type so that the startup…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace the startup script with a Cloud Run job that configures each i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A misunderstands the cool-down period, which delays scaling decisions rather than accelerating instance readiness.",
+      "1": "Option B marginally speeds up CPU-bound steps but does nothing for the network-bound asset download, and it raises cost for all 400 instances.",
+      "3": "Option D adds a fragile push-based configuration path and still leaves the nine-minute work on the critical path."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule (Landing zone blueprints): Google publishes opinionated, security-reviewed landing-zone blueprints as Terraform: the enterprise foundations blueprint (terraform-example-foundation) and Cloud Foundation Fabric FAST deliver organization structure, Shared VPC, centralized logging, IAM groups, organization policies, and a bootstrap CI/CD pipeline in staged deployments that a small team can customize rather than invent, which is realistic within four months.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create the organization, folders, networks, and policies by hand in th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write every Terraform module from scratch to ensure the team understan…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy all workloads into a single project without folders or Shared V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates undocumented drift and importing hand-built resources into Terraform is slow and error-prone.",
+      "2": "Option C is educational but consumes the entire timeline and risks missing security controls that the blueprints already encode.",
+      "3": "Option D deliberately builds technical debt; retrofitting Shared VPC and a resource hierarchy later means migrating workloads."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule (Deployment Manager migration): Google's documented migration path for Deployment Manager is to Terraform: the DM Convert tool translates existing templates into Terraform (or Kubernetes Resource Model), resources are imported into state so they are not recreated, and execution moves to Infrastructure Manager or a Cloud Build pipeline, which preserves infrastructure as code and pull-request based review.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rewrite the templates as gcloud shell scripts executed from Cloud Buil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Freeze all infrastructure changes and continue using the existing Depl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Convert the templates into Config Connector YAML and manage all enviro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A discards declarative IaC and idempotency, making drift and review far harder.",
+      "1": "Option B leaves the agency on an unsupported tool that will stop working, which is unacceptable for a public-sector production estate.",
+      "2": "Option C is a viable IaC model but a much larger paradigm shift that requires a GKE cluster and Kubernetes skills the agency has not indicated it has, so it is not the minimal-disruption path."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule (RTO and RPO): Recovery Time Objective is the maximum acceptable time to restore service (four hours here), and Recovery Point Objective is the maximum acceptable data loss measured in time (fifteen minutes).",
     "whyWrong": {
-      "0": "Incorrect distractor (The RTO is 15 minutes and the RPO is 4 hours, so a backup-and-restore …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Both the RTO and the RPO are 4 hours, so nightly backups replicated to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (The requirement defines only an SLA and does not constrain the DR arch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A swaps the two objectives.",
+      "1": "Option B misreads the data-loss requirement.",
+      "3": "Option D is wrong because RTO and RPO directly determine which DR tier and replication approach are viable."
     }
   },
   {
@@ -402,9 +402,9 @@
     ],
     "hint": "Core Rule (DR tiers): With an RTO of about one day and an RPO of 24 hours, the cheapest DR tier, backup and restore, fully satisfies the requirements: daily backups and snapshots kept in a multi-region location survive a regional outage, and rebuilding from Terraform in another region within a day is realistic when the procedure is documented and tested.",
     "whyWrong": {
-      "1": "Incorrect distractor (Warm standby: run a scaled-down copy of the VM and a cross-region Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Hot multi-site: run the wiki active-active in two regions behind a glo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Pilot light: keep a continuously replicated database in the second reg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Warm standby: run a scaled-down copy of the VM and a cross-region Cloud SQL read replica in a second region\") is incorrect because it does not meet the scenario's core requirement; Option A (Backup and restore: take daily Cloud SQL automated backups a) is the Google Cloud recommended pattern here.",
+      "2": "Option C additionally implies a database migration to Spanner that has no business justification.",
+      "3": "Option D (\"Pilot light: keep a continuously replicated database in the second region with the application tier turned off\") is incorrect because it does not meet the scenario's core requirement; Option A (Backup and restore: take daily Cloud SQL automated backups a) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -431,9 +431,9 @@
     ],
     "hint": "Core Rule (Pilot light DR): Pilot light keeps only the data tier hot (the cross-region read replica gives an RPO of seconds to minutes) while the compute tier exists only as pre-provisioned templates and a MIG at minimal size, so ongoing cost is a fraction of a warm or hot standby and the one-hour RTO is easily met by promoting the replica and scaling the MIG with a tested script.",
     "whyWrong": {
-      "0": "Incorrect distractor (Nightly export of the database to Cloud Storage with dual-region stora…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (An active-active design running full capacity in both regions with bid…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A warm standby with a full-size MIG running continuously in europe-wes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A's nightly export yields an RPO of up to 24 hours, violating the five-minute requirement.",
+      "2": "Option C exceeds requirements at roughly double the cost and introduces multi-master complexity that Cloud SQL does not natively support.",
+      "3": "Option D pays for a full compute fleet continuously and, because it points at the primary database, adds cross-region latency without improving RPO."
     }
   },
   {
@@ -460,9 +460,9 @@
     ],
     "hint": "Core Rule (Hot multi-site DR): An RPO of zero requires synchronous multi-region replication, and an RTO under five minutes without human action requires automatic traffic steering: multi-region Spanner commits writes synchronously across regions with 99.999% availability and no failover step, and the global external Application Load Balancer automatically routes users to healthy backends in the surviving region, which is the hot (multi-site active-active) tier in Google's DR taxonomy.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the current design and add an alerting policy that pages the on-c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move to a warm standby with a promoted replica triggered by a Cloud Ru…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate the database to AlloyDB with a cross-region secondary cluster …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A depends on a human and Cloud SQL asynchronous replication, so the RPO is not zero.",
+      "1": "Option B automates promotion but asynchronous replication still means potential data loss, and a home-grown promotion function is risky.",
+      "2": "Option C improves on Cloud SQL but AlloyDB cross-region replication is also asynchronous, so RPO is not zero, and Cloud Scheduler is a time-based trigger, not a health-based one."
     }
   },
   {
@@ -489,9 +489,9 @@
     ],
     "hint": "Core Rule (Cloud DNS failover policies): Cloud DNS failover routing policies are built for active-passive designs: the primary target is returned while its health check passes, and Cloud DNS automatically returns the backup target when the primary is unhealthy, with no human action; health checking of external and internal load balancer forwarding rules is supported natively.",
     "whyWrong": {
-      "0": "Incorrect distractor (Lower the TTL of the A record to 10 seconds so that manual changes pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create two A records with the same name and let clients round-robin be…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use a Cloud DNS geolocation routing policy to send users to the neares…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A only shortens propagation after a human acts; the human step remains the bottleneck.",
+      "1": "Option B sends half of the traffic to the passive stack in normal operation and continues to send traffic to a failed region because plain round-robin records are not health-aware.",
+      "3": "Option D routes by client location, not by health, so users near a failed region would still be sent to it (unless combined with health checking, which is not what an active-passive design needs)."
     }
   },
   {
@@ -518,9 +518,9 @@
     ],
     "hint": "Core Rule (Global load balancer regional failover): The global external Application Load Balancer supports backend-service failover configuration and per-backend capacity semantics: setting a failover ratio makes the load balancer treat a backend group as failed when its healthy-instance fraction falls below the ratio, redirecting traffic to the remaining healthy regions and returning when health is restored, while outlier detection ejects individual endpoints that return consecutive errors even if they pass basic health checks.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a Cloud Monitoring alert on the regional error rate that runs a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Reduce the health check interval to one second so unhealthy pods are d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Split the deployment into two separate load balancers, one per region,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is a home-grown control loop with alert latency and the risk of a stuck state after the incident.",
+      "2": "Option C detects individual pod failures faster but does not change the region-level decision when some pods remain healthy.",
+      "3": "Option D abandons the global anycast design and relies on DNS TTLs and client caching, which is slower and less reliable than load-balancer-level failover."
     }
   },
   {
@@ -549,9 +549,9 @@
     ],
     "hint": "Core Rule (Cloud SQL disaster recovery): The two threats need two different mechanisms.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rely on the Cloud SQL HA standby, which is in a different zone, for bo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Take a manual export to Cloud Storage once a week and keep it for a ye…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Set the instance to a multi-region configuration so that writes are sy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because the HA standby is zonal-failover only (same region) and replicates corruption synchronously.",
+      "2": "Option C's weekly export yields an RPO of up to a week.",
+      "4": "Option E describes a capability Cloud SQL does not offer; synchronous multi-region writes are a Spanner feature."
     }
   },
   {
@@ -578,9 +578,9 @@
     ],
     "hint": "Core Rule: Backup and DR Service is Google Cloud's managed enterprise backup solution: it protects Compute Engine VMs, VMware VMs (on-premises and in Google Cloud VMware Engine), databases such as SQL Server and SAP HANA with application-consistent agents, applies centrally defined backup plans and retention, provides compliance reporting, and supports restoring on-premises VMware backups as Compute Engine instances, which directly enables the migration use case.",
     "whyWrong": {
-      "0": "Incorrect distractor (Schedule persistent disk snapshots with resource policies for the Comp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write a Cloud Run job that calls the Compute Engine API to snapshot ea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Cloud Storage Object Versioning on a bucket and have each VM co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A splits management across two tools, offers crash-consistent snapshots only, and provides no cross-environment restore.",
+      "2": "Option C is custom tooling with no application consistency, catalog, or reporting.",
+      "3": "Option D is file-level copying that cannot restore a VM or a consistent database."
     }
   },
   {
@@ -607,9 +607,9 @@
     ],
     "hint": "Core Rule (Immutable backups): Immutability must be enforced by the platform, not by IAM alone, because the threat model includes stolen privileged credentials.",
     "whyWrong": {
-      "0": "Incorrect distractor (Store backups in the same project as the workloads and restrict the de…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Take disk snapshots to a separate project and enable Object Versioning…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Copy backups to a Cloud Storage bucket with a soft-delete policy of se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A fails against the described attack because the backup administrator's credentials were exactly what was stolen.",
+      "1": "Option B's separate project helps but a project owner or compromised admin can still delete versioned objects and snapshots.",
+      "2": "Option C's soft delete gives only a short recovery window and can be turned off by an administrator."
     }
   },
   {
@@ -636,9 +636,9 @@
     ],
     "hint": "Core Rule (DR testing): An untested DR plan is an assumption, not evidence: Google's DR planning guide and the reliability pillar call for regular testing, ideally automated (rebuild from IaC and restore backups in a separate project, which is safe and repeatable) and complemented by game days that exercise the real failover including people and runbooks, with measured RTO and RPO recorded and improvements tracked.",
     "whyWrong": {
-      "1": "Incorrect distractor (Have an external auditor review the DR document and the Terraform code…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Increase the stated RTO to eight hours so that the plan is more likely…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Rely on Google Cloud's regional SLAs as evidence that the service will…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is a paper review; it cannot detect missing IAM permissions, stale runbooks, quota shortfalls, or DNS issues that only surface during an actual failover.",
+      "2": "Option C changes the target instead of validating capability and would need business approval that a regulator would question.",
+      "3": "Option D confuses Google's infrastructure SLA with the customer's application recovery, which remains the customer's responsibility under the shared responsibility model."
     }
   }
 ]

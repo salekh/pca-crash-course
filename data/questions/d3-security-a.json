@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (IAM): Google recommends granting predefined roles (or narrowly scoped custom roles) to groups rather than basic roles to individuals; predefined roles are maintained by Google and groups keep administration manageable as people join and leave.",
     "whyWrong": {
-      "0": "Incorrect distractor (Replace the Editor role with the basic Viewer role for all developers …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create one custom role per developer that contains exactly the permiss…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep the Editor role but attach an IAM Condition that restricts its us…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still uses basic roles and makes the problem worse by adding Owners.",
+      "1": "Option B creates per-person custom roles that the three-person team would have to maintain forever, which conflicts with the low-overhead requirement and is not a recommended pattern.",
+      "3": "Option D does not reduce the breadth of the Editor role; a time condition does not address least privilege."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: IAM Conditions support date/time attributes (request.time), so a single role binding can be made to expire automatically; combining it with a group keeps administration simple.",
     "whyWrong": {
-      "1": "Incorrect distractor (Grant the role to each consultant and create a Cloud Scheduler job tha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a separate project for the consultants, grant them Owner, and s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Issue each consultant a service account key with the required role and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B works but requires custom automation and additional moving parts to maintain.",
+      "2": "Option C does not meet the need (the work must happen in the existing project) and grants excessive privilege.",
+      "3": "Option D uses service account keys for human users, which is an anti-pattern; the consultants should use their own identities so that Cloud Audit Logs attribute actions to them."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (IAM deny policies): IAM allow policies are additive and inherited down the hierarchy, so you cannot 'remove' an inherited grant at a lower level (option A is a common misconception).",
     "whyWrong": {
-      "0": "Incorrect distractor (Remove the group from the project's IAM policy; because project-level …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable uniform bucket-level access and VPC Service Controls on the pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask each analyst to leave the group and instead grant them the role in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Remove the group from the project's IAM policy; because project-level policies take precedence, the inherited grant will no longer apply.\") is incorrect because it does not meet the scenario's core requirement; Option D (Create an IAM deny policy on the clinical-trial project that) is the Google Cloud recommended pattern here.",
+      "1": "Option B misuses other controls: VPC Service Controls protects against data exfiltration across perimeters, not against authorized principals inside the perimeter, and bucket-level access is irrelevant to BigQuery.",
+      "2": "Option C is operationally unmanageable and contradicts the group-based access model."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: Principal access boundary (PAB) policies control which resources a set of principals is eligible to access, and they follow the principal rather than the resource, so they are the correct tool to stop your own identities from using access granted elsewhere.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable the Domain Restricted Sharing organization policy in the firm's…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure a VPC Service Controls perimeter around the firm's projects …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Attach an IAM deny policy to the partner organization that denies the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A controls who can be granted access to your resources, not what your principals can access elsewhere.",
+      "2": "Option C governs API traffic for resources inside your perimeter and cannot restrict what your users do in another organization.",
+      "3": "Option D is not possible because you do not administer the partner organization."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule: IAM Recommender (part of Policy Intelligence) analyzes permission usage over the last 90 days and recommends replacing over-privileged bindings with narrower roles, including insights about unused permissions; this is exactly the data-driven, low-effort approach requested.",
     "whyWrong": {
-      "1": "Incorrect distractor (Export Data Access audit logs for all projects to BigQuery, write SQL …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace all predefined roles with custom roles containing only the per…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Security Command Center Standard and act on its IAM findings, w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B recreates what Recommender already does and is labor intensive.",
+      "2": "Option C relies on design documents rather than observed usage and creates a large custom-role maintenance burden.",
+      "3": "Option D is incorrect because unused-permission analysis is delivered through Recommender/Policy Intelligence rather than SCC Standard findings."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule: Policy Troubleshooter evaluates a specific principal, resource and permission against all applicable allow policies, deny policies, conditions and group memberships and explains exactly why access is granted or denied, which is the fastest diagnostic path.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant the engineer the Storage Admin role at the project level and obs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Query Cloud Asset Inventory for all IAM policies in the organization a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ask the engineer to download a service account key for the bucket's pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is trial-and-error that grants excess privilege and violates least privilege.",
+      "1": "Option B is possible but slow and error-prone compared with the purpose-built tool.",
+      "3": "Option D is an anti-pattern (service account keys) and does not diagnose the root cause."
     }
   },
   {
@@ -197,9 +197,9 @@
     ],
     "hint": "Core Rule: Policy Analyzer (analyze-iam-policy in Cloud Asset Inventory) answers 'who has what access to which resource' across the resource hierarchy, expanding groups, roles into permissions, and inherited policies, which is exactly what an auditor needs.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export Admin Activity audit logs for the last year to BigQuery and lis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Open the IAM page of the project and take screenshots of the role bind…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use IAM Recommender to list all principals with BigQuery permissions o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A shows who changed policies, not the effective set of principals with access, and misses inherited grants.",
+      "2": "Option C ignores folder and organization inheritance and nested group membership.",
+      "3": "Option D is a right-sizing tool, not an access inventory tool."
     }
   },
   {
@@ -226,9 +226,9 @@
     ],
     "hint": "Core Rule (Groups and Cloud Identity): Google recommends granting roles to groups instead of individuals; when an engineer changes squads, only the group membership changes, and access reviews become a review of group members.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant every engineer the Viewer role at the organization level and ele…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a shared service account per squad and distribute its key to sq…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a custom role per squad with all needed permissions and bind it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A over-grants and still depends on manual per-person elevation.",
+      "1": "Option B shares a service account key among humans, removing individual accountability and creating a credential-leak risk.",
+      "2": "Option C binds every engineer to every squad's role, which is the opposite of least privilege."
     }
   },
   {
@@ -255,9 +255,9 @@
     ],
     "hint": "Core Rule (Identity federation): The recommended pattern for Active Directory customers is to provision identities with Google Cloud Directory Sync (GCDS) so lifecycle changes such as offboarding flow automatically, and to federate authentication with SAML so passwords and MFA stay with the corporate IdP.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create Cloud Identity accounts manually for each employee, ask them to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Google Workspace tenant and migrate all mailboxes so that emp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy a Managed Microsoft AD domain in Google Cloud, migrate all user…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B duplicates credentials in Google and has no automatic deprovisioning.",
+      "2": "Option C is a mail migration that is unrelated to the identity requirement and still results in Google-stored passwords.",
+      "3": "Option D provides Kerberos/LDAP for workloads inside Google Cloud, but it is not an identity provider for Google Cloud console sign-in."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: Google's guidance is to use a dedicated, least-privileged user-managed service account per workload and to stop relying on default service accounts; the iam.automaticIamGrantsForDefaultServiceAccounts constraint prevents the automatic Editor grant in new projects.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rotate the default service account keys every 30 days and store them i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Grant the Compute Engine default service account the Viewer role inste…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Configure each workload to use a single shared organization-wide servi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A keeps using long-lived keys, which is the core problem; attached service accounts obtain short-lived tokens from the metadata server without keys.",
+      "2": "Option C still shares one identity across all workloads and grants project-wide read access that most workloads do not need.",
+      "4": "Option E is the opposite of least privilege and eliminates workload isolation."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule (Service accounts): Attaching a dedicated service account to the VM lets client libraries obtain short-lived access tokens automatically through the metadata server, so no key file exists to leak and no code change is needed beyond removing the key path.",
     "whyWrong": {
-      "0": "Incorrect distractor (Store the JSON key in Secret Manager and have the application fetch it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Encrypt the JSON key with Cloud KMS and bake the encrypted key into th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant the developer's user account the Storage Object Creator role and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Store the JSON key in Secret Manager and have the application fetch it at startup using the default credentials.\") is incorrect because it does not meet the scenario's core requirement; Option C (Create a user-managed service account with the Storage Objec) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Encrypt the JSON key with Cloud KMS and bake the encrypted key into the image along with the decryption logic.\") is incorrect because it does not meet the scenario's core requirement; Option C (Create a user-managed service account with the Storage Objec) is the Google Cloud recommended pattern here.",
+      "3": "Option D ties the workload to a human identity, which breaks when the person leaves and violates the principle of using service accounts for workloads."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule: Service account impersonation lets a user obtain short-lived credentials for a privileged service account without holding the permissions directly or handling keys; Cloud Audit Logs record both the impersonated service account and the original caller, satisfying attribution.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a privileged service account, download its key, and store the k…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Grant the engineer the Owner role with an IAM Condition limiting acces…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add the engineer to the organization's Super Admin group so that acces…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on a long-lived key, which is explicitly forbidden and hard to attribute.",
+      "2": "Option C still grants excessive standing privilege (Owner) and a time window does not equal least privilege.",
+      "3": "Option D grants the highest possible privilege and is unrelated to Google Cloud resource permissions."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule: Workload Identity Federation allows external workloads to exchange tokens from an OIDC or SAML identity provider for short-lived Google Cloud credentials, eliminating service account keys; attribute conditions ensure only the intended workload can federate.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a service account with the Storage Object Creator role, generat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Set up a Cloud VPN tunnel to the vendor's data center and allow upload…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Give the vendor's operators Cloud Identity accounts and have the batch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates the no-keys policy and the organization policy that would enforce it.",
+      "1": "Option B adds network complexity and the batch job would still need credentials on the bastion; it does not solve authentication.",
+      "2": "Option C misuses human credentials for an automated workload, which breaks attribution and can be abused."
     }
   },
   {
@@ -402,9 +402,9 @@
     ],
     "hint": "Core Rule (Workload Identity for GKE): Workload Identity Federation for GKE lets individual Kubernetes service accounts authenticate as IAM principals, so you can grant roles directly to a specific workload with short-lived tokens and no keys.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a service account key for a Pub/Sub publisher service account a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a separate node pool for the order service with a node service …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Remove Pub/Sub Publisher from the node service account and instead hav…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B introduces long-lived key material into the cluster, which the review forbids.",
+      "2": "Option C provides coarse isolation at the node-pool level, wastes capacity, and still lets any pod scheduled on that pool use the identity.",
+      "3": "Option D adds an unnecessary hop and moves rather than solves the identity problem."
     }
   },
   {
@@ -431,9 +431,9 @@
     ],
     "hint": "Core Rule: GitHub Actions can issue OIDC tokens, and Workload Identity Federation exchanges them for short-lived Google Cloud credentials with no stored secret; attribute conditions ensure only the intended repository and branch can authenticate.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move the JSON key from GitHub secrets to Secret Manager and have the w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Shorten the key rotation interval to seven days using a scheduled Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Self-host a GitHub Actions runner on a Compute Engine VM with an attac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still uses a long-lived key and the workflow would need another credential to read Secret Manager.",
+      "1": "Option B reduces but does not eliminate the exposure window and adds custom automation.",
+      "3": "Option D removes the key but adds infrastructure to patch and operate, contradicting the requirement to keep the existing GitHub-hosted setup with minimal change."
     }
   },
   {
@@ -460,9 +460,9 @@
     ],
     "hint": "Core Rule: Workload Identity Federation with an AWS provider lets EC2 workloads use their AWS IAM role credentials to obtain short-lived Google Cloud tokens; attribute mapping preserves the AWS role identity in Cloud Audit Logs.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Google Cloud service account, store its key in AWS Secrets Ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set up Cross-Cloud Interconnect between AWS and Google Cloud so that t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replicate the BigQuery dataset to Amazon Redshift every hour so that t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A stores a long-lived Google credential in AWS, which violates the requirement.",
+      "2": "Option C addresses network connectivity but BigQuery still requires authenticated, authorized calls.",
+      "3": "Option D introduces data duplication, latency and cost and does not address the identity requirement for other Google Cloud interactions."
     }
   },
   {
@@ -489,9 +489,9 @@
     ],
     "hint": "Core Rule: Custom roles can be defined at the organization or project level; an organization-level custom role can be granted on any folder or project in the organization, so one definition covers current and future projects, and folder-level grants are inherited automatically.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create the custom role in each of the 60 projects using a script, and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant the Compute Instance Admin (v1) role and rely on an IAM Conditio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Grant the Compute Viewer role and instruct the operations group to ope…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates 60 copies that drift over time and requires ongoing automation.",
+      "1": "Option B does not work because IAM Conditions cannot restrict by API method; they evaluate resource and request attributes such as name, type, tags and time.",
+      "2": "Option C fails the functional requirement and adds manual toil."
     }
   },
   {
@@ -518,9 +518,9 @@
     ],
     "hint": "Core Rule: IAM deny policies let you block specific permissions for principals regardless of the allow roles they hold, and they support exception principals; applied at the organization level they cover all current and future projects while leaving other KMS operations untouched.",
     "whyWrong": {
-      "1": "Incorrect distractor (Remove the Cloud KMS Admin role from all users and require that every …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable the constraints/cloudkms.minimumDestroyScheduledDuration organi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Set an IAM Condition on every Cloud KMS Admin binding that limits it t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B removes legitimate self-service and creates a bottleneck.",
+      "2": "Option C lengthens the scheduled destruction window, which is a useful complementary control, but it does not prevent destruction.",
+      "3": "Option D neither prevents destruction nor limits it to the break-glass group."
     }
   },
   {
@@ -547,9 +547,9 @@
     ],
     "hint": "Core Rule (Service account keys): Organization policy constraints are inherited and can be overridden at a folder or project, so enforcing iam.disableServiceAccountKeyCreation at the organization and relaxing it only on the legacy folder is the least-effort, most consistent approach; Policy Intelligence key insights identify keys unused in the last 90 days.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enforce the iam.disableServiceAccountKeyCreation constraint on each pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create an IAM deny policy that denies iam.serviceAccountKeys.create to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Delete all existing service account keys immediately and rotate the ve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is manual, does not cover new projects, and offers no usage insight.",
+      "2": "Option C is a workable block but deny policies lack the folder-level exception convenience for this use case and Cloud Logging alone does not surface unused keys without custom analysis.",
+      "3": "Option D breaks the vendor application that cannot be changed yet."
     }
   },
   {
@@ -580,9 +580,9 @@
     ],
     "hint": "Core Rule (Privileged access): Google's super admin best practices call for dedicated, rarely used super admin accounts protected by hardware-key 2SV, delegation of day-to-day Google Cloud administration to a small group holding Organization Administrator, and configured recovery plus monitoring of privileged activity.",
     "whyWrong": {
-      "1": "Incorrect distractor (Have the platform lead use their super admin account for everyday Goog…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant every project owner the Organization Administrator role so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Share one super admin account among the security team using a password…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B mixes high-privilege credentials with routine browsing and phishing exposure.",
+      "3": "Option D turns a highly sensitive role into a default grant, destroying separation of duties.",
+      "5": "Option F eliminates individual accountability and makes offboarding a credential-rotation event for everyone."
     }
   },
   {
@@ -609,9 +609,9 @@
     ],
     "hint": "Core Rule (Service accounts): Each Cloud Run service should have its own least-privileged runtime service account; Secret Accessor scoped to the individual secret and Cloud SQL Client are the minimal predefined roles needed.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run the service as the Compute Engine default service account and gran…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run the service under a developer's user credentials so that all actio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a dedicated service account, download its key, and store the ke…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on the default service account with broad Editor permissions, which is a well-known anti-pattern.",
+      "1": "Option B ties the service to a human account, which is not possible for Cloud Run runtime identity and would break when the person leaves.",
+      "3": "Option D creates an unnecessary long-lived key even though the runtime identity already provides short-lived credentials automatically."
     }
   },
   {
@@ -638,9 +638,9 @@
     ],
     "hint": "Core Rule: Attaching a service account to a resource requires the iam.serviceAccounts.actAs permission on that service account, which the Service Account User role provides; granting it on the individual service account is the least-privilege fix.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant the developer the Service Account Admin role at the project leve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Grant the developer the Owner role on the project so that all service …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Grant the developer the Service Account Token Creator role on the proj…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A allows managing (creating, deleting, changing policies of) service accounts, which is much broader and does not by itself include actAs in all contexts.",
+      "1": "Option B is a massive over-grant.",
+      "2": "Option C allows creating tokens to impersonate service accounts, which is a different capability and a security-sensitive one."
     }
   },
   {
@@ -667,9 +667,9 @@
     ],
     "hint": "Core Rule (Cross-project access): IAM principals, including service accounts, can be granted roles on resources in any project within the organization, so the pipeline's existing worker service account can be granted dataset-level access in the other project with no credentials to manage.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a service account in project content-warehouse with BigQuery Da…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Copy the dataset into project data-pipelines every night using a sched…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant the Dataflow worker service account the BigQuery Data Viewer rol…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B unnecessarily introduces a long-lived key.",
+      "2": "Option C duplicates data, increases cost and adds freshness lag.",
+      "3": "Option D grants far more access than needed across the entire organization, violating least privilege."
     }
   },
   {
@@ -696,9 +696,9 @@
     ],
     "hint": "Core Rule: IAM Conditions can reference resource tags (resource.matchTag), allowing one binding to apply only to resources carrying a given tag; because the automation applies the tag at creation time, new development instances are covered without policy changes and production instances remain out of scope.",
     "whyWrong": {
-      "0": "Incorrect distractor (Grant the Compute Instance Admin (v1) role at the project level and re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a separate project for the operations team and grant them Owner…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant the operations team the Compute Viewer role at the project level…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on human discipline and grants full control over production.",
+      "2": "Option C does not give the team access to the development instances, which live in the shared project.",
+      "3": "Option D fails the functional requirement and creates toil for the SRE team."
     }
   },
   {
@@ -727,9 +727,9 @@
     ],
     "hint": "Core Rule: Workload Identity Federation with an Azure provider lets managed identities on Azure VMs exchange their tokens for short-lived Google Cloud credentials; you then grant least-privilege roles either directly to the federated principal or to a service account it impersonates.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a Google Cloud service account, generate a key, and store it in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy HA VPN between Azure and Google Cloud so that the VMs can reach…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Create Cloud Identity user accounts for the application and configure …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B still relies on a long-lived key, which the policy forbids.",
+      "2": "Option C provides connectivity but not authentication or authorization; Google APIs always require credentials.",
+      "4": "Option E misuses human user credentials for a workload and stores refresh tokens on servers, which is an anti-pattern."
     }
   }
 ]

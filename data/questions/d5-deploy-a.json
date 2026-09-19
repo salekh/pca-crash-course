@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Cloud Run traffic splitting): Cloud Run natively supports revision-based traffic splitting.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy the new image to a second Cloud Run service and use a global ex…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy the new image with gcloud run deploy so it immediately serves 1…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy the new image with a Cloud Run tag, publish the tagged URL to 5…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but adds a second service and a load balancer to manage, which is unnecessary operational overhead.",
+      "1": "Option B exposes all users to the change and makes rollback a full redeploy rather than an instant traffic shift.",
+      "3": "Option D relies on client-side feature flags and a tag URL; it does not give a controlled percentage split of production traffic and requires app changes."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (GKE workload types): StatefulSets are the Kubernetes controller designed for stateful, clustered applications: they provide stable, ordinal pod names (kafka-0, kafka-1), stable DNS via a headless Service, per-pod PersistentVolumeClaims created from volumeClaimTemplates, and ordered, graceful deployment and scaling.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy the brokers as a Deployment with three replicas that share a si…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy the brokers as a DaemonSet so exactly one broker runs on every …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy each broker as a separate bare Pod with a hostPath volume and a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because Deployments provide no stable identity, and Kafka brokers must not share one log directory.",
+      "2": "Option C ties broker count to node count and loses data when a node is replaced, since local SSD is ephemeral.",
+      "3": "Option D is unmanaged — bare pods are not rescheduled if a node fails, and hostPath pins data to a node."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (GKE DaemonSet): A DaemonSet guarantees exactly one copy of a pod on each node that matches its node selector and tolerations, and the controller automatically schedules pods onto new nodes added by the autoscaler — this is the canonical pattern for node agents such as log collectors and security sensors.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Deployment with the number of replicas equal to the current n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add the agent container as a sidecar to every application Pod spec usi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Install the agent in a custom node image and create a new node pool th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A breaks as soon as the node count changes and does not guarantee one-per-node placement.",
+      "1": "Option B places the agent in every application pod rather than once per node, wasting resources and missing system pods.",
+      "2": "Option C is not possible on GKE, which only supports Google-provided node images (Container-Optimized OS, Ubuntu); node customization is done through DaemonSets."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: MIG rolling updates support a canary configuration: --version keeps the current template and --canary-version with a target-size (fixed number or percentage) rolls the new template to a subset.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a second MIG with the new template and 4 instances, add it as a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set the new template with set-instance-template and set the update typ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use gcloud compute instance-groups managed recreate-instances on 4 ins…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but duplicates load balancer and autoscaler configuration, adding overhead compared to the native canary.",
+      "2": "Option C provides no control over the 10% target and depends on unrelated autoscaler churn; OPPORTUNISTIC updates may never happen.",
+      "3": "Option D is a manual recreate with no health-check gating and no MIG tracking of the two versions."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule (App Engine versions): Deploying with --no-promote creates a version that receives no traffic but is reachable at its version-specific URL for smoke testing.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run gcloud app deploy --promote, then use gcloud app services set-traf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run gcloud app deploy --version=v2, then immediately use gcloud app ve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run gcloud app deploy --no-promote, then run gcloud app versions start…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A promotes immediately (all users see it) and random splitting is not sticky per user.",
+      "1": "Option B's versions migrate moves 100% of traffic at once.",
+      "3": "Option D starts/stops versions but never splits traffic; stopping v1 would cut over all users abruptly."
     }
   },
   {
@@ -169,9 +169,9 @@
     ],
     "hint": "Core Rule: Cloud Deploy is the managed continuous-delivery service built for exactly this: a release captures rendered manifests and immutable image digests once, then promotes the same artifact through a sequence of targets; requireApproval enforces a human gate before production; the canary strategy (with Gateway API or service-based traffic splitting on GKE) automates phased traffic; and every release, rollout, and approval is recorded in Cloud Audit Logs.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create three Cloud Build triggers, one per environment, that each rebu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Config Sync to sync the same manifests repository to all three clu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Deploy with a single prod target and a standard strategy, an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B rebuilds the image per environment, so the prod digest may differ from what passed staging, and it is custom scripting.",
+      "2": "Option C is a GitOps config approach, but branch-per-environment does not guarantee digest promotion or give phased canaries and rollout approvals.",
+      "3": "Option D omits the dev/staging promotion chain and the phased rollout; Binary Authorization verifies provenance but does not implement progression."
     }
   },
   {
@@ -200,9 +200,9 @@
     ],
     "hint": "Core Rule (Secret Manager integration): Cloud Run integrates natively with Secret Manager: --set-secrets (or the console equivalent) injects a secret version as an environment variable or file without the secret appearing in the deployment configuration, and mounting a volume lets you pick up new versions on rotation without a rebuild.",
     "whyWrong": {
-      "0": "Incorrect distractor (Copy the password into the container image at build time and restrict …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Encrypt the password with Cloud KMS, store the ciphertext in the envir…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Store the password in a ConfigMap-style JSON file in a public Cloud St…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A bakes the secret into an immutable artifact — rotation requires a rebuild and anyone with image access sees it.",
+      "2": "Option C introduces a downloadable JSON key, an anti-pattern that Google explicitly discourages; the attached runtime service account already provides credentials.",
+      "4": "Option E stores a credential in a public bucket, which is a data exposure risk."
     }
   },
   {
@@ -229,9 +229,9 @@
     ],
     "hint": "Core Rule: Kustomize is template-free: the base holds plain, valid Kubernetes YAML and overlays apply strategic-merge or JSON patches for the environment-specific fields, which matches the requirement of avoiding a templating language while keeping manifests kubectl-validatable.",
     "whyWrong": {
-      "0": "Incorrect distractor (Maintain three complete copies of the manifests in separate directorie…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Package the manifests as a Helm chart and put the differing values int…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write a Python script that reads a per-environment JSON file and gener…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A duplicates configuration and causes drift.",
+      "1": "Option B (Helm) is a valid packaging tool but introduces Go templating, which the team explicitly wants to avoid, and is better suited to distributing third-party software.",
+      "2": "Option C is bespoke tooling that must be maintained and adds operational burden."
     }
   },
   {
@@ -258,9 +258,9 @@
     ],
     "hint": "Core Rule: Artifact Registry supports Helm charts as OCI artifacts, so mirroring the pinned versions removes the dependency on the vendor repository while keeping the chart intact for upgrades.",
     "whyWrong": {
-      "0": "Incorrect distractor (Render the chart once with helm template, commit the resulting YAML to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Convert the chart into a Kustomize base and overlays so the team no lo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Install the chart manually with helm install from an engineer's laptop…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A discards the chart's upgrade path and makes 30 overrides per cluster a manual editing exercise.",
+      "2": "Option C is a large rewrite that must be repeated on every vendor release.",
+      "3": "Option D is a manual, non-repeatable process with no CI and depends on an individual's workstation."
     }
   },
   {
@@ -287,9 +287,9 @@
     ],
     "hint": "Core Rule: Infrastructure Manager is Google's managed service for deploying Terraform: it takes a configuration from Git or Cloud Storage, executes it with a chosen service account, manages the state, keeps revisions of each deployment, and writes to Cloud Audit Logs — all without operating runners.",
     "whyWrong": {
-      "0": "Incorrect distractor (Migrate the state to a Cloud Storage bucket and continue applying from…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Rewrite the configuration as Config Connector resources and let a GKE …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Install a self-hosted Terraform runner on a Compute Engine VM and trig…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A fixes state locking (GCS backends lock via object metadata) but leaves execution unaudited and dependent on laptop credentials.",
+      "1": "Option B requires a rewrite and a GKE cluster to operate, contradicting the requirement to reuse existing Terraform.",
+      "3": "Option D is self-managed infrastructure that the team explicitly wants to avoid."
     }
   },
   {
@@ -317,9 +317,9 @@
     ],
     "hint": "Core Rule (Application configuration): Twelve-factor practice separates configuration from the artifact: the same immutable image is promoted, ConfigMaps inject environment-specific non-sensitive values, and sensitive values come from Secret Manager mounted through the GKE Secret Manager add-on, with the pod's Kubernetes service account mapped through Workload Identity Federation for GKE — no keys, no secrets in Git or image layers.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep one image per environment but scan images with Artifact Analysis …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Build a single image that downloads a config.json from a Cloud Storage…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Build a single image and pass all settings, including tokens, as conta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A keeps the slow per-environment build and only detects leaks after the fact.",
+      "2": "Option C introduces a downloadable service account key, an anti-pattern, and custom bootstrap code.",
+      "3": "Option D commits tokens to Git in plain text, which is a security and audit failure."
     }
   },
   {
@@ -346,9 +346,9 @@
     ],
     "hint": "Core Rule: Cloud Build triggers can be scoped by event type — pull request, branch, or tag with a regular expression — so the release path is enforced by the trigger configuration rather than by conditional shell logic.",
     "whyWrong": {
-      "0": "Incorrect distractor (A single Cloud Build trigger on every push that runs build, test, push…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (A Cloud Build trigger on pull requests that runs all steps, plus a Git…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Two cloudbuild.yaml files run by a Jenkins server on Compute Engine, w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A runs release steps on every push and depends on fragile branch checks in scripts; it also does not implement tag-based releases.",
+      "1": "Option B introduces a service account JSON key in a third-party system when Cloud Build (or Workload Identity Federation) can avoid it.",
+      "2": "Option C adds a self-managed Jenkins server, which increases operational overhead compared to the managed service."
     }
   },
   {
@@ -377,9 +377,9 @@
     ],
     "hint": "Core Rule (Environment strategy): Google's enterprise foundations guidance recommends project-per-environment under environment folders: projects are the boundary for IAM, networking, VPC Service Controls, quotas, and billing exports, which directly satisfies isolation and cost visibility.",
     "whyWrong": {
-      "1": "Incorrect distractor (Use a single project with environment-specific labels on every resourc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Provision production with Terraform but let developers create dev and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Give all developers the Editor role in the production project so they …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B keeps everything in one trust and billing boundary; namespaces are not a security boundary between prod and non-prod data.",
+      "3": "Option D makes dev and test drift from prod, undermining test validity.",
+      "4": "Option E violates least privilege and separation of duties."
     }
   },
   {
@@ -406,9 +406,9 @@
     ],
     "hint": "Core Rule (Apigee traffic management): SpikeArrest is designed to protect backends from sudden surges: it smooths traffic to a configured rate per second or minute regardless of the caller's business-level allowance.",
     "whyWrong": {
-      "0": "Incorrect distractor (Quota policy with a per-day limit for each developer app.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (ResponseCache policy to serve cached availability responses for 10 min…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (ConcurrentRateLimit policy set to allow unlimited connections during s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Quota policy with a per-day limit for each developer app.\") is incorrect because it does not meet the scenario's core requirement; Option C (SpikeArrest policy that limits the request rate (for example) is the Google Cloud recommended pattern here.",
+      "1": "Option B caching a seat-availability response is dangerous for fast-changing inventory and would not control the rate to the backend for cache misses.",
+      "3": "Option D (an older, deprecated policy) configured to allow unlimited connections does nothing to protect the backend."
     }
   },
   {
@@ -435,9 +435,9 @@
     ],
     "hint": "Core Rule (Apigee API products): In Apigee the API product is the unit of packaging and entitlement: it bundles proxies/operations with quota parameters, and developer apps are approved for products, which yields an API key or OAuth credential.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy three copies of the API proxy with different hard-coded limits …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Implement rate limiting in the backend service by looking up each part…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Armor rate-based rules in front of Apigee with a separate ru…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A multiplies proxies to maintain and still requires redeploying to change limits.",
+      "2": "Option C pushes API-management concerns into the backend and adds a database lookup to every request.",
+      "3": "Option D operates on IP ranges, which do not map to partner identity or business tiers, and is meant for network-layer protection rather than business quotas."
     }
   },
   {
@@ -464,9 +464,9 @@
     ],
     "hint": "Core Rule: API Gateway is the fully managed, pay-per-call gateway designed for serverless backends (Cloud Run, Cloud Run functions, App Engine).",
     "whyWrong": {
-      "0": "Incorrect distractor (Apigee X with a paid subscription, using the developer portal for API …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (A global external Application Load Balancer with a serverless NEG per …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Cloud Endpoints with an ESPv2 container running on a Compute Engine VM…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is far more capable but its cost and complexity do not fit a tiny startup with basic needs.",
+      "1": "Option B provides routing but Cloud Armor cannot validate API keys or emit per-key usage metrics.",
+      "2": "Option C is functionally similar but you would have to run and patch your own ESPv2 VM, adding cost and operational overhead."
     }
   },
   {
@@ -494,9 +494,9 @@
     ],
     "hint": "Core Rule (Apigee developer portal and monetization): This is the canonical Apigee X full-lifecycle use case.",
     "whyWrong": {
-      "1": "Incorrect distractor (Expose the API through API Gateway, build a custom React portal on Clo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Expose the API through Cloud Endpoints and create API keys manually fo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Expose the API through a global external Application Load Balancer wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B assembles the same capabilities from scratch — custom portal and custom billing logic — which is explicitly what the company wants to avoid.",
+      "2": "Option C fails the self-service requirement.",
+      "3": "Option D uses IAP, which is for internal users with Google identities, not external developers, and offers no monetization or portal."
     }
   },
   {
@@ -523,9 +523,9 @@
     ],
     "hint": "Core Rule (Apigee security policies): VerifyJWT validates externally issued JWTs: pointing it at the issuer's JWKS endpoint lets Apigee retrieve and cache the public keys, so no secret is stored, and it verifies signature, expiry, issuer, and audience claims while exposing claims such as sub in jwt.{policy}.claim.* variables for later policies.",
     "whyWrong": {
-      "0": "Incorrect distractor (A VerifyAPIKey policy that treats the JWT as the API key and checks it…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (A BasicAuthentication policy that decodes the token and forwards the u…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (An OAuthV2 policy with the GenerateAccessToken operation so Apigee iss…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A misuses API-key verification, which checks a static key against developer apps and cannot validate signatures or expiry.",
+      "1": "Option B is for base64 username:password, not JWTs.",
+      "3": "Option D would make Apigee an authorization server and force an additional token exchange flow — unnecessary because the app already has valid tokens from Identity Platform."
     }
   },
   {
@@ -552,9 +552,9 @@
     ],
     "hint": "Core Rule: Apigee hybrid splits the platform: Google hosts the management plane (API design, deployment orchestration, analytics aggregation, portal) while the runtime plane — the message processors that actually handle API traffic and payloads — runs in a customer-managed Kubernetes cluster, on-premises or in another cloud.",
     "whyWrong": {
-      "0": "Incorrect distractor (Apigee X with a Private Service Connect endpoint in the on-premises ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Apigee X deployed in a Google Cloud region within the country with Ass…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (API Gateway with backends reachable through Cloud VPN to the data cent…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Apigee X with a Private Service Connect endpoint in the on-premises network so traffic is private.\") is incorrect because it does not meet the scenario's core requirement; Option B (Apigee hybrid, with the management plane in Google Cloud and) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Apigee X deployed in a Google Cloud region within the country with Assured Workloads enforcing data residency.\") is incorrect because it does not meet the scenario's core requirement; Option B (Apigee hybrid, with the management plane in Google Cloud and) is the Google Cloud recommended pattern here.",
+      "3": "Option D is a Google-hosted serverless gateway with no on-premises runtime option."
     }
   },
   {
@@ -581,9 +581,9 @@
     ],
     "hint": "Core Rule (API versioning): Google API design guidance and Apigee best practice is to expose breaking changes as a new major version in the URI base path, run old and new versions side by side, publish a deprecation and sunset schedule, and use API products so consumers can be entitled to either version.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy the changed proxy to the same base path and notify partners by …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add a custom header X-Api-Behavior=new that partners can send to opt i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Keep the existing proxy unchanged and make the new behavior available …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A breaks every partner integration simultaneously.",
+      "1": "Option B hides a breaking change behind a header, making behavior non-discoverable and complicating documentation, caching and analytics.",
+      "2": "Option C couples an unrelated credential lifecycle to API behavior and offers no clear migration path."
     }
   },
   {
@@ -610,9 +610,9 @@
     ],
     "hint": "Core Rule (gRPC vs REST): gRPC is the recommended choice for internal, latency-sensitive, strongly typed service communication: binary Protocol Buffers, HTTP/2 multiplexing, and native bidirectional streaming.",
     "whyWrong": {
-      "1": "Incorrect distractor (Use REST with JSON for all communication so that a single API style is…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use gRPC everywhere, including the browser, by requiring the front-end…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Pub/Sub topics between all microservices and have the browser subs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B sacrifices the performance and streaming benefits for the 40 internal services.",
+      "2": "Option C forces a browser-incompatible protocol on the front end and adds a custom bridge to maintain.",
+      "3": "Option D turns request/response calls into asynchronous messaging and exposes a service account key to a browser, which is a serious security anti-pattern."
     }
   },
   {
@@ -644,9 +644,9 @@
     ],
     "hint": "Core Rule (Cloud Load Balancing and Cloud Armor for APIs): The recommended edge for public serverless APIs is a global external Application Load Balancer with serverless NEGs (giving a single anycast IP, multi-region routing, and TLS termination), Cloud Armor attached to the backend service for geo-blocking, rate limiting, and L7 DDoS protection, and the Cloud Run ingress setting restricted to internal-and-cloud-load-balancing so the run.app URL cannot bypass the edge controls.",
     "whyWrong": {
-      "1": "Incorrect distractor (Configure Cloud NAT on the Cloud Run services' VPC egress so that inbo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create VPC firewall rules that deny ingress to the Cloud Run services …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Enable Cloud CDN on the backend service to absorb floods by caching al…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B misunderstands Cloud NAT, which handles outbound traffic only.",
+      "3": "Option D fails because VPC firewall rules do not apply to Cloud Run ingress and cannot express country-based rules.",
+      "5": "Option F would cache dynamic betting responses, which is incorrect for the workload and is not a security control."
     }
   },
   {
@@ -673,9 +673,9 @@
     ],
     "hint": "Core Rule (Cloud Endpoints ESPv2): Cloud Endpoints for gRPC is built for this: the Extensible Service Proxy V2 runs as a sidecar (or separate deployment) on GKE, transcodes HTTP/JSON to gRPC using the proto's HTTP annotations, validates API keys against the Service Control API, enforces per-consumer quotas, and emits latency, traffic and error metrics plus logs to Cloud Observability — all without modifying the service.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rewrite the service as a REST API in Cloud Run and use API Gateway to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Put an internal passthrough Network Load Balancer in front of the pods…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Apigee hybrid on the GKE cluster and write JavaScript policies to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates the constraint that the service stay on GKE and requires a rewrite.",
+      "2": "Option C adds custom code and a load balancer that does not perform L7 API management.",
+      "3": "Option D is heavyweight, and Apigee does not natively transcode JSON to gRPC payloads via JavaScript policies; it would be a fragile custom implementation."
     }
   },
   {
@@ -702,9 +702,9 @@
     ],
     "hint": "Core Rule (MIG update policy): A PROACTIVE rolling update actively replaces instances until complete; maxUnavailable=0 guarantees capacity never drops, maxSurge=3 caps temporary over-provisioning at 3 VMs, and the MIG waits for new instances to pass the configured health check (with the initial delay respecting boot and drain time) before deleting old ones.",
     "whyWrong": {
-      "0": "Incorrect distractor (Type OPPORTUNISTIC with maxSurge=3 and maxUnavailable=0 so that the au…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Type PROACTIVE with maxSurge=0 and maxUnavailable=3 and minimal action…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Type PROACTIVE with maxSurge=30 and maxUnavailable=0 so all new instan…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is OPPORTUNISTIC, which only updates when the MIG resizes for other reasons and may never finish.",
+      "1": "Option B reduces capacity by 3 during the update, violating the never-below-capacity requirement.",
+      "2": "Option C surges to 60 VMs, blowing through the 3-VM cost limit."
     }
   },
   {
@@ -731,9 +731,9 @@
     ],
     "hint": "Core Rule (Cloud Run rollback): Cloud Run keeps previous revisions, so rolling back is a traffic operation, not a build: update-traffic to the previous revision at 100% takes effect in seconds and preserves the faulty revision for investigation.",
     "whyWrong": {
-      "1": "Incorrect distractor (Check out the previous git commit, rebuild the container image, and ru…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Delete the Cloud Run service and recreate it from the previous image s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Set the new revision's maximum instances to 0 so Cloud Run stops routi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B requires a full rebuild and redeploy — minutes to tens of minutes — and risks producing a slightly different artifact.",
+      "2": "Option C deletes the service, causing an outage and losing its URL/IAM configuration until recreated.",
+      "3": "Option D is not a supported rollback mechanism; max instances applies to the service configuration and setting it to 0 would fail or remove capacity rather than reroute traffic."
     }
   }
 ]

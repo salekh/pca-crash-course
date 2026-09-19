@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Service account impersonation lets an authenticated user request short-lived credentials for a service account they hold roles/iam.serviceAccountTokenCreator on; gcloud's --impersonate-service-account flag and Terraform's impersonate_service_account provider setting then act exactly as the pipeline identity, with every action attributed to both the user and the service account in audit logs.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a key for the deployment service account, store it in Secret Ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Grant developers the same project roles as the deployment service acco…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add the developers as Service Account Users so they can attach the acc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still creates a long-lived key, which is what the policy prohibits.",
+      "2": "Option C duplicates permissions on human identities, drifts over time, and does not guarantee parity with the pipeline.",
+      "3": "Option D is for attaching a service account to resources such as VMs, not for obtaining credentials on a laptop."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: Workload Identity Federation allows GitHub Actions to exchange its OIDC identity token for short-lived Google Cloud credentials with no stored keys at all, and attribute conditions on the provider (for example, repository_owner and ref) ensure only workflows from the company's organization and main branch can obtain credentials.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rotate the service account key automatically every 24 hours using a sc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move the key into GitHub's encrypted environment secrets with required…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run a self-hosted GitHub runner on a Compute Engine VM and use its att…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Rotate the service account key automatically every 24 hours using a scheduled workflow.\") is incorrect because it does not meet the scenario's core requirement; Option D (Configure Workload Identity Federation with GitHub's OIDC pr) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Move the key into GitHub's encrypted environment secrets with required reviewers.\") is incorrect because it does not meet the scenario's core requirement; Option D (Configure Workload Identity Federation with GitHub's OIDC pr) is the Google Cloud recommended pattern here.",
+      "2": "Option C removes the key but requires the company to run and secure its own runners, a significant operational burden compared with the keyless federation the platform already provides."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule: The resource locations organization policy constraint is a preventive guardrail enforced by the platform at creation time, and setting it on the folder means every existing and future child project inherits it without any per-project work.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a Cloud Asset Inventory feed that alerts the security team when…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add a VPC Service Controls perimeter around the folder's projects that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Write a Terraform validation rule and require all developers to use Te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is detective, not preventive, and only notifies after data has already landed outside the EU.",
+      "2": "Option C controls which identities and networks can access APIs, not where resources may be created.",
+      "3": "Option D can be bypassed by anyone using the console or gcloud and depends on developer compliance."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: VPC Service Controls creates a perimeter that blocks API calls that would move data between a protected project and any resource outside the perimeter, even when the caller has valid IAM permissions, which directly addresses credential-theft exfiltration; access levels (Access Context Manager) add context-aware conditions such as corporate IP ranges and device policy.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable CMEK on the datasets and buckets so exported data is unreadable…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Require two-factor authentication for all analysts and shorten session…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Turn on Data Access audit logs for BigQuery and Cloud Storage and revi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A protects data at rest but a valid principal can still read and re-export decrypted data.",
+      "1": "Option B lowers the chance of compromise but does nothing once a session is hijacked.",
+      "3": "Option D is detective after the fact and does not stop the copy."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule: Identity-Aware Proxy enforces identity and context at the load balancer, so users authenticate with Google Workspace before any request reaches the backend, IAM roles decide who is allowed, and Access Context Manager access levels can require a company-managed device; the application needs no changes.",
     "whyWrong": {
-      "0": "Incorrect distractor (Expose the application publicly and add a login page to the applicatio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Restrict the load balancer with a Cloud Armor policy allowing only the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy a Cloud VPN gateway and issue certificates to each remote emplo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires application changes and reinvents authentication.",
+      "2": "Option C ties access to networks, which does not work for remote employees and is not identity-based.",
+      "3": "Option D replaces one VPN with another, contrary to the goal."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule (Key management): Cloud EKM lets Google Cloud services such as Cloud Storage and BigQuery use keys that live in an external key manager outside Google; the bank retains sole custody, can deny key access instantly to render data unreadable, and Key Access Justifications provides a reason code for every access that can be approved or denied by policy.",
     "whyWrong": {
-      "0": "Incorrect distractor (Google-managed encryption keys with Access Transparency logs enabled.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Customer-managed encryption keys in Cloud KMS using software keys with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Customer-supplied encryption keys passed with every API request from t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A leaves key custody entirely with Google.",
+      "1": "Option B stores keys inside Google Cloud, which does not meet the 'physically outside the provider' rule, although it provides control and logging.",
+      "2": "Option C is not supported by BigQuery for this pattern, requires the application to ship keys with each call, and provides no centralized justification or logging."
     }
   },
   {
@@ -197,9 +197,9 @@
     ],
     "hint": "Core Rule: Secret Manager is the purpose-built service: it versions secrets, enforces per-secret IAM (Secret Accessor granted to the workload's service account), logs every access, integrates natively with Cloud Run through environment variable or volume references, and supports rotation notifications.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move the values to a .env file excluded from Git and copy it manually …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Encrypt the values with Cloud KMS and commit the ciphertext to the rep…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store secrets in a private Cloud Storage bucket and download them at c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on manual copies and offers no access control or audit trail.",
+      "1": "Option B keeps ciphertext in Git and still requires a custom decryption path and versioning discipline.",
+      "3": "Option D reinvents a secret store with weaker controls and no versioning semantics."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule (Securing AI applications): Model Armor is Google Cloud's managed screening layer for LLM prompts and responses, detecting prompt injection and jailbreak attempts, harmful content, and sensitive data; Sensitive Data Protection (formerly DLP) provides inspection and de-identification (masking or tokenization) of PII so policy and ID numbers are redacted before storage or model calls.",
     "whyWrong": {
-      "1": "Incorrect distractor (Lower the model temperature to zero so the model no longer produces un…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Fine-tune the model on the insurer's own data so it stops following ma…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable conversation logging entirely so no PII is ever stored.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B affects randomness, not adversarial instruction following.",
+      "2": "Option C does not reliably prevent prompt injection and is a costly, indirect approach.",
+      "4": "Option E removes logs needed for quality, compliance, and incident investigation rather than solving the PII handling problem."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule (Cloud Storage classes): Archive is the lowest-cost class for data accessed less than once a year, and unlike tape-style archives it still delivers millisecond access.",
     "whyWrong": {
-      "0": "Incorrect distractor (Standard storage with object versioning enabled.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Nearline storage class with a lifecycle rule that deletes objects afte…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Coldline storage class with Object Holds applied by a nightly script.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is the most expensive class and versioning does not prevent deletion.",
+      "2": "Option C costs more than Archive for data that is rarely read, and a lifecycle delete rule does not prevent early deletion.",
+      "3": "Option D relies on a script for compliance and Coldline is pricier than Archive for this access pattern."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule (Network egress cost): Cloud CDN serves cached content from Google's edge points of presence, which cuts latency for distant players and replaces expensive origin egress with lower-priced CDN cache egress, and cache fill from Cloud Storage to the CDN is charged at a discounted rate.",
     "whyWrong": {
-      "1": "Incorrect distractor (Change the bucket to a multi-region location so egress is charged at a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Compress the patch files with gzip before uploading them to the bucket…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace the load balancer with signed URLs pointing directly at the bu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B improves availability but does not change internet egress pricing, which depends on destination, not source.",
+      "2": "Option C has minimal effect on already-compressed game assets.",
+      "3": "Option D still serves every byte from the single origin region."
     }
   },
   {
@@ -317,9 +317,9 @@
     ],
     "hint": "Core Rule (Cost governance): Recommender continuously analyzes utilization and produces machine-type rightsizing and idle VM recommendations that can be applied in bulk, addressing the waste; Cloud Billing budgets with programmatic notifications give early warning at configurable thresholds and can trigger automation (notifications, or for noncritical projects, disabling billing) before the invoice arrives.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask every research lead to email a monthly utilization report for thei…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move all VMs to the largest machine type to reduce the number of insta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable billing on projects that exceed their budget by hand at month …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is manual and unreliable.",
+      "3": "Option D increases cost.",
+      "4": "Option E is manual, reactive, and risks destroying critical research resources."
     }
   },
   {
@@ -350,9 +350,9 @@
     ],
     "hint": "Core Rule (Multi-region active-active design): An active-active multi-region design needs three layers to be regional-failure tolerant: a database that continues accepting writes when a region is lost (Spanner multi-region), a global anycast entry point that health-checks and shifts traffic automatically (global external Application Load Balancer), and stateless compute deployed in more than one region behind it.",
     "whyWrong": {
-      "1": "Incorrect distractor (Cloud SQL with a cross-region read replica that the on-call engineer p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A regional external Application Load Balancer in each region with clie…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (A single GKE cluster in the primary region with Persistent Disk snapsh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B requires a human promotion step and interrupts writes.",
+      "3": "Option D gives clients region-specific endpoints and no automatic cross-region failover.",
+      "5": "Option F is a single-region design with a cold recovery path, which is exactly what the requirement rules out."
     }
   },
   {
@@ -381,9 +381,9 @@
     ],
     "hint": "Core Rule (Regional failover): A cross-region read replica replicates asynchronously with typically seconds of lag, meeting the sub-5-minute RPO, and promotion takes minutes, fitting inside the 1-hour RTO.",
     "whyWrong": {
-      "0": "Incorrect distractor (Daily Cloud SQL automated backups exported to a multi-region Cloud Sto…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A second full-size managed instance group in us-central1 receiving 50%…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (A Spanner multi-region instance replacing Cloud SQL.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A only meets an RPO of 24 hours.",
+      "2": "Option C is a hot active-active design that doubles cost beyond the approved warm-standby budget.",
+      "4": "Option E is a database migration that far exceeds the scope and budget for a regional retailer's DR requirement."
     }
   },
   {
@@ -410,9 +410,9 @@
     ],
     "hint": "Core Rule: The Backup and DR Service provides centrally managed, policy-based backups with application-consistent support for Compute Engine VMs and databases such as SQL Server, immutable backup vaults that can live in an isolated project with separate IAM, and a central console and reports for compliance.",
     "whyWrong": {
-      "1": "Incorrect distractor (Configure snapshot schedules on each VM's persistent disks and store t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write a script that runs gcloud compute disks snapshot every 4 hours f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Copy database backup files to a Cloud Storage bucket with a 90-day lif…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B produces crash-consistent snapshots by default, lacks database-aware consistency, keeps backups in the same project as the VM administrators, and has no central reporting.",
+      "2": "Option C is custom tooling that must be maintained and audited.",
+      "3": "Option D covers only the databases and leaves the VMs unprotected."
     }
   },
   {
@@ -439,9 +439,9 @@
     ],
     "hint": "Core Rule: DR tiers trade cost against recovery speed. With a 24-hour RTO and RPO and nearly no standby budget, a cold (backup and restore) pattern is the right match: daily backups and images copied to another region cost very little to store, and Terraform makes rebuilding the environment within a day realistic and repeatable.",
     "whyWrong": {
-      "0": "Incorrect distractor (A hot standby: run a full duplicate environment in a second region beh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A warm standby: keep a scaled-down replica of the environment running …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A pilot light: keep a Cloud SQL cross-region replica running continuou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option C keep resources running continuously, which the budget does not allow and the RTO does not require.",
+      "2": "Option C keep resources running continuously, which the budget does not allow and the RTO does not require.",
+      "3": "Option D still pays for a continuously running replica, which is more than a 24-hour RPO justifies for a cost-constrained organization."
     }
   },
   {
@@ -468,9 +468,9 @@
     ],
     "hint": "Core Rule (SLO burn-rate alerting): Burn-rate alerting ties alerts to error budget consumption rather than raw error rates: a high burn rate over a short window catches outages that would exhaust the budget quickly, while a low burn rate over a long window catches slow degradations, and short blips that consume negligible budget no longer page.",
     "whyWrong": {
-      "0": "Incorrect distractor (Raise the error threshold to 1% over 5 minutes so only larger incident…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Alert on the absolute count of errors per hour instead of a rate.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the paging alert with a daily email report of the error budget…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A reduces noise but would have missed the sustained low-level degradation entirely.",
+      "1": "Option B is sensitive to traffic volume rather than reliability.",
+      "2": "Option C removes timely paging for genuine fast-burning incidents."
     }
   },
   {
@@ -497,9 +497,9 @@
     ],
     "hint": "Core Rule (Log sinks and retention): An organization-level aggregated sink with include-children automatically captures logs from all existing and future projects and folders, routing them to a central log bucket in a project where project owners have no access; locking the retention policy on that bucket makes the retention immutable so nobody can shorten it or delete entries, satisfying the tamper-proof requirement.",
     "whyWrong": {
-      "0": "Incorrect distractor (Ask each project owner to create a sink from their project to a Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Set the default _Default log bucket retention to 7 years in every proj…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export audit logs to BigQuery in each project and rely on BigQuery tab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A depends on every owner complying and leaves logs under the control of the people being audited.",
+      "1": "Option B misses new projects between runs and keeps logs in owner-controlled projects.",
+      "3": "Option D provides no immutability and is decentralized."
     }
   },
   {
@@ -526,9 +526,9 @@
     ],
     "hint": "Core Rule: Uptime checks probe the public endpoint from Google checker locations around the world, so they detect availability issues in the path between users and the load balancer that internal backend health checks cannot see, and alerting policies notify on-call through channels such as PagerDuty or SMS.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the load balancer health check frequency to every 5 seconds.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud CDN so requests are served from the edge even when the or…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a log-based metric on 5xx responses in the load balancer logs a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B only verifies backend health from the load balancer, which is already reported as healthy.",
+      "2": "Option C may mask some failures but does not detect or alert on them.",
+      "3": "Option D catches server errors but not reachability failures where requests never arrive."
     }
   },
   {
@@ -555,9 +555,9 @@
     ],
     "hint": "Core Rule: Managed Service for Prometheus keeps the Prometheus collection model and full PromQL compatibility while storing metrics in Monarch, Google's globally scalable time-series store, with 24 months of retention and a single query surface across all clusters; existing Grafana dashboards work unchanged via the PromQL API.",
     "whyWrong": {
-      "0": "Incorrect distractor (Replace Prometheus with the Cloud Monitoring agent and rebuild dashboa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Federate the 15 Prometheus servers into one large central Prometheus V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export metrics from each Prometheus server to BigQuery and build Looke…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A discards the PromQL investment.",
+      "2": "Option C moves the scaling problem to a single larger bottleneck that still needs care and feeding.",
+      "3": "Option D turns a real-time monitoring system into batch analytics and breaks PromQL dashboards."
     }
   },
   {
@@ -584,9 +584,9 @@
     ],
     "hint": "Core Rule: Migrate to Virtual Machines is designed for large-scale VM migrations: it replicates source VMs continuously in the background, lets you group them into waves aligned to application dependencies, supports test clones that run in Google Cloud without disrupting the source, and performs a final short cut-over per group.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export each VM to an OVA file, upload it to Cloud Storage, and import …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Rebuild every application from scratch on GKE to avoid moving legacy V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Take VMware snapshots and copy them to Persistent Disk with a custom r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a manual, one-VM-at-a-time process with long outages and no test capability, unsuitable for 800 VMs.",
+      "1": "Option B is a re-architecture project that cannot fit nine months for 800 VMs.",
+      "2": "Option C is an unsupported, error-prone approach requiring an extended outage."
     }
   },
   {
@@ -613,9 +613,9 @@
     ],
     "hint": "Core Rule (Migration Center): Assessment precedes planning and execution in Google's migration methodology.",
     "whyWrong": {
-      "0": "Incorrect distractor (Order Transfer Appliances for both data centers so data movement can b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a landing zone with Shared VPC and Interconnect so migrated wor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Start migrating the least critical applications with Migrate to Virtua…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A commits to data transfer before knowing what data exists.",
+      "1": "Option B builds infrastructure before requirements are known.",
+      "3": "Option D skips assessment and risks migrating servers with unknown dependencies."
     }
   },
   {
@@ -642,9 +642,9 @@
     ],
     "hint": "Core Rule (RAG with Vertex AI Search): Retrieval-augmented generation is the recommended pattern for question answering over frequently changing enterprise content: Vertex AI Search indexes the documents (with connectors and scheduled refresh), and grounding Gemini in retrieved passages produces answers with citations and greatly reduces hallucination, all through managed Agent Builder tooling that requires no ML expertise.",
     "whyWrong": {
-      "0": "Incorrect distractor (Fine-tune a Gemini model on the documents monthly and deploy it to a V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Concatenate all documents into the system prompt of each Gemini reques…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Train a custom sequence-to-sequence model on Vertex AI with the docume…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A bakes knowledge into weights, becomes stale between tunings, and does not provide citations.",
+      "2": "Option C exceeds context limits for 40,000 documents and would be prohibitively expensive per request.",
+      "3": "Option D is a large ML project with worse results than a foundation model plus retrieval."
     }
   },
   {
@@ -671,9 +671,9 @@
     ],
     "hint": "Core Rule (Tuning vs prompting): The decision rule is prompt first, tune when prompting plateaus and you have a sizeable labeled dataset for a narrow, specialized task.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the number of few-shot examples in the prompt to several hund…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Switch to the largest available model in Model Garden and raise the te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add retrieval of similar historical notes to each prompt so the model …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B increases prompt length and cost substantially and still cannot cover thousands of codes.",
+      "2": "Option C increases cost and latency, and higher temperature reduces classification consistency.",
+      "3": "Option D lengthens each prompt (raising cost and latency) and is better suited to knowledge retrieval than to learning a precise classification scheme."
     }
   },
   {
@@ -702,9 +702,9 @@
     ],
     "hint": "Core Rule (Evaluating and monitoring LLM outputs): Pre-release evaluation with the Gen AI evaluation service gives repeatable, metric-based comparisons (including model-based and pairwise judgments) so decisions are objective rather than anecdotal.",
     "whyWrong": {
-      "1": "Incorrect distractor (Rely on the model's default safety settings and promote new versions a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Retrain the model every week so quality never regresses.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Pin the application to the oldest model version indefinitely to avoid …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is not objective evidence.",
+      "3": "Option D confuses retraining with evaluation and would itself introduce unassessed changes.",
+      "4": "Option E avoids improvement and eventually collides with model deprecation."
     }
   },
   {
@@ -731,9 +731,9 @@
     ],
     "hint": "Core Rule: Gemini Cloud Assist is built into the Google Cloud console to help design, operate, troubleshoot, and optimize; its investigations feature analyzes logs, metrics, and configuration changes to propose root causes and remediations, and it surfaces cost and reliability recommendations across projects through natural-language interaction, directly addressing the team's capacity problem.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export all logs to BigQuery and train a custom anomaly-detection model…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Purchase a third-party AIOps platform and integrate it with Cloud Logg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create more dashboards in Cloud Monitoring so engineers can see all si…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a substantial ML project the stretched team cannot support.",
+      "1": "Option B adds cost and integration work when a native capability exists.",
+      "2": "Option C adds more data to look at but does not reduce the correlation effort."
     }
   }
 ]

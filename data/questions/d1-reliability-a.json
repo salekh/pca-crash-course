@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (High availability): A regional MIG spreads identical instances across multiple zones in a region and continues serving from the surviving zones when one fails, which is the Google-recommended pattern for zone-resilient stateless tiers and requires no code change.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a second zonal MIG in us-central1-b and write a Cloud Run funct…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Convert the instances to a sole-tenant node group in us-central1-a to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable live migration on each instance so the VMs are automatically mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces custom failover logic that a regional MIG already provides natively and adds operational overhead.",
+      "1": "Option B addresses tenancy isolation, not zonal availability; the node group is still in one zone.",
+      "3": "Option D is wrong because live migration moves VMs between hosts during maintenance within a zone; it does not protect against a zonal outage."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: Regional Persistent Disks replicate writes synchronously to two zones in the same region, giving an RPO of zero, and can be force-attached to a replacement VM in the second zone within minutes, which satisfies both the RPO and the recovery-time requirement without changing the application.",
     "whyWrong": {
-      "1": "Incorrect distractor (Schedule hourly zonal Persistent Disk snapshots and restore the latest…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure a regional MIG with a target size of two so that both VMs sh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the state on a Hyperdisk Extreme volume in the same zone and inc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is incorrect because hourly snapshots imply up to an hour of data loss, violating the zero-RPO requirement.",
+      "2": "Option C is wrong because the software cannot be clustered and two VMs cannot share a single zonal boot or data disk in read-write mode.",
+      "3": "Option D improves performance but remains in one zone and offers no failover capability."
     }
   },
   {
@@ -80,9 +80,9 @@
     ],
     "hint": "Core Rule: Cloud SQL high availability provisions a standby instance in a second zone with synchronous replication of data through regional persistent disks, and Cloud SQL automatically fails over in a few minutes with no data loss, which is exactly the requirement with minimal operational overhead.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a read replica in a different zone and write a script that prom…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Export the database to Cloud Storage every 10 minutes and restore it t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate the database to a self-managed PostgreSQL cluster on Compute E…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A uses asynchronous read replicas, so promotion could lose committed transactions and requires custom automation.",
+      "1": "Option B has an RPO of up to 10 minutes and a long RTO.",
+      "2": "Option C adds significant operational burden, contradicting the constraint, and the reliability and operational excellence pillars favor managed services for this need."
     }
   },
   {
@@ -109,9 +109,9 @@
     ],
     "hint": "Core Rule: Only Spanner multi-region configurations deliver a 99.999% availability SLA with synchronous replication across regions and strong consistency; a configuration spanning North America and Europe places read-write replicas near both user populations and survives a regional failure.",
     "whyWrong": {
-      "0": "Incorrect distractor (A regional Spanner instance in us-east1 with a Cloud SQL cross-region …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A Cloud SQL Enterprise Plus instance with high availability enabled an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A Bigtable instance with replication across clusters in us-east1 and e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a mixed design; a regional Spanner instance provides 99.",
+      "2": "Option C tops out at a 99.",
+      "3": "Option D offers eventual consistency across clusters and does not support the strongly consistent transactional semantics a ledger requires."
     }
   },
   {
@@ -138,9 +138,9 @@
     ],
     "hint": "Core Rule: Standard Tier Memorystore for Redis maintains a replica in a different zone with automatic failover and a 99.9% SLA, and read replicas let the application distribute reads through a read endpoint while retaining the Redis protocol.",
     "whyWrong": {
-      "1": "Incorrect distractor (Keep the Basic Tier instance and deploy a second Basic Tier instance i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace Memorystore with a Cloud SQL instance configured for high avai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the session data to Firestore and enable multi-region replication…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B requires dual-write logic in the application, provides no SLA and risks inconsistent caches.",
+      "2": "Option C replaces an in-memory cache with a relational database, adding latency and defeating the purpose of caching.",
+      "3": "Option D changes the data model and client protocol, which violates the constraint of not changing the application protocol."
     }
   },
   {
@@ -167,9 +167,9 @@
     ],
     "hint": "Core Rule (Cloud Storage replication): Turbo replication on a dual-region bucket provides an SLA-backed RPO of 15 minutes for newly written objects between the two selected regions, which is precisely the regulatory guarantee required.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use a standard dual-region bucket and rely on default asynchronous rep…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use a regional bucket and configure Storage Transfer Service to copy n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use a multi-region bucket in the US location and enable Object Version…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because default dual-region replication is asynchronous with no guaranteed replication time for every object.",
+      "1": "Option B produces an RPO of at least an hour and adds a transfer pipeline to operate.",
+      "3": "Option D provides geo-redundancy but offers no RPO guarantee and versioning protects against overwrites, not regional loss with a time bound."
     }
   },
   {
@@ -196,9 +196,9 @@
     ],
     "hint": "Core Rule (Cloud SQL disaster recovery): Cloud SQL Enterprise Plus advanced disaster recovery lets you designate a cross-region read replica as the DR replica, perform a replica failover with near-zero data loss when the primary region is unavailable, and later switch back to the original region while Cloud SQL rebuilds the replication topology, which meets the RTO, RPO and return-to-primary requirements.",
     "whyWrong": {
-      "0": "Incorrect distractor (Take automated backups every four hours with a custom backup location …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Database Migration Service to continuously migrate the database to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable point-in-time recovery and clone the instance to europe-west1 w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A produces an RPO measured in hours.",
+      "1": "Option B misuses Database Migration Service, which is designed for migrations rather than ongoing DR with orchestrated switchback.",
+      "2": "Option C is incorrect because point-in-time recovery restores to a point within the same region and does not help if that region is unavailable."
     }
   },
   {
@@ -224,9 +224,9 @@
     ],
     "hint": "Core Rule: Point-in-time recovery uses continuously archived write-ahead logs to restore a Cloud SQL instance to a specific timestamp, so restoring to 14:31 on a new instance recovers the rows and avoids overwriting later valid data.",
     "whyWrong": {
-      "0": "Incorrect distractor (Restore the most recent nightly backup to the existing instance and re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Promote the cross-region read replica, which still contains the delete…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Fail over to the high availability standby instance, which holds the d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A loses everything written since the nightly backup and depends on error-prone manual replay.",
+      "2": "Option C fails because the replica asynchronously applies the same DELETE within seconds.",
+      "3": "Option D is wrong because the HA standby is a synchronous copy of the primary and already reflects the deletion; HA protects against infrastructure failure, not logical data errors."
     }
   },
   {
@@ -253,9 +253,9 @@
     ],
     "hint": "Core Rule: Backup and DR Service provides a centralized, managed backup solution for Compute Engine, VMware Engine, and databases such as SAP HANA, and backup vaults store immutable, indelible copies with an enforced minimum retention that even project administrators cannot shorten, satisfying the audit requirement from a single console.",
     "whyWrong": {
-      "1": "Incorrect distractor (Configure snapshot schedules for all Persistent Disks and rely on IAM …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Install an open-source backup agent on every VM and write backups to a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Cloud Storage Object Versioning on exported VM images and set a re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B covers only disks; project owners can still delete snapshots and there is no unified coverage for SAP HANA or VMware Engine.",
+      "2": "Option C is agent-heavy, unmanaged, and a lifecycle rule does not prevent deletion.",
+      "3": "Option D handles images, not running databases or VMware workloads, and does not offer application-consistent backups or restore testing reports."
     }
   },
   {
@@ -282,9 +282,9 @@
     ],
     "hint": "Core Rule (Disaster recovery patterns): A warm standby keeps the data tier continuously replicated and a small compute footprint pre-provisioned, so failover consists of promoting the replica and scaling out, which fits comfortably within a one-hour RTO and a five-minute RPO at a fraction of the cost of a fully active second region.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cold pattern: store Terraform code and database backups in a multi-reg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Hot pattern: run an active-active deployment across us-east4 and us-ce…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Pilot-light pattern using only Cloud Storage snapshots taken every 30 …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is cheaper but a complete rebuild plus restore rarely fits in one hour and backups alone cannot meet a five-minute RPO.",
+      "1": "Option B meets the objectives but duplicates the full environment and requires a database re-platform, exceeding the stated cost tolerance.",
+      "3": "Option D violates the RPO because 30-minute snapshots allow up to 30 minutes of loss."
     }
   },
   {
@@ -311,9 +311,9 @@
     ],
     "hint": "Core Rule: Predictive autoscaling uses historical CPU utilization to forecast load and starts instances in advance of the expected demand, factoring in the configured initialization period, which is designed exactly for recurring, predictable spikes with slow-starting applications.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add a scaling schedule that sets a higher minimum number of instances …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Reduce the CPU utilization target to 30% so the group scales out earli…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Increase the autoscaler cool-down period to 600 seconds so the group a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A can work but requires manual schedule maintenance and does not adapt if the pattern shifts.",
+      "2": "Option C wastes capacity continuously and still reacts only after load rises.",
+      "3": "Option D is a misunderstanding; a longer cool-down (initialization period) delays scaling decisions rather than making them earlier or larger."
     }
   },
   {
@@ -342,9 +342,9 @@
     ],
     "hint": "Core Rule (GKE autoscaling): The Horizontal Pod Autoscaler adds pod replicas as load rises, and the cluster autoscaler provisions additional nodes when pods cannot be scheduled, so together they provide end-to-end elasticity for a stateless service.",
     "whyWrong": {
-      "1": "Incorrect distractor (Configure a Vertical Pod Autoscaler in Auto mode on the checkout Deplo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Manually resize the node pool to the maximum expected size before each…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Set the Deployment replica count to a fixed high value and remove reso…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is not appropriate because VPA changes per-pod resource requests rather than replica count, and combining VPA and HPA on the same CPU metric is discouraged.",
+      "3": "Option D is a manual, error-prone approach that contradicts the automation goal and wastes cost.",
+      "4": "Option E removes resource requests, which breaks scheduling decisions and autoscaler signals and is an anti-pattern."
     }
   },
   {
@@ -371,9 +371,9 @@
     ],
     "hint": "Core Rule: Cloud CDN caches content at Google edge points of presence close to readers worldwide, which directly lowers latency for distant users and offloads repeated requests from the origin, and enabling it is a configuration change on the existing load balancer.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy additional Cloud Run services in asia-east1 and europe-west1 an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move the images to a Compute Engine VM with a larger machine type and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add Memorystore for Redis in front of Cloud Run to cache rendered page…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A adds multi-region compute and DNS complexity but still requires every request to reach an origin.",
+      "1": "Option B does nothing for geographic latency.",
+      "2": "Option C caches near the backend in one region, which reduces compute work but does not cut the round-trip time for readers in Asia or Europe."
     }
   },
   {
@@ -400,9 +400,9 @@
     ],
     "hint": "Core Rule (Network tiers and load balancing): A global external Application Load Balancer with a single anycast IP and cross-region backend selection requires the Premium network tier, which also carries user traffic on Google's private backbone from the nearest edge (cold-potato routing) for the lowest latency.",
     "whyWrong": {
-      "1": "Incorrect distractor (Use the Standard network tier with a regional external Application Loa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the Standard network tier with a global external Application Load …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use the Premium network tier with a regional external passthrough Netw…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B could approximate geo-routing but gives multiple IPs, depends on DNS caching for failover, and Standard tier hands traffic to the public internet early, increasing latency.",
+      "2": "Option C is technically impossible because global load balancers are not available in Standard tier.",
+      "3": "Option D uses a regional Layer 4 balancer in one region, so international users would traverse long paths and Cloud CDN does not help dynamic dashboard traffic."
     }
   },
   {
@@ -429,9 +429,9 @@
     ],
     "hint": "Core Rule (Caching): A cache-aside pattern with Memorystore for Redis serves hot product reads from memory in sub-millisecond to low-millisecond times and dramatically reduces query volume against Cloud SQL, requiring only modest application changes; this is the performance optimization pillar's recommended approach for read-heavy hot data.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the Cloud SQL machine size and add three read replicas behind…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Migrate the catalog to Spanner and rely on its distributed architectur…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Cloud CDN on the API load balancer with a long TTL for catalog …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A scales the database but still incurs disk and network round trips and higher cost, and does not reach single-digit-millisecond latency reliably.",
+      "1": "Option B is a major migration and Spanner is not inherently lower latency for single-row reads than an in-memory cache.",
+      "3": "Option D caches HTTP responses at the edge, which is unsuitable for personalized or frequently changing API responses and offers limited invalidation control."
     }
   },
   {
@@ -458,9 +458,9 @@
     ],
     "hint": "Core Rule (Region selection): Data residency limited to Germany means the design must use German regions only; using regional resources spread across the three zones of europe-west3 delivers protection against a data-center (zone) failure, keeps data in Germany, and serves users nationally with low latency, while the resource location constraint enforces this policy.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy in the europe multi-region for Cloud Storage and use a global e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy in europe-west3 and europe-west1 with a Spanner multi-region co…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy in a single zone of europe-west3 with daily backups copied to e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Deploy in the europe multi-region for Cloud Storage and use a global external Application Load Balancer with backends in europe-west1 and europe-west3.\") is incorrect because it does not meet the scenario's core requirement; Option B (Deploy across multiple zones in europe-west3 (Frankfurt) usi) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Deploy in europe-west3 and europe-west1 with a Spanner multi-region configuration so the data is replicated across two European regions.\") is incorrect because it does not meet the scenario's core requirement; Option B (Deploy across multiple zones in europe-west3 (Frankfurt) usi) is the Google Cloud recommended pattern here.",
+      "3": "Option D keeps data in Germany but a single zone fails the availability requirement even though backups exist in Berlin."
     }
   },
   {
@@ -489,9 +489,9 @@
     ],
     "hint": "Core Rule (Cost optimization pillar): Rightsizing chronically underutilized VMs based on Active Assist recommendations removes waste, and committing to the resulting predictable baseline earns significant discounts without risk, while fault-tolerant batch work is the ideal candidate for Spot VMs at up to 91% savings with a MIG handling recreation.",
     "whyWrong": {
-      "1": "Incorrect distractor (Move the steady-state VMs to Spot VMs to obtain the largest available …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Purchase three-year committed use discounts for the batch VMs to lock …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Migrate all VMs to sole-tenant nodes to consolidate workloads onto few…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because Spot VMs can be preempted at any time and are unsuitable for always-on production services where reliability matters.",
+      "3": "Option D commits to spend for an interruptible workload that runs only a few hours per day, which is more expensive than Spot usage.",
+      "4": "Option E increases cost; sole-tenant nodes are for compliance or licensing needs, not savings."
     }
   },
   {
@@ -518,9 +518,9 @@
     ],
     "hint": "Core Rule: The sustainability pillar recommends choosing regions with a high carbon-free energy (CFE) percentage and low grid carbon intensity when the workload allows it, and the Region Picker tool combines carbon, price, and latency criteria while Carbon Footprint reports measure the outcome.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy in the region closest to the company headquarters to minimize n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy in the region with the lowest compute list price, because lower…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy in whichever region has the newest machine series available.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A wrongly assumes network distance dominates emissions; compute location matters far more for a batch workload.",
+      "1": "Option B is unfounded because price and grid carbon intensity are not correlated.",
+      "2": "Option C is unrelated to emissions of the underlying electricity grid."
     }
   },
   {
@@ -549,9 +549,9 @@
     ],
     "hint": "Core Rule (Operational excellence pillar): Operational excellence emphasizes measuring what matters through SLIs and SLOs, alerting on error-budget burn so the team learns of problems before customers do, and automating infrastructure with declarative IaC and CI/CD to eliminate drift and manual errors; both steps are concrete and measurable within a quarter.",
     "whyWrong": {
-      "1": "Incorrect distractor (Purchase Premium Support and route all incidents to Google so the team…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate every workload to Cloud Run so that Google handles reliability…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Enable all Cloud Audit Logs and export them to BigQuery so that outage…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B outsources support but does not fix missing observability or manual provisioning.",
+      "2": "Option C is a large migration that still requires SLOs and monitoring; managed platforms do not remove the need to observe your own service.",
+      "4": "Option E improves post-incident forensics but does nothing to detect outages proactively or to prevent configuration errors."
     }
   },
   {
@@ -578,9 +578,9 @@
     ],
     "hint": "Core Rule: Gemini Cloud Assist is integrated in the console and its investigations feature automatically gathers signals across logs, metrics, configuration and recent changes for the affected resources to propose probable causes and remediation steps, while the conversational assistant can help design and compare architectures using project context, which addresses both requests with no new tooling.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export all logs to BigQuery and hire a data analyst to build correlati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Trace on the application and rely on trace waterfall view…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy a third-party AIOps platform alongside Cloud Observability and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is slow and costly and relies on building correlation logic by hand.",
+      "2": "Option C helps with latency analysis but only for instrumented request paths and does not correlate configuration changes or database events.",
+      "3": "Option D adds cost and operational overhead for a small team when a native capability exists."
     }
   },
   {
@@ -607,9 +607,9 @@
     ],
     "hint": "Core Rule (Persistent Disk snapshots): Snapshot schedules are a managed resource policy that automates creation and retention of disk snapshots without scripts, and choosing a storage location in a multi-region or another region ensures the backups remain accessible during an outage of asia-southeast1.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write a Cloud Scheduler job that calls a Cloud Run function to create …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a snapshot schedule resource policy with a daily schedule and 1…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Persistent Disk asynchronous replication to a disk in asia-sout…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but recreates a managed capability with custom code, adding operational burden.",
+      "1": "Option B is wrong because storing the snapshots in the same region as the disks means they become inaccessible in exactly the regional-outage scenario the company must survive.",
+      "3": "Option D is wrong because asynchronous replication targets a different region (not a zone in the same region) and provides a single continuously updated replica rather than 14 days of point-in-time history."
     }
   },
   {
@@ -636,9 +636,9 @@
     ],
     "hint": "Core Rule (Database RPO/RTO design): Only Spanner multi-region configurations synchronously commit transactions across regions using Paxos, so a regional loss causes zero data loss and the service continues without operator-initiated failover, while providing external consistency (strict serializability) and relational SQL with joins.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cloud SQL for PostgreSQL Enterprise Plus with high availability and a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (AlloyDB for PostgreSQL with a cross-region secondary cluster.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Bigtable with multi-cluster replication across two regions and single-…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on asynchronous cross-region replication, so RPO is non-zero and promotion is required.",
+      "1": "Option B similarly uses asynchronous cross-region replication to a secondary cluster and requires promotion, so RPO is not zero.",
+      "2": "Option C provides only eventual consistency across clusters and lacks multi-row transactions and relational joins."
     }
   },
   {
@@ -669,9 +669,9 @@
     ],
     "hint": "Core Rule (Multi-region active-active design): Active-active across regions needs a global front door that routes users to the nearest healthy region and automatically drains failed backends, enough headroom in the surviving region to serve all traffic, and shared state that is not pinned to a single region; without any one of these, a regional outage leads to downtime, overload, or lost sessions.",
     "whyWrong": {
-      "3": "Incorrect distractor (A Cloud DNS failover routing policy with a 24-hour TTL pointing to reg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (A Cloud Interconnect connection between the two regions to replicate t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (A regional internal Application Load Balancer in each region with cros…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "3": "Option D is wrong because a 24-hour TTL would keep clients pointed at the failed region for up to a day.",
+      "4": "Option E misunderstands Interconnect, which connects on-premises networks to Google Cloud; instance templates are global resources needing no replication.",
+      "5": "Option F uses internal regional balancers that cannot route external users across regions."
     }
   },
   {
@@ -698,9 +698,9 @@
     ],
     "hint": "Core Rule (Autoscaling policies): Autoscaling on load balancing serving capacity uses the backend service's configured per-instance capacity (here 400 RPS in RATE mode) and scales the group to keep utilization of that capacity at the target, which directly reflects request pressure and requires no application changes.",
     "whyWrong": {
-      "1": "Incorrect distractor (Lower the CPU utilization target to 10% so the group scales out before…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Write a sidecar that publishes open connection counts to Cloud Monitor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace autoscaling with a scaling schedule that sets a fixed number o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B keeps scaling tied to CPU, which is not correlated with the real bottleneck and would over-provision at idle.",
+      "2": "Option C works but requires building and maintaining custom instrumentation when a native signal exists.",
+      "3": "Option D removes elasticity entirely and cannot respond to unexpected load."
     }
   },
   {
@@ -729,9 +729,9 @@
     ],
     "hint": "Core Rule: The reliability pillar recommends bounding retries with exponential backoff and jitter, adding circuit breakers to fail fast, and building graceful degradation so a non-critical dependency failure reduces functionality rather than availability; together these break the retry storm and keep the core user journey working.",
     "whyWrong": {
-      "2": "Incorrect distractor (Increase the connection pool size and request timeouts on all services…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Configure every service to retry failed calls immediately up to 20 tim…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Move all services onto a single large VM so calls become local and net…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "2": "Option C treats symptoms and can worsen overload by holding resources longer.",
+      "3": "Option D is the exact anti-pattern that produced the cascading failure.",
+      "4": "Option E creates a single point of failure and eliminates horizontal scalability, violating basic reliability principles."
     }
   }
 ]

@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Vertex AI Pipelines is the managed, serverless orchestrator for ML workflows: each step becomes a reusable component, runs can be scheduled, and every execution automatically records inputs, outputs, parameters and artifact lineage in Vertex ML Metadata, which is exactly the reproducibility and audit trail requested.",
     "whyWrong": {
-      "0": "Incorrect distractor (Convert the notebooks into a single large Cloud Run job that runs mont…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy Cloud Composer and write an Airflow DAG that executes the noteb…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store each notebook version in Cloud Source Repositories and tag the c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A automates execution but gives no step-level lineage or artifact tracking.",
+      "1": "Option B requires operating a Composer environment and does not capture ML metadata natively.",
+      "3": "Option D versions code but does not tie a model to the data, parameters and intermediate artifacts that produced it."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Vertex AI Pipelines SDK choice): Vertex AI Pipelines executes pipelines defined with either the Kubeflow Pipelines SDK or the TFX SDK; because the company already has TFX components, compiling the existing pipeline for Vertex AI (and using Dataflow as the Beam runner for large-scale Transform and ExampleGen steps) is the path with the least rework.",
     "whyWrong": {
-      "1": "Incorrect distractor (Rewrite every component as a lightweight Python function component usi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Package the entire TFX pipeline into one custom container and run it a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the pipeline to Cloud Composer, since TFX cannot run on Vertex AI…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B discards working, tested components for no benefit.",
+      "2": "Option C loses the step-level orchestration, caching and lineage that pipelines provide.",
+      "3": "Option D is factually wrong because TFX is a first-class option on Vertex AI Pipelines."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule: Vertex AI Feature Store uses BigQuery as the offline source of truth and syncs feature values into a managed online store, so training and serving read the same definitions, point-in-time lookups avoid data leakage in training sets, and online retrieval is served in milliseconds, all without building custom pipelines.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export the nightly feature tables to Cloud SQL and have both training …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Have the serving application query BigQuery directly for each predicti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Cache the features in Memorystore with a custom loader and keep the tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces a relational database with no point-in-time semantics and limited scalability for online reads.",
+      "1": "Option B is far too slow and expensive for per-request latency.",
+      "2": "Option C requires the company to build and maintain a loader and still leaves two separate feature-definition paths."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (Dataset preparation): Supervised object detection requires labeled bounding boxes; Vertex AI managed datasets integrate with data labeling tasks, so the company can obtain human annotations following its instructions and the resulting dataset is versioned and immediately usable for training.",
     "whyWrong": {
-      "0": "Incorrect distractor (Train an AutoML model on the unlabeled images and let Vertex AI infer …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the Cloud Vision API label detection feature to generate the bound…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the images in BigQuery object tables and use BigQuery ML to trai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is impossible because supervised training needs labels first.",
+      "2": "Option C fails because the generic Vision API does not know the domain-specific concept of a damaged insulator and does not produce the training labels required.",
+      "3": "Option D is wrong because BigQuery ML does not train custom object-detection models and unlabeled data cannot be used for supervised training."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule: BigQuery ML lets SQL users create, evaluate and use ML models entirely inside BigQuery with standard SQL, so the analysts can train classifiers and run weekly scoring with scheduled queries without exporting data or learning a new language; this also honours the least-operational-overhead principle.",
     "whyWrong": {
-      "1": "Incorrect distractor (Export the data to Cloud Storage and train a custom scikit-learn model…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Vertex AI Workbench instance and have the analysts learn PyTo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use the Cloud Natural Language API to classify subscribers based on th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B moves data and requires Python skills the team lacks.",
+      "2": "Option C imposes a steep learning curve and infrastructure that is unnecessary for tabular classification.",
+      "3": "Option D is the wrong tool; the Natural Language API analyses text, not tabular usage data."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule (BigQuery ML forecasting): BigQuery ML's ARIMA_PLUS supports training thousands of time series in a single CREATE MODEL statement through the TIME_SERIES_ID_COL option, automatically models seasonality and holiday effects, and produces forecasts with ML.FORECAST, all inside BigQuery with no extra infrastructure.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export the data to Cloud Storage and train one Vertex AI custom PyTorc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Write a Dataflow pipeline that fits a statistical model per series usi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Looker Studio's built-in trend lines to project sales for each com…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A means managing 20,000 models and training jobs, which is enormous operational overhead.",
+      "1": "Option B is feasible but requires custom pipeline code and maintenance that the managed SQL feature already provides.",
+      "3": "Option D is a visualization aid, not a forecasting system that can be automated and consumed downstream."
     }
   },
   {
@@ -197,9 +197,9 @@
     ],
     "hint": "Core Rule: Vertex AI custom training accepts any container image that follows its contract, so packaging the toolkit and its native dependencies into an image stored in Artifact Registry gives an identical environment locally and in the cloud, while Vertex AI provisions and tears down the GPU machines for each job.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use a prebuilt PyTorch training container and install the toolkit at r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Compute Engine VM with a GPU, install the toolkit, and run tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run the training on a GKE Standard GPU node pool using a Kubernetes Jo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works only if the toolkit installs cleanly with pip, which native dependencies often do not, and it slows every job start and breaks reproducibility.",
+      "2": "Option C and Option D both require the team to operate infrastructure, contradicting the requirement to avoid managing VMs.",
+      "3": "Option D both require the team to operate infrastructure, contradicting the requirement to avoid managing VMs."
     }
   },
   {
@@ -226,9 +226,9 @@
     ],
     "hint": "Core Rule (Distributed training): Reduction Server is a Vertex AI feature designed for exactly this bottleneck: it adds a pool of inexpensive CPU-only reducer VMs that aggregate gradients using a bandwidth-optimal algorithm, increasing all-reduce throughput and reducing step time for multi-node GPU data-parallel training with minimal configuration changes.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move to a single worker with 8 GPUs and increase the batch size to com…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Replace data parallelism with a manually written parameter-server arch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Switch to Spot VMs for the worker pool so that more workers can be use…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A reduces total compute and typically lengthens training.",
+      "1": "Option B is a large engineering effort and parameter servers are generally slower than optimized all-reduce for dense models.",
+      "2": "Option C addresses cost, not the communication bottleneck, and adding workers was already shown to give little benefit."
     }
   },
   {
@@ -255,9 +255,9 @@
     ],
     "hint": "Core Rule (AI Hypercomputer GPU selection): A3 VMs pair H100 or H200 GPUs with very high-bandwidth GPU-to-GPU and inter-node networking, which is what large-scale multi-week LLM pre-training needs, whereas G2 VMs with L4 GPUs are optimized for cost-efficient inference of smaller models (performance and cost optimization pillars).",
     "whyWrong": {
-      "1": "Incorrect distractor (G2 machine series with NVIDIA L4 GPUs for pre-training, and A3 machine…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (N1 machine series with NVIDIA T4 GPUs for both workloads to keep the f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A2 machine series with NVIDIA A100 GPUs for inference, and Cloud TPU v…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B inverts the recommendation, using inference-class GPUs for training and premium training GPUs for a small model.",
+      "2": "Option C uses an older, low-memory GPU that would make training impractically slow.",
+      "3": "Option D over-provisions inference with A100s, and while TPUs can be excellent for LLM training, claiming they are cheaper for every workload is incorrect and a reason-by-slogan answer."
     }
   },
   {
@@ -285,9 +285,9 @@
     ],
     "hint": "Core Rule (Cloud TPU selection): Google positions TPU v5p and the newer Trillium (v6e) generation for the largest, most demanding training jobs, with the highest per-chip performance and pod scale, while TPU v5e is designed for cost-efficient training, fine-tuning and serving of small to mid-sized models; JAX is natively supported on all of them.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use TPU v5e for the frontier-scale training run and TPU v5p for cost-e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use TPU v2 Pods for both because older generations are the most cost-e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use G2 VMs with L4 GPUs for the frontier training run and Trillium TPU…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A reverses the roles of v5e and v5p.",
+      "1": "Option B is wrong because older TPU generations have lower performance per dollar and smaller pods.",
+      "3": "Option D pairs the wrong hardware with the largest training job; L4 GPUs are inference-oriented and cannot scale to thousands of tightly connected chips."
     }
   },
   {
@@ -314,9 +314,9 @@
     ],
     "hint": "Core Rule: Dynamic Workload Scheduler flex-start is designed for accelerator jobs that can wait: the request is queued and all requested GPUs are provisioned together as soon as they are obtainable, then run for up to the requested duration at a discounted price, with no long-term reservation required.",
     "whyWrong": {
-      "0": "Incorrect distractor (Submit the jobs as Vertex AI custom training jobs on Spot VMs and retr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Purchase a one-year committed use discount for the GPU machine type to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Distribute the job across several regions at once and cancel the copie…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does not solve capacity availability and adds preemption risk mid-run, which the jobs cannot tolerate.",
+      "2": "Option C reduces price but a committed use discount does not reserve capacity.",
+      "3": "Option D wastes effort and money, may still fail everywhere, and complicates data locality."
     }
   },
   {
@@ -343,9 +343,9 @@
     ],
     "hint": "Core Rule (Dynamic Workload Scheduler calendar mode): Calendar mode lets you reserve GPU capacity for a fixed future window (start date and duration) and pay only for that window, which meets the requirements of a guaranteed, uninterrupted run on a set date without paying for six weeks of idle reservation.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a standard on-demand reservation today for 64 A3 GPUs so capaci…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Spot VMs for the training run to keep costs low.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rely on on-demand capacity and start the job on the planned date.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A guarantees capacity but bills for the reserved GPUs from the day the reservation is created.",
+      "1": "Option B offers no guarantee and Spot VMs can be preempted mid-run.",
+      "2": "Option C offers no assurance that 64 A3 GPUs will be available on that date."
     }
   },
   {
@@ -374,9 +374,9 @@
     ],
     "hint": "Core Rule (Spot VMs for training): Spot VMs can cut accelerator costs by 60% or more, and Vertex AI custom training supports Spot as a scheduling option; the standard pattern for interruption tolerance is periodic checkpointing to Cloud Storage plus automatic restart from the last checkpoint, which turns a preemption into a short delay rather than lost work.",
     "whyWrong": {
-      "1": "Incorrect distractor (Move the training to sole-tenant nodes to obtain volume pricing.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Reduce the number of GPUs from 16 to 4 to lower the hourly cost.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Switch to on-demand A100 VMs with a one-year committed use discount fo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B increases cost; sole-tenant nodes carry a premium.",
+      "3": "Option D quadruples wall-clock time and does not reduce total GPU-hours.",
+      "4": "Option E commits to paying for the machines 24x7, which is far more expensive than 12 hours of weekly use."
     }
   },
   {
@@ -403,9 +403,9 @@
     ],
     "hint": "Core Rule (Reservations for Vertex AI): Compute Engine reservations guarantee capacity for the reserved machine and accelerator type, can be shared with Vertex AI so that custom training jobs and prediction deployments consume them, and are compatible with committed use discounts to lower the cost of capacity you are paying for anyway.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rely on on-demand capacity and set up a Cloud Monitoring alert that pa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Dynamic Workload Scheduler flex-start so that jobs are queued unti…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run the workloads on Spot A100 VMs across three regions to increase th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A does nothing to prevent the failure the firm cannot tolerate.",
+      "1": "Option B is designed for jobs that can wait, which contradicts the always-available requirement.",
+      "3": "Option D trades certainty for low price and Spot capacity can disappear at any time."
     }
   },
   {
@@ -432,9 +432,9 @@
     ],
     "hint": "Core Rule (Batch vs online prediction): Batch prediction is the purpose-built option for high-volume, latency-tolerant scoring: it reads directly from BigQuery or Cloud Storage, provisions workers only for the duration of the job, and writes results back, so there is no endpoint running around the clock.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy the model to a Vertex AI online prediction endpoint with autosc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy the model to a Cloud Run service and invoke it from a Cloud Run…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy the model to an online endpoint with a minimum of 10 replicas s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option D keep an online endpoint deployed and pay for replicas even when idle, and 50 million individual requests are far more expensive than one batch job.",
+      "2": "Option C forces the team to build serving and iteration logic that Vertex AI batch prediction already provides.",
+      "3": "Option D keep an online endpoint deployed and pay for replicas even when idle, and 50 million individual requests are far more expensive than one batch job."
     }
   },
   {
@@ -463,9 +463,9 @@
     ],
     "hint": "Core Rule (Online prediction endpoints): Vertex AI online endpoints scale replicas based on target utilization, but new replicas take time to load the model, so the Google-recommended approach for steep ramps is to raise the minimum replica count to absorb the initial surge and lower the target utilization so scaling starts earlier (reliability and performance pillars).",
     "whyWrong": {
-      "0": "Incorrect distractor (Replace the endpoint with a nightly batch prediction job and cache the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set the endpoint's autoscaling target to 100% CPU utilization so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable autoscaling and deploy a single very large machine type with m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot satisfy a real-time fraud check on new transactions.",
+      "2": "Option C makes scaling start later and worsens the problem.",
+      "4": "Option E creates a single point of failure and cannot handle a 100x traffic range efficiently."
     }
   },
   {
@@ -492,9 +492,9 @@
     ],
     "hint": "Core Rule: The Vertex AI Model Registry is designed for model lifecycle management: it stores versions of a model with lineage and evaluation results, supports aliases so that a stable name can point to the approved version, and integrates with endpoint deployment so promotion or rollback is a matter of moving the alias or redeploying a chosen version.",
     "whyWrong": {
-      "1": "Incorrect distractor (Save each model to a separate Cloud Storage bucket named after the tra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a new Vertex AI endpoint for each weekly model and update the a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store model files in Artifact Registry as generic artifacts and use ta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is manual, error-prone and provides no integration with deployment.",
+      "2": "Option C multiplies endpoints and pushes version control into application configuration.",
+      "3": "Option D stores bytes but does not offer model evaluations, aliases or deployment integration."
     }
   },
   {
@@ -521,9 +521,9 @@
     ],
     "hint": "Core Rule: Vertex AI Model Monitoring samples production requests, compares feature distributions with the training baseline (skew) and with earlier serving windows (drift), and raises alerts when thresholds are exceeded, providing exactly the automated early warning the team wants.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Cloud Logging for the endpoint and review the request logs manu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Increase the endpoint's replica count so that the model can process mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Retrain the model every day with a Vertex AI Pipeline regardless of wh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A depends on manual review and does not compute statistical comparisons.",
+      "1": "Option B misunderstands the problem; more replicas affect throughput, not accuracy.",
+      "3": "Option D spends compute unnecessarily and still gives no signal about when or why the data changed; monitoring should trigger retraining, not replace it."
     }
   },
   {
@@ -553,9 +553,9 @@
     ],
     "hint": "Core Rule (ML lineage and governance): Vertex AI Pipelines together with Vertex ML Metadata capture the full lineage graph of each run (input datasets, code container, parameters, metrics and output models), and the Model Registry keeps versions, evaluations and deployment history so that the serving version on any date can be determined; both are managed features requiring no custom bookkeeping.",
     "whyWrong": {
-      "1": "Incorrect distractor (Store trained model files in a Cloud Storage bucket and rely on object…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export Cloud Logging entries for the endpoint to BigQuery and reconstr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Keep a manually maintained wiki page listing model versions and their …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B records only that a file changed, not why or from what inputs.",
+      "3": "Option D contains prediction traffic, not training lineage.",
+      "4": "Option E is manual, unreliable and exactly the custom bookkeeping the company wants to avoid."
     }
   },
   {
@@ -582,9 +582,9 @@
     ],
     "hint": "Core Rule (Event-driven ML with Cloud Run functions): A Cloud Run function with a Cloud Storage trigger runs only when the file lands, and it can call the Vertex AI API to launch a batch prediction job that reads the file and writes predictions to BigQuery, so the whole flow is event-driven and serverless.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run a Compute Engine VM that polls the bucket every minute and starts …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Schedule a Vertex AI batch prediction job with Cloud Scheduler at midn…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy the model to an online endpoint and have the partner call it ro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A keeps a VM running just to poll.",
+      "2": "Option C runs at a fixed time and may miss or process a stale file because the arrival time is unpredictable.",
+      "3": "Option D changes the partner's integration and keeps an endpoint deployed continuously for a once-a-day workload."
     }
   },
   {
@@ -611,9 +611,9 @@
     ],
     "hint": "Core Rule (Vertex AI Training vs self-managed): Vertex AI custom training provisions the requested GPU machines per job, installs the framework via prebuilt containers, tears the resources down when training finishes, and integrates with Vertex AI Experiments for parameter and metric tracking, so a team without infrastructure engineers gets scalable training with no clusters to operate.",
     "whyWrong": {
-      "0": "Incorrect distractor (Provision a GKE Standard cluster with a GPU node pool and submit Kuber…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a Compute Engine managed instance group of GPU VMs with a start…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Slurm on a Compute Engine cluster deployed with the Cloud HPC Tool…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A, Option B and Option C all require the team to build and maintain compute infrastructure, drivers and schedulers, which contradicts the stated constraint; they are appropriate when a team already has strong Kubernetes or HPC operations skills.",
+      "1": "Option B and Option C all require the team to build and maintain compute infrastructure, drivers and schedulers, which contradicts the stated constraint; they are appropriate when a team already has strong Kubernetes or HPC operations skills.",
+      "2": "Option C all require the team to build and maintain compute infrastructure, drivers and schedulers, which contradicts the stated constraint; they are appropriate when a team already has strong Kubernetes or HPC operations skills."
     }
   },
   {
@@ -643,9 +643,9 @@
     ],
     "hint": "Core Rule (Optimizing accelerator consumption): For flexible, interruptible workloads the two cost-efficient consumption models are Spot VMs (deepest discount, requires checkpointing because of preemption) and Dynamic Workload Scheduler flex-start (discounted, queued provisioning that improves the odds of obtaining scarce GPUs and runs jobs uninterrupted once started); many teams use flex-start for longer jobs and Spot for the most tolerant ones.",
     "whyWrong": {
-      "2": "Incorrect distractor (Package the training code as Cloud Run functions so that GPUs are only…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a permanent on-demand reservation for the peak number of GPUs s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Move the jobs to sole-tenant nodes to obtain dedicated GPU hosts at a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "2": "Option C is not viable because Cloud Run functions are not a platform for multi-hour GPU training jobs.",
+      "3": "Option D guarantees capacity but is the most expensive option and contradicts the cost goal.",
+      "4": "Option E is a premium offering for licensing and isolation needs, not a discount mechanism."
     }
   },
   {
@@ -672,9 +672,9 @@
     ],
     "hint": "Core Rule: Vertex AI hyperparameter tuning jobs manage the search for you: you declare the parameter space and objective metric, the Vizier-based Bayesian optimizer proposes trials intelligently so far fewer than 200 are needed, and parallel trials shorten wall-clock time, all with no custom orchestration.",
     "whyWrong": {
-      "1": "Incorrect distractor (Write a Cloud Run job that launches 200 Vertex AI custom training jobs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use BigQuery ML with the default hyperparameters to avoid tuning entir…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run the same grid search on a larger VM with eight GPUs so that each t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B parallelizes but still runs every combination (200 jobs) and requires custom coordination code.",
+      "2": "Option C sidesteps the problem and would not apply to a custom model that needs tuning.",
+      "3": "Option D only speeds up individual trials while still running an exhaustive grid."
     }
   },
   {
@@ -701,9 +701,9 @@
     ],
     "hint": "Core Rule (Private online prediction): Vertex AI online prediction supports Private Service Connect: a PSC endpoint with an internal IP in the hospital's VPC forwards traffic to the prediction service over Google's network, is reachable from on premises via Interconnect, and does not require VPC peering or non-overlapping address ranges.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy the model to a public endpoint and require an OAuth 2.0 token f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Configure private services access between the hospital VPC and Vertex …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export the model and run it on a Compute Engine VM inside the VPC with…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A authenticates the traffic but still sends it over public IP space, violating policy.",
+      "1": "Option B uses VPC Network Peering, which the question rules out because of overlapping ranges.",
+      "3": "Option D abandons the managed serving platform and its autoscaling, monitoring and versioning."
     }
   },
   {
@@ -730,9 +730,9 @@
     ],
     "hint": "Core Rule (Data science environments): Colab Enterprise provides Google-managed, serverless notebook runtimes inside Vertex AI: administrators define runtime templates, runtimes start on demand and shut down when idle, notebooks are shared through IAM, and there are no VMs for IT to patch or track, which is the least-operational-overhead choice.",
     "whyWrong": {
-      "0": "Incorrect distractor (A Vertex AI Workbench instance for each data scientist with idle shutd…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A shared Compute Engine VM running JupyterHub that the IT team maintai…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A GKE Autopilot cluster running Kubeflow Notebooks for each user.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a good fit when users need full control of a persistent VM environment, but each instance is a VM that must be managed.",
+      "2": "Option C and Option D both require the IT team to run and secure infrastructure, contradicting the zero-infrastructure requirement.",
+      "3": "Option D both require the IT team to run and secure infrastructure, contradicting the zero-infrastructure requirement."
     }
   }
 ]

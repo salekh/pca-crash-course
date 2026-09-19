@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Media CDN is Google's planet-scale CDN built for streaming; caching at the edge reduces both origin egress cost and latency for distant viewers, addressing both of Altostrat's top priorities.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add more GKE nodes in the existing region and increase the pod count o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a regional external Application Load Balancer in each continent…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replicate the media library into a multi-region bucket and have client…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A scales compute, not the network path, and does nothing about egress cost or distance to viewers.",
+      "1": "Option B duplicates storage and still serves from a regional origin without an edge cache.",
+      "3": "Option D improves storage availability but every request still leaves Google's network from the bucket, so egress cost and buffering are not solved."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Migration planning): Google's migration methodology starts with the assess phase; Migration Center provides agentless discovery, performance data, dependency mapping, and TCO reports that are needed to design migration waves and give finance the cost estimate.",
     "whyWrong": {
-      "1": "Incorrect distractor (Lift-and-shift every VM to Compute Engine with Migrate to Virtual Mach…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rewrite the ingestion pipeline as Cloud Run functions immediately and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Order a Transfer Appliance and copy all archival data to Cloud Storage…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B migrates before understanding dependencies, risking outages and cost surprises.",
+      "2": "Option C skips assessment and commits to a rearchitecture without knowing whether it fits the workload.",
+      "3": "Option D moves data without knowing which applications depend on it or how they will access it in the cloud."
     }
   },
   {
@@ -84,10 +84,10 @@
     ],
     "hint": "Core Rule (Disaster recovery): Backup for GKE captures both Kubernetes configuration and persistent volume data on a schedule and can restore into a cluster in another region, meeting the RTO/RPO for the stateful service.",
     "whyWrong": {
-      "1": "Incorrect distractor (Take manual persistent disk snapshots once a week and store the snapsh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add an Object Lifecycle Management rule that moves media to Nearline a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Run a nightly gsutil cp job from a Compute Engine VM to copy new media…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Enable Object Versioning on the existing single-region bucket.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B) give a seven-day RPO and are error-prone.",
+      "3": "Option D) change storage class, not geographic redundancy.",
+      "4": "Option E) yields a 24-hour RPO and adds a VM to operate.",
+      "5": "Option F) protects against overwrites but the data remains in a single region."
     }
   },
   {
@@ -114,9 +114,9 @@
     ],
     "hint": "Core Rule (Recommendation systems): Vertex AI Search for media provides managed, Google-quality recommendation models (recommended-for-you, others-you-may-like, more-like-this) that learn from streamed user events in near real time and require no data-science team, which satisfies the case study's personalized-recommendation and virality goals.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the nightly function but add a per-genre popularity ranking table…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Train a matrix-factorization model in BigQuery ML each week and export…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Have the mobile app call Gemini with the user's entire viewing history…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A remains non-personalized and stale.",
+      "2": "Option C is personalized but weekly, cannot react to the current session, and needs ML maintenance.",
+      "3": "Option D sends large prompts on every request (cost), lacks real-time catalog awareness, and offers no evaluation or tuning loop, so it is not a reliable recommendation architecture."
     }
   },
   {
@@ -143,9 +143,9 @@
     ],
     "hint": "Core Rule (Software supply chain security): Binary Authorization is the deploy-time admission control that enforces policy on GKE: images must carry signed attestations (for example, 'built by Cloud Build' and 'vulnerability scan passed' from Artifact Analysis), and anything else is blocked.",
     "whyWrong": {
-      "1": "Incorrect distractor (Restrict the artifactregistry.reader role so that only the GKE node se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add a Cloud Build step that scans images with Trivy and posts the resu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Configure an organization policy that restricts which Artifact Registr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B restricts who can read images, but a developer with push access could still deploy an image the nodes can read.",
+      "2": "Option C produces a report but has no enforcement.",
+      "3": "Option D controls repository creation, not what images are deployed."
     }
   },
   {
@@ -172,9 +172,9 @@
     ],
     "hint": "Core Rule (IAM least privilege): Least privilege means a dedicated identity per workload with the narrowest roles scoped to the specific resources it uses; a per-function service account with bucket-level and dataset-level grants achieves this and is the documented recommendation for Cloud Run.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the default service account but downgrade its project role from E…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a shared 'functions' service account with the Storage Admin and…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Generate a JSON key for the default service account and store it in Se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A would break the functions (Viewer cannot write to BigQuery) and still shares one identity across all workloads.",
+      "1": "Option B is still over-privileged (Admin roles at project scope) and shared.",
+      "3": "Option D introduces a long-lived key, which is a security anti-pattern, and does nothing to reduce the excessive permissions."
     }
   },
   {
@@ -201,9 +201,9 @@
     ],
     "hint": "Core Rule: Video Intelligence API explicit content detection analyzes video natively and returns per-frame likelihood annotations with time offsets, giving moderators exactly the timestamps they need without any training, which fulfils the 'detect and filter inappropriate content' requirement.",
     "whyWrong": {
-      "0": "Incorrect distractor (Extract one frame per second with FFmpeg and send each frame to the Vi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Train a custom image classifier on Vertex AI with labeled examples of …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run the Natural Language API on the clip's title and description to de…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but requires custom frame extraction, generates many more API calls, and loses the managed video handling.",
+      "2": "Option C requires curating a sensitive training dataset and maintaining a model.",
+      "3": "Option D inspects text metadata only and cannot detect what is visually in the clip."
     }
   },
   {
@@ -233,10 +233,10 @@
     ],
     "hint": "Core Rule (BigQuery cost optimization): Partitioning by date and clustering by category means each query scans only the relevant slices, drastically reducing bytes billed, and requiring a partition filter prevents accidental full scans.",
     "whyWrong": {
-      "1": "Incorrect distractor (Export the table to Cloud SQL for PostgreSQL and point the dashboards …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Instruct analysts to use SELECT * so BigQuery can cache complete resul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Store the events as CSV files in Cloud Storage and query them with ext…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Increase the table's expiration so historical data is never deleted.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B moves terabytes into an OLTP database that is not designed for analytical scans.",
+      "2": "Option C increases bytes scanned; selecting only needed columns reduces cost.",
+      "4": "Option E loses BigQuery's columnar storage and makes scans slower and more expensive.",
+      "5": "Option F affects retention, not query cost, and may increase storage cost."
     }
   },
   {
@@ -263,9 +263,9 @@
     ],
     "hint": "Core Rule: SRE practice, embedded in the Well-Architected Framework's reliability and operational-excellence pillars, uses SLOs and error budgets as the shared contract between product and engineering: while budget remains, teams ship; when burn rate is high, they prioritize reliability.",
     "whyWrong": {
-      "0": "Incorrect distractor (Set a target of zero errors and freeze all deployments whenever any 5x…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create an uptime check against the API and email the product team when…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Track mean time to recovery in a spreadsheet and review it at the quar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is an unrealistic 100% target that halts all delivery.",
+      "1": "Option B measures only binary availability from a few probes and provides no budget.",
+      "2": "Option C is manual, lagging, and not actionable during the release cycle."
     }
   },
   {
@@ -292,9 +292,9 @@
     ],
     "hint": "Core Rule (Event-driven reliability): Pub/Sub guarantees at-least-once delivery, so consumers must be idempotent; keying writes on a stable identifier such as object name plus generation makes duplicate deliveries harmless, while a dead-letter topic with a maximum delivery attempt count stops poison messages from being redelivered forever and preserves them for inspection.",
     "whyWrong": {
-      "0": "Incorrect distractor (Set the subscription's acknowledgement deadline to the maximum and dis…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Switch the trigger from Pub/Sub to a Cloud Scheduler job that lists th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable exactly-once delivery on the subscription and rely on it to pre…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A merely delays redelivery and disabling retries loses legitimately failed messages.",
+      "2": "Option C replaces an event-driven design with polling that adds latency and its own duplicate-handling problems.",
+      "3": "Option D helps reduce duplicates in some cases but exactly-once delivery only applies within an ack deadline for pull subscriptions and does not address poison messages, so it is not a complete solution."
     }
   },
   {
@@ -321,9 +321,9 @@
     ],
     "hint": "Core Rule: Gemini Cloud Assist is the AI-powered assistant integrated into the console that can run investigations across logs, metrics, and recent configuration changes and explain probable causes in natural language, which is exactly what helps a less experienced engineer troubleshoot quickly; the exam guide lists it under both design and implementation objectives.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export all logs to BigQuery and write SQL queries to correlate error s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Open a P1 support case with Google Cloud Support and wait for the anal…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Attach a debugger to the running pods with kubectl port-forward and st…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a valid analytics approach but slower and requires the SQL and log-schema skills the engineer lacks.",
+      "1": "Option B outsources troubleshooting and delays resolution.",
+      "3": "Option D is a deep code-level technique that assumes the cause is already narrowed to application code."
     }
   },
   {
@@ -350,9 +350,9 @@
     ],
     "hint": "Core Rule (Generative AI cost optimization): The deciding factor is a fixed budget with no latency requirement.",
     "whyWrong": {
-      "1": "Incorrect distractor (Keep the synchronous per-file calls but increase the Cloud Run functio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Provision dedicated GPUs on GKE and self-host an open model from Model…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Purchase Provisioned Throughput for Gemini Pro sized to process the wh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B changes throughput, not price.",
+      "2": "Option C incurs continuous GPU and operations cost and requires ML operations skills the team does not have; it rarely beats managed batch pricing for a one-off backfill.",
+      "3": "Option D is designed for guaranteed capacity on latency-sensitive online workloads and would be the most expensive way to run an offline backfill."
     }
   },
   {
@@ -379,9 +379,9 @@
     ],
     "hint": "Core Rule: VPC Service Controls is the control designed to mitigate data exfiltration by a stolen credential: within the perimeter, calls to restricted APIs that would move data to a resource outside the perimeter are denied regardless of IAM permissions, while workloads inside continue to operate.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Data Access audit logs for BigQuery and Cloud Storage and creat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Apply customer-managed encryption keys from Cloud KMS to the datasets …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Remove the BigQuery Data Viewer role from all developers and route eve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A detects exfiltration after the fact but does not prevent it.",
+      "1": "Option B protects data at rest; a credential authorized to read the data can still decrypt and copy it.",
+      "2": "Option C harms productivity and does not stop a compromised account that still needs legitimate access."
     }
   },
   {
@@ -408,9 +408,9 @@
     ],
     "hint": "Core Rule (Streaming analytics): Pub/Sub plus Dataflow is Google's managed, autoscaling streaming-analytics pattern: Dataflow handles windowing and late data for near-real-time trend detection, and BigQuery receives the results and raw events through streaming inserts or the Storage Write API (a Pub/Sub BigQuery subscription can also land raw events without code).",
     "whyWrong": {
-      "0": "Incorrect distractor (Write events to Cloud SQL from the platform and run a stored procedure…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Append events to files in Cloud Storage and load them into BigQuery wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Send events directly to a Bigtable table and have editors query Bigtab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot absorb 200,000 events per second and produces hourly, not minute-level, insight.",
+      "2": "Option C delivers insight a day late, missing the virality window.",
+      "3": "Option D offers low-latency key lookups but is not an analytics warehouse for ad hoc trend queries, and it bypasses the existing BigQuery investment."
     }
   },
   {
@@ -440,10 +440,10 @@
     ],
     "hint": "Core Rule (KPIs and ROI): ROI must link the investment to a business outcome.",
     "whyWrong": {
-      "0": "Incorrect distractor (Number of GPU hours consumed by the assistant each month.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Total number of prompts sent to the model per day.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Lines of code committed by the assistant development team.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Number of Gemini model versions evaluated during development.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Number of GPU hours consumed by the assistant each month.\") is incorrect because it does not meet the scenario's core requirement; Option B (Self-service containment rate: the percentage of conversatio), Option E (Cost per resolved conversation compared with the cost of a h) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Total number of prompts sent to the model per day.\") is incorrect because it does not meet the scenario's core requirement; Option B (Self-service containment rate: the percentage of conversatio), Option E (Cost per resolved conversation compared with the cost of a h) is the Google Cloud recommended pattern here.",
+      "3": "Option D) is a discredited productivity proxy.",
+      "5": "Option F (\"Number of Gemini model versions evaluated during development.\") is incorrect because it does not meet the scenario's core requirement; Option B (Self-service containment rate: the percentage of conversatio), Option E (Cost per resolved conversation compared with the cost of a h) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -470,9 +470,9 @@
     ],
     "hint": "Core Rule (Multi-region GKE): Multi-cluster Gateway on GKE Enterprise fleets programs a global external Application Load Balancer with backends in multiple regions, providing a single anycast IP, proximity routing, and automatic failover when a region's backends become unhealthy, while reusing the existing Kubernetes manifests.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the number of zones in the existing regional cluster to three…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a second cluster in another region and update the DNS A record …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Migrate the platform from GKE to Cloud Run in one region because Cloud…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B improves zonal resilience but a regional outage still takes down everything.",
+      "2": "Option C depends on humans and DNS TTLs, leading to long failover times.",
+      "3": "Option D changes platforms, contradicts the constraint to keep GKE, and a single-region deployment of any product still fails with the region."
     }
   },
   {
@@ -499,9 +499,9 @@
     ],
     "hint": "Core Rule (Infrastructure as Code): Terraform is the recommended IaC language for Google Cloud, and Infrastructure Manager is the managed service that executes Terraform, stores state, and tracks deployments so the team does not operate its own backend; wiring it to Cloud Build gives Git-reviewed, automated, repeatable environments and lets drift be detected by comparing plans.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write Bash scripts around gcloud commands and store them in a shared d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Export the current projects with gcloud and re-import them into new pr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Cloud Deployment Manager templates stored in a Cloud Storage bucke…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A produces imperative scripts without state, drift detection, or review.",
+      "1": "Option B is not a supported way to clone infrastructure.",
+      "2": "Option C uses a deprecated tool and remains manual."
     }
   },
   {
@@ -528,9 +528,9 @@
     ],
     "hint": "Core Rule (Local development and emulators): The Pub/Sub emulator plus the Functions Framework lets developers exercise the real publish-and-trigger path on their workstation with no cloud resources, credentials, or cost, giving the fastest and most isolated feedback loop; the exam guide explicitly lists Cloud Emulators and Cloud Code under programmatic interaction.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a separate Google Cloud project per developer and grant each de…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Point all developers at the production topics with a per-developer mes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask developers to unit-test only the pure business logic and skip test…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A isolates developers but still requires cloud round trips, incurs cost, and grants excessive privileges.",
+      "1": "Option B is dangerous and violates separation of environments.",
+      "2": "Option C leaves the integration behavior untested, which is where the duplicate-processing bugs originate."
     }
   },
   {
@@ -557,9 +557,9 @@
     ],
     "hint": "Core Rule (ML model serving): BigQuery ML models can be registered in Vertex AI Model Registry and served from an online endpoint that delivers low-latency, autoscaled predictions, while Vertex AI Pipelines automates the weekly train-evaluate-compare-deploy workflow, which also supports the case study's auditability requirement through model lineage.",
     "whyWrong": {
-      "0": "Incorrect distractor (Have the checkout service execute an ML.PREDICT query against BigQuery…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Precompute a prediction for every existing subscriber nightly into a C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Retrain the model in a Dataflow pipeline every week and embed the mode…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because BigQuery queries take seconds and are billed per scan, so they cannot meet a 100 ms interactive SLO.",
+      "1": "Option B cannot personalize for new visitors and is stale.",
+      "3": "Option D couples model releases to application deployments and Dataflow is not a model-training service, complicating both retraining and rollback."
     }
   },
   {
@@ -587,9 +587,9 @@
     ],
     "hint": "Core Rule (Audit logging): Data reads and prediction calls are Data Access audit logs, which are disabled by default (except for BigQuery) and must be enabled through the audit configuration; setting it at the organization level covers every current and future project.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rely on the default Admin Activity audit logs and increase the _Defaul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Have each application write its own audit records to a BigQuery table …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Logging Data Access logs only in the production project a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on Admin Activity logs, which do not record data reads or predictions.",
+      "1": "Option B is application-dependent, incomplete, and editable.",
+      "2": "Option C misses non-production projects and spreadsheets are neither complete nor tamper-proof."
     }
   }
 ]

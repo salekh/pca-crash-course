@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Cloud Storage classes): Archive storage is designed for data accessed less than once a year and has the lowest per-GB storage price; unlike tape-style archives at other providers it still serves objects online with millisecond first-byte latency, so the occasional regulator request is fine.",
     "whyWrong": {
-      "0": "Incorrect distractor (Standard storage, because it has no minimum storage duration.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Nearline storage, because it is intended for data accessed less than o…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Coldline storage, because it is the lowest-cost class that can be read…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is the most expensive at rest and is meant for hot data.",
+      "2": "Option C (Nearline) and Option D (Coldline) target monthly and quarterly access respectively and cost more per GB than Archive; the claim that Archive requires a restore operation is false in Cloud Storage.",
+      "3": "Option D (Coldline) target monthly and quarterly access respectively and cost more per GB than Archive; the claim that Archive requires a restore operation is false in Cloud Storage."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Cloud Storage Autoclass): Autoclass is built for exactly this situation: unpredictable or mixed access patterns.",
     "whyWrong": {
-      "0": "Incorrect distractor (Store all objects in Coldline and pay retrieval fees only for the obje…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Store all objects in Standard and write a monthly script that reads ac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure Object Lifecycle Management rules that move every object to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A incurs retrieval fees and 90-day minimum-duration charges on popular objects.",
+      "1": "Option B is custom tooling that must be operated and still guesses at future access.",
+      "2": "Option C applies the same age-based schedule to every object regardless of actual access, so popular 60-day-old objects would incur Nearline retrieval charges, and objects moved to Archive then read again pay retrieval fees."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule: Hyperdisk decouples performance from capacity: with Hyperdisk Extreme you provision IOPS (and therefore throughput) directly for a volume, reaching hundreds of thousands of IOPS on supported machine series such as C3 and M3 without buying unneeded terabytes.",
     "whyWrong": {
-      "1": "Incorrect distractor (Balanced Persistent Disk, increasing the disk size until the IOPS limi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Local SSD, striping several devices to reach the required IOPS.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Hyperdisk Throughput, provisioning the maximum throughput available.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B ties IOPS to size (about 6 IOPS per GB for pd-balanced), so 120,000 IOPS would require a disk far larger than 2 TB and it still caps below that figure per VM.",
+      "2": "Option C delivers very high IOPS but is ephemeral; data is lost when the VM stops or is migrated, which is unacceptable for a production database.",
+      "3": "Option D is optimized for high sequential throughput on large-scale analytics workloads, not high random IOPS with low latency."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: Filestore is Google Cloud's managed NFS service, and the Enterprise tier replicates data synchronously across zones in a region with a 99.99% availability SLA, so 30 VMs in different zones can mount the same POSIX file share and survive a zone loss.",
     "whyWrong": {
-      "0": "Incorrect distractor (Attach a single Persistent Disk in multi-writer mode to all 30 VMs.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Mount a Cloud Storage bucket on each VM with Cloud Storage FUSE.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a Filestore Basic HDD instance in one zone and take daily backu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because multi-writer Persistent Disk supports only a small number of attachments, requires a cluster-aware file system, and is zonal.",
+      "1": "Option B provides object storage semantics through FUSE, which is not fully POSIX compliant (no file locking, weak consistency for concurrent writers) and is unsuitable for shared home directories.",
+      "3": "Option D is a zonal tier with a 99."
     }
   },
   {
@@ -141,9 +141,9 @@
     ],
     "hint": "Core Rule: Spanner is the only Google Cloud relational database that combines external (strong) consistency, ACID transactions across rows, horizontal scale without application sharding, and multi-region configurations with a 99.999% availability SLA that keep the database writable through a regional failure.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use Cloud SQL for PostgreSQL with cross-region read replicas and promo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Bigtable with replication across two regions and let the applicati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Use Firestore in Datastore mode with entity groups per player to guara…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot accept writes during a primary-region outage until a manual or scripted promotion (RPO > 0) and does not scale writes horizontally.",
+      "2": "Option C is eventually consistent across replicas and has only single-row atomicity, which does not fit transactional trades.",
+      "4": "Option E is limited by entity-group write throughput and Datastore-mode transactions do not span regions in the required way."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule: Cloud SQL Enterprise Plus edition offers a 99.99% availability SLA when HA is enabled, near-zero downtime planned maintenance (sub-second failover), and full PostgreSQL wire compatibility, so the billing application moves with minimal change at the lowest managed price among the options that meet the SLA.",
     "whyWrong": {
-      "0": "Incorrect distractor (Spanner with the PostgreSQL interface in a regional configuration.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (AlloyDB for PostgreSQL with a primary instance and two read pool insta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (PostgreSQL installed on a Compute Engine regional managed instance gro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires schema and driver changes because the PostgreSQL interface is a dialect subset, and Spanner pricing is higher for a 600 GB workload with no need for horizontal scale.",
+      "1": "Option B also meets the SLA and is fully compatible but costs more; it is justified when you need AlloyDB's higher throughput, columnar engine, or larger scale, none of which are stated requirements.",
+      "3": "Option D is self-managed, so the company owns patching, failover scripting, and backups, and no managed 99."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule: Bigtable is the purpose-built wide-column store for very high write throughput, petabyte scale, and low-latency single-key or key-range reads, which is exactly a time-series lookup keyed by meter ID and time; a row key of meter ID plus reversed timestamp keeps a meter's recent readings contiguous while spreading writes across nodes.",
     "whyWrong": {
-      "1": "Incorrect distractor (Cloud SQL for MySQL with a table partitioned by day.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Firestore in Native mode with a collection per meter.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (BigQuery with a table partitioned by ingestion time and clustered by m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B cannot scale to millions of writes per second or petabytes in a single instance.",
+      "2": "Option C has per-document write limits and is not economical at petabyte scale for time-series data.",
+      "3": "Option D is an analytics warehouse: it excels at scanning and aggregating but per-key point lookups have hundreds of milliseconds to seconds of latency, which fails the single-digit millisecond requirement."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule: Firestore Native mode is the serverless document database designed for mobile and web clients: its Android, iOS, and web SDKs provide offline persistence with automatic sync and real-time snapshot listeners, and Firestore scales automatically without provisioning.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cloud SQL for PostgreSQL with the mobile app polling a REST API every …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Bigtable accessed through a Cloud Run API layer.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Memorystore for Redis using Pub/Sub channels for status updates.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires building and hosting an API, offers no offline sync, and polling is neither real time nor efficient.",
+      "2": "Option C is a high-throughput wide-column store with no client SDK offline capability and would require a custom sync layer.",
+      "3": "Option D is an in-memory cache, not a durable system of record, and is not reachable from mobile clients directly."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule: Memorystore for Redis Cluster (and the newer Memorystore for Valkey) is Google's fully managed, sharded in-memory service: it scales horizontally to millions of operations per second by adding shards, provides automatic failover with replicas across zones, and speaks the open-source Redis Cluster protocol, so the existing client libraries work.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move session data to Firestore and cache it in the application's local…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move session data to Cloud SQL for MySQL with a memory table engine.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy Memorystore for Memcached with the maximum number of nodes.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A adds persistent-storage latency and loses cross-pod session consistency.",
+      "1": "Option B is a relational database that cannot deliver sub-millisecond latency at that rate.",
+      "2": "Option C is a different protocol (Memcached), has no replication or automatic failover, and would require changing client libraries and data structures."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: BigQuery is the serverless, petabyte-scale data warehouse: storage and compute scale independently with no capacity planning, analysts use ANSI SQL directly, and partitioning plus clustering keeps ad hoc queries fast and cheap by pruning scanned bytes; BigQuery ML can even produce the forecasts in place.",
     "whyWrong": {
-      "0": "Incorrect distractor (Load the data into a Cloud SQL for PostgreSQL Enterprise Plus instance…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Store the data in Cloud Storage and run Spark SQL on a long-running Da…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the data in Bigtable and expose aggregations through a Cloud Run…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot practically hold or scan 300 TB for analytical workloads.",
+      "1": "Option B works but requires sizing, patching, and paying for an always-on cluster, which contradicts the no-cluster requirement.",
+      "3": "Option D is a NoSQL key-value store with no SQL analytics capability; every aggregation would have to be precomputed."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule (Cloud SQL disaster recovery): Cross-region read replicas replicate asynchronously with typical lag of seconds, which meets an RPO under one minute, and promoting a replica takes minutes, which fits a 15-minute RTO; combining this with in-region HA covers both zonal and regional failures while staying fully managed, which is the Google-documented DR pattern for Cloud SQL.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable automated backups and point-in-time recovery, and restore to a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable high availability on the instance so that the standby in the se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export the database to Cloud Storage every hour with a dual-region buc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A depends on backups that are taken daily plus transaction logs; restoring across regions typically takes far longer than 15 minutes for a sizable database, and the recovery point can exceed one minute.",
+      "2": "Option C protects only against a zone failure; the standby is in the same region.",
+      "3": "Option D yields an RPO of up to one hour and a long import-based RTO."
     }
   },
   {
@@ -346,9 +346,9 @@
     ],
     "hint": "Core Rule (Cloud Storage compliance): A locked bucket retention policy (Bucket Lock) enforces WORM semantics: objects cannot be deleted or replaced until they reach the retention age, and once locked, the policy itself cannot be removed or shortened even by project owners, which satisfies the regulator.",
     "whyWrong": {
-      "1": "Incorrect distractor (Enable object versioning so that overwritten records are kept as noncu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant only the Storage Object Viewer role to all users and remove all …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Enable Autoclass so that records move to Archive storage after five ye…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B keeps extra copies but does not prevent deletion of versions and increases cost.",
+      "3": "Option D relies on IAM, which an administrator can change at any time, so it is not immutable enforcement.",
+      "4": "Option E addresses storage-class cost, not deletion, and Autoclass transitions are based on access rather than a fixed age."
     }
   },
   {
@@ -375,9 +375,9 @@
     ],
     "hint": "Core Rule: Regional Persistent Disk and Hyperdisk Balanced High Availability replicate every write synchronously to two zones in the same region, so a zonal failure loses no committed data (RPO zero) and the disk can be force-attached to a VM in the surviving zone within minutes, which is the Google-recommended pattern for single-instance stateful applications that cannot be clustered.",
     "whyWrong": {
-      "0": "Incorrect distractor (Take hourly snapshots of the disk and restore the latest snapshot into…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Attach a Local SSD for the data partition and rsync it to a second VM …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store the state directory on a Cloud Storage bucket mounted with Cloud…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A leaves up to an hour of data loss.",
+      "1": "Option B is custom replication with Local SSD, which is ephemeral and loses data on host failure; minute-level rsync also violates the no-data-loss requirement.",
+      "2": "Option C changes the storage semantics to object storage through FUSE, which many legacy applications cannot use reliably and offers no block-level consistency."
     }
   },
   {
@@ -404,9 +404,9 @@
     ],
     "hint": "Core Rule: Local SSD is physically attached NVMe storage with the highest IOPS and lowest latency of any Compute Engine disk option at a low price per GB; its ephemeral nature (data lost on VM stop or host failure) is irrelevant because the intermediate files are disposable and the source and output live in Cloud Storage.",
     "whyWrong": {
-      "1": "Incorrect distractor (Hyperdisk Extreme provisioned with the maximum IOPS.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A regional Persistent Disk so that intermediate files are protected.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A Filestore Enterprise share mounted on all transcoding VMs.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B delivers high IOPS but at a significantly higher cost, and paying for durability that is not needed contradicts the cost goal.",
+      "2": "Option C pays a replication premium for data that has no value after the job.",
+      "3": "Option D adds network file system latency and is priced for shared, durable capacity, the opposite of high-speed scratch."
     }
   },
   {
@@ -433,9 +433,9 @@
     ],
     "hint": "Core Rule (Cloud Storage dual-region): A dual-region bucket lets you pick the exact two regions where compute runs; reads from either region are served locally without cross-region egress, and turbo replication provides a 15-minute RPO SLA for asynchronous replication between the two regions, which is precisely the stated requirement.",
     "whyWrong": {
-      "0": "Incorrect distractor (A multi-region bucket in the EU location, because it stores data in mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Two regional buckets, one in each region, kept in sync with Storage Tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A regional bucket in europe-west1 with Cloud CDN in front of it for re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A stores data across an unspecified set of EU regions that may not include the compute regions, does not offer a replication SLA, and does not guarantee colocation with compute.",
+      "2": "Option C is operationally heavier, introduces eventual duplication logic for active-active writes, and lacks a single namespace.",
+      "3": "Option D is for public HTTP content caching, not for a read-write data processing bucket, and provides neither DR nor a consistent second copy."
     }
   },
   {
@@ -462,9 +462,9 @@
     ],
     "hint": "Core Rule: Cloud SQL for MySQL is a managed, fully compatible MySQL engine, so stored procedures and dialect-specific SQL move unchanged, and Database Migration Service performs a continuous, minimal-downtime homogeneous migration; this maximizes reuse of team skills and minimizes change, which is the stated priority for a small, single-country database.",
     "whyWrong": {
-      "0": "Incorrect distractor (Migrate to Spanner and rewrite the stored procedures in GoogleSQL.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Migrate to Bigtable and refactor the schema into wide rows.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Migrate to AlloyDB for PostgreSQL and convert the MySQL syntax with th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires rewriting application SQL and procedures for a globally distributed database the workload does not need.",
+      "1": "Option B is a NoSQL store that would require a complete application and schema rewrite.",
+      "3": "Option D changes the database engine, which forces syntax conversion and testing of every stored procedure even though the requirement is fewest changes."
     }
   },
   {
@@ -491,9 +491,9 @@
     ],
     "hint": "Core Rule: The Cloud Storage FUSE CSI driver is Google's recommended way to give GKE (and Vertex AI) training workloads file-system access to bucket data: the bucket is mounted directly into the pod, the data stays in Cloud Storage as the source of truth, and the driver's file cache, parallel downloads, and metadata prefetch are tuned for large read-mostly ML datasets.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Filestore Enterprise instance, copy the dataset into it, and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a 200 TB Persistent Disk per node pool and use an init containe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Rewrite the data loader to call the Cloud Storage JSON API for each im…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A duplicates 200 TB into an expensive NFS tier and creates a second copy to keep in sync.",
+      "1": "Option B pre-copies the entire dataset to each node pool, which is slow, costly, and exactly what the team wants to avoid.",
+      "2": "Option C requires rewriting the loader and loses the framework's file-based optimizations."
     }
   },
   {
@@ -520,9 +520,9 @@
     ],
     "hint": "Core Rule: AlloyDB is fully PostgreSQL-compatible (extensions included), supports databases up to 128 TB, provides a 99.99% availability SLA including maintenance, scales reads with up to 20 read pool nodes, and its in-memory columnar engine accelerates analytical and reporting queries on transactional data (HTAP), which directly resolves the reporting slowdown.",
     "whyWrong": {
-      "1": "Incorrect distractor (Cloud SQL for PostgreSQL Enterprise edition with read replicas.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Spanner with the PostgreSQL interface in a regional configuration.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (BigQuery, using federated queries to keep transactional data in Cloud …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B fails on scale: Cloud SQL storage tops out at 64 TB, below the 100 TB projection, and Enterprise edition has only a 99.",
+      "2": "Option C is not full PostgreSQL (limited extension and feature support), so the application would need changes, and it is priced for global distribution the workload does not need.",
+      "3": "Option D turns an operational database problem into a data warehouse problem; it does not provide a transactional PostgreSQL system of record."
     }
   },
   {
@@ -552,8 +552,8 @@
     ],
     "hint": "Core Rule (Cloud Storage cost optimization): The three savings levers are matching storage class to access pattern and deleting data that is no longer needed: raw output read only in its first two weeks belongs in Coldline or Archive after 30 days; backups that are retained 90 days and rarely restored fit Nearline (30-day minimum) with automatic deletion at 90 days; and noncurrent versions in a versioned bucket accumulate silently, so a lifecycle rule on noncurrent versions or number of newer versions is essential.",
     "whyWrong": {
-      "1": "Incorrect distractor (Move all buckets to a multi-region location to benefit from lower per-…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable turbo replication on the backup bucket to reduce restore time.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because multi-region storage costs more per GB than regional storage, not less.",
+      "3": "Option D adds a replication premium and has nothing to do with reducing storage cost."
     }
   },
   {
@@ -580,9 +580,9 @@
     ],
     "hint": "Core Rule: Hyperdisk Throughput is designed for scale-out, throughput-oriented workloads such as Kafka, Hadoop, and cold analytics: you provision MB/s explicitly on large, low-cost capacity, so 1.2 PB of retention with high sequential bandwidth is achieved without paying for IOPS you do not need.",
     "whyWrong": {
-      "0": "Incorrect distractor (Hyperdisk Extreme, because it has the highest performance ceiling.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Standard Persistent Disk, because it is the cheapest per GB.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Local SSD, striped across eight devices per broker.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A prices for extreme random IOPS and is far more expensive per TB for a sequential workload.",
+      "2": "Option C is cheap per GB but its throughput scales with size and caps at a level that cannot sustain a 2 GB/s ingest fleet without massive over-provisioning.",
+      "3": "Option D is ephemeral, capped in capacity per VM (well under what 7-day retention needs), and a host failure would lose partition data."
     }
   },
   {
@@ -609,9 +609,9 @@
     ],
     "hint": "Core Rule (Static content hosting): Cloud Storage is the correct storage type for immutable static assets: it scales automatically, and placing the bucket behind a global external Application Load Balancer adds HTTPS with a Google-managed certificate, a custom domain, and Cloud CDN caching at Google's edge to absorb a worldwide traffic spike with nothing to patch or scale.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy an nginx container to a GKE Autopilot cluster and serve the fil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store the files on a Filestore share mounted by a managed instance gro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Serve the files from a Compute Engine VM with Apache and attach a stat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B introduces Kubernetes, containers, and a zonal disk that cannot be shared across many replicas.",
+      "2": "Option C is a file-storage anti-pattern for static web content and requires managing web servers.",
+      "3": "Option D is a single VM that becomes both a bottleneck and a single point of failure during a launch."
     }
   },
   {
@@ -638,9 +638,9 @@
     ],
     "hint": "Core Rule: Spanner multi-region configurations such as eur3 and eur6 place read-write replicas in multiple EU regions and use synchronous Paxos replication, so a full regional outage causes no data loss and no manual failover, and these configurations carry the 99.999% availability SLA; all replicas are inside the EU, satisfying data residency.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cloud SQL for PostgreSQL in europe-west3 with high availability and a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (AlloyDB for PostgreSQL in europe-west4 with cross-region replication t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Bigtable with multi-cluster replication across three EU regions.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A replicates asynchronously to the read replica, so a regional loss means data loss (RPO > 0) and manual promotion, with a 99.",
+      "1": "Option B is also asynchronous cross-region replication with a 99.",
+      "3": "Option D is not relational, offers eventual consistency between clusters, and lacks multi-row ACID transactions needed for a ledger."
     }
   },
   {
@@ -667,9 +667,9 @@
     ],
     "hint": "Core Rule (GKE shared storage): Filestore, consumed through the GKE Filestore CSI driver, is the managed NFS option that provides true ReadWriteMany PersistentVolumes with POSIX semantics, so all six replicas across nodes and zones see uploads immediately.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use a Persistent Disk PersistentVolumeClaim with the ReadWriteOnce acc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Mount a Cloud Storage bucket with the Cloud Storage FUSE CSI driver an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Attach a Local SSD to each node and replicate uploads between nodes wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A forces all replicas onto a single node, eliminating high availability and still not sharing the disk safely.",
+      "2": "Option C provides object storage through FUSE; it lacks full POSIX features such as file locking and atomic rename semantics that many CMS plugins depend on, so it is not a safe drop-in for shared writes.",
+      "3": "Option D is ephemeral storage plus a home-grown replication system, which is fragile and operationally heavy."
     }
   },
   {
@@ -698,9 +698,9 @@
     ],
     "hint": "Core Rule (Cloud Storage lifecycle design): During the 30-day active edit window objects are read many times, so Standard class (no retrieval fee, no minimum duration) in a regional bucket in the same region as the editing compute gives the best performance and cost; after the active period, a lifecycle rule moves objects to Archive, which is the cheapest class for data read a few times a year and still serves objects within milliseconds.",
     "whyWrong": {
-      "0": "Incorrect distractor (Upload footage directly to the Archive storage class to obtain the low…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store the footage in Nearline and configure a lifecycle rule to delete…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Place the footage in a multi-region bucket so that editors experience …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A would incur Archive retrieval charges on every edit read during the first 30 days, making it more expensive overall.",
+      "2": "Option C deletes footage that must be retained indefinitely.",
+      "4": "Option E costs more per GB and is intended for geo-redundant, globally consumed content, not single-region editing."
     }
   },
   {
@@ -727,9 +727,9 @@
     ],
     "hint": "Core Rule (Serving and analytics storage): This is the classic Google Cloud streaming architecture: Pub/Sub decouples producers, one Dataflow pipeline fans out to two sinks, Bigtable serves single-key reads with single-digit millisecond latency at high write rates, and BigQuery provides serverless ad hoc SQL over the complete history.",
     "whyWrong": {
-      "0": "Incorrect distractor (Store all events in BigQuery and have the bidding service query it wit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Store all events in Bigtable and have data scientists use the Bigtable…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store all events in Spanner, which supports both low-latency lookups a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A fails the 10-millisecond requirement; BigQuery point queries take hundreds of milliseconds or more.",
+      "1": "Option B fails the analysts: Bigtable's SQL support is for key-based and limited queries, not months-scale ad hoc aggregation.",
+      "2": "Option C would be very expensive at 500,000 writes per second and Spanner is not designed for petabyte-scale analytical scans compared with BigQuery."
     }
   }
 ]

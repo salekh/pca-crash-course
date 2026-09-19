@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Managed instance groups): A regional managed instance group (MIG) automatically spreads instances across multiple zones in the region and, combined with a load balancer health check, keeps serving traffic when a zone becomes unavailable, which is the Google-recommended way to achieve zonal resilience for stateless workloads with minimal operations (reliability pillar).",
     "whyWrong": {
-      "0": "Incorrect distractor (Create two zonal managed instance groups in different zones from the s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Keep the existing zonal managed instance group and enable autohealing …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create an unmanaged instance group containing VMs that you provision i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but requires you to operate two groups and rebalance manually, adding toil.",
+      "1": "Option B improves recovery from individual VM failures, but a single-zone MIG still goes down completely when the zone fails.",
+      "3": "Option D removes autoscaling, autohealing and template-based updates, so it increases operational overhead rather than reducing it."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Autohealing and health checks): Load balancer health checks only control traffic routing; they never repair a VM.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the timeout and unhealthy threshold of the load balancer heal…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add a cron job on each VM that restarts the Java process every hour to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a Cloud Monitoring alerting policy on the backend health metric…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B only delays failover and does nothing to restore capacity.",
+      "2": "Option C is a blunt workaround that causes unnecessary restarts and does not address deadlocks that occur between restarts.",
+      "3": "Option D re-implements autohealing with custom code, adding operational overhead and failure modes that the managed feature already covers."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (MIG rolling updates): The deciding constraint is that capacity must never fall below the current level.",
     "whyWrong": {
-      "0": "Incorrect distractor (Start an opportunistic rolling update so that instances are only repla…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Start a proactive rolling update with maxSurge set to 0 and maxUnavail…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the recreate replacement method with maxUnavailable set to 100% so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (opportunistic) does not actively roll out the change, so the release could take days or never complete.",
+      "1": "Option B removes five instances at a time, reducing capacity by 25%, which violates the requirement.",
+      "2": "Option C recreates everything at once and causes a full outage."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (Canary releases with MIGs): MIGs natively support canary updates: an update can specify a second instance template with a target size expressed as a fixed number or a percentage, and the group keeps that fraction on the canary version while the rest stays on the primary template.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a second managed instance group with the new template, add it a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a new MIG behind a separate load balancer and use weighted DNS …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Configure a traffic-splitting URL map on the load balancer with a 90/1…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option C both add extra infrastructure that the question rules out, and DNS-based splitting is imprecise because of resolver caching.",
+      "2": "Option C both add extra infrastructure that the question rules out, and DNS-based splitting is imprecise because of resolver caching.",
+      "3": "Option D is invalid because two backend services pointing at the same MIG cannot separate old from new versions."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule (Startup scripts and custom images): Slow boot is caused by doing installation work at startup; the Google-recommended pattern is to move that work into an image build pipeline so instances boot pre-configured in well under a minute, which also makes deployments immutable and repeatable (operational excellence).",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the autoscaler cool-down period to eight minutes so the autos…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Switch the group to predictive autoscaling only, so that instances are…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Change the instance template to a larger machine type with more vCPUs …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B only tells the autoscaler how long to wait and does nothing to make instances ready sooner.",
+      "2": "Option C can help with regular daily patterns but does not address unpredictable match-day spikes and still leaves an eight-minute boot time.",
+      "3": "Option D marginally speeds up the script at a higher cost and leaves the root cause in place."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule: OS Login links Linux account management to Google identities, so access is granted and revoked through IAM roles, and the enable-oslogin-2fa setting enforces 2-step verification; the compute.requireOsLogin organization policy constraint prevents projects from opting out.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rotate the shared SSH key quarterly and store it in Secret Manager, gr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy a bastion host with a single administrative key and require all…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Identity-Aware Proxy TCP forwarding and continue to use project…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still relies on a shared credential and only changes where it is stored.",
+      "1": "Option B centralizes the entry point but keeps a shared key and does not provide per-user identity or IAM revocation.",
+      "2": "Option C is a good complement for eliminating public IPs, but by itself it leaves metadata-based keys in place, which is the root problem the auditors flagged."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule (VM Manager patch management): VM Manager (OS Config) is the Google-managed fleet patching service: once the OS Config agent is enabled on the VMs, you can schedule recurring patch deployments across Windows and Linux with maintenance windows and rollout controls, and the service produces per-VM patch compliance data in the console and API, meeting both the 14-day remediation and the reporting requirements with no custom tooling.",
     "whyWrong": {
-      "1": "Incorrect distractor (Run Ansible playbooks from Cloud Build on a schedule that apply update…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable unattended-upgrades on Linux and Windows Update auto-install on…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Create a Cloud Scheduler job that triggers a startup-script re-run on …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B works but requires the team to build and operate its own patching and reporting pipeline.",
+      "3": "Option D applies patches but gives no reliable fleet-wide compliance view and no control over timing across the fleet.",
+      "4": "Option E is fragile (re-running startup scripts is not a patch mechanism) and offers no reporting."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule: OS policies in VM Manager are declarative, continuously enforced desired-state configurations for VM fleets: the OS Config agent periodically checks compliance and remediates, so agents that are removed or stopped are reinstalled or restarted, and compliance is visible per VM.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add the installation commands to a mandatory startup script in project…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a Cloud Monitoring uptime check on each agent process and page …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Config Connector to declare the required agents as Kubernetes reso…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A runs only at boot, cannot fix later drift and is easily bypassed by custom images.",
+      "1": "Option B detects the problem but relies on humans to remediate.",
+      "3": "Option D is wrong because Config Connector manages Google Cloud resources (such as VMs) through the Kubernetes API, not software configuration inside the guest OS."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule (Confidential and Shielded VMs): Encryption of data in use is precisely what Confidential VMs provide: memory is encrypted by the CPU with keys that the hypervisor cannot access, and existing images and applications run unmodified.",
     "whyWrong": {
-      "1": "Incorrect distractor (Run the workload on Shielded VMs with Secure Boot, vTPM and integrity …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Encrypt the persistent disks with customer-managed encryption keys in …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Place the VMs on sole-tenant nodes so that no other customer's workloa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B protects against boot-level tampering (rootkits, modified firmware) but does not encrypt memory.",
+      "2": "Option C strengthens encryption at rest only.",
+      "3": "Option D provides physical isolation from other tenants for licensing or compliance reasons but does not protect memory contents from the host, so it does not satisfy the requirement."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: Sole-tenant nodes give you dedicated physical servers, and the in-place restart (or 'restart in place') maintenance policy keeps the VMs on the same physical server across maintenance events, which is what per-core BYOL licenses with server-affinity restrictions require; node affinity labels ensure the VMs are always scheduled on those nodes.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use standard Compute Engine VMs with the bring-your-own-license flag a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Purchase committed use discounts for the Windows VMs so that the licen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Confidential VMs so that the physical host is cryptographically bo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because standard multi-tenant hosts do not satisfy the dedicated-hardware condition, and live migration moves VMs between hosts.",
+      "2": "Option C changes the commercial model to Google-provided licenses instead of using the company's existing entitlement, which is more expensive and not what was asked.",
+      "3": "Option D provides memory encryption, not hardware dedication."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule: Reservations are the only Compute Engine mechanism that guarantees zonal capacity for a specific machine type until you use or delete them; the MIG's instances automatically consume a matching reservation (or a specifically targeted one via reservation affinity).",
     "whyWrong": {
-      "0": "Incorrect distractor (Purchase a three-year committed use discount for 600 n2-standard-16 VM…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Open a support case one day before launch asking Google to pre-warm ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure the MIG with predictive autoscaling so it starts creating in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a billing commitment that lowers price but does not by itself guarantee capacity in a zone.",
+      "1": "Option B is not a supported guarantee.",
+      "2": "Option C only changes when the autoscaler asks for VMs; if the zone has no capacity, the requests still fail."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule: Spot VMs offer 60-91% discounts compared with on-demand prices and are ideal for fault-tolerant, queue-driven batch work where a preempted task can be retried; a shutdown script has up to 30 seconds after the preemption notice to requeue or checkpoint work.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use standard VMs and buy one-year committed use discounts to cover the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move the render fleet to sole-tenant nodes to consolidate more work pe…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use standard VMs with the smallest custom machine type that can comple…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A gives at most a 37% discount and commits the studio to paying whether or not rendering happens.",
+      "1": "Option B is a premium-priced option intended for licensing or isolation, not cost reduction.",
+      "3": "Option D lowers per-VM cost but keeps paying on-demand rates and increases job duration, so total savings are far lower than with Spot."
     }
   },
   {
@@ -376,9 +376,9 @@
     ],
     "hint": "Core Rule (Spot VM preemption handling): Resilience to preemption comes from application design: pulling work from a queue with acknowledgement only after durable completion ensures that a preempted worker's task is redelivered, and a shutdown script that checkpoints and stops cleanly within the preemption window, combined with idempotent processing, prevents both loss and duplicate side effects.",
     "whyWrong": {
-      "0": "Incorrect distractor (Apply committed use discounts to the Spot VMs so Google is less likely…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable live migration in the instance template so that Spot VMs are mi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Set the on-host-maintenance policy to TERMINATE and the automatic rest…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because committed use discounts do not apply to Spot VMs and have no effect on preemption.",
+      "2": "Option C is wrong because Spot VMs cannot be live migrated; they are always stopped on preemption.",
+      "4": "Option E is misleading: automatic restart does not apply to preemptions, and a MIG already recreates preempted instances, but that alone does not recover the in-flight task."
     }
   },
   {
@@ -405,9 +405,9 @@
     ],
     "hint": "Core Rule (Autoscaling on custom metrics): MIG autoscaling supports Cloud Monitoring metrics, including the Pub/Sub subscription backlog, and with a per-instance target (for example 100 undelivered messages per worker) the group sizes itself according to pending work, which is the documented pattern for queue-based workloads.",
     "whyWrong": {
-      "1": "Incorrect distractor (Lower the CPU utilization target of the autoscaler to 10% so that the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace autoscaling with a schedule that runs the maximum number of in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create an alerting policy on the backlog metric and have a Cloud Run f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B still ties scaling to a metric that does not reflect load for an I/O-bound worker.",
+      "2": "Option C wastes money outside peaks and fails when peaks shift.",
+      "3": "Option D re-implements the autoscaler with custom code and has no built-in scale-in stabilization or cool-down logic."
     }
   },
   {
@@ -434,9 +434,9 @@
     ],
     "hint": "Core Rule: Alias IP ranges let a single VM interface own additional internal IP addresses (from the primary or a secondary subnet range) that are natively routed by the VPC and subject to firewall rules, which is exactly how GKE assigns Pod IPs and the recommended way to give containers or services on a VM their own addresses.",
     "whyWrong": {
-      "0": "Incorrect distractor (Attach an additional network interface to the VM for each container.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Assign an external IP address to each container and use Cloud NAT for …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure iptables on each VM to translate container ports to the VM's…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is limited by the number of NICs per VM, and each NIC must be in a different VPC network.",
+      "1": "Option B is insecure and unnecessary for internal connectivity.",
+      "2": "Option C is port-based NAT, which the requirement explicitly excludes."
     }
   },
   {
@@ -463,9 +463,9 @@
     ],
     "hint": "Core Rule: A VM with multiple network interfaces is the standard way to place a network virtual appliance between VPC networks: each interface must belong to a different VPC network, interfaces can only be added when the instance is created, and custom static routes (or an internal passthrough Network Load Balancer as next hop for HA) steer traffic through the appliance.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create the VM with one network interface in the trusted VPC and use al…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create the VM in the trusted VPC and peer the two VPC networks so that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create the VM in the DMZ VPC and use Cloud NAT to forward inspected tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is invalid because alias ranges must come from the subnet of the interface's own network.",
+      "2": "Option C bypasses the appliance entirely because peered networks route directly to each other.",
+      "3": "Option D is wrong because Cloud NAT only provides outbound internet address translation and cannot forward traffic between VPC networks."
     }
   },
   {
@@ -493,9 +493,9 @@
     ],
     "hint": "Core Rule (GKE VPC-native IP planning): In a VPC-native cluster each node reserves a /24 (256 addresses) for Pods when the maximum is 110, so a /18 (16,384 addresses) is exhausted at 64 nodes regardless of how many Pods actually run.",
     "whyWrong": {
-      "0": "Incorrect distractor (Convert the cluster to a routes-based cluster so that Pod addresses ar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Cloud NAT on the subnet so that Pods share a smaller number of …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Delete the cluster and recreate it with a /14 Pod range and the defaul…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is not possible; you cannot convert cluster network modes, and routes-based clusters are legacy.",
+      "1": "Option B addresses outbound internet access, not internal Pod IP allocation.",
+      "3": "Option D would work but violates the no-recreation constraint."
     }
   },
   {
@@ -524,9 +524,9 @@
     ],
     "hint": "Core Rule (GKE private clusters): A private cluster gives nodes internal IPs only, and disabling the external control plane endpoint leaves only the private endpoint, which is reachable over VPN or Interconnect; control plane authorized networks then restrict which source ranges (here, on-premises) may reach it.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create the cluster with public nodes and rely on VPC firewall rules to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep the public control plane endpoint and protect it with Identity-Aw…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Place the project in a VPC Service Controls perimeter instead of confi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B leaves nodes with public IPs, violating the first requirement.",
+      "3": "Option D keeps a public endpoint, and IAP does not front the GKE API server endpoint.",
+      "4": "Option E is wrong because VPC Service Controls protects Google API access at the perimeter level and does not replace configuring the cluster's endpoint and authorized networks."
     }
   },
   {
@@ -553,9 +553,9 @@
     ],
     "hint": "Core Rule (Cloud Run VPC egress): Direct VPC egress attaches the Cloud Run revision directly to a VPC subnet without any intermediary, giving lower latency and higher throughput than a Serverless VPC Access connector and no connector instances to size, pay for or manage.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Serverless VPC Access connector with the maximum number of in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Assign a public IP address to the Redis instance and restrict access w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy a proxy VM in the VPC with an external IP address and have the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A works but introduces a component with fixed costs and throughput limits that you must scale yourself.",
+      "2": "Option C is not possible because Memorystore for Redis does not support public IP addresses, and it would be less secure anyway.",
+      "3": "Option D adds a self-managed single point of failure and exposes a public endpoint."
     }
   },
   {
@@ -582,9 +582,9 @@
     ],
     "hint": "Core Rule (Cloud Run ingress): The internal ingress setting rejects any request that does not originate from the VPC (or from an internal load balancer), so the service is invisible to the internet by network control, not just by authentication.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the default ingress setting of all traffic and require an IAM ide…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Set the ingress setting to internal and load balancing and configure C…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Set the ingress setting to all traffic and place the service behind a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A relies on authentication alone and still exposes the endpoint publicly, which violates the requirement.",
+      "1": "Option B is wrong because Cloud Armor does not apply to internal Application Load Balancers in that way and internal ingress already blocks external sources.",
+      "2": "Option C exposes the API on the internet, which is explicitly forbidden."
     }
   },
   {
@@ -611,9 +611,9 @@
     ],
     "hint": "Core Rule (VMware Engine networking): VMware Engine connects to a customer VPC through a private connection built on VPC Network Peering; with custom route exchange enabled, the private cloud learns the routes to the VPC's resources and, importantly, the dynamic routes that Cloud Router learned from the on-premises Interconnect, which lets VMware Engine VMs reach the data center over the existing circuit.",
     "whyWrong": {
-      "0": "Incorrect distractor (Configure an IPsec VPN from the NSX-T edge in the private cloud to the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Assign public IP addresses to the VMware Engine VMs and use them to re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Order a Partner Interconnect attachment directly into the VMware Engin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A adds overlay tunnels with throughput limits and operational complexity when native connectivity exists.",
+      "1": "Option B violates the private IP requirement.",
+      "3": "Option D requires a new Interconnect purchase, which the airline explicitly ruled out."
     }
   },
   {
@@ -642,9 +642,9 @@
     ],
     "hint": "Core Rule (Terraform and Infrastructure Manager): The Google-recommended practices for Terraform on Google Cloud are to keep state in a remote Cloud Storage backend (which provides state locking and, with versioning, recovery from corruption) and to execute plans and applies from an automated pipeline such as Infrastructure Manager or Cloud Build under a purpose-built service account, giving auditability and removing the need for broad human credentials (operational excellence and security pillars).",
     "whyWrong": {
-      "0": "Incorrect distractor (Commit the terraform.tfstate file to the Git repository alongside the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Rewrite the configuration as Deployment Manager templates so that Goog…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Grant each engineer the roles/owner role on the organization so that a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is an anti-pattern: state can contain secrets and Git provides no locking.",
+      "3": "Option D is wrong because Deployment Manager is a legacy tool that Google recommends migrating away from.",
+      "4": "Option E violates least privilege."
     }
   },
   {
@@ -671,9 +671,9 @@
     ],
     "hint": "Core Rule: Config Connector is the Kubernetes add-on that represents Google Cloud resources as Kubernetes objects, so they can be stored in Git and continuously reconciled by Config Sync exactly like application manifests, which is the intended way to extend a GitOps workflow to cloud infrastructure.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add a Cloud Build step to each application pipeline that runs Terrafor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create the resources with Deployment Manager templates stored in the s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Have the applications create the resources at startup using the Google…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces a second tool and a different state model outside the GitOps loop.",
+      "2": "Option C uses a legacy tool and a scheduler-based imperative flow.",
+      "3": "Option D couples infrastructure creation with application runtime, over-privileges the application, and provides no declarative drift correction."
     }
   },
   {
@@ -700,9 +700,9 @@
     ],
     "hint": "Core Rule (Deployment Manager migration): Google's guidance for Deployment Manager users is to migrate to Terraform, which Infrastructure Manager runs as a managed service; Google provides a conversion tool that translates many Deployment Manager configurations into Terraform to reduce effort.",
     "whyWrong": {
-      "1": "Incorrect distractor (Keep the Deployment Manager templates in place, since existing deploym…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the templates with bash scripts that call gcloud commands and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Convert the templates to Kubernetes manifests and manage them with Con…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B ignores the deprecation and leaves the department without a supported tool for new changes.",
+      "2": "Option C replaces declarative IaC with imperative scripts that cannot detect drift or plan changes.",
+      "3": "Option D forces the department to adopt and operate a GKE cluster it does not need just to host Config Connector."
     }
   },
   {
@@ -729,9 +729,9 @@
     ],
     "hint": "Core Rule (Autoscaler scale-in controls): Scale-in controls are designed for exactly this problem: they cap how quickly the autoscaler can shrink the group after a burst, so capacity that is expensive to recreate is retained for a configurable window, while the initialization period tells the autoscaler not to count still-booting instances toward serving capacity.",
     "whyWrong": {
-      "0": "Incorrect distractor (Disable autoscaling and set the group size manually to the highest obs…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable predictive autoscaling so that the autoscaler forecasts each bu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Lower the CPU utilization target to 30% so that the autoscaler keeps m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A abandons cost optimization entirely, which the firm ruled out.",
+      "1": "Option B relies on daily or weekly patterns and cannot forecast unpredictable bursts.",
+      "2": "Option C keeps more instances at all times, which permanently increases cost and still does not stop rapid scale-in after a spike."
     }
   }
 ]

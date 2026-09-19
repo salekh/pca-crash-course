@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Windows Server BYOL): Microsoft permits bringing existing Windows Server licenses to Google Cloud only on dedicated hardware, which in Google Cloud means sole-tenant nodes; you import your own image (marked as BYOL so Google does not bill the license) and place instances on the sole-tenant node group, optionally using CPU overcommit and node affinity to optimize per-core license usage.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create the VMs from Google's public Windows Server images on regular s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Run the VMs on regular Compute Engine hardware using License Mobility …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run the VMs in GKE Windows node pools, where licensing is not charged.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A violates licensing terms and Google's public images always bill the premium OS license.",
+      "2": "Option C is wrong because License Mobility through Software Assurance covers server applications such as SQL Server, SharePoint and Exchange, not the Windows Server operating system.",
+      "3": "Option D is incorrect; Windows Server node pools in GKE are billed with the Windows license included."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (SQL Server license mobility): SQL Server is an eligible product for Microsoft License Mobility through Software Assurance, which allows customers to deploy their own licensed server applications on shared (multi-tenant) cloud hardware, so the company can install SQL Server from its own media on Compute Engine VMs and avoid the pay-as-you-go SQL Server charge; the Windows Server OS underneath is still licensed separately (PAYG on regular VMs or BYOL on sole-tenant nodes).",
     "whyWrong": {
-      "0": "Incorrect distractor (SQL Server cannot be brought to Google Cloud; use Cloud SQL for SQL Se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use the public Compute Engine SQL Server images and open a billing sup…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy on sole-tenant nodes because all Microsoft products require ded…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is false; SQL Server BYOL is supported and Cloud SQL would still charge for the license.",
+      "1": "Option B does not work because Google's SQL Server images are inseparable from their license billing.",
+      "2": "Option C overstates the requirement; dedicated hardware applies to Windows Server BYOL, not to License Mobility-eligible applications such as SQL Server."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Oracle licensing and Oracle Database@Google Cloud): Oracle Database@Google Cloud runs Oracle Exadata Database Service and Autonomous Database on Oracle-managed infrastructure physically located in Google Cloud regions, offering low latency to Google Cloud workloads, support for existing licenses (BYOL) or license-included pricing, Oracle-operated infrastructure, and procurement through Google Cloud Marketplace, which meets every stated requirement while avoiding the licensing ambiguity of Oracle on general-purpose cloud VMs.",
     "whyWrong": {
-      "1": "Incorrect distractor (Rehost the Exadata workloads onto large Compute Engine VMs with local …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate the databases to Cloud SQL for PostgreSQL with Database Migrat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep the Exadata on-premises and connect it to the migrated applicatio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B loses Exadata features, requires the company to operate RAC itself, and carries the compliance risk the company wants to avoid; Bare Metal Solution would be the better self-managed alternative.",
+      "2": "Option C ignores the requirement to keep Oracle and would be a multi-year ERP re-platforming project.",
+      "3": "Option D keeps the data center dependency and introduces WAN latency and VPN bandwidth limits between application and database tiers."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (SAP HANA on Google Cloud): SAP supports HANA only on certified machine types and operating systems; on Google Cloud these are the memory-optimized families (M1, M2, M3, X4 and certain others) combined with SLES for SAP or RHEL for SAP images, which Google offers on a pay-as-you-go basis.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run SAP HANA on GKE Autopilot pods sized to 6 TB to benefit from autos…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run SAP HANA on general-purpose N2 VMs with custom machine types to sa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy SAP HANA on Cloud SQL and connect the SAP application servers t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is not certified and HANA is not supported in containers on GKE.",
+      "1": "Option B uses uncertified machine types, which voids SAP support.",
+      "3": "Option D is impossible; SAP HANA is its own database engine and is not offered as a Cloud SQL engine."
     }
   },
   {
@@ -142,9 +142,9 @@
     ],
     "hint": "Core Rule (License implications of rehosting Windows workloads): The two real licensing considerations are the pay-as-you-go model, where the Windows Server premium is billed per vCPU (so rightsizing and choosing fewer, appropriately sized vCPUs cuts license spend), and the BYOL model, which Microsoft allows only on dedicated hardware, meaning sole-tenant nodes whose node cost and CPU overcommit options must be modeled against the saved license fees.",
     "whyWrong": {
-      "1": "Incorrect distractor (Windows Server licenses are included free of charge on Compute Engine,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Windows Server VMs can only be run in a single zone per project, which…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Windows licensing costs disappear if the VMs are moved into a managed …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is false; Windows is a premium image with a license charge.",
+      "3": "Option D is an invented constraint with no basis.",
+      "4": "Option E is wrong because managed instance groups change how VMs are created and scaled, not how the OS is licensed."
     }
   },
   {
@@ -171,9 +171,9 @@
     ],
     "hint": "Core Rule (Red Hat Enterprise Linux subscriptions): Red Hat Cloud Access lets customers apply eligible existing subscriptions to certified cloud providers including Google Cloud.",
     "whyWrong": {
-      "0": "Incorrect distractor (Continue using Google's public RHEL images and ask Red Hat for a refun…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Switch all servers to a free RHEL-compatible distribution during migra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Google's public RHEL images but select Spot VMs so the license cha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is not how licensing works and Red Hat will not refund a contract.",
+      "1": "Option B is a significant operational and support change for 400 production servers that the question does not call for.",
+      "2": "Option C is false; Spot pricing discounts compute, not premium OS license fees."
     }
   },
   {
@@ -200,9 +200,9 @@
     ],
     "hint": "Core Rule (Cloud-first governance): A cloud-first approach means preferring the highest level of abstraction that satisfies the requirements: SaaS, then managed or serverless services, then self-managed infrastructure, with self-managed choices needing justification.",
     "whyWrong": {
-      "0": "Incorrect distractor (Require the CTO's personal approval for every new Compute Engine insta…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Block Compute Engine at the organization level with an organization po…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Leave the teams alone, because cloud-first only concerns where infrast…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates a bottleneck and does not build understanding.",
+      "2": "Option C is too blunt; many legitimate workloads need VMs, and blanket prohibition drives shadow IT.",
+      "3": "Option D misreads cloud-first, which is about exploiting cloud capabilities, not merely relocating VMs."
     }
   },
   {
@@ -229,9 +229,9 @@
     ],
     "hint": "Core Rule (Designing for evolving business needs): Envisioning future improvements means designing so that change is cheap when business needs evolve, not paying for the future prematurely.",
     "whyWrong": {
-      "1": "Incorrect distractor (Migrate to Spanner immediately so the team never has to migrate later.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Shard Cloud SQL manually across instances now so that the sharding log…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the ledger to Bigtable now because it scales horizontally.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B commits a small team to a higher-cost, more complex platform years before it is needed.",
+      "2": "Option C introduces sharding complexity, one of the hardest engineering problems, with no current benefit.",
+      "3": "Option D is a poor fit for a ledger requiring relational transactions and would require a rewrite."
     }
   },
   {
@@ -258,9 +258,9 @@
     ],
     "hint": "Core Rule (Envisioning AI-driven improvements): Vertex AI Search in Agent Builder is a managed generative search and retrieval product: you connect structured or unstructured data (including BigQuery and Cloud Storage), and it provides semantic search, summaries and grounded answers with citations out of the box, which fits a team without ML engineers and a one-quarter timeline.",
     "whyWrong": {
-      "0": "Incorrect distractor (Hire a data science team to train a custom large language model on the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy an open-source LLM from Model Garden on GKE with GPUs and build…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Send every shopper question directly to a Gemini model with no additio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is the most expensive and slowest path and is unnecessary for catalog question answering.",
+      "1": "Option B is feasible but requires building and operating retrieval, ranking, serving and GPU infrastructure, contradicting the minimal-code constraint.",
+      "3": "Option D produces ungrounded answers that may hallucinate products and prices, which is unacceptable for a commerce experience."
     }
   },
   {
@@ -287,9 +287,9 @@
     ],
     "hint": "Core Rule (Cloud-first design principle): Cloud-first means the default answer for any new capability is a cloud-delivered service, evaluated from the highest abstraction downward (SaaS, then managed and serverless platforms, then infrastructure), with on-premises hardware requiring an explicit exception based on constraints such as data sovereignty or connectivity.",
     "whyWrong": {
-      "0": "Incorrect distractor (Approve the servers because the workload is small and the server room …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Require the department to build a custom application on Compute Engine…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Reject the request and ask the department to wait until a city-wide cl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A perpetuates capital purchases and undifferentiated operations.",
+      "1": "Option B prescribes the lowest abstraction and custom build without considering buy options.",
+      "2": "Option C blocks the business need unnecessarily; cloud-first applies to new work regardless of legacy migration status."
     }
   },
   {
@@ -316,9 +316,9 @@
     ],
     "hint": "Core Rule (Post-migration optimization): Google's migration framework ends with an optimize phase, and the fastest wins after a rehost come from Google's built-in recommendations: machine type rightsizing based on observed usage, idle VM and disk cleanup, and commitment purchase recommendations, all of which are low-risk and data-driven.",
     "whyWrong": {
-      "0": "Incorrect distractor (Refactor the largest applications into microservices to reduce their r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move all VMs to Spot VMs to obtain the maximum discount.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Switch the billing account to invoiced billing to negotiate a better r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is a long, expensive program with uncertain cost impact.",
+      "2": "Option C would cause outages for stateful and long-running production workloads.",
+      "3": "Option D changes payment mechanics, not consumption, and does not by itself reduce cost."
     }
   },
   {
@@ -350,9 +350,9 @@
     ],
     "hint": "Core Rule (Roadmap after lift-and-shift): The roadmap should target the sources of toil and risk while respecting the no-rewrite constraint.",
     "whyWrong": {
-      "1": "Incorrect distractor (Rewrite the application in Go as microservices before making any other…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Increase the number of web servers in the managed instance group to re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Move MySQL to a larger VM with local SSD to speed up manual failover.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B violates the no-rewrite constraint and delays every other benefit.",
+      "3": "Option D adds cost without addressing the real single points of failure (database and manual processes).",
+      "5": "Option F keeps the fragile self-managed database and manual failover, merely on bigger hardware."
     }
   },
   {
@@ -380,9 +380,9 @@
     ],
     "hint": "Core Rule (License costs in TCO): Determining software license implications and their financial impact is an explicit migration-planning task.",
     "whyWrong": {
-      "1": "Incorrect distractor (Remove the license line from the TCO because it is a Microsoft cost, n…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Keep SQL Server Enterprise but run it on Spot VMs to offset the licens…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Purchase a 3-year committed use discount for the VMs, which also disco…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B hides a real cost from decision makers.",
+      "2": "Option C is unsuitable for a production database because Spot VMs can be preempted.",
+      "3": "Option D is incorrect; committed use discounts apply to compute resources and do not discount premium OS or SQL Server license charges."
     }
   },
   {
@@ -409,9 +409,9 @@
     ],
     "hint": "Core Rule (Choosing PAYG vs BYOL per workload): Licensing choices should be made per workload profile.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use BYOL on sole-tenant nodes for all Windows workloads, sizing the no…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use pay-as-you-go Windows images for all workloads to avoid managing l…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use BYOL on regular shared-tenant VMs for both groups to avoid sole-te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A over-provisions expensive dedicated hosts for a bursty workload.",
+      "1": "Option B forgoes real savings on the 25 steady servers.",
+      "3": "Option D violates Microsoft's requirement for dedicated hardware for Windows Server BYOL."
     }
   },
   {
@@ -438,9 +438,9 @@
     ],
     "hint": "Core Rule (Evolving from fixed capacity to elastic design): Cloud-first design exploits elasticity: a stateless API is a natural fit for Cloud Run or GKE Autopilot, where autoscaling makes cost proportional to demand and unpredictable peaks no longer require capacity planning projects, while a minimum instance count avoids cold starts for the baseline.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the 40 VMs and buy a 3-year committed use discount for all of the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add 20 more VMs before next season to cover the new leagues.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Ask each league to provide an audience forecast and resize the fleet m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A locks in payment for capacity that is 95% idle most of the year.",
+      "1": "Option B increases fixed waste and still relies on guesswork.",
+      "2": "Option C keeps a manual, forecast-driven process that breaks whenever an event over-performs."
     }
   },
   {
@@ -467,9 +467,9 @@
     ],
     "hint": "Core Rule (Multicloud integration after an acquisition): Cross-Cloud Interconnect is Google Cloud's managed dedicated connectivity between a Google Cloud VPC and another cloud provider such as AWS, delivering high bandwidth (10 or 100 Gbps), predictable latency and, when deployed redundantly, a high availability SLA, which is what a multi-year, high-throughput multicloud integration requires.",
     "whyWrong": {
-      "0": "Incorrect distractor (Public internet endpoints protected by API keys, since both clouds are…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Cloud VPN over the internet with a single tunnel to keep cost low.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Shipping Transfer Appliances between the two providers' data centers m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A exposes business data flows to the public internet with variable latency and weaker security.",
+      "2": "Option C is capped in bandwidth per tunnel, offers no SLA with a single tunnel, and has variable internet latency.",
+      "3": "Option D is for bulk offline transfers, not continuous data exchange."
     }
   },
   {
@@ -496,9 +496,9 @@
     ],
     "hint": "Core Rule (SAP migration options and disposition): The requirements point to a 'buy' disposition with the lowest operational burden: RISE with SAP on Google Cloud is SAP's subscription offering in which SAP operates S/4HANA on Google Cloud infrastructure, removing patching and upgrade work from the small basis team while keeping the data inside Google Cloud, where Cortex Framework accelerates SAP data integration with BigQuery and Vertex AI.",
     "whyWrong": {
-      "1": "Incorrect distractor (Rehost the existing ECC system to Compute Engine with Migrate to Virtu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Have the basis team perform a self-managed greenfield S/4HANA implemen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace SAP with a custom ERP built on Cloud Run and Spanner.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B merely relocates the problem and does not address the 2027 end of maintenance.",
+      "2": "Option C is the highest-effort path for a team that already struggles with operations.",
+      "3": "Option D is an enormous, high-risk bespoke build for a commodity capability that no manufacturer should treat as a differentiator."
     }
   },
   {
@@ -525,9 +525,9 @@
     ],
     "hint": "Core Rule (Oracle on Bare Metal Solution): Bare Metal Solution provides dedicated, Oracle-certified hardware in a facility adjacent to the Google Cloud region with a managed low-latency interconnect into the VPC, where customers install and fully control their own Oracle RAC software and operating system under their existing licenses, which matches every requirement here.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cloud SQL for PostgreSQL, migrated with Database Migration Service to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Oracle RAC installed on a pair of large Compute Engine VMs using share…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Oracle Autonomous Database through Oracle Database@Google Cloud, which…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A ignores the requirement to keep Oracle and would be a re-platforming project.",
+      "1": "Option B is not supported by Oracle for RAC and creates licensing and support ambiguity.",
+      "2": "Option C is attractive for teams that want Oracle to manage the database, but it removes the operating system and deep tuning control that this operator's DBAs require."
     }
   },
   {
@@ -556,9 +556,9 @@
     ],
     "hint": "Core Rule (Triggers for architectural evolution): Envisioning future improvements should be driven by evidence that the current design has hit structural limits.",
     "whyWrong": {
-      "0": "Incorrect distractor (Average CPU utilization of the order service VMs is 40% during busines…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (The monthly bill increased 8% while order volume increased 10%.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (A new engineer suggests that Kubernetes is more modern than managed in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is healthy utilization.",
+      "2": "Option C shows cost growing slower than volume, which is improving unit economics.",
+      "4": "Option E is a technology preference without a business or technical driver."
     }
   },
   {
@@ -585,9 +585,9 @@
     ],
     "hint": "Core Rule (Cloud-first data platform decision): The cloud-first policy and the imminent capital renewal make this the ideal moment to replace the appliance with BigQuery, and Google provides tooling to de-risk the translation concern: BigQuery Migration Service includes assessment reports and batch SQL translation for major warehouse dialects, and BigQuery Data Transfer Service moves the data.",
     "whyWrong": {
-      "1": "Incorrect distractor (Renew the appliance for five more years and revisit cloud after the ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Lift the appliance software onto Compute Engine VMs to preserve the SQ…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Rewrite all 400 ETL jobs as Dataflow pipelines in Java before moving a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B commits significant CapEx against the company's own policy.",
+      "2": "Option C is generally not licensed or supported by appliance vendors and keeps the license cost.",
+      "3": "Option D is an unnecessary rewrite in a new language when SQL translation preserves the team's existing skills."
     }
   },
   {
@@ -614,9 +614,9 @@
     ],
     "hint": "Core Rule (Per-core ISV licensing): Sole-tenant nodes give you a dedicated physical server with a documented socket and core count, satisfying vendor terms that tie licenses to identifiable physical cores; node affinity keeps the licensed workloads on the licensed hosts, and CPU overcommit lets you run more VMs per node when the workload tolerates it, minimizing the number of cores that must be licensed.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run the instances on regular Compute Engine VMs and count vCPUs as cor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run the instances on Spot VMs so that infrastructure savings offset th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run the instances on GKE Autopilot so that the platform abstracts away…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot satisfy terms requiring physical core identification and typically over-counts licenses because two vCPUs map to one physical core.",
+      "1": "Option B does not address the licensing requirement at all and risks preemption.",
+      "3": "Option D abstracts hardware, making physical core attribution impossible."
     }
   },
   {
@@ -644,9 +644,9 @@
     ],
     "hint": "Core Rule (Evolving batch workloads toward serverless): Cloud Run jobs are designed for containerized batch tasks that run to completion: the scripts are packaged mostly unchanged, compute is billed only while jobs run (eliminating 20 idle hours), each execution is logged and can be retried, failures raise alerts, and there is no single VM to fail.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move the scripts to a larger VM with a second VM as a manual standby.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Rewrite each script as a Dataflow pipeline to gain parallelism.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Keep the VM but add a Cloud Monitoring uptime check so that the team i…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A doubles cost and remains manual.",
+      "1": "Option B is a rewrite into a different programming model that most simple scripts do not need.",
+      "3": "Option D detects VM failure but does not address idle cost, job-level visibility or the single point of failure."
     }
   },
   {
@@ -674,9 +674,9 @@
     ],
     "hint": "Core Rule (Anticipating regulatory evolution): Envisioning future improvements includes anticipating regulatory change.",
     "whyWrong": {
-      "0": "Incorrect distractor (Wait for the regulation to take effect and then move the workloads to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable VPC Service Controls around the projects, which guarantees data…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Encrypt all data client-side in the application before writing it to a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A abandons cloud benefits and is unnecessary.",
+      "2": "Option C is wrong because VPC Service Controls mitigates data exfiltration between services; it does not enforce data residency or personnel location.",
+      "3": "Option D requires intrusive application changes, breaks server-side processing and analytics, and still does not address personnel or residency requirements."
     }
   },
   {
@@ -703,9 +703,9 @@
     ],
     "hint": "Core Rule (Commitments during modernization): Compute flexible CUDs are spend-based commitments that apply to eligible usage across Compute Engine VM families, Cloud Run and GKE Autopilot, so as workloads are containerized and move platforms the commitment is still consumed; this fits a company whose total compute spend is stable but whose service mix will change.",
     "whyWrong": {
-      "0": "Incorrect distractor (Buy 3-year resource-based committed use discounts for the current Comp…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Avoid all commitments until the modernization is complete, paying on-d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Buy 1-year resource-based commitments for Cloud Run instances now in a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A ties the commitment to specific resource types and regions, creating exactly the stranded-commitment risk finance fears.",
+      "1": "Option B forgoes substantial savings on spend that is predictable in aggregate.",
+      "3": "Option D is invalid because Cloud Run is covered by spend-based flexible commitments, not resource-based instance commitments purchased in advance."
     }
   },
   {
@@ -734,9 +734,9 @@
     ],
     "hint": "Core Rule (Designing for future change): Architectures that absorb unpredictable business change share two traits: loose coupling through APIs and events, which lets capabilities such as a personalization engine be added or swapped without a platform rewrite, and a bias toward managed services and infrastructure as code, which minimizes undifferentiated operations and makes environments reproducible and easy to evolve.",
     "whyWrong": {
-      "0": "Incorrect distractor (Standardize on a single large relational database shared by all applic…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Freeze the technology stack for three years to avoid the cost of chang…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Require every new feature to be approved by the board to reduce the ra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates a tightly coupled data monolith that makes every change risky.",
+      "2": "Option C guarantees the platform falls behind the business.",
+      "4": "Option E slows delivery without improving adaptability."
     }
   }
 ]

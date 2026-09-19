@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Cloud Audit Logs): Admin Activity audit logs are always on and record configuration changes, but reads and writes of user data are captured by Data Access audit logs, which are disabled by default for most services (BigQuery is the exception) and must be enabled explicitly.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Object Versioning on the bucket so that every read creates a ne…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Export Admin Activity audit logs to BigQuery, because object downloads…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable System Event audit logs for Cloud Storage so that object access…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A tracks object changes, not reads.",
+      "1": "Option B is wrong because exporting does not add event types that were never logged.",
+      "3": "Option D is wrong because System Event logs record Google-initiated actions such as live migration, not user data access."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Log retention): An organization-level aggregated sink captures logs from all current and future child projects in one place; a Cloud Storage bucket in a separate, tightly controlled project with a locked retention policy (Bucket Lock) provides immutable, low-cost long-term retention that project administrators cannot circumvent.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the retention of the _Default log bucket in each project to 2…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a log sink in each project that exports audit logs to BigQuery,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export audit logs to Pub/Sub in each project and have a Dataflow job w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B must be repeated per project, does not cover new projects automatically, and Cloud Logging storage costs more than Archive-class Cloud Storage for seven years.",
+      "2": "Option C is per-project and BigQuery is more expensive for cold data; expiration also allows deletion.",
+      "3": "Option D is per-project and adds an unnecessary pipeline to maintain."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Cloud Audit Logs): VPC Service Controls violations are written to Policy Denied audit logs, and each error message includes a unique identifier that can be used to find the specific log entry, which shows the caller, source network or device, target resource and the reason the request was blocked.",
     "whyWrong": {
-      "0": "Incorrect distractor (In the Admin Activity audit logs of the BigQuery project, filtered by …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (In Cloud Monitoring, by creating an alert on the BigQuery API error-ra…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (In the Access Context Manager console under the access level's usage t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A shows successful configuration actions, not denials.",
+      "1": "Option B indicates that errors are happening but gives no detail about the cause.",
+      "2": "Option C does not exist as a troubleshooting view for denied requests."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule: VPC Service Controls creates a service perimeter that blocks data movement between protected services inside the perimeter and resources outside it, and access levels restrict the network and identity context from which the APIs can be called, which directly addresses both credential theft and insider exfiltration to external projects.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Data Access audit logs for BigQuery and Cloud Storage and build…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enforce the storage.publicAccessPrevention constraint and the Domain R…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Encrypt the datasets and buckets with CMEK and restrict the Cloud KMS …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is detective only.",
+      "2": "Option C prevents sharing to external identities but does not stop an authorized identity from copying data to an external project it owns.",
+      "3": "Option D protects at rest but any principal with access still receives plaintext through the API and can copy it."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule (VPC Service Controls): The supported pattern for on-premises access to a perimeter is to route API calls privately over the hybrid connection to the restricted VIP (restricted.googleapis.com) and to authorize the on-premises source using an access level based on its IP ranges, referenced from an ingress rule or the perimeter's access levels.",
     "whyWrong": {
-      "0": "Incorrect distractor (Give analysts external IP addresses through a corporate NAT and allow …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add the on-premises CIDR ranges to the perimeter as a member project s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Configure Private Service Connect for Google APIs in a separate projec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because VPC firewall rules do not govern access to Google APIs protected by VPC Service Controls.",
+      "1": "Option B is wrong because only projects and VPC networks, not arbitrary CIDR ranges, can be perimeter members.",
+      "3": "Option D introduces an out-of-perimeter proxy that would itself be blocked and undermines the control."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule (VPC Service Controls): Egress rules allow a narrowly scoped exception, letting specified identities inside the perimeter access specified resources or projects outside it for particular methods, which is exactly the recommended way to consume a single external bucket without weakening the whole perimeter.",
     "whyWrong": {
-      "1": "Incorrect distractor (Ask the partner to copy the datasets into a public bucket, since publi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a perimeter bridge between your perimeter and the partner's pro…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Disable VPC Service Controls enforcement for the Dataflow project and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is incorrect: perimeters block access to resources outside the perimeter regardless of public sharing unless a rule allows it, and making research data public is inappropriate.",
+      "2": "Option C is not possible because bridges only connect perimeters within the same access policy/organization, and the partner is in a different organization.",
+      "3": "Option D removes the control entirely."
     }
   },
   {
@@ -197,9 +197,9 @@
     ],
     "hint": "Core Rule (VPC Service Controls): Ingress and egress rules provide directional, identity- and method-scoped exceptions between perimeters, and Google now recommends them over perimeter bridges, which grant bidirectional, all-service access between the bridged projects.",
     "whyWrong": {
-      "0": "Incorrect distractor (Merge the two perimeters into a single perimeter so that both sets of …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move the BigQuery dataset's project into the ML perimeter so that the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a perimeter bridge that includes the analytics project and the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A dissolves the security boundary between the two domains.",
+      "1": "Option B violates the analytics team's ownership and exposes the dataset to every ML workload.",
+      "2": "Option C would allow analytics users to reach ML resources and all ML resources to read analytics data, which the requirements forbid."
     }
   },
   {
@@ -226,9 +226,9 @@
     ],
     "hint": "Core Rule (VPC Service Controls): Dry-run mode logs the requests that would be denied without actually blocking them, so you can discover undocumented dependencies, model the necessary ingress/egress rules, and only then move the configuration to enforced mode with confidence; this is Google's recommended rollout approach.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable the enforced perimeter during a maintenance window and use Poli…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable the perimeter with only Cloud Storage as a restricted service a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add all 40 projects plus every project they interact with to a single …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A knowingly risks outages.",
+      "2": "Option C still risks breaking Cloud Storage-dependent flows on day one and slows down protection of other services.",
+      "3": "Option D over-expands the perimeter, may pull in projects that should not be trusted, and does not address integrations with external partners or SaaS."
     }
   },
   {
@@ -255,9 +255,9 @@
     ],
     "hint": "Core Rule: Context-aware access combines Endpoint Verification device signals with Access Context Manager access levels to allow or deny access to the console and APIs based on device posture and identity, which is exactly the zero-trust control described.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a VPC Service Controls perimeter around all projects with an ac…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enforce 2-Step Verification with hardware security keys for the admini…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Configure an IAM Condition on the administrators' roles that checks re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B restricts by network location rather than device state and VPC Service Controls does not govern all console access.",
+      "2": "Option C strengthens authentication but a hardware key works on any device.",
+      "3": "Option D is not possible; device attributes are surfaced through access levels, not arbitrary IAM Condition claims."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: Cloud Armor is the WAF and DDoS protection service for Google's global load balancers: its preconfigured WAF rules block OWASP Top 10 attack patterns such as SQLi and XSS, and Adaptive Protection uses machine learning to detect and mitigate layer 7 DDoS attacks.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy Cloud IDS behind the load balancer to block malicious requests …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the global external Application Load Balancer with a regional …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Configure Cloud CDN with a cache-everything policy so that malicious r…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because Cloud IDS is a detection service that inspects mirrored traffic and does not block inline.",
+      "2": "Option C removes edge protection and layer 7 inspection entirely.",
+      "4": "Option E is inappropriate because dynamic API responses cannot be cached safely and caching does not stop injection attacks against uncached endpoints."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule: Security Command Center Premium adds Event Threat Detection (log-based detection of cryptomining, anomalous IAM activity and more), Container Threat Detection, Virtual Machine Threat Detection and compliance reporting against standards such as CIS, all built in.",
     "whyWrong": {
-      "0": "Incorrect distractor (Continue with Security Command Center Standard and enable Cloud Loggin…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy an open-source SIEM on GKE and forward all audit logs to it.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Cloud IDS in every VPC, which provides threat detection and com…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A lacks these managed detectors and would require building and maintaining detection logic.",
+      "1": "Option B adds significant operational overhead.",
+      "3": "Option D is network-based intrusion detection and does not provide log-based detection or compliance dashboards."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule (Event Threat Detection): Security Command Center supports continuous exports of findings to Pub/Sub with filters, which is the recommended near-real-time integration path for SIEM/SOAR and incident-management tools.",
     "whyWrong": {
-      "0": "Incorrect distractor (Schedule a Cloud Run job to call the Security Command Center API every…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Export Security Command Center findings to BigQuery and build a Looker…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a log-based metric on Admin Activity logs and alert when the nu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A introduces polling and up to an hour of delay.",
+      "2": "Option C is useful for analytics but is not a notification mechanism and relies on humans checking a dashboard.",
+      "3": "Option D reimplements crude detection logic and misses the rich, curated findings that Event Threat Detection already produces."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule: Web Security Scanner, part of Security Command Center, is a dynamic application security testing tool that crawls a running web application and reports XSS, mixed content, outdated libraries and similar issues, with no agents required.",
     "whyWrong": {
-      "0": "Incorrect distractor (Artifact Analysis vulnerability scanning on the container images in Ar…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Cloud IDS with Palo Alto Networks threat signatures on the GKE subnet.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Cloud Armor preconfigured WAF rules in preview mode.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A scans container images for OS and language package CVEs, not running-application behavior such as XSS.",
+      "1": "Option B detects network-level threats in traffic and does not test application logic.",
+      "2": "Option C protects against attacks but does not proactively find vulnerabilities in the application."
     }
   },
   {
@@ -402,9 +402,9 @@
     ],
     "hint": "Core Rule: Cloud IDS is a managed network intrusion detection service that uses Palo Alto Networks threat signatures to inspect mirrored traffic (north-south and east-west) without agents on the workloads.",
     "whyWrong": {
-      "1": "Incorrect distractor (Enable VPC Flow Logs on all subnets and write BigQuery queries to iden…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy Cloud NGFW with firewall rules that log all denied connections …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Cloud Armor on the internal load balancers so that east-west tr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B provides connection metadata only, not payload inspection or signature matching.",
+      "2": "Option C enforces policy and logs decisions but is not an IDS (Cloud NGFW Enterprise intrusion prevention is a separate capability and the question asks for detection with mirrored, agentless inspection).",
+      "3": "Option D is incorrect because Cloud Armor attaches to external Application Load Balancers and is not an IDS for internal traffic."
     }
   },
   {
@@ -431,9 +431,9 @@
     ],
     "hint": "Core Rule: Identity-Aware Proxy enforces Google identity authentication and IAM authorization in front of HTTPS load balancer backends, providing zero-trust access from anywhere without a VPN or application changes.",
     "whyWrong": {
-      "0": "Incorrect distractor (Restrict the load balancer's firewall rules to the office IP ranges an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add HTTP basic authentication to the web server and distribute a share…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Deploy Cloud VPN and require employees to connect before accessing the…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A blocks remote work and is IP-based rather than identity-based.",
+      "1": "Option B uses a shared secret with no per-user accountability.",
+      "3": "Option D adds VPN infrastructure the firm explicitly wants to avoid."
     }
   },
   {
@@ -462,9 +462,9 @@
     ],
     "hint": "Core Rule: IAP TCP forwarding tunnels SSH and RDP through Google's edge to VMs without external IPs; the two required pieces are a firewall rule that admits IAP's source range and IAM authorization through the IAP-secured Tunnel User role, and all sessions are recorded in Cloud Audit Logs.",
     "whyWrong": {
-      "0": "Incorrect distractor (Set up Cloud VPN from each engineer's home network to the VPC and allo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Assign ephemeral external IPs to the VMs only during incidents and rem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Deploy a single hardened bastion VM with an external IP and require en…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires per-engineer VPN infrastructure and is network-, not identity-based.",
+      "2": "Option C violates the policy and creates exposure windows.",
+      "4": "Option E violates the no-bastion policy and reintroduces an internet-facing host to patch."
     }
   },
   {
@@ -491,9 +491,9 @@
     ],
     "hint": "Core Rule: OS Login links Linux account access to Google identities and IAM roles, so revoking the role revokes access instantly; it supports 2-step verification, and the compute.requireOsLogin constraint guarantees that every project uses it instead of metadata SSH keys.",
     "whyWrong": {
-      "0": "Incorrect distractor (Write a script that removes a user's SSH keys from every project's met…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Rotate all SSH keys weekly and distribute the new keys to current admi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Install an LDAP client on every VM and connect it to a Managed Microso…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A remains manual and error-prone.",
+      "1": "Option B does not address individual revocation or 2FA and rotates shared secrets.",
+      "2": "Option C adds directory infrastructure and agents to maintain and still does not tie access to Google Cloud IAM."
     }
   },
   {
@@ -520,9 +520,9 @@
     ],
     "hint": "Core Rule: Chrome Enterprise Premium is Google's zero-trust access solution: IAP provides identity-based, per-application access (including on-premises apps via the connector), Access Context Manager access levels use Endpoint Verification device attributes, and Chrome Enterprise policies add browser-level DLP and threat protection, all without a VPN.",
     "whyWrong": {
-      "1": "Incorrect distractor (Replace the VPN with Cloud VPN and require contractors to install the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Put all applications behind a global external Application Load Balance…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant contractors Cloud Identity accounts and require them to use Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B keeps a network-perimeter model and installs corporate software on personal devices.",
+      "2": "Option C is IP-based rather than identity- and device-aware, and residential IPs change.",
+      "3": "Option D is an awkward workaround that is neither user-friendly nor device-aware."
     }
   },
   {
@@ -549,9 +549,9 @@
     ],
     "hint": "Core Rule (Log routing): An aggregated sink at the organization level with include-children automatically covers new projects, Pub/Sub provides near-real-time delivery to external SIEMs, and sink filters can exclude specific log types from specific projects to control volume.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a log sink in each project that routes audit logs to a central …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure the SIEM to poll the Cloud Logging API for each project ever…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export all audit logs to BigQuery and have the SIEM run scheduled quer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires per-project maintenance and misses new projects until someone adds a sink.",
+      "2": "Option C introduces polling latency, per-project configuration and a long-lived service account key.",
+      "3": "Option D is batch-oriented rather than streaming and adds storage cost."
     }
   },
   {
@@ -580,9 +580,9 @@
     ],
     "hint": "Core Rule (Identity-Aware Proxy): Google's guidance for securing IAP-protected applications is defense in depth: restrict network access so the backends accept traffic only from Google's proxy and health-check ranges (and have no direct external exposure), and have the application verify the IAP-signed JWT header so that requests that did not pass through IAP are rejected.",
     "whyWrong": {
-      "1": "Incorrect distractor (Enable Cloud CDN on the backend service so that requests are only serv…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the application to a regional internal Application Load Balancer,…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Add an IAM deny policy that denies the IAP-secured Web App User role t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is a caching feature and does not restrict direct access.",
+      "3": "Option D is incorrect because IAP works with external Application Load Balancers.",
+      "4": "Option E addresses who can be authorized in IAP but does nothing about traffic that bypasses IAP entirely."
     }
   },
   {
@@ -609,9 +609,9 @@
     ],
     "hint": "Core Rule: A centralized Cloud Logging bucket with custom retention and Log Analytics enabled lets analysts run SQL over audit logs without operating a separate export pipeline, and an aggregated sink guarantees organization-wide coverage including new projects; a linked BigQuery dataset can be created for advanced use without duplicating ingestion.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the retention of every project's _Default bucket to 400 days …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create per-project sinks to BigQuery with partitioned tables and have …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Security Command Center Premium, which retains all audit logs f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A keeps data scattered across projects, does not extend Data Access retention centrally, and Logs Explorer is not SQL.",
+      "1": "Option B works but is per-project and duplicates ingestion and storage, which the company wants to avoid.",
+      "3": "Option D is wrong because Security Command Center does not act as a long-term audit log store."
     }
   },
   {
@@ -638,9 +638,9 @@
     ],
     "hint": "Core Rule: Cloud Armor supports geography-based rules (origin.region_code) and rate-based throttling and banning per client, enforced at Google's edge before traffic reaches the backend; this stops the abuse with configuration only.",
     "whyWrong": {
-      "0": "Incorrect distractor (Scale out the backend with a larger managed instance group and add Mem…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Add CAPTCHA logic to the login endpoint in the application code and de…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure VPC firewall rules on the backend VMs that block the attacke…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A absorbs the attack at higher cost rather than stopping it.",
+      "1": "Option B requires application changes and still consumes backend resources for every attempt.",
+      "2": "Option C is reactive, does not scale to changing sources, and VPC firewall rules do not see client IPs behind the proxy-based load balancer without additional configuration."
     }
   },
   {
@@ -667,9 +667,9 @@
     ],
     "hint": "Core Rule: Security Command Center Enterprise is Google's multi-cloud CNAPP tier: it ingests AWS resources and findings, performs attack path simulation, and includes Google Security Operations case management and SOAR playbooks for response.",
     "whyWrong": {
-      "1": "Incorrect distractor (Security Command Center Standard in Google Cloud plus AWS Security Hub…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Cloud IDS in Google Cloud and Amazon GuardDuty in AWS, with findings f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Google Cloud Assured Workloads, which provides multi-cloud compliance …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B splits visibility across two tools with manual correlation.",
+      "2": "Option C covers only network and threat detection, with no posture management or case management.",
+      "3": "Option D is a compliance-controls product for Google Cloud folders, not a multi-cloud CNAPP."
     }
   },
   {
@@ -696,9 +696,9 @@
     ],
     "hint": "Core Rule (VPC Service Controls): For serverless products to operate inside a perimeter, their traffic must egress through the VPC so it originates from a network inside the perimeter; Cloud Run supports this with Direct VPC egress or a connector plus Private Google Access, and restricting ingress to internal removes public exposure, while the run.* organization policy constraints ensure new services comply.",
     "whyWrong": {
-      "0": "Incorrect distractor (Remove Cloud Storage from the perimeter's restricted services so that …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Grant the Cloud Run service account the Storage Admin role so that VPC…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the buckets to a project outside the perimeter and create an ingr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A weakens the perimeter for everyone.",
+      "2": "Option C is incorrect because VPC Service Controls evaluates request context, not IAM roles.",
+      "3": "Option D moves sensitive data outside the protection it needs."
     }
   },
   {
@@ -725,9 +725,9 @@
     ],
     "hint": "Core Rule (Cloud Audit Logs): Data Access audit log configuration supports exempted principals per service and log type, so the high-volume service account can be excluded from DATA_READ logging while every human access continues to be recorded.",
     "whyWrong": {
-      "0": "Incorrect distractor (Disable Data Access audit logs for Cloud Storage and instead rely on V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a log exclusion filter in the _Default sink that drops all Clou…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move the transcoding pipeline to a different project so that its reads…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A removes the required visibility entirely and VPC Flow Logs do not show object-level access.",
+      "1": "Option B drops the human-access logs the team needs along with the noise.",
+      "2": "Option C is disruptive, still generates the logs (and cost) until deletion, and weakens audit integrity."
     }
   }
 ]

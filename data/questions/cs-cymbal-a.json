@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Gemini attribute generation): The requirement combines text and image inputs and demands output that aligns with a per-category schema; Gemini's multimodal understanding handles both inputs in one call, and controlled generation (response schema / JSON mode) guarantees structurally valid output with the exact attribute names and allowed values, which minimizes post-processing errors.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use the Cloud Vision API label detection on the product images and map…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Train a separate AutoML classification model for every attribute in ev…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Use Document AI to parse supplier PDF spec sheets and store every extr…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A gives generic labels, not category-specific attributes, and the lookup table becomes a maintenance burden.",
+      "1": "Option B would mean hundreds of models to train and maintain across sub-verticals.",
+      "3": "Option D extracts whatever the supplier document contains rather than deriving attributes aligned to Cymbal's taxonomy, and it ignores images."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Imagen image generation and editing): Imagen on Vertex AI offers managed image editing: mask-based editing to change the product's color, background editing and product recontextualization to place the item in new scenes, and upscaling, all through an API that scales without model training; rendering text overlays deterministically (or with Imagen text rendering plus review) keeps promotional copy exact, and HITL review satisfies the case study's quality gate.",
     "whyWrong": {
-      "1": "Incorrect distractor (Use a Gemini text model to write detailed creative briefs for each var…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the Cloud Vision API to recolor the product and swap backgrounds p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Train a custom generative adversarial network on Vertex AI Training wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is manual and slow, contradicting the automation goal.",
+      "2": "Option C is wrong because the Vision API analyzes images; it does not generate or edit them.",
+      "3": "Option D requires ML expertise, training data, GPUs/TPUs and months of effort for something a managed model already does."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule: Vertex AI Search for commerce (the Discovery AI retail solution named in the case study) is purpose-built for product catalogs: it understands natural-language intent, applies query expansion and spelling correction, returns facets and filters such as price, and continuously improves ranking from user events, all as a managed service that scales with the catalog.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add full-text indexes to the MySQL product tables and rewrite the quer…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy an Elasticsearch cluster on GKE and hand-author synonym and ran…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Index the website's HTML pages with generic Vertex AI Search website s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A still performs lexical matching and cannot interpret intent or attributes like price.",
+      "1": "Option B is a large self-managed system requiring ongoing relevance tuning by Cymbal's team.",
+      "2": "Option C indexes pages rather than structured products and lacks retail-specific features such as user-event-driven ranking and revenue optimization."
     }
   },
   {
@@ -111,9 +111,9 @@
     ],
     "hint": "Core Rule (Conversational Agents for commerce): Conversational Agents (Dialogflow CX) provides the managed conversational layer: generative playbooks handle open-ended dialogue, tools ground responses in real product data by calling Vertex AI Search for commerce and Cymbal's own APIs, built-in analytics and versioning keep operations manageable, and integrations exist for web and mobile.",
     "whyWrong": {
-      "0": "Incorrect distractor (Call the Gemini API directly from the mobile app with an embedded API …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Speech-to-Text and Cloud Translation to normalize messages, then m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Train a BigQuery ML intent classifier and return the results of a para…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A exposes a credential in a client app, has no grounding in the live catalog (so it hallucinates products and prices), and lacks conversation management.",
+      "2": "Option C is a brittle keyword bot that cannot satisfy the natural-language requirement.",
+      "3": "Option D delivers rigid, non-conversational lookups and puts a warehouse on the request path."
     }
   },
   {
@@ -141,9 +141,9 @@
     ],
     "hint": "Core Rule (Human-in-the-loop review application): Cloud Run scales to zero and to bursts automatically, Identity-Aware Proxy restricts the tool to authenticated associates without VPNs, Firestore is a serverless document store that fits the variable-shape candidate records and review state, and Pub/Sub decouples approval from the many downstream channel updates; the whole stack has no servers or databases to patch.",
     "whyWrong": {
-      "0": "Incorrect distractor (Email the generated content to associates as attachments and have them…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Build the review UI on a GKE Standard cluster with a self-managed Post…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Share generated content in a Google Sheet per associate and poll the s…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is unauditable and error-prone.",
+      "1": "Option B works but requires Cymbal to operate a cluster and a database for an internal tool, which contradicts the least-overhead constraint.",
+      "3": "Option D does not scale to tens of thousands of items and offers no proper workflow, access control, or audit trail."
     }
   },
   {
@@ -170,9 +170,9 @@
     ],
     "hint": "Core Rule: Vertex AI batch prediction for Gemini is designed for large, latency-tolerant workloads: it accepts input from BigQuery or Cloud Storage, runs asynchronously at scale, and is offered at a discount compared to online requests, so it is the most cost-effective way to process millions of items and nightly feeds.",
     "whyWrong": {
-      "1": "Incorrect distractor (Loop through the SKUs from a single Cloud Run function that makes sync…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Purchase Provisioned Throughput for Gemini and run the back-fill throu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Fine-tune a Gemini model on all five million SKUs first and then gener…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is slow, subject to online quota limits, and pays full online pricing.",
+      "2": "Option C reserves capacity that is priced for steady, latency-sensitive online traffic, an unnecessary expense for a back-fill.",
+      "3": "Option D confuses tuning with generation; tuning does not produce catalog content and would add cost and time before any value is delivered."
     }
   },
   {
@@ -201,9 +201,9 @@
     ],
     "hint": "Core Rule (PCI and PII handling in virtual agents): Two controls address the requirement: Conversational Agents security settings integrate with Sensitive Data Protection to redact PII and card numbers from stored transcripts and logs and let you set retention limits, and keeping card data out of Cymbal's environment by delegating payment capture to a PCI-compliant processor with tokenization dramatically reduces PCI scope.",
     "whyWrong": {
-      "1": "Incorrect distractor (Log the complete raw conversation transcripts to BigQuery so analysts …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Embed a Google Cloud API key in the mobile app so the agent can call t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Disable Cloud Audit Logs for the agent project to avoid recording cust…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B stores unredacted PII and potentially PANs, expanding compliance scope.",
+      "3": "Option D exposes a credential in a public client.",
+      "4": "Option E removes the audit trail regulators expect; audit logs record administrative and access activity, not conversation content."
     }
   },
   {
@@ -231,9 +231,9 @@
     ],
     "hint": "Core Rule (Contact center modernization): The cost driver is human handling of routine orders; a generative voice agent built on Conversational Agents can understand natural speech, use tools to look up products and place orders in the order system, and contain most calls, while Agent Assist shortens handle time for the calls that still reach humans by transcribing, suggesting knowledge, and summarizing.",
     "whyWrong": {
-      "0": "Incorrect distractor (Add more IVR menu levels and hold-time announcements to deflect a larg…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Outsource the call center to a lower-cost region and keep the existing…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Speech-to-Text to transcribe every call and email the transcript t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A frustrates customers and lowers satisfaction rather than removing work.",
+      "1": "Option B moves cost around without automating the manual process.",
+      "2": "Option C adds latency and still requires manual order entry, so staffing cost does not fall."
     }
   },
   {
@@ -260,9 +260,9 @@
     ],
     "hint": "Core Rule (Cloud Observability consolidation): Cloud Observability provides managed metrics, logs, traces, dashboards, uptime checks, and alerting with paging integrations, so Cymbal stops operating three monitoring stacks while gaining proactive alerts; because Managed Service for Prometheus is PromQL-compatible, existing Grafana dashboards can point at it, easing the transition for the SRE team.",
     "whyWrong": {
-      "0": "Incorrect distractor (Migrate Nagios and Elastic to run on GKE so that all three tools are a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Purchase a third-party SaaS APM product for the new services and keep …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export all metrics and logs to Cloud Storage buckets and review them w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A only relocates the maintenance burden.",
+      "2": "Option C adds yet another tool and keeps the fragmentation.",
+      "3": "Option D is storage, not monitoring; it provides no alerting and no proactive capability."
     }
   },
   {
@@ -289,9 +289,9 @@
     ],
     "hint": "Core Rule (Storage Transfer Service for on-premises files): Storage Transfer Service with on-premises agents is the managed way to move data from POSIX file systems to Cloud Storage: it handles scheduling, retries, integrity checks, and bandwidth limits with no servers for Cymbal to run, and Cloud Storage object-finalized events through Eventarc start processing immediately, replacing the manual SFTP step and the polling batch job.",
     "whyWrong": {
-      "0": "Incorrect distractor (Run an SFTP server on a Compute Engine VM and schedule a cron job that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Have the operator upload the files manually with gcloud storage cp aft…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Ship the files to Google on a Transfer Appliance every week.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A keeps a VM and SFTP server to patch and monitor.",
+      "1": "Option B is a manual process that the case study explicitly wants to eliminate.",
+      "3": "Option D is for one-time bulk transfers of very large datasets, not for files produced several times per day."
     }
   },
   {
@@ -319,9 +319,9 @@
     ],
     "hint": "Core Rule (Breaking data silos with BigQuery): BigQuery is the natural hub: Datastream performs low-impact change data capture from MySQL and SQL Server (MongoDB can be loaded via Dataflow or Atlas connectors), Pub/Sub and Dataflow ingest streaming events, and the resulting datasets feed dashboards, BigQuery ML, and Vertex AI Search for commerce user events.",
     "whyWrong": {
-      "1": "Incorrect distractor (Have the web application run federated queries across all databases in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Consolidate every data source into one large Cloud SQL instance that b…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export nightly CSV files from each system to Cloud Storage and run Dat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B couples the customer-facing app to every database, harms latency, and does not create a persistent unified view.",
+      "2": "Option C mixes OLTP and analytics in one instance, creating a scaling and availability bottleneck.",
+      "3": "Option D is batch-only with a day of lag and requires cluster management."
     }
   },
   {
@@ -348,9 +348,9 @@
     ],
     "hint": "Core Rule (Responsible AI for generated images): Imagen on Vertex AI applies configurable safety filters to prompts and outputs, embeds an imperceptible SynthID watermark in generated images that survives common edits, and offers a verification API that reports whether an image carries the watermark, giving Cymbal technical evidence of AI origin; HITL approval keeps a human accountable for publication.",
     "whyWrong": {
-      "0": "Incorrect distractor (Disable the Imagen safety filters to reduce false rejections and rely …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Stamp a visible 'AI' label onto every generated image with the Cloud V…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store every prompt in Cloud SQL so that the origin of any image can be…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A removes an automated control and pushes all risk onto reviewers.",
+      "2": "Option C alters the creative asset and a visible label can be cropped away, so it is not proof.",
+      "3": "Option D records intent, not the image itself, and cannot prove a given published image was generated."
     }
   },
   {
@@ -378,9 +378,9 @@
     ],
     "hint": "Core Rule (Cloud SQL for MySQL with read replicas): Database Migration Service provides minimal-downtime homogeneous migration, Cloud SQL HA keeps the primary resilient, read replicas scale the read-heavy browse traffic horizontally, and a Memorystore cache absorbs promotional spikes, all without changing SQL or drivers.",
     "whyWrong": {
-      "0": "Incorrect distractor (Rewrite the catalog service to use Spanner and perform a bulk load of …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Move MySQL to Compute Engine VMs with the same version and configurati…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate the catalog to BigQuery and point the web application at it fo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A imposes a re-platform and an outage that the constraints forbid.",
+      "1": "Option B keeps the team managing database servers and scales only vertically.",
+      "2": "Option C is wrong because BigQuery is an analytical warehouse with per-query latency unsuitable for transactional product page lookups."
     }
   },
   {
@@ -407,9 +407,9 @@
     ],
     "hint": "Core Rule (Agent versions and environments): Conversational Agents (Dialogflow CX) natively supports immutable versions and environments; the draft is used for development, a version is promoted into test and staging environments where test cases run, and production traffic is served by the production environment, so rollback is simply re-pointing that environment to an earlier version.",
     "whyWrong": {
-      "1": "Incorrect distractor (Continue editing the draft agent directly, but only during low-traffic…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a separate Google Cloud project for every release and switch th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export the agent as a JSON file to a shared drive after each change so…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B still ships untested changes to customers.",
+      "2": "Option C is heavyweight, breaks conversation analytics continuity, and is not how agent releases are managed.",
+      "3": "Option D is a manual backup, not a release process, and re-import is slow and error-prone."
     }
   },
   {
@@ -436,9 +436,9 @@
     ],
     "hint": "Core Rule (Grounding to prevent hallucination): Hallucination is prevented by retrieval, not memorization: tool calls to Vertex AI Search for commerce and to inventory and pricing services return authoritative data at request time, playbook instructions constrain the agent to those results, and a lower temperature reduces creative deviation, which improves engagement and reduces returns as the business requires.",
     "whyWrong": {
-      "0": "Incorrect distractor (Increase the model temperature so that the agent produces more varied …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Fine-tune a Gemini model on the full catalog every night so the model …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add a disclaimer to every response stating that prices and availabilit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A increases randomness and worsens the problem.",
+      "1": "Option B is expensive, always stale by design, and tuning does not reliably inject factual data.",
+      "3": "Option D shifts blame to the customer instead of fixing accuracy."
     }
   },
   {
@@ -467,9 +467,9 @@
     ],
     "hint": "Core Rule (Securing the gen AI pipeline): Model Armor is the Google Cloud service for screening LLM prompts and responses against prompt injection, jailbreaks, and harmful or sensitive content, which addresses untrusted supplier input; Identity-Aware Proxy provides zero-trust, per-user access with device and location context, which is the recommended way to expose internal tools to a distributed workforce.",
     "whyWrong": {
-      "0": "Incorrect distractor (Protect the review UI with a single shared password that is rotated mo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Bake a service account key into the review UI's frontend so that it ca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Turn off Cloud Logging for the enrichment pipeline so that supplier te…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is shared-credential access with no per-user audit trail.",
+      "2": "Option C exposes a long-lived credential in client code.",
+      "4": "Option E removes observability and audit evidence instead of addressing the threat."
     }
   },
   {
@@ -496,9 +496,9 @@
     ],
     "hint": "Core Rule (Measuring business impact with A/B testing): A randomized A/B test isolates the effect of the new search from seasonality, promotions, and marketing spend, and Vertex AI Search for commerce supports multiple serving configurations so traffic can be split and events attributed; analyzing conversion, revenue per visitor, and returns in BigQuery ties the result directly to the business requirements of driving conversion and reducing returns.",
     "whyWrong": {
-      "0": "Incorrect distractor (Switch all traffic to the new search and compare this month's revenue …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Survey a sample of customers about whether they liked the new search e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Compare the number of search queries executed per day before and after…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is confounded by everything else that changed between months.",
+      "2": "Option C measures sentiment, not conversion.",
+      "3": "Option D measures activity, and more queries could even indicate customers failing to find products."
     }
   },
   {
@@ -525,9 +525,9 @@
     ],
     "hint": "Core Rule (Serving product images with Cloud CDN): Cloud Storage offers durable, low-cost object storage that scales to millions of objects, and Cloud CDN in front of a global external Application Load Balancer caches images at Google edge locations so shoppers receive them with low latency and origin egress costs drop during promotions (performance and cost-optimization pillars).",
     "whyWrong": {
-      "0": "Incorrect distractor (Store the images on persistent disks attached to the GKE web pods and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Store the images as BLOBs in Cloud SQL and stream them through the web…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the images on a Filestore share mounted by Compute Engine web se…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A ties storage to pods, wastes container resources on static serving, and complicates scaling.",
+      "1": "Option B misuses a relational database and adds CPU and latency for every image.",
+      "3": "Option D is single-region, limited in throughput, and more expensive per gigabyte than Cloud Storage."
     }
   },
   {
@@ -555,9 +555,9 @@
     ],
     "hint": "Core Rule (ETL error handling and remediation): Reliable data pipelines isolate bad records into a dead-letter location so the rest of the batch completes, retry transient failures automatically, alert humans only when intervention is truly needed, and validate data quality before downstream systems are affected; Cloud Composer gives dependency-aware orchestration and Dataflow provides scalable processing with built-in dead-letter patterns.",
     "whyWrong": {
-      "0": "Incorrect distractor (Extend the nightly batch window so that engineers have more time to re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Wrap the parsing code in exception handlers that skip malformed rows w…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Keep the current jobs but assign an operator to check the job status m…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A treats the symptom and still relies on manual reruns.",
+      "1": "Option B hides data loss, which contradicts the accuracy requirement.",
+      "2": "Option C institutionalizes the manual process the company wants to remove."
     }
   },
   {
@@ -587,9 +587,9 @@
     ],
     "hint": "Core Rule (Gen AI cost optimization): Two levers cut gen AI spend without hurting outcomes: right-size the model to the task (Flash-class models are much cheaper per token and adequate for structured attribute extraction, with the evaluation service confirming quality) and use batch prediction for latency-tolerant volume, which is discounted relative to online calls.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use the largest Pro-class model with maximum thinking budget for every…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Self-host an open model on GPU node pools in GKE so that there is no p…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Switch to the retired PaLM 2 text model because older models are cheap…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A maximizes cost by design.",
+      "2": "Option C replaces token charges with always-on GPU cost plus MLOps burden, which is rarely cheaper at Cymbal's scale and contradicts the reduced-operations goal.",
+      "4": "Option E is not viable because PaLM 2 is retired, and it would reduce quality."
     }
   }
 ]

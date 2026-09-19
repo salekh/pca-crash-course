@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule: Cloud Monitoring metrics scopes let one scoping project view, chart, and alert on metrics from many monitored projects, which is the recommended approach for multi-project observability; Google recommends a dedicated, otherwise-empty scoping project so that its lifecycle is independent of workloads.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export the metrics of each project to BigQuery with a scheduled job an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy a self-managed Prometheus server in each project and federate t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Grant the SRE team the Monitoring Viewer role in each project and have…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Export the metrics of each project to BigQuery with a scheduled job and build the dashboards in Looker Studio on top of the exported tables\") is incorrect because it does not meet the scenario's core requirement; Option B (Create a dedicated scoping project, add the 40 projects to i) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Deploy a self-managed Prometheus server in each project and federate them into a central Grafana instance\") is incorrect because it does not meet the scenario's core requirement; Option B (Create a dedicated scoping project, add the 40 projects to i) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Grant the SRE team the Monitoring Viewer role in each project and have them switch projects in the console when they need to compare metrics\") is incorrect because it does not meet the scenario's core requirement; Option B (Create a dedicated scoping project, add the 40 projects to i) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule: Synthetic monitors in Cloud Monitoring run custom scripts (for example, Puppeteer-based browser journeys) as Cloud Run functions on a schedule, record pass/fail and execution latency as metrics, and integrate directly with alerting, which is exactly what a multi-step, JavaScript-dependent user journey needs.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Cloud Monitoring HTTP uptime check against the login URL that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Deploy a Compute Engine VM running a cron job with Selenium that execu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable global external Application Load Balancer logging and create a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Create a Cloud Monitoring HTTP uptime check against the login URL that expects an HTTP 200 response and alerts when the check fails\") is incorrect because it does not meet the scenario's core requirement; Option D (Create a Cloud Monitoring synthetic monitor that runs a Pupp) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Deploy a Compute Engine VM running a cron job with Selenium that executes the journey and writes results to a Cloud Storage bucket\") is incorrect because it does not meet the scenario's core requirement; Option D (Create a Cloud Monitoring synthetic monitor that runs a Pupp) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable global external Application Load Balancer logging and create a log-based alert when the order endpoint returns no traffic for five minutes\") is incorrect because it does not meet the scenario's core requirement; Option D (Create a Cloud Monitoring synthetic monitor that runs a Pupp) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Aggregated log sinks): An aggregated sink created at the organization (or folder) level with includeChildren set to true routes matching log entries from all projects underneath, including projects created later, and because it lives at the organization level, project owners cannot modify or delete it.",
     "whyWrong": {
-      "1": "Incorrect distractor (Create a sink in each existing project that routes audit logs to the c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable BigQuery export in the Cloud Billing account settings so that a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a Cloud Run function triggered by Pub/Sub that copies audit log…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Create a sink in each existing project that routes audit logs to the compliance BigQuery dataset, and document that new projects must add the same sink during onboarding\") is incorrect because it does not meet the scenario's core requirement; Option A (Create an aggregated sink at the organization level with the) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable BigQuery export in the Cloud Billing account settings so that audit logs from all projects are exported alongside billing data\") is incorrect because it does not meet the scenario's core requirement; Option A (Create an aggregated sink at the organization level with the) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Create a Cloud Run function triggered by Pub/Sub that copies audit log entries from each project's _Default bucket into BigQuery every hour\") is incorrect because it does not meet the scenario's core requirement; Option A (Create an aggregated sink at the organization level with the) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (Log bucket retention and locking): User-defined log buckets support custom retention up to 3,650 days, and locking a bucket makes its retention policy immutable: the bucket cannot be deleted and retention cannot be reduced until every entry has expired, which is the property the regulator asks for while keeping the logs queryable in Logs Explorer and Log Analytics.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the audit logs in the _Default log bucket and set its retention t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Route the audit logs to a Cloud Storage bucket with a retention policy…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export the audit logs to BigQuery with a table expiration of seven yea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Keep the audit logs in the _Default log bucket and set its retention to 2,555 days, relying on IAM to prevent changes\") is incorrect because it does not meet the scenario's core requirement; Option C (Create a dedicated user-defined log bucket with a retention ) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Route the audit logs to a Cloud Storage bucket with a retention policy and delete them from Cloud Logging to reduce cost\") is incorrect because it does not meet the scenario's core requirement; Option C (Create a dedicated user-defined log bucket with a retention ) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Export the audit logs to BigQuery with a table expiration of seven years and restrict the dataset with VPC Service Controls\") is incorrect because it does not meet the scenario's core requirement; Option C (Create a dedicated user-defined log bucket with a retention ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -139,9 +139,9 @@
     ],
     "hint": "Core Rule (Logging cost control): Cloud Logging charges primarily on ingestion volume, so the most direct saving is to stop ingesting the unneeded entries; an exclusion filter on the _Default sink scoped to that container's low-severity entries prevents them from being stored and billed while preserving WARNING and ERROR entries and leaving other workloads untouched.",
     "whyWrong": {
-      "0": "Incorrect distractor (Reduce the retention period of the _Default log bucket from 30 days to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Route all logs from the project to a Cloud Storage bucket and disable …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a log-based metric that counts DEBUG entries so that the team c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Reduce the retention period of the _Default log bucket from 30 days to 7 days for the entire project\") is incorrect because it does not meet the scenario's core requirement; Option B (Add an exclusion filter to the _Default sink that drops entr) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Route all logs from the project to a Cloud Storage bucket and disable ingestion into the _Default bucket\") is incorrect because it does not meet the scenario's core requirement; Option B (Add an exclusion filter to the _Default sink that drops entr) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Create a log-based metric that counts DEBUG entries so that the team can see how much they are logging\") is incorrect because it does not meet the scenario's core requirement; Option B (Add an exclusion filter to the _Default sink that drops entr) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -168,9 +168,9 @@
     ],
     "hint": "Core Rule: Data Access audit logs are chargeable and can be extremely voluminous; the configuration should be scoped to what compliance actually needs.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep organization-wide Data Access logging enabled and reduce the log …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Disable Data Access audit logs entirely and rely on Admin Activity aud…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Keep the current configuration but create a log-based metric that excl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Keep organization-wide Data Access logging enabled and reduce the log bucket retention to one day so that storage costs drop\") is incorrect because it does not meet the scenario's core requirement; Option D (Narrow the Data Access audit log configuration so that DATA_) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Disable Data Access audit logs entirely and rely on Admin Activity audit logs, which are free and always enabled\") is incorrect because it does not meet the scenario's core requirement; Option D (Narrow the Data Access audit log configuration so that DATA_) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Keep the current configuration but create a log-based metric that excludes the noisy buckets from dashboards\") is incorrect because it does not meet the scenario's core requirement; Option D (Narrow the Data Access audit log configuration so that DATA_) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -199,9 +199,9 @@
     ],
     "hint": "Core Rule (Network logging): VPC Flow Logs record sampled network flows between VMs, subnets, and on-premises destinations, including bytes and packets, which is the right data source both for detecting unexpected east-west traffic and for estimating the volume that would cross an interconnect.",
     "whyWrong": {
-      "1": "Incorrect distractor (Data Access audit logs for the Compute Engine API so that every packet…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Cloud CDN logging so that cache misses reveal the internal traffic pat…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Cloud DNS query logging on the public managed zones): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Data Access audit logs for the Compute Engine API so that every packet is recorded\") is incorrect because it does not meet the scenario's core requirement; Option A (VPC Flow Logs on the relevant subnets, with an appropriate s), Option D (Firewall Rules Logging on the deny rules and on the rules th) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Cloud CDN logging so that cache misses reveal the internal traffic pattern\") is incorrect because it does not meet the scenario's core requirement; Option A (VPC Flow Logs on the relevant subnets, with an appropriate s), Option D (Firewall Rules Logging on the deny rules and on the rules th) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"Cloud DNS query logging on the public managed zones\") is incorrect because it does not meet the scenario's core requirement; Option A (VPC Flow Logs on the relevant subnets, with an appropriate s), Option D (Firewall Rules Logging on the deny rules and on the rules th) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -228,9 +228,9 @@
     ],
     "hint": "Core Rule: Managed Service for Prometheus stores metrics in the same globally scaled backend as Cloud Monitoring, retains them for 24 months, provides a Prometheus-compatible query API that Grafana can use unchanged, and supports PromQL in Cloud Monitoring alerting, so existing dashboards and rules carry over with minimal rework and no Prometheus servers to size.",
     "whyWrong": {
-      "0": "Incorrect distractor (Replace Prometheus with the Ops Agent on every node and rebuild the da…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Increase the memory of the Prometheus nodes and configure remote write…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export Prometheus metrics to BigQuery through a custom exporter and bu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Replace Prometheus with the Ops Agent on every node and rebuild the dashboards in Cloud Monitoring using MQL\") is incorrect because it does not meet the scenario's core requirement; Option C (Enable Google Cloud Managed Service for Prometheus with mana) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Increase the memory of the Prometheus nodes and configure remote write to a self-managed Thanos deployment for long-term storage\") is incorrect because it does not meet the scenario's core requirement; Option C (Enable Google Cloud Managed Service for Prometheus with mana) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Export Prometheus metrics to BigQuery through a custom exporter and build cross-cluster dashboards in Looker Studio\") is incorrect because it does not meet the scenario's core requirement; Option C (Enable Google Cloud Managed Service for Prometheus with mana) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -257,9 +257,9 @@
     ],
     "hint": "Core Rule: Guest-level telemetry such as memory, disk, and application log files requires an agent inside the VM; the Ops Agent is Google's unified logging and metrics agent, and agent policies in VM Manager install and maintain it automatically across a fleet, minimizing toil.",
     "whyWrong": {
-      "1": "Incorrect distractor (Write a cron job on each VM that runs free and df every minute and pos…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Data Access audit logs for Compute Engine so that VM memory usa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable VPC Flow Logs on the subnet so that application activity can be…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Write a cron job on each VM that runs free and df every minute and posts the values to the Cloud Monitoring API\") is incorrect because it does not meet the scenario's core requirement; Option A (Install the Ops Agent on the VMs using a VM Manager agent po) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable Data Access audit logs for Compute Engine so that VM memory usage is recorded\") is incorrect because it does not meet the scenario's core requirement; Option A (Install the Ops Agent on the VMs using a VM Manager agent po) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Enable VPC Flow Logs on the subnet so that application activity can be inferred from network traffic\") is incorrect because it does not meet the scenario's core requirement; Option A (Install the Ops Agent on the VMs using a VM Manager agent po) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -286,9 +286,9 @@
     ],
     "hint": "Core Rule: Multi-window, multi-burn-rate alerting is the SRE-recommended pattern: a high burn rate over a short window catches fast outages quickly and is worth paging, while a low burn rate over a long window catches slow leaks like the day-long degradation, and the short window in each pair makes the alert reset promptly once the problem stops.",
     "whyWrong": {
-      "0": "Incorrect distractor (Keep the single five-minute threshold but add a 30-minute alert delay …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace the SLO alert with an uptime check every minute from six regio…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Lower the SLO to 99.5% so that the existing five-minute threshold aler…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Keep the single five-minute threshold but add a 30-minute alert delay so that short blips do not page\") is incorrect because it does not meet the scenario's core requirement; Option B (Create two burn-rate alerting policies on the SLO: a fast-bu) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Replace the SLO alert with an uptime check every minute from six regions and page when two consecutive checks fail\") is incorrect because it does not meet the scenario's core requirement; Option B (Create two burn-rate alerting policies on the SLO: a fast-bu) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Lower the SLO to 99.5% so that the existing five-minute threshold alert fires less frequently\") is incorrect because it does not meet the scenario's core requirement; Option B (Create two burn-rate alerting policies on the SLO: a fast-bu) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -315,9 +315,9 @@
     ],
     "hint": "Core Rule: Log-based metrics turn matching log entries into Cloud Monitoring time series without any application change; a counter metric with a label extracted from the reason code supports per-reason charts, and the resulting metric can drive a standard alerting policy in near real time.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a log sink to BigQuery and schedule a query every five minutes …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Error Reporting on the Cloud Run service so that declines are g…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Add Cloud Trace instrumentation to the payment path and alert on trace…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Create a log sink to BigQuery and schedule a query every five minutes that sends an email when the count exceeds a threshold\") is incorrect because it does not meet the scenario's core requirement; Option D (Create a counter log-based metric filtered on the event fiel) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Enable Error Reporting on the Cloud Run service so that declines are grouped and counted automatically\") is incorrect because it does not meet the scenario's core requirement; Option D (Create a counter log-based metric filtered on the event fiel) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Add Cloud Trace instrumentation to the payment path and alert on trace span counts with the decline attribute\") is incorrect because it does not meet the scenario's core requirement; Option D (Create a counter log-based metric filtered on the event fiel) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -344,9 +344,9 @@
     ],
     "hint": "Core Rule: Distributed tracing is the tool designed for this problem: with trace context propagated across every hop, Cloud Trace shows a waterfall of spans per request so the specific service or external call responsible for the tail latency is immediately visible, and the analysis reports compare latency distributions over time.",
     "whyWrong": {
-      "1": "Incorrect distractor (Enable Cloud Profiler on every service to capture CPU and heap profile…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Increase the logging level to DEBUG on all services and correlate time…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Add an uptime check for each microservice so that slow services fail t…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Enable Cloud Profiler on every service to capture CPU and heap profiles and compare flame graphs across services\") is incorrect because it does not meet the scenario's core requirement; Option A (Instrument the services with OpenTelemetry to propagate trac) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Increase the logging level to DEBUG on all services and correlate timestamps manually in Logs Explorer\") is incorrect because it does not meet the scenario's core requirement; Option A (Instrument the services with OpenTelemetry to propagate trac) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Add an uptime check for each microservice so that slow services fail the check and become visible\") is incorrect because it does not meet the scenario's core requirement; Option A (Instrument the services with OpenTelemetry to propagate trac) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -373,9 +373,9 @@
     ],
     "hint": "Core Rule: Cloud Profiler is designed for exactly this case: it samples CPU, heap, and other profiles from production processes with very low overhead, aggregates them, and displays flame graphs that pinpoint hot code paths; comparing profiles across versions shows what changed over the past six months.",
     "whyWrong": {
-      "0": "Incorrect distractor (Cloud Trace, to view the latency of each request handled by the servic…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Error Reporting, to identify exceptions that might be consuming CPU du…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (VPC Flow Logs, to correlate CPU usage with the volume of incoming netw…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Cloud Trace, to view the latency of each request handled by the service\") is incorrect because it does not meet the scenario's core requirement; Option C (Cloud Profiler, which continuously collects low-overhead CPU) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Error Reporting, to identify exceptions that might be consuming CPU during retries\") is incorrect because it does not meet the scenario's core requirement; Option C (Cloud Profiler, which continuously collects low-overhead CPU) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"VPC Flow Logs, to correlate CPU usage with the volume of incoming network traffic\") is incorrect because it does not meet the scenario's core requirement; Option C (Cloud Profiler, which continuously collects low-overhead CPU) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -402,9 +402,9 @@
     ],
     "hint": "Core Rule: Error Reporting ingests exceptions from Cloud Run logs automatically, de-duplicates them into error groups, and can notify when a new error group is first seen, which directly addresses 'unseen exception type' detection without any instrumentation.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a log-based metric for every possible exception class name and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Profiler and review heap profiles daily for abnormal allo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create an uptime check that calls the API and alert when it returns a …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Create a log-based metric for every possible exception class name and an alerting policy for each one\") is incorrect because it does not meet the scenario's core requirement; Option B (Use Error Reporting, which automatically groups stack traces) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable Cloud Profiler and review heap profiles daily for abnormal allocations\") is incorrect because it does not meet the scenario's core requirement; Option B (Use Error Reporting, which automatically groups stack traces) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Create an uptime check that calls the API and alert when it returns a 500 status\") is incorrect because it does not meet the scenario's core requirement; Option B (Use Error Reporting, which automatically groups stack traces) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -431,9 +431,9 @@
     ],
     "hint": "Core Rule: Upgrading a log bucket to use Log Analytics lets you query its logs with SQL directly inside Cloud Logging, including joins and aggregations, without any export pipeline; the bucket's retention and IAM continue to govern the data, and an optional linked BigQuery dataset allows the same data to be queried from BigQuery or Looker Studio.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a log sink to a Cloud Storage bucket and query the exported fil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use the Logs Explorer query language with the aggregate view to approx…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a Dataflow pipeline that reads logs from a Pub/Sub sink and wri…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Create a log sink to a Cloud Storage bucket and query the exported files with BigQuery external tables\") is incorrect because it does not meet the scenario's core requirement; Option D (Route the load balancer and Cloud Armor logs to a log bucket) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Use the Logs Explorer query language with the aggregate view to approximate the join manually\") is incorrect because it does not meet the scenario's core requirement; Option D (Route the load balancer and Cloud Armor logs to a log bucket) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Create a Dataflow pipeline that reads logs from a Pub/Sub sink and writes them to Bigtable for analysis\") is incorrect because it does not meet the scenario's core requirement; Option D (Route the load balancer and Cloud Armor logs to a log bucket) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -460,9 +460,9 @@
     ],
     "hint": "Core Rule (Load balancer logging): The load balancer is the component that generated the 502 responses, so its own request logs are the authoritative source; the statusDetails field explains why the proxy failed the request (for example, backend connection closed before response, backend timeout, or failed health check), which immediately points to the right layer.",
     "whyWrong": {
-      "1": "Incorrect distractor (Enable VPC Flow Logs on the backend subnet and look for dropped packet…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Enable Cloud Profiler on the application to look for slow code paths): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Increase the size of the managed instance group by 50% to rule out cap…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Enable VPC Flow Logs on the backend subnet and look for dropped packets to the VMs\") is incorrect because it does not meet the scenario's core requirement; Option A (Enable logging on the load balancer's backend service and ex) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Enable Cloud Profiler on the application to look for slow code paths\") is incorrect because it does not meet the scenario's core requirement; Option A (Enable logging on the load balancer's backend service and ex) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Increase the size of the managed instance group by 50% to rule out capacity problems\") is incorrect because it does not meet the scenario's core requirement; Option A (Enable logging on the load balancer's backend service and ex) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -489,9 +489,9 @@
     ],
     "hint": "Core Rule: Timeouts that appear only under high concurrency from a NAT gateway are the classic symptom of source port exhaustion; Cloud NAT logging (translation and error events) and the NAT gateway's dropped_sent_packets and port usage metrics show whether connections are being dropped because no ports are available, after which you can increase ports per VM, enable dynamic port allocation, or add NAT IP addresses.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Firewall Rules Logging on the egress allow rule and look for de…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Enable Data Access audit logs on the third-party API project to see th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Cloud Trace on the GKE workloads and look for long spans on out…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Enable Firewall Rules Logging on the egress allow rule and look for denied connections\") is incorrect because it does not meet the scenario's core requirement; Option C (Enable Cloud NAT logging for errors and review the port allo) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Enable Data Access audit logs on the third-party API project to see the rejected calls\") is incorrect because it does not meet the scenario's core requirement; Option C (Enable Cloud NAT logging for errors and review the port allo) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Enable Cloud Trace on the GKE workloads and look for long spans on outbound calls\") is incorrect because it does not meet the scenario's core requirement; Option C (Enable Cloud NAT logging for errors and review the port allo) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -520,9 +520,9 @@
     ],
     "hint": "Core Rule (Notification routing): Cloud Monitoring supports multiple notification channel types, including PagerDuty and Slack, and each alerting policy can target different channels, so mapping paging policies to PagerDuty and informational policies to Slack is native functionality.",
     "whyWrong": {
-      "1": "Incorrect distractor (Configure a single webhook channel that posts to both PagerDuty and Sl…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Increase the auto-close duration of all policies to seven days so that…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (Send all notifications to Pub/Sub only, and build a Cloud Run service …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Configure a single webhook channel that posts to both PagerDuty and Slack, and let the on-call engineer decide which alerts matter\") is incorrect because it does not meet the scenario's core requirement; Option A (Create separate PagerDuty and Slack notification channels an), Option C (Set the severity field (for example, CRITICAL or WARNING) on) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Increase the auto-close duration of all policies to seven days so that fewer notifications are generated\") is incorrect because it does not meet the scenario's core requirement; Option A (Create separate PagerDuty and Slack notification channels an), Option C (Set the severity field (for example, CRITICAL or WARNING) on) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"Send all notifications to Pub/Sub only, and build a Cloud Run service that parses the alert text to decide who to notify\") is incorrect because it does not meet the scenario's core requirement; Option A (Create separate PagerDuty and Slack notification channels an), Option C (Set the severity field (for example, CRITICAL or WARNING) on) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -549,9 +549,9 @@
     ],
     "hint": "Core Rule (GKE observability): GKE offers managed observability packages: control plane metrics (API server, scheduler, controller manager) and kube state metrics can be enabled per cluster and are collected by Google-managed components into Cloud Monitoring, where they can be charted and alerted on with PromQL or MQL, with no customer-managed agents.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy kube-state-metrics and a Prometheus server in each cluster and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Install the Ops Agent on every node with a Kubernetes receiver configu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Enable Data Access audit logs for the Kubernetes Engine API and derive…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Deploy kube-state-metrics and a Prometheus server in each cluster and configure remote write to Cloud Monitoring\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable the GKE control plane metrics and kube state metrics ) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Install the Ops Agent on every node with a Kubernetes receiver configured for the API server\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable the GKE control plane metrics and kube state metrics ) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Enable Data Access audit logs for the Kubernetes Engine API and derive the metrics from log-based metrics\") is incorrect because it does not meet the scenario's core requirement; Option B (Enable the GKE control plane metrics and kube state metrics ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -578,9 +578,9 @@
     ],
     "hint": "Core Rule: Cloud Monitoring private uptime checks use Service Directory to reach endpoints that are only accessible inside a VPC network; registering the internal load balancer as a Service Directory service and targeting it from a private uptime check keeps the endpoint private while giving the same alerting integration as public checks.",
     "whyWrong": {
-      "0": "Incorrect distractor (Assign a public IP to the load balancer temporarily and restrict it to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Replace the uptime check with a cron job on a VM inside the VPC that c…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Convert the uptime check to a TCP check on port 443, which does not re…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Assign a public IP to the load balancer temporarily and restrict it to Google's uptime check IP ranges with a firewall rule\") is incorrect because it does not meet the scenario's core requirement; Option D (Register the internal endpoint as a Service Directory servic) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Replace the uptime check with a cron job on a VM inside the VPC that curls the API and writes a custom metric\") is incorrect because it does not meet the scenario's core requirement; Option D (Register the internal endpoint as a Service Directory servic) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Convert the uptime check to a TCP check on port 443, which does not require public reachability\") is incorrect because it does not meet the scenario's core requirement; Option D (Register the internal endpoint as a Service Directory servic) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -607,9 +607,9 @@
     ],
     "hint": "Core Rule (PromQL alerting): Cloud Monitoring alerting policies support conditions written in PromQL, including arithmetic between series such as ratios, along with a duration and standard notification channels, so the team can use its existing expression directly against metrics ingested by Managed Service for Prometheus without any extra components.",
     "whyWrong": {
-      "1": "Incorrect distractor (Deploy an in-cluster Prometheus Alertmanager and configure it to forwa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create two separate metric-threshold alerting policies, one on the 5xx…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Convert the expression to a log-based metric on the ingress logs and a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Deploy an in-cluster Prometheus Alertmanager and configure it to forward notifications to Cloud Monitoring notification channels through a webhook\") is incorrect because it does not meet the scenario's core requirement; Option A (Create a Cloud Monitoring alerting policy with a PromQL cond) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Create two separate metric-threshold alerting policies, one on the 5xx rate and one on the total rate, and page when both fire\") is incorrect because it does not meet the scenario's core requirement; Option A (Create a Cloud Monitoring alerting policy with a PromQL cond) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Convert the expression to a log-based metric on the ingress logs and alert on that metric instead\") is incorrect because it does not meet the scenario's core requirement; Option A (Create a Cloud Monitoring alerting policy with a PromQL cond) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -636,9 +636,9 @@
     ],
     "hint": "Core Rule (Forecast-based alerting): Cloud Monitoring supports forecast conditions in metric-threshold alerting policies, and MQL and PromQL can express linear prediction; alerting when the disk is predicted to cross the limit within a chosen horizon warns about disks that are actually trending toward failure while ignoring disks that sit at a stable 70%.",
     "whyWrong": {
-      "0": "Incorrect distractor (Lower the threshold to 50% so that the alert fires days earlier on eve…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create an uptime check on the analysis service so that the on-call eng…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace the alert with a weekly report of disk utilization emailed to …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Lower the threshold to 50% so that the alert fires days earlier on every disk\") is incorrect because it does not meet the scenario's core requirement; Option C (Create an alerting policy on the disk utilization metric wit) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Create an uptime check on the analysis service so that the on-call engineer is paged when jobs fail\") is incorrect because it does not meet the scenario's core requirement; Option C (Create an alerting policy on the disk utilization metric wit) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Replace the alert with a weekly report of disk utilization emailed to the team\") is incorrect because it does not meet the scenario's core requirement; Option C (Create an alerting policy on the disk utilization metric wit) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -667,9 +667,9 @@
     ],
     "hint": "Core Rule (Log routing to external systems): Pub/Sub is the recommended sink destination for streaming logs to third-party systems in near real time, and most SIEMs provide native Pub/Sub integrations or supported Dataflow templates.",
     "whyWrong": {
-      "1": "Incorrect distractor (A Log Router sink that sends the audit logs to Cloud Monitoring so tha…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (A Log Router sink that sends all logs to a BigQuery dataset with ten-y…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (A Log Router sink that sends all logs to Bigtable for long-term storag…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"A Log Router sink that sends the audit logs to Cloud Monitoring so that the SIEM can read them through the Monitoring API\") is incorrect because it does not meet the scenario's core requirement; Option A (A Log Router sink that sends the audit logs to a Pub/Sub top), Option D (A Log Router sink that sends all logs to a Cloud Storage buc) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"A Log Router sink that sends all logs to a BigQuery dataset with ten-year table expiration for the audit team\") is incorrect because it does not meet the scenario's core requirement; Option A (A Log Router sink that sends the audit logs to a Pub/Sub top), Option D (A Log Router sink that sends all logs to a Cloud Storage buc) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"A Log Router sink that sends all logs to Bigtable for long-term storage\") is incorrect because it does not meet the scenario's core requirement; Option A (A Log Router sink that sends the audit logs to a Pub/Sub top), Option D (A Log Router sink that sends all logs to a Cloud Storage buc) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -696,9 +696,9 @@
     ],
     "hint": "Core Rule (Log data residency): The _Default and _Required buckets are created in the global location unless you configure the default resource location, so meeting a residency requirement means creating regional log buckets (or setting the default storage location) in europe-west3 and routing logs there; the organization-level default location and the constraints/gcp.resourceLocations policy make future projects compliant automatically.",
     "whyWrong": {
-      "0": "Incorrect distractor (Leave logs in the _Default bucket, because the _Default bucket is auto…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Route all logs to a BigQuery dataset located in europe-west3 and disab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a log sink to a Cloud Storage bucket in europe-west3 and delete…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is factually wrong about where the _Default bucket lives.",
+      "1": "Option B loses Logs Explorer access and does not address the _Required bucket for audit logs.",
+      "2": "Option C moves logs out of Cloud Logging, harming operability, and the initial ingestion into a global bucket would still violate the policy."
     }
   },
   {
@@ -725,9 +725,9 @@
     ],
     "hint": "Core Rule (Benchmarking): Synthetic benchmarks rarely predict the behavior of a specific workload, which depends on memory bandwidth, instruction mix, and concurrency; the sound approach is to benchmark the real application under representative load on each candidate, measure the metrics that matter (p99 latency and throughput per instance), and derive cost per request, which is the metric that combines both stakeholders' concerns.",
     "whyWrong": {
-      "1": "Incorrect distractor (Select the family with the highest synthetic benchmark score in the wh…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Choose the cheapest family per vCPU-hour, because the CFO's requiremen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Migrate production to C3 for one week and observe the effect on the la…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Select the family with the highest synthetic benchmark score in the whitepaper, because CPU score is the best predictor of application latency\") is incorrect because it does not meet the scenario's core requirement; Option A (Deploy the actual scoring service on each candidate machine ) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Choose the cheapest family per vCPU-hour, because the CFO's requirement is cost-focused\") is incorrect because it does not meet the scenario's core requirement; Option A (Deploy the actual scoring service on each candidate machine ) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Migrate production to C3 for one week and observe the effect on the latency dashboards, then try T2D the following week\") is incorrect because it does not meet the scenario's core requirement; Option A (Deploy the actual scoring service on each candidate machine ) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -756,9 +756,9 @@
     ],
     "hint": "Core Rule (Detecting silent failures): Silent failures require alerting on the absence of expected good signals, not just on the presence of bad ones.",
     "whyWrong": {
-      "0": "Incorrect distractor (An alerting policy on the VM's CPU utilization that fires when utiliza…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (An alerting policy that fires when the job's error-count metric is exa…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (A dashboard widget showing billing/run_completed so that engineers can…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"An alerting policy on the VM's CPU utilization that fires when utilization is below 5%\") is incorrect because it does not meet the scenario's core requirement; Option C (A metric-absence alerting policy on billing/run_completed th), Option E (A log-based alerting policy on the Cloud Scheduler job's att) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"An alerting policy that fires when the job's error-count metric is exactly zero for 24 hours\") is incorrect because it does not meet the scenario's core requirement; Option C (A metric-absence alerting policy on billing/run_completed th), Option E (A log-based alerting policy on the Cloud Scheduler job's att) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"A dashboard widget showing billing/run_completed so that engineers can notice missing runs\") is incorrect because it does not meet the scenario's core requirement; Option C (A metric-absence alerting policy on billing/run_completed th), Option E (A log-based alerting policy on the Cloud Scheduler job's att) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -785,9 +785,9 @@
     ],
     "hint": "Core Rule: Cloud Monitoring SLO monitoring lets you declare a service, define SLIs from existing metrics (such as load balancer request counts and latencies), set an SLO with a compliance window, and then automatically shows SLO compliance and remaining error budget, while supporting burn-rate alerting policies on the same SLO, so both stakeholder groups are served by a native feature.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export load balancer logs to BigQuery, compute availability with a sch…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Create a spreadsheet that the on-call engineer updates daily with the …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a custom dashboard with a line chart of the 5xx error rate and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Export load balancer logs to BigQuery, compute availability with a scheduled query, and publish a Looker Studio report that product managers can open\") is incorrect because it does not meet the scenario's core requirement; Option C (Define the search service and its availability and latency S) is the Google Cloud recommended pattern here.",
+      "1": "Option B (\"Create a spreadsheet that the on-call engineer updates daily with the availability figure from the dashboards\") is incorrect because it does not meet the scenario's core requirement; Option C (Define the search service and its availability and latency S) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Create a custom dashboard with a line chart of the 5xx error rate and instruct product managers to compare it visually to the SLO target\") is incorrect because it does not meet the scenario's core requirement; Option C (Define the search service and its availability and latency S) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -814,9 +814,9 @@
     ],
     "hint": "Core Rule (Cloud Audit Logs investigation): Admin Activity audit logs record every configuration-changing API call, including instance deletion, with the caller's identity and timestamp; they cannot be disabled, are free, and are stored in the _Required bucket for 400 days, so the answer is already available in Logs Explorer.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Data Access audit logs for Compute Engine and wait for the next…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Check VPC Flow Logs for the last traffic to the VM's IP address to ide…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Open a support case and ask Google to restore the VM and provide the d…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Enable Data Access audit logs for Compute Engine and wait for the next deletion to capture the identity\") is incorrect because it does not meet the scenario's core requirement; Option B (Query the Admin Activity audit logs in Logs Explorer for the) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Check VPC Flow Logs for the last traffic to the VM's IP address to identify who connected before the deletion\") is incorrect because it does not meet the scenario's core requirement; Option B (Query the Admin Activity audit logs in Logs Explorer for the) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Open a support case and ask Google to restore the VM and provide the deletion history\") is incorrect because it does not meet the scenario's core requirement; Option B (Query the Admin Activity audit logs in Logs Explorer for the) is the Google Cloud recommended pattern here."
     }
   }
 ]

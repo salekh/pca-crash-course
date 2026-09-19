@@ -23,9 +23,9 @@
     ],
     "hint": "Core Rule (Cloud Storage Autoclass): The deciding factor is unpredictable access combined with the case-study requirement to optimize storage cost while keeping content highly available.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create an Object Lifecycle Management rule that moves every object old…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Keep all content in Standard storage and write a Cloud Run function th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create one bucket per storage class and have the content team move fil…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because a fixed age-based rule ignores access patterns and Coldline retrieval and early-deletion fees would apply when old content spikes.",
+      "1": "Option B rebuilds what Autoclass already provides and adds operational overhead.",
+      "3": "Option D is manual, error-prone, and does not scale to millions of objects."
     }
   },
   {
@@ -52,9 +52,9 @@
     ],
     "hint": "Core Rule (Cloud Storage retention and lifecycle): Archive is the lowest-cost class for data accessed less than once a year, and a locked bucket retention policy provides WORM-style immutability that even project owners cannot remove, satisfying the compliance requirement.",
     "whyWrong": {
-      "1": "Incorrect distractor (Enable Autoclass on a single bucket holding both masters and rendition…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Store masters in Coldline with a lifecycle rule that deletes them afte…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store masters in Standard storage with a locked retention policy and e…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B is wrong because Autoclass optimizes class transitions but provides no deletion protection.",
+      "2": "Option C has no immutability control, and Nearline renditions would incur retrieval fees and a 30-day minimum on frequently streamed content.",
+      "3": "Option D meets the immutability requirement but stores rarely accessed petabytes in the most expensive class, contradicting the cost-management priority in the executive statement."
     }
   },
   {
@@ -81,9 +81,9 @@
     ],
     "hint": "Core Rule (Dedicated Interconnect): 40 TB per day is roughly 3.7 Gbps sustained, and the case study demands secure, high-performance connectivity with a 99.99% SLA.",
     "whyWrong": {
-      "0": "Incorrect distractor (Deploy one HA VPN gateway with two tunnels to a single Cloud Router an…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Provision a single 10 Gbps Dedicated Interconnect connection in one ed…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use Partner Interconnect with a single 1 Gbps VLAN attachment and conf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A cannot sustain this throughput reliably because HA VPN tunnels are capped around 3 Gbps each and still ride the internet.",
+      "1": "Option B provides only a 99.",
+      "2": "Option C is undersized at 1 Gbps, and Cloud NAT does not provide on-premises access to Google APIs."
     }
   },
   {
@@ -110,9 +110,9 @@
     ],
     "hint": "Core Rule (GKE Enterprise and fleets): The technical requirement is performant Kubernetes on-premises and in the cloud with simplified management.",
     "whyWrong": {
-      "0": "Incorrect distractor (Install upstream Kubernetes on on-premises VMs with kubeadm and replic…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Migrate all on-premises workloads immediately to GKE Autopilot in Goog…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run Rancher-managed Kubernetes on-premises and self-managed Kubernetes…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A creates two different, hand-maintained platforms.",
+      "2": "Option C ignores that the ingestion and archival systems are only slated for future migration and cannot move immediately.",
+      "3": "Option D introduces two unmanaged control planes and loses the centralized management the case study requires."
     }
   },
   {
@@ -144,9 +144,9 @@
     ],
     "hint": "Core Rule (CI/CD tooling): Cloud Build provides serverless, trigger-based image builds; Artifact Registry is the recommended managed registry with built-in vulnerability scanning through Artifact Analysis; and Cloud Deploy provides managed delivery pipelines that promote releases across GKE targets with approvals and rollbacks.",
     "whyWrong": {
-      "1": "Incorrect distractor (Jenkins on a Compute Engine managed instance group): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Container Registry): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Cloud Deployment Manager): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B (\"Jenkins on a Compute Engine managed instance group\") is incorrect because it does not meet the scenario's core requirement; Option A (Cloud Build), Option C (Artifact Registry), Option E (Cloud Deploy) is the Google Cloud recommended pattern here.",
+      "3": "Option D (\"Container Registry\") is incorrect because it does not meet the scenario's core requirement; Option A (Cloud Build), Option C (Artifact Registry), Option E (Cloud Deploy) is the Google Cloud recommended pattern here.",
+      "5": "Option F (\"Cloud Deployment Manager\") is incorrect because it does not meet the scenario's core requirement; Option A (Cloud Build), Option C (Artifact Registry), Option E (Cloud Deploy) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -173,9 +173,9 @@
     ],
     "hint": "Core Rule: Workforce Identity Federation lets human users from an external IdP access Google Cloud (console and APIs) without provisioning accounts in Cloud Identity; when Okta disables the user, they can no longer obtain federated credentials, so revocation is automatic.",
     "whyWrong": {
-      "0": "Incorrect distractor (Provision a Cloud Identity account for each editor with Google Cloud D…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Create a service account per editor, distribute JSON keys, and rotate …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Configure Workload Identity Federation with Okta as an OIDC provider a…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A synchronizes duplicate accounts, which the policy prohibits.",
+      "2": "Option C uses long-lived service-account keys, an anti-pattern that provides no per-user auditability or automatic revocation.",
+      "3": "Option D is wrong because Workload Identity Federation is designed for non-human workloads, not for interactive console access by employees."
     }
   },
   {
@@ -202,9 +202,9 @@
     ],
     "hint": "Core Rule: Identity Platform is Google Cloud's customer identity and access management (CIAM) service: it supports email/password and social providers, MFA, abuse protection, and client SDKs, scaling to millions of end users with no servers to manage.",
     "whyWrong": {
-      "0": "Incorrect distractor (Create a Cloud Identity account for each consumer and use Google Works…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Configure Workforce Identity Federation with Facebook and Apple as wor…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Build a custom authentication service on GKE that stores salted passwo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because Cloud Identity is for workforce accounts and is not designed or priced for consumer sign-in.",
+      "1": "Option B is wrong because Workforce Identity Federation targets employees and partners accessing Google Cloud resources, not application end users.",
+      "2": "Option C adds significant security risk and operational overhead compared with a managed service, conflicting with the case study's simplification goal."
     }
   },
   {
@@ -231,9 +231,9 @@
     ],
     "hint": "Core Rule: Managed Service for Prometheus is a fully managed, PromQL-compatible backend with 24 months of retention and a global query view across clusters, so existing dashboards and rules keep working while the memory and retention problems disappear.",
     "whyWrong": {
-      "1": "Incorrect distractor (Increase the memory limits of the Prometheus pods and deploy Thanos wi…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Replace Prometheus with the Ops Agent and rewrite every dashboard and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Export Prometheus metrics to BigQuery every minute and rebuild the das…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B keeps the team operating Prometheus and Thanos, which is the burden they want to remove.",
+      "2": "Option C forces a rewrite of all PromQL assets and the Ops Agent is not the tool for GKE pod metrics.",
+      "3": "Option D turns a monitoring system into a batch analytics pipeline that cannot drive real-time alerting."
     }
   },
   {
@@ -260,9 +260,9 @@
     ],
     "hint": "Core Rule (Alerting strategy): Cloud Monitoring supports multiple notification channel types and severity labels on alerting policies, so critical alerts can page an on-call engineer through an integrated incident-management tool with escalation, while informational alerts remain on email.",
     "whyWrong": {
-      "0": "Incorrect distractor (Send every alerting policy to a Pub/Sub topic and write a Cloud Run fu…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Lower the alert thresholds so that more emails are generated during in…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Replace Cloud Monitoring alerting with Prometheus Alertmanager and sen…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is the custom notification service the team wants to avoid and still ends in email.",
+      "1": "Option B increases noise rather than reaching the right person.",
+      "3": "Option D swaps one channel for another without escalation and discards the existing Cloud Monitoring integration."
     }
   },
   {
@@ -289,9 +289,9 @@
     ],
     "hint": "Core Rule: Vertex AI Agent Builder's Conversational Agents provide a managed, generative assistant that can be grounded in enterprise content through data stores, call external systems through tools, and escalate to live agents, which matches the case-study requirements for advanced chatbots with personalized assistance and no ML staff.",
     "whyWrong": {
-      "0": "Incorrect distractor (Fine-tune an open model from Model Garden on historical support transc…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Use the Natural Language API to classify each question and return cann…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Call the Gemini API directly from the mobile app, pasting the full hel…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires ML expertise and GPU cluster operations, contradicting the constraint.",
+      "2": "Option C only classifies intent and cannot generate grounded answers or call APIs conversationally.",
+      "3": "Option D exposes API credentials in the client, sends huge prompts on every request (cost), and provides no grounding, tooling, or handoff mechanism."
     }
   },
   {
@@ -318,9 +318,9 @@
     ],
     "hint": "Core Rule (Gemini multimodal summarization): Gemini models on Vertex AI natively accept audio and video input referenced by Cloud Storage URI and can produce summaries in a single call, and Eventarc plus Cloud Run functions is the event-driven pattern Altostrat already uses for metadata extraction.",
     "whyWrong": {
-      "0": "Incorrect distractor (Train a custom sequence-to-sequence model on Vertex AI using past edit…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Use Video Intelligence API label detection and concatenate the top lab…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy an open-source summarization model on GKE with GPUs and poll th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires training data, ML expertise, and delays results to a nightly batch.",
+      "1": "Option B produces a list of labels, not a coherent summary of spoken content.",
+      "2": "Option C requires operating GPU infrastructure and polling, which the constraints exclude."
     }
   },
   {
@@ -350,10 +350,10 @@
     ],
     "hint": "Core Rule (Pre-trained AI APIs): The Video Intelligence API is the pre-trained service for video: label detection, shot change detection, object tracking, and text (OCR) detection with timestamps.",
     "whyWrong": {
-      "0": "Incorrect distractor (Vision API): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Natural Language API): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "4": "Incorrect distractor (A custom AutoML Video Classification model): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Document AI): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A (\"Vision API\") is incorrect because it does not meet the scenario's core requirement; Option B (Video Intelligence API), Option D (Speech-to-Text with the Chirp model) is the Google Cloud recommended pattern here.",
+      "2": "Option C (\"Natural Language API\") is incorrect because it does not meet the scenario's core requirement; Option B (Video Intelligence API), Option D (Speech-to-Text with the Chirp model) is the Google Cloud recommended pattern here.",
+      "4": "Option E (\"A custom AutoML Video Classification model\") is incorrect because it does not meet the scenario's core requirement; Option B (Video Intelligence API), Option D (Speech-to-Text with the Chirp model) is the Google Cloud recommended pattern here.",
+      "5": "Option F (\"Document AI\") is incorrect because it does not meet the scenario's core requirement; Option B (Video Intelligence API), Option D (Speech-to-Text with the Chirp model) is the Google Cloud recommended pattern here."
     }
   },
   {
@@ -380,9 +380,9 @@
     ],
     "hint": "Core Rule: Model Armor is the managed service that screens LLM prompts and responses for prompt injection, jailbreaks, sensitive data (via Sensitive Data Protection), malicious URLs, and responsible-AI categories, using centrally managed templates that can be enforced across applications, which maps directly to 'design AI-powered detection of harmful content' and the securing-AI exam objective.",
     "whyWrong": {
-      "1": "Incorrect distractor (Add a system prompt instructing Gemini to refuse harmful requests and …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Configure Cloud Armor WAF rules on the external Application Load Balan…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run Natural Language API sentiment analysis on every prompt and reject…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B relies on the model following instructions, which is exactly what jailbreaks defeat, and it provides no PII redaction or central policy.",
+      "2": "Option C is a web-application firewall for HTTP attacks, not semantic prompt analysis.",
+      "3": "Option D measures sentiment, not safety, and would reject legitimate negative feedback while missing polite prompt-injection attempts."
     }
   },
   {
@@ -410,9 +410,9 @@
     ],
     "hint": "Core Rule (Explainable and auditable AI): The case study explicitly requires that AI systems be auditable and their decisions explainable.",
     "whyWrong": {
-      "0": "Incorrect distractor (Log every prediction request and response to Cloud Logging and keep ea…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Replace the custom model with Gemini and rely on its built-in safety f…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Store the model weights in Artifact Registry and enable Binary Authori…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A records inputs and outputs but cannot explain a decision or detect drift.",
+      "1": "Option B changes the product and does not provide feature attributions for a recommendation ranking.",
+      "3": "Option D protects the software supply chain but says nothing about model explanations, versions in serving, or drift."
     }
   },
   {
@@ -439,9 +439,9 @@
     ],
     "hint": "Core Rule (BigQuery ML forecasting): BigQuery ML lets SQL-proficient analysts train and use forecasting models where the data already lives; ARIMA_PLUS handles multiple time series (one per category) in a single model and exposes ML.FORECAST and ML.DETECT_ANOMALIES functions.",
     "whyWrong": {
-      "0": "Incorrect distractor (Export the events to Cloud Storage and train a custom forecasting mode…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Stream the events into Bigtable and compute moving averages in a Dataf…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Load the data into Vertex AI Feature Store and train an AutoML tabular…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A requires Python and ML skills the analysts lack and moves data unnecessarily.",
+      "2": "Option C builds a streaming system for a batch analytics problem and does not produce forecasts.",
+      "3": "Option D uses classification rather than time-series forecasting and adds services without benefit."
     }
   },
   {
@@ -468,9 +468,9 @@
     ],
     "hint": "Core Rule: Vertex AI Search is a managed semantic and generative search engine that ingests unstructured content from Cloud Storage and structured data from BigQuery, understands natural-language intent, and returns grounded summaries with citations, meeting the 'LLMs and conversational AI for personalized experiences and content discovery' goal with almost no ML work.",
     "whyWrong": {
-      "0": "Incorrect distractor (Build a full-text keyword index over the transcripts in Cloud SQL for …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run Elasticsearch on GKE with BM25 ranking over the transcript text.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Generate embeddings with a custom pipeline and store them in Memorysto…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A and Option B are keyword systems that miss synonyms and intent and cannot generate answers.",
+      "1": "Option B are keyword systems that miss synonyms and intent and cannot generate answers.",
+      "2": "Option C requires building and operating an embedding pipeline and vector store and still lacks generative answers with citations, which violates the minimal-expertise constraint."
     }
   },
   {
@@ -497,9 +497,9 @@
     ],
     "hint": "Core Rule: The Transcoder API is a fully managed service purpose-built for converting media files into streaming formats; it handles long inputs asynchronously, removes the custom FFmpeg containers, and bills per minute of output, which satisfies reliability, cost, and minimal-code constraints at the same time.",
     "whyWrong": {
-      "1": "Incorrect distractor (Raise the Cloud Run function timeout and memory to the maximum and add…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Move transcoding to a GKE Standard GPU node pool with a custom job que…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Run FFmpeg on a large Compute Engine instance with a cron job that sca…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "1": "Option B still leaves long files at risk of hitting limits and keeps the custom encoder.",
+      "2": "Option C solves the timeout but adds a GPU cluster and a hand-built queue to operate.",
+      "3": "Option D is a single point of failure, introduces up to an hour of latency, and wastes an always-on VM."
     }
   },
   {
@@ -526,9 +526,9 @@
     ],
     "hint": "Core Rule (Data transfer planning): At the roughly 6 Gbps left over after production traffic, 3 PB would take about 46 days at perfect utilization, exceeding the six-week deadline with no margin.",
     "whyWrong": {
-      "0": "Incorrect distractor (Use Storage Transfer Service for on-premises data over the Interconnec…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "1": "Incorrect distractor (Run gsutil -m rsync in parallel from several on-premises servers over …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Compress the footage with an on-premises Dataflow pipeline and upload …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is the right tool for online transfer but the math shows it cannot make the deadline.",
+      "1": "Option B is slower and less robust than Storage Transfer Service and has the same bandwidth problem.",
+      "3": "Option D compresses already-compressed video for little gain, uses the slower public internet, and Dataflow does not run on-premises."
     }
   },
   {
@@ -558,10 +558,10 @@
     ],
     "hint": "Core Rule (GKE cost optimization): The cost-optimization pillar recommends matching purchasing models to workload characteristics: fault-tolerant, interruptible batch jobs belong on Spot capacity (60–91% cheaper), and steady, predictable baseline usage should be covered by committed use discounts.",
     "whyWrong": {
-      "0": "Incorrect distractor (Move all node pools, including the content-delivery services, to Spot …): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Disable the cluster autoscaler and fix node counts at peak capacity to…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Move the user-facing services into a single zone to eliminate inter-zo…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "5": "Incorrect distractor (Increase every pod's CPU request to guarantee extra headroom.): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A would expose latency-sensitive user-facing services to preemption, reducing reliability.",
+      "2": "Option C removes elasticity and pays for peak capacity all the time.",
+      "3": "Option D lowers availability, contradicting the reliability priority in the executive statement.",
+      "5": "Option F increases requested resources and therefore cost, the opposite of right-sizing."
     }
   },
   {
@@ -588,9 +588,9 @@
     ],
     "hint": "Core Rule: Private Google Access for on-premises hosts requires three things: DNS records that map Google API names to the private.googleapis.com (or restricted.googleapis.com) VIP, a custom route advertisement of that range from Cloud Router over the Interconnect, and matching routes on-premises.",
     "whyWrong": {
-      "0": "Incorrect distractor (Enable Private Google Access on the VPC subnets; on-premises hosts aut…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "2": "Incorrect distractor (Deploy a Cloud NAT gateway in the VPC and route on-premises traffic th…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice.",
-      "3": "Incorrect distractor (Create a proxy VM with an external IP address in the VPC and configure…): does not satisfy the scenario's architectural, operational, or managed-service constraints as effectively as the correct choice."
+      "0": "Option A is wrong because subnet-level Private Google Access applies only to VM instances in the VPC, not to on-premises hosts.",
+      "2": "Option C is wrong because Cloud NAT only serves VMs in the VPC and would send traffic to the public internet anyway.",
+      "3": "Option D introduces a public IP and a single-VM bottleneck, violating the security requirement."
     }
   }
 ]
